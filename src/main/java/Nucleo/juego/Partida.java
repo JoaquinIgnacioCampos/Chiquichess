@@ -5,7 +5,10 @@ import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
 import Nucleo.tablero.ITablero;
 import Nucleo.tablero.Tablero;
+import Nucleo.tiempo.RelojPartida;
+import Nucleo.tiempo.SinReloj;
 
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -21,9 +24,13 @@ public class Partida {
     private final IDetectorDeJaque detector;
     private final MovimientosLegales movimientosLegales;
     private final List<CondicionDeFinalizacion> condiciones;
+    private final RelojPartida reloj;
+    private final List<Movimiento> historial = new ArrayList<>();
 
     private Color turno = Color.BLANCO;
     private EstadoPartida estado;
+    private Optional<ResultadoPartida> resultado = Optional.empty();
+    private Optional<Color> ofertaTablas = Optional.empty();
 
     /**
      * Constructor de uso habitual: arma los MovimientosLegales con el mismo detector.
@@ -43,16 +50,30 @@ public class Partida {
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
                    List<CondicionDeFinalizacion> condiciones) {
+        this(tablero, jugadorBlanco, jugadorNegro, detector, movimientosLegales, condiciones, new SinReloj());
+    }
+
+    /** Variante con reloj; la instancia inyectada pertenece a esta única partida. */
+    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
+                   IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
+        this(tablero, jugadorBlanco, jugadorNegro, detector, new MovimientosLegales(detector), condiciones, reloj);
+    }
+
+    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
+                   IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
+                   List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
         this.tablero = Objects.requireNonNull(tablero, "tablero");
         this.jugadorBlanco = Objects.requireNonNull(jugadorBlanco, "jugadorBlanco");
         this.jugadorNegro = Objects.requireNonNull(jugadorNegro, "jugadorNegro");
         this.detector = Objects.requireNonNull(detector, "detector");
         this.movimientosLegales = Objects.requireNonNull(movimientosLegales, "movimientosLegales");
         this.condiciones = List.copyOf(condiciones);
+        this.reloj = Objects.requireNonNull(reloj, "reloj");
         if (jugadorBlanco.color() != Color.BLANCO || jugadorNegro.color() != Color.NEGRO) {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
-        this.estado = evaluarEstado(Optional.empty(), false);
+        this.reloj.iniciar(turno);
+        actualizarEstado(evaluarEstado(Optional.empty(), false));
     }
 
     public ITablero tablero() {
@@ -73,11 +94,95 @@ public class Partida {
 
     /** Quién ganó; vacío si la partida sigue o terminó en tablas. */
     public Optional<Jugador> ganador() {
-        if (estado != EstadoPartida.JAQUE_MATE) {
-            return Optional.empty();
+        return resultado.flatMap(ResultadoPartida::ganador)
+                .map(color -> color == Color.BLANCO ? jugadorBlanco : jugadorNegro);
+    }
+
+    public Optional<ResultadoPartida> resultado() {
+        return resultado;
+    }
+
+    /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
+    public List<Movimiento> historial() {
+        return List.copyOf(historial);
+    }
+
+    /** Cualquier bando puede rendirse, incluso fuera de su turno. */
+    public void rendirse(Color color) {
+        Objects.requireNonNull(color, "color");
+        asegurarEnCurso();
+        finalizar(EstadoPartida.RENDICION, Optional.of(color.opuesto()));
+    }
+
+    public Optional<Color> ofertaTablasPendiente() {
+        return ofertaTablas;
+    }
+
+    public void ofrecerTablas(Color color) {
+        Objects.requireNonNull(color, "color");
+        asegurarEnCurso();
+        if (color != turno) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
         }
-        // En jaque mate el turno es del jugador que perdió.
-        return Optional.of(turno == Color.BLANCO ? jugadorNegro : jugadorBlanco);
+        if (ofertaTablas.isPresent()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.OFERTA_PENDIENTE);
+        }
+        ofertaTablas = Optional.of(color);
+    }
+
+    public void aceptarTablas(Color color) {
+        validarRespuestaTablas(color);
+        finalizar(EstadoPartida.TABLAS_ACUERDO, Optional.empty());
+    }
+
+    public void rechazarTablas(Color color) {
+        validarRespuestaTablas(color);
+        ofertaTablas = Optional.empty();
+    }
+
+    private void validarRespuestaTablas(Color color) {
+        Objects.requireNonNull(color, "color");
+        asegurarEnCurso();
+        if (ofertaTablas.isEmpty()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.SIN_OFERTA);
+        }
+        if (ofertaTablas.get() == color) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.ES_SU_PROPIA_OFERTA);
+        }
+    }
+
+    private void asegurarEnCurso() {
+        verificarTiempo();
+        if (estado.estaFinalizada()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA);
+        }
+    }
+
+    private void actualizarEstado(EstadoPartida nuevoEstado) {
+        if (nuevoEstado.estaFinalizada()) {
+            finalizar(nuevoEstado, nuevoEstado.esTablas() ? Optional.empty() : Optional.of(turno.opuesto()));
+        } else {
+            estado = nuevoEstado;
+        }
+    }
+
+    private void finalizar(EstadoPartida estadoFinal, Optional<Color> ganador) {
+        resultado = Optional.of(new ResultadoPartida(ganador, estadoFinal.motivo().orElseThrow()));
+        estado = estadoFinal;
+        ofertaTablas = Optional.empty();
+        reloj.detener();
+    }
+
+    /** Consulta pura: vacío significa que la partida no tiene límite de tiempo. */
+    public Optional<Duration> tiempoRestante(Color color) {
+        return reloj.tiempoRestante(Objects.requireNonNull(color, "color"));
+    }
+
+    /** La UI puede invocarla periódicamente; después del final no produce cambios. */
+    public void verificarTiempo() {
+        if (!estado.estaFinalizada() && reloj.tiempoAgotado(turno)) {
+            finalizar(EstadoPartida.TIEMPO_AGOTADO, Optional.of(turno.opuesto()));
+        }
     }
 
     /** Destinos permitidos para la pieza de esa casilla (vacío si no hay pieza, no es su turno o terminó la partida). */
@@ -94,9 +199,10 @@ public class Partida {
 
     /**
      * Ejecuta el movimiento si es válido; si no, lanza MovimientoInvalidoException
-     * y deja la partida intacta.
+     * y deja la partida intacta. Si el tiempo venció, registra ese final sin mover.
      */
     public ResultadoMovimiento mover(Movimiento movimiento) {
+        verificarTiempo();
         if (estado.estaFinalizada()) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
         }
@@ -114,12 +220,22 @@ public class Partida {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.DEJA_AL_REY_EN_JAQUE);
         }
 
+        // La validación también puede consumir tiempo: comprobar antes de ejecutar.
+        verificarTiempo();
+        if (estado.estaFinalizada()) {
+            throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
+        }
         Optional<Pieza> capturada = tablero.quitar(movimiento.destino());
         tablero.quitar(movimiento.origen());
         tablero.colocar(movimiento.destino(), pieza);
+        historial.add(movimiento);
 
+        if (ofertaTablas.filter(oferente -> oferente != pieza.color()).isPresent()) {
+            ofertaTablas = Optional.empty();
+        }
         turno = turno.opuesto();
-        estado = evaluarEstado(Optional.of(pieza), capturada.isPresent());
+        reloj.cambiarTurno();
+        actualizarEstado(evaluarEstado(Optional.of(pieza), capturada.isPresent()));
         return new ResultadoMovimiento(capturada, estado);
     }
 
