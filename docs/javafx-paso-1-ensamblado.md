@@ -7,8 +7,9 @@ por la consola y JavaFX. Construye tablero, jugadores, detector de jaque,
 movimientos legales, condiciones de finalización y reloj. Se crea un grafo nuevo
 por partida, incluyendo las condiciones que guardan memoria de posiciones.
 
-AplicacionAjedrez solicita una partida con reloj real y la entrega por constructor
-a VistaPartida. JavaFX instancia la clase Application mediante su ciclo de vida;
+AplicacionAjedrez solicita una partida con reloj real. Desde el paso 3 la inyecta
+en ControladorTablero y entrega ese controlador por constructor a VistaPartida.
+JavaFX instancia la clase Application mediante su ciclo de vida;
 esa clase es el arranque, no una vista. VistaPartida recibe su dependencia y no
 construye partidas, relojes ni reglas. Por ahora la vista permanece vacía.
 
@@ -18,9 +19,9 @@ en TIEMPO_POR_JUGADOR. La consola conserva su funcionamiento sin límite de tiem
 ## Por qué
 
 Es inyección de dependencias manual: el ensamblado elige las implementaciones y
-las pasa a quienes las necesitan. La vista solo necesita Partida; consulta sus
-tiempos a través de tiempoRestante y envía verificarTiempo, sin recibir el reloj
-mutable ni tener acceso directo a la fuente del sistema.
+las pasa a quienes las necesitan. La vista utiliza el controlador inyectado; este
+consulta y envía las órdenes a Partida. El reloj mutable y la fuente del sistema
+permanecen fuera de las vistas.
 
 La Tarea 1 ya está implementada, por lo que se utilizan rendición, tablas y reloj
 reales desde el principio. Las pruebas sustituyen la FuenteDeTiempo mediante el

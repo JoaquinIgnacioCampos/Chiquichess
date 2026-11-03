@@ -2,11 +2,17 @@ package adaptadores.ui;
 
 import Nucleo.juego.Posicion;
 import Nucleo.tablero.ITablero;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /** Proyección del tablero actual. Solo guarda referencias a sus dependencias y nodos gráficos. */
 public final class VistaTablero extends Region {
@@ -14,11 +20,18 @@ public final class VistaTablero extends Region {
     private final TemaTablero tema;
     private final RepresentacionPiezas representacion;
     private final GridPane grilla = new GridPane();
+    private final Consumer<Posicion> alPulsar;
 
     public VistaTablero(ITablero tablero, TemaTablero tema, RepresentacionPiezas representacion) {
+        this(tablero, tema, representacion, posicion -> { });
+    }
+
+    public VistaTablero(ITablero tablero, TemaTablero tema, RepresentacionPiezas representacion,
+                        Consumer<Posicion> alPulsar) {
         this.tablero = Objects.requireNonNull(tablero, "tablero");
         this.tema = Objects.requireNonNull(tema, "tema");
         this.representacion = Objects.requireNonNull(representacion, "representacion");
+        this.alPulsar = Objects.requireNonNull(alPulsar, "alPulsar");
         setMinSize(0, 0);
         getChildren().add(grilla);
         redibujar();
@@ -26,6 +39,13 @@ public final class VistaTablero extends Region {
 
     /** Reconstruye la representación consultando el núcleo, sin almacenar piezas por separado. */
     public void redibujar() {
+        redibujar(Optional.empty(), Set.of());
+    }
+
+    /** Los destinos ya fueron consultados al núcleo; aquí solo se representan. */
+    public void redibujar(Optional<Posicion> seleccionada, Set<Posicion> destinos) {
+        Objects.requireNonNull(seleccionada, "seleccionada");
+        Objects.requireNonNull(destinos, "destinos");
         grilla.getChildren().clear();
         grilla.getColumnConstraints().clear();
         grilla.getRowConstraints().clear();
@@ -40,21 +60,32 @@ public final class VistaTablero extends Region {
             grilla.getRowConstraints().add(restriccion);
             for (int columna = 0; columna < tablero.ancho(); columna++) {
                 Posicion posicion = new Posicion(columna, fila);
-                StackPane casilla = crearCasilla(posicion);
+                StackPane casilla = crearCasilla(posicion,
+                        seleccionada.filter(posicion::equals).isPresent(), destinos.contains(posicion));
                 grilla.add(casilla, columna, tablero.alto() - 1 - fila);
             }
         }
         requestLayout();
     }
 
-    private StackPane crearCasilla(Posicion posicion) {
+    private StackPane crearCasilla(Posicion posicion, boolean seleccionada, boolean destino) {
         StackPane casilla = new StackPane();
         casilla.setMinSize(0, 0);
         casilla.setId("casilla-" + posicion.columna() + "-" + posicion.fila());
         casilla.getStyleClass().add("casilla");
         boolean oscura = (posicion.columna() + posicion.fila()) % 2 == 0;
+        if (seleccionada) {
+            casilla.getStyleClass().add("casilla-seleccionada");
+        }
         casilla.setBackground(new Background(new BackgroundFill(
-                oscura ? tema.casillaOscura() : tema.casillaClara(), CornerRadii.EMPTY, Insets.EMPTY)));
+                seleccionada ? tema.casillaSeleccionada()
+                        : oscura ? tema.casillaOscura() : tema.casillaClara(),
+                CornerRadii.EMPTY, Insets.EMPTY)));
+        casilla.setOnMouseClicked(evento -> {
+            if (evento.getButton() == MouseButton.PRIMARY) {
+                alPulsar.accept(posicion);
+            }
+        });
         casilla.setAccessibleText("Columna " + (posicion.columna() + 1) + ", fila " + (posicion.fila() + 1));
         tablero.piezaEn(posicion).ifPresent(pieza -> {
             Node figura = representacion.crear(pieza, tema);
@@ -62,7 +93,30 @@ public final class VistaTablero extends Region {
             figura.scaleYProperty().bind(casilla.heightProperty().divide(RepresentacionPiezas.LADO_BASE));
             casilla.getChildren().add(figura);
         });
+        if (destino) {
+            agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
+        }
         return casilla;
+    }
+
+    private void agregarIndicador(StackPane casilla, boolean captura) {
+        Circle indicador = new Circle();
+        indicador.setManaged(false);
+        indicador.setMouseTransparent(true);
+        indicador.centerXProperty().bind(casilla.widthProperty().divide(2));
+        indicador.centerYProperty().bind(casilla.heightProperty().divide(2));
+        var lado = Bindings.min(casilla.widthProperty(), casilla.heightProperty());
+        indicador.radiusProperty().bind(lado.multiply(captura ? 0.43 : 0.16));
+        if (captura) {
+            indicador.getStyleClass().add("indicador-captura");
+            indicador.setFill(null);
+            indicador.setStroke(tema.destinoCaptura());
+            indicador.strokeWidthProperty().bind(lado.multiply(0.08));
+        } else {
+            indicador.getStyleClass().add("indicador-movimiento");
+            indicador.setFill(tema.destinoLibre());
+        }
+        casilla.getChildren().add(indicador);
     }
 
     @Override

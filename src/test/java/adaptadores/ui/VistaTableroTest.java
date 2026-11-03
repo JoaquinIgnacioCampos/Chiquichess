@@ -75,7 +75,8 @@ class VistaTableroTest {
     @Test
     void redibujarConsultaElEstadoActualEnLugarDeUnaCopiaLocal() {
         var partida = new EnsambladorPartida().crearSinReloj();
-        VistaPartida vista = new VistaPartida(partida, tema, new RepresentacionPiezas());
+        VistaPartida vista = new VistaPartida(new ControladorTablero(partida), tema,
+                new RepresentacionPiezas(), TemaPanel.marcador());
         assertFalse(casilla(vista, 4, 1).getChildren().isEmpty());
         assertTrue(casilla(vista, 4, 3).getChildren().isEmpty());
         partida.mover(mov("e2", "e4"));

@@ -88,6 +88,12 @@ public class Partida {
         return turno == Color.BLANCO ? jugadorBlanco : jugadorNegro;
     }
 
+    /** Identidad inmutable de un bando, independiente del turno actual. */
+    public Jugador jugador(Color color) {
+        Objects.requireNonNull(color, "color");
+        return color == Color.BLANCO ? jugadorBlanco : jugadorNegro;
+    }
+
     public EstadoPartida estado() {
         return estado;
     }
