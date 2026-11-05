@@ -1,9 +1,9 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.IDetectorDeJaque;
 import Nucleo.tablero.ITablero;
 
-import Nucleo.bando.Bando;
 /** Stub: responde siempre "en jaque" o siempre "sin jaque", sin analizar el tablero. */
 public class StubDetectorDeJaque implements IDetectorDeJaque {
 

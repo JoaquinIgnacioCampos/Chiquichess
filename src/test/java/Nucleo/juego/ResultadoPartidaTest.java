@@ -1,6 +1,8 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.*;
+import Nucleo.reglas.MotivoFinalizacion;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,8 +10,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 class ResultadoPartidaTest {
     private Partida partida(CondicionDeFinalizacion... condiciones) {
         return new Partida(new DisposicionEstandar().crearTablero(),

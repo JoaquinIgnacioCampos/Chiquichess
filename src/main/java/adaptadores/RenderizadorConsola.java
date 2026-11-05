@@ -1,13 +1,13 @@
 package adaptadores;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 
 
 import java.util.Optional;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Adaptador de salida: dibuja el tablero como texto. Blancas en mayúscula, negras en minúscula. */
 public class RenderizadorConsola {
 

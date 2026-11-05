@@ -1,5 +1,7 @@
 package Nucleo.tiempo;
 
+import Nucleo.bando.Bando;
+
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +10,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class RelojAjedrezTest {
     private final FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
 

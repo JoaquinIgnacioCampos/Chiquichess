@@ -1,8 +1,9 @@
 package Nucleo.piezas;
 
-import Nucleo.movimientos.Deslizamiento;
 import Nucleo.bando.Bando;
+import Nucleo.movimientos.Deslizamiento;
 import Nucleo.movimientos.ReglasBase;
+
 public class Alfil extends Pieza {
 
     public Alfil(Bando color) {

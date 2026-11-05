@@ -1,11 +1,11 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
 import Nucleo.tablero.DisposicionInicial;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Posición inicial clásica del ajedrez en un tablero de 8x8. */
 public class DisposicionEstandar implements DisposicionInicial {
 

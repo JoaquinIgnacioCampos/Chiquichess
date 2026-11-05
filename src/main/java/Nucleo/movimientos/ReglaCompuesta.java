@@ -1,13 +1,13 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Composite: une los destinos y ataques de varias reglas (ej. reina = torre + alfil). */
 public class ReglaCompuesta implements ReglaMovimiento {
 

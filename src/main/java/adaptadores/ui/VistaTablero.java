@@ -1,6 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -13,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import Nucleo.tablero.Posicion;
 /** Proyección del tablero actual. Solo guarda referencias a sus dependencias y nodos gráficos. */
 public final class VistaTablero extends Region {
     private final ITablero tablero;

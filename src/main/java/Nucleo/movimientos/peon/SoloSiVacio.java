@@ -1,12 +1,12 @@
 package Nucleo.movimientos.peon;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaMovimiento;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.HashSet;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Decorator: restringe los destinos a casillas libres (no permite capturar).
  * Un avance no es un ataque, por eso no aporta casillas atacadas.

@@ -1,5 +1,6 @@
 package adaptadores;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import Nucleo.bando.Bando;
 /** Único lugar que construye el grafo del juego para los adaptadores de entrada. */
 public final class EnsambladorPartida {
     public Partida crearConReloj(Duration tiempoPorJugador) {

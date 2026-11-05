@@ -1,9 +1,10 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.Deslizamiento;
 import Nucleo.movimientos.ReglaCompuesta;
-import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglasBase;
+
 /** Reina = torre + alfil, ambos sin límite de pasos. */
 public class Reina extends Pieza {
 

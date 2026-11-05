@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.piezas.*;
 import javafx.scene.text.Text;
@@ -9,7 +10,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class RepresentacionPiezasTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,

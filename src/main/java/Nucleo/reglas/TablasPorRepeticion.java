@@ -1,13 +1,13 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Tablas cuando la misma posición (mismas piezas en las mismas casillas y mismo turno)
  * aparece N veces, por defecto 3. No considera derechos de enroque ni de captura al paso

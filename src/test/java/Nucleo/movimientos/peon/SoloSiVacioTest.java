@@ -1,6 +1,8 @@
 package Nucleo.movimientos.peon;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Torre;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.StubReglaMovimiento;
 import dobles.TableroFake;
@@ -12,8 +14,6 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class SoloSiVacioTest {
 
     @Test

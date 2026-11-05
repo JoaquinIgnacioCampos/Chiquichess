@@ -1,7 +1,9 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.StubDetectorDeJaque;
 import dobles.TableroFake;
@@ -15,8 +17,6 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class MovimientosLegalesTest {
 
     // ---------- Con stub del detector: se prueba solo el filtrado, sin posiciones reales ----------

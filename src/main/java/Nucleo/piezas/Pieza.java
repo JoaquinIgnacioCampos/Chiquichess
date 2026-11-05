@@ -1,13 +1,13 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
 import Nucleo.movimientos.ReglaMovimiento;
+import Nucleo.tablero.Posicion;
 
 import java.util.Objects;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Una pieza es un color más una regla de movimiento (composición sobre herencia).
  * Las subclases concretas solo eligen cómo componer su regla; para agregar una pieza

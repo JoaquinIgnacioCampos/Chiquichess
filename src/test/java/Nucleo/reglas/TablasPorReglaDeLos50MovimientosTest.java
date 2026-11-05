@@ -1,5 +1,6 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Caballo;
 import Nucleo.piezas.Peon;
 import Nucleo.piezas.Pieza;
@@ -12,7 +13,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class TablasPorReglaDeLos50MovimientosTest {
 
     private final Tablero tablero = TableroFake.vacio();

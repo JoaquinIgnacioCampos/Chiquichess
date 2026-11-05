@@ -1,12 +1,12 @@
 package adaptadores.configuracion;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
 import Nucleo.tiempo.RelojPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 
 import java.util.Objects;
 
-import Nucleo.bando.Bando;
 /** Resultado del ensamblado: el sorteo y los equipos comparten la misma asignación. */
 public record PartidaConfigurada(Partida partida, Equipo equipoBlancas, Equipo equipoNegras,
                                  RelojPartida reloj) implements AutoCloseable {

@@ -1,7 +1,9 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.*;
+import Nucleo.tablero.Posicion;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -19,8 +21,6 @@ import java.util.Optional;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class PanelEstadoPartidaTest {
     private final TemaPanel temaPanel = TemaPanel.marcador();
     private final TemaTablero temaTablero = new TemaTablero(

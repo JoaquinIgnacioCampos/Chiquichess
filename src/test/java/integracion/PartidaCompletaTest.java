@@ -1,5 +1,6 @@
 package integracion;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.juego.MovimientoInvalidoException.Motivo;
 import Nucleo.reglas.*;
@@ -13,7 +14,6 @@ import static dobles.Casillas.mov;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 /**
  * Tests de integración: todas las clases reales trabajando juntas, armadas igual que en Main.
  * No hay dobles; se juegan partidas cortas y se verifica el resultado de punta a punta.

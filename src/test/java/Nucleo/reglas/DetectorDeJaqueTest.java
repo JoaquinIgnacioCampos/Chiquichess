@@ -1,5 +1,6 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
@@ -7,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 /** Cada test arma (con el fake) una posición concreta que provoca o no un jaque. */
 class DetectorDeJaqueTest {
 

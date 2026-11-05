@@ -1,5 +1,6 @@
 package Nucleo.tablero;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.piezas.Torre;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +10,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class TableroTest {
 
     private Tablero tablero;

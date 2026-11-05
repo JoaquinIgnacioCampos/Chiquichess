@@ -1,6 +1,8 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.MotivoFinalizacion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -13,8 +15,6 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.Objects;
 
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 /** Marcador: presenta el estado del núcleo y deriva las solicitudes de los jugadores. */
 public final class PanelEstadoPartida extends GridPane {
     private final ControladorTablero controlador;

@@ -1,12 +1,13 @@
 package Nucleo.tiempo;
 
+import Nucleo.bando.Bando;
+
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
 /** Descuenta tiempo por consultas y cambios de turno, sin ejecutar tareas propias. */
 public class RelojAjedrez implements RelojPartida {
     private final FuenteDeTiempo fuente;

@@ -1,12 +1,12 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.DetectorDeJaque;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class JugadorDePartidaTest {
     private final Jugador blancas = new Jugador("Lucía", Bando.BLANCO);
     private final Jugador negras = new Jugador("Tomás", Bando.NEGRO);

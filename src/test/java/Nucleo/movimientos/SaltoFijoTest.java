@@ -1,5 +1,7 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -10,8 +12,6 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class SaltoFijoTest {
 
     private static final int[][] SALTOS_DE_CABALLO = {

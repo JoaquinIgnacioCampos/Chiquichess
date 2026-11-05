@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
@@ -7,7 +8,6 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
-import Nucleo.bando.Bando;
 /** Traduce pieza y bando a un nodo visual; concentra la futura sustitución por sprites. */
 public class RepresentacionPiezas {
     static final double LADO_BASE = 80;

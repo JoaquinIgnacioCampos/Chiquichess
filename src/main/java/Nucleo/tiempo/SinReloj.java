@@ -1,10 +1,11 @@
 package Nucleo.tiempo;
 
+import Nucleo.bando.Bando;
+
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
 /** Null Object: partida sin límite; evita condicionales por ausencia de reloj. */
 public class SinReloj implements RelojPartida {
     @Override

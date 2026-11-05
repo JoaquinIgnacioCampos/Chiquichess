@@ -1,7 +1,9 @@
 package adaptadores;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.MotivoFinalizacion;
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
 
@@ -11,8 +13,6 @@ import java.util.Optional;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 class EnsambladorPartidaTest {
     private final EnsambladorPartida ensamblador = new EnsambladorPartida();
 

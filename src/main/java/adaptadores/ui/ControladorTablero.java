@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Movimiento;
 import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
@@ -8,14 +9,13 @@ import Nucleo.juego.Jugador;
 import Nucleo.juego.ResultadoPartida;
 import Nucleo.reglas.EstadoPartida;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Interacción de presentación: selecciona casillas y envía órdenes; no calcula reglas. */
 public final class ControladorTablero {
     private final Partida partida;

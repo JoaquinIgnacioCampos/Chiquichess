@@ -1,6 +1,8 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class DisposicionEstandarTest {
 
     private Tablero tablero;

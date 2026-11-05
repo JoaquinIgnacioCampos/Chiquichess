@@ -1,6 +1,8 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.MovimientoInvalidoException;
+import Nucleo.tablero.Posicion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
@@ -15,8 +17,6 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Vista preparada para dibujar y enviar órdenes a la partida recibida. */
 public final class VistaPartida extends BorderPane {
     private final ControladorTablero controlador;

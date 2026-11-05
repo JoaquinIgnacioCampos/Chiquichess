@@ -1,10 +1,11 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
+
 import java.util.Objects;
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 /** Resultado final inmutable. Sin ganador significa tablas, no partida en curso. */
 public record ResultadoPartida(Optional<Bando> ganador, MotivoFinalizacion motivo) {
     public ResultadoPartida {

@@ -1,11 +1,11 @@
 package Nucleo.movimientos.peon;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaMovimiento;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Decorator: la regla interna solo aplica si se cumple una condición (ej. el peón está en su fila inicial). */
 public class SoloSi implements ReglaMovimiento {
 

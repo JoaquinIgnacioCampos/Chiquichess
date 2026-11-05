@@ -1,6 +1,8 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -10,8 +12,6 @@ import java.util.Set;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class AlfilTest {
 
     @Test

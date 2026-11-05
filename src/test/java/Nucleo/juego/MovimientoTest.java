@@ -1,11 +1,12 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Tests de los value objects simples del paquete juego (Movimiento, Jugador, excepción). */
 class MovimientoTest {
 

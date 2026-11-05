@@ -1,8 +1,9 @@
 package Nucleo.piezas;
 
-import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.bando.Bando;
+import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.movimientos.ReglasBase;
+
 /**
  * Rey = torre + alfil limitados a 1 paso. Que no pueda moverse a una casilla atacada
  * no se resuelve acá sino en la validación de la Partida (no se permite dejar al propio rey en jaque).

@@ -1,12 +1,12 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaMovimiento;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Stub: devuelve siempre los mismos destinos y casillas atacadas, sin mirar el tablero. */
 public class StubReglaMovimiento implements ReglaMovimiento {
 

@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Jugador;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,7 +15,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
-import Nucleo.bando.Bando;
 /** Identificación y acciones de presentación de un jugador, sin reglas del juego. */
 final class TarjetaJugador extends StackPane {
     private enum Panel { NORMAL, RENDICION, OFERTA, RESPUESTA }

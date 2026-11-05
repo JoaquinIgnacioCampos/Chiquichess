@@ -1,12 +1,12 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaMovimiento;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Mock: cuenta cuántas veces se le pidieron destinos y casillas atacadas. Devuelve un conjunto fijo. */
 public class MockReglaMovimiento implements ReglaMovimiento {
 

@@ -1,12 +1,12 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.ContextoDeJugada;
 import Nucleo.tablero.ITablero;
 
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
 /** Atajos para armar un ContextoDeJugada en los tests de las condiciones de finalización. */
 public final class Contextos {
 

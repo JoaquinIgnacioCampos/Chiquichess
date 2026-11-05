@@ -1,5 +1,6 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.Deslizamiento;
 import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.movimientos.ReglaMovimiento;
@@ -8,7 +9,6 @@ import Nucleo.movimientos.peon.SoloSiCaptura;
 import Nucleo.movimientos.peon.SoloSiVacio;
 import Nucleo.tablero.ITablero;
 
-import Nucleo.bando.Bando;
 public class Peon extends Pieza {
 
     public Peon(Bando color) {

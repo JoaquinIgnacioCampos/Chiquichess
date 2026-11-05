@@ -1,5 +1,7 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -7,7 +9,6 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 
-import Nucleo.bando.Bando;
 /** Pulso visual: la fuente y el cálculo de tiempo siguen siendo responsabilidad del núcleo. */
 public final class ActualizadorRelojJavaFx implements AutoCloseable {
     private final ControladorTablero controlador;

@@ -1,14 +1,14 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
 import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Movimiento base: avanzar en línea recta en una dirección (dc, df) hasta un máximo de pasos,
  * frenando ante la primera pieza. Si es rival se puede capturar; si es propia, no.

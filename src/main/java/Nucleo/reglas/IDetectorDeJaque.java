@@ -1,8 +1,8 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
 
-import Nucleo.bando.Bando;
 /**
  * Contrato para saber si el rey de un color está siendo atacado.
  * Partida y MovimientosLegales dependen de esta interfaz y no de la implementación concreta,

@@ -1,7 +1,9 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.DetectorDeJaque;
+import Nucleo.reglas.MotivoFinalizacion;
 import Nucleo.tiempo.RelojAjedrez;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
@@ -16,8 +18,6 @@ import java.util.Optional;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 class ControladorTableroTest {
     private final Partida partida = new EnsambladorPartida().crearSinReloj();
     private final ControladorTablero controlador = new ControladorTablero(partida);

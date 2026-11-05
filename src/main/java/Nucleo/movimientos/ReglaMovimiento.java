@@ -1,10 +1,10 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Estrategia de movimiento. Es la pieza clave de la composición: los movimientos
  * base (deslizamiento, salto) y los modificadores (SoloSiVacio, SoloSiCaptura, SoloSi)

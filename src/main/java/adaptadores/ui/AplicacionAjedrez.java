@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
 import adaptadores.EnsambladorPartida;
 import adaptadores.configuracion.ConfiguracionPartida;
@@ -9,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import Nucleo.bando.Bando;
 /** Arranque gráfico: ensambla el juego e inyecta la partida en la vista. */
 public class AplicacionAjedrez extends Application {
     private ActualizadorRelojJavaFx actualizadorReloj;

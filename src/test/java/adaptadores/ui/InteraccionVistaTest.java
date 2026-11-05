@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
@@ -16,7 +17,6 @@ import java.time.Duration;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class InteraccionVistaTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,

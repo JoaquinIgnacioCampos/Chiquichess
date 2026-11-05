@@ -1,8 +1,10 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import Nucleo.tiempo.RelojPartida;
 import Nucleo.tiempo.SinReloj;
@@ -10,8 +12,6 @@ import Nucleo.tiempo.SinReloj;
 import java.time.Duration;
 import java.util.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Orquesta una partida: turnos, validación, captura y estado.
  * Recibe sus colaboradores por constructor (inyección de dependencias), por lo que

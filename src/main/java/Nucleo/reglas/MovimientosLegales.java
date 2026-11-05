@@ -1,6 +1,8 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
 import java.util.HashSet;
@@ -8,8 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Responsabilidad única: decidir qué jugadas son legales, es decir, las que permiten las reglas
  * de la pieza Y no dejan al propio rey en jaque. Se separó de Partida porque ahora también lo usan

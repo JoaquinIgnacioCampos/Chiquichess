@@ -1,13 +1,13 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Movimiento base: saltar a desplazamientos fijos, sin importar lo que haya en el medio (caballo). */
 public class SaltoFijo implements ReglaMovimiento {
 

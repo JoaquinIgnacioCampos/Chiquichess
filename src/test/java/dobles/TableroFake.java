@@ -1,10 +1,10 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Fake: arma un tablero en memoria a partir de un dibujo de texto, con las mismas letras
  * que muestra la consola (mayúscula = blancas, minúscula = negras, '.' = casilla vacía).

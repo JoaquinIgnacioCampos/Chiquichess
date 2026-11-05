@@ -1,5 +1,6 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.Tablero;
 import dobles.Contextos;
 import dobles.TableroFake;
@@ -9,7 +10,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.bando.Bando;
 class TablasPorRepeticionTest {
 
     private final Tablero posicionA = TableroFake.desde(

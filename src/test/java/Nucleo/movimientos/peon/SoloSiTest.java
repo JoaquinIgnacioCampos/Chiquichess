@@ -1,5 +1,8 @@
 package Nucleo.movimientos.peon;
 
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
+
 import dobles.MockReglaMovimiento;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -10,8 +13,6 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Se usa un mock de la regla interna para verificar si SoloSi la llama o no. */
 class SoloSiTest {
 

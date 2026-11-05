@@ -1,6 +1,9 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.*;
+import Nucleo.reglas.MotivoFinalizacion;
+import Nucleo.tablero.Posicion;
 import Nucleo.tiempo.RelojAjedrez;
 import Nucleo.tiempo.RelojPartida;
 import Nucleo.piezas.Pieza;
@@ -16,9 +19,6 @@ import java.util.Optional;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
-import Nucleo.reglas.MotivoFinalizacion;
 class PartidaConRelojTest {
     private final FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
 

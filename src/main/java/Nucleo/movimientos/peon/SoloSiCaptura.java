@@ -1,12 +1,12 @@
 package Nucleo.movimientos.peon;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaMovimiento;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.HashSet;
 import java.util.Set;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Decorator: restringe los destinos a casillas con una pieza rival (solo se mueve si captura).
  * Las casillas atacadas son todas las que la regla interna alcanzaría, haya o no una pieza:

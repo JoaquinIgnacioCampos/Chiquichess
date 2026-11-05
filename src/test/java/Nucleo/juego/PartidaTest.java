@@ -1,9 +1,11 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.MovimientoInvalidoException.Motivo;
 import Nucleo.piezas.Pieza;
 import Nucleo.piezas.Torre;
 import Nucleo.reglas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.*;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,6 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /**
  * Tests unitarios de Partida: sus colaboradores (detector de jaque, condiciones de fin,
  * movimientos legales) se reemplazan por dobles para probar solo la lógica de Partida.

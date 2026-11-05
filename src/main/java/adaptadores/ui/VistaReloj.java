@@ -1,5 +1,7 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
+
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.layout.StackPane;
@@ -11,7 +13,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
 /** Presenta una duración del núcleo, sin descontar tiempo ni determinar resultados. */
 public final class VistaReloj extends StackPane {
     private final TemaPanel tema;

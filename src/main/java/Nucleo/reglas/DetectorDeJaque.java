@@ -1,12 +1,12 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
+import Nucleo.tablero.Posicion;
 import java.util.Map;
 import java.util.Optional;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 /** Responsabilidad única: decir si el rey de un color está siendo atacado. */
 public class DetectorDeJaque implements IDetectorDeJaque {
 

@@ -1,9 +1,9 @@
 package dobles;
 
+import Nucleo.bando.Bando;
 import Nucleo.reglas.MovimientosLegales;
 import Nucleo.tablero.Tablero;
 
-import Nucleo.bando.Bando;
 /**
  * Stub: fija la respuesta de "¿existe alguna jugada legal?" sin recorrer el tablero.
  * El resto del comportamiento es el de MovimientosLegales con un detector que nunca ve jaque.

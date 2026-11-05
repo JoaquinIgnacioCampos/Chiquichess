@@ -1,8 +1,9 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
+
 import java.util.Objects;
 
-import Nucleo.bando.Bando;
 public record Jugador(String nombre, Bando color) {
 
     public Jugador {

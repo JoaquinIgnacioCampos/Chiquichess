@@ -2,6 +2,7 @@ package Nucleo.piezas;
 
 import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglasBase;
+
 public class Caballo extends Pieza {
 
     public Caballo(Bando color) {

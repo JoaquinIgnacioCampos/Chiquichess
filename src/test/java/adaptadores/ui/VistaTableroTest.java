@@ -1,6 +1,8 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import adaptadores.EnsambladorPartida;
 import javafx.scene.layout.GridPane;
@@ -11,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
-import Nucleo.tablero.Posicion;
-import Nucleo.bando.Bando;
 class VistaTableroTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,

@@ -1,11 +1,11 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
 
 import java.util.Optional;
 
-import Nucleo.bando.Bando;
 /**
  * Foto de la partida que reciben las condiciones de finalización después de cada jugada
  * (y una vez al crear la partida, en cuyo caso piezaMovida está vacía).
