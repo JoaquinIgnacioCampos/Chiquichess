@@ -29,19 +29,26 @@ public class JuegoConsola {
     }
 
     public void jugar() throws IOException {
-        salida.println("Escriba la jugada como 'origen destino' (ej: e2 e4) o 'salir'.");
+        salida.println(partida.permiteDeshacer()
+                ? "Escriba la jugada como 'origen destino' (ej: e2 e4), 'deshacer', 'rehacer' o 'salir'."
+                : "Escriba la jugada como 'origen destino' (ej: e2 e4) o 'salir'.");
         while (true) {
             salida.println();
             salida.println(renderizador.dibujar(partida.tablero()));
             if (partida.estado().estaFinalizada()) {
                 salida.println(mensajeFinal());
-                break;
+                // Un mate o unas tablas automáticas se pueden deshacer: se ofrece volver atrás.
+                if (!partida.puedeDeshacer()) {
+                    break;
+                }
+                salida.print("Escriba 'deshacer' para volver atras o 'salir': ");
+            } else {
+                if (partida.estado() == EstadoPartida.JAQUE) {
+                    salida.println("Jaque!");
+                }
+                salida.print("Turno de " + partida.jugadorActual().nombre()
+                        + " (" + partida.turno() + "): ");
             }
-            if (partida.estado() == EstadoPartida.JAQUE) {
-                salida.println("Jaque!");
-            }
-            salida.print("Turno de " + partida.jugadorActual().nombre()
-                    + " (" + partida.turno() + "): ");
             salida.flush();
 
             String linea = entrada.readLine();
@@ -53,6 +60,18 @@ public class JuegoConsola {
     }
 
     private void procesar(String linea) {
+        if (linea.equalsIgnoreCase("deshacer") || linea.equalsIgnoreCase("rehacer")) {
+            try {
+                if (linea.equalsIgnoreCase("deshacer")) {
+                    partida.deshacer();
+                } else {
+                    partida.rehacer();
+                }
+            } catch (AccionInvalidaException e) {
+                salida.println(mensajes.rechazoDeAccion(e.motivo()));
+            }
+            return;
+        }
         String[] partes = linea.split("\\s+");
         if (partes.length != 2) {
             salida.println("Formato invalido. Ejemplo: e2 e4");

@@ -22,6 +22,14 @@ class MensajesDeConsolaTest {
     }
 
     @Test
+    void todoRechazoDeAccionTieneSuTexto() {
+        for (Nucleo.juego.AccionInvalidaException.Motivo motivo : Nucleo.juego.AccionInvalidaException.Motivo.values()) {
+            assertNotEquals(MensajesDeConsola.SIN_TEXTO, mensajes.rechazoDeAccion(motivo),
+                    "Falta el texto de " + motivo);
+        }
+    }
+
+    @Test
     void todoMotivoDeFinalTieneSuTexto() {
         for (MotivoFinalizacion motivo : MotivoFinalizacion.values()) {
             assertFalse(mensajes.finDePartida(motivo, Optional.of("Ana")).startsWith(MensajesDeConsola.SIN_TEXTO),

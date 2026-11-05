@@ -7,7 +7,8 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        // La consola juega sin tiempo, así que permite deshacer y rehacer.
+        Partida partida = new EnsambladorPartida().crearSinRelojConDeshacer();
 
         new JuegoConsola(partida, new RenderizadorConsola(), new MensajesDeConsola(), System.in, System.out).jugar();
     }

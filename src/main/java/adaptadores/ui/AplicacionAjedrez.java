@@ -45,6 +45,7 @@ public class AplicacionAjedrez extends Application {
                 new MensajesDeLaInterfaz());
         vista.configurarRendicion();
         vista.configurarTablas();
+        vista.configurarDeshacer();
         vista.configurarNavegacion(() -> {
             if (partidaActual == preparada) volverAlMenu(ventana);
         }, () -> iniciarRevancha(ventana, configuracion, preparada));

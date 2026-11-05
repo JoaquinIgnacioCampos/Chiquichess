@@ -79,6 +79,38 @@ public final class ControladorTablero {
         }
     }
 
+    /** true si la partida admite deshacer (se eligió la opción y no tiene tiempo): define si hay botones. */
+    public boolean permiteDeshacer() {
+        return partida.permiteDeshacer();
+    }
+
+    public boolean puedeDeshacer() {
+        return partida.puedeDeshacer();
+    }
+
+    public boolean puedeRehacer() {
+        return partida.puedeRehacer();
+    }
+
+    /** Deshace la última jugada; la selección se descarta porque el tablero cambió. */
+    public Optional<AccionInvalidaException.Motivo> deshacer() {
+        return ejecutarYLimpiarSeleccion(partida::deshacer);
+    }
+
+    public Optional<AccionInvalidaException.Motivo> rehacer() {
+        return ejecutarYLimpiarSeleccion(partida::rehacer);
+    }
+
+    private Optional<AccionInvalidaException.Motivo> ejecutarYLimpiarSeleccion(Runnable accion) {
+        try {
+            accion.run();
+            seleccion = Optional.empty();
+            return Optional.empty();
+        } catch (AccionInvalidaException rechazo) {
+            return Optional.of(rechazo.motivo());
+        }
+    }
+
     /** El núcleo valida la orden y determina el ganador. */
     public Optional<AccionInvalidaException.Motivo> rendirse(Bando color) {
         partida.verificarTiempo();

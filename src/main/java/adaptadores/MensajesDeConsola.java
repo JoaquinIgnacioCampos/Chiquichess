@@ -1,5 +1,6 @@
 package adaptadores;
 
+import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.reglas.MotivoFinalizacion;
 
@@ -19,10 +20,21 @@ public final class MensajesDeConsola {
 
     private final Map<MovimientoInvalidoException.Motivo, String> movimientos =
             new EnumMap<>(MovimientoInvalidoException.Motivo.class);
+    private final Map<AccionInvalidaException.Motivo, String> acciones =
+            new EnumMap<>(AccionInvalidaException.Motivo.class);
     /** Finales; "%s" se reemplaza por el nombre del ganador. */
     private final Map<MotivoFinalizacion, String> finales = new EnumMap<>(MotivoFinalizacion.class);
 
     public MensajesDeConsola() {
+        acciones.put(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA, "La partida ya termino.");
+        acciones.put(AccionInvalidaException.Motivo.NO_ES_SU_TURNO, "No es su turno.");
+        acciones.put(AccionInvalidaException.Motivo.OFERTA_PENDIENTE, "Ya hay una oferta de tablas pendiente.");
+        acciones.put(AccionInvalidaException.Motivo.SIN_OFERTA, "No hay ninguna oferta de tablas.");
+        acciones.put(AccionInvalidaException.Motivo.ES_SU_PROPIA_OFERTA, "Solo el rival puede responder la oferta.");
+        acciones.put(AccionInvalidaException.Motivo.DESHACER_NO_PERMITIDO, "Esta partida no permite deshacer jugadas.");
+        acciones.put(AccionInvalidaException.Motivo.NADA_PARA_DESHACER, "No hay jugadas para deshacer.");
+        acciones.put(AccionInvalidaException.Motivo.NADA_PARA_REHACER, "No hay jugadas para rehacer.");
+
         movimientos.put(MovimientoInvalidoException.Motivo.SIN_PIEZA_EN_ORIGEN, "No hay ninguna pieza en la casilla de origen.");
         movimientos.put(MovimientoInvalidoException.Motivo.NO_ES_SU_TURNO, "Esa pieza no es suya: es el turno del otro jugador.");
         movimientos.put(MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO, "Esa pieza no puede moverse ahi.");
@@ -40,6 +52,10 @@ public final class MensajesDeConsola {
 
     public String rechazoDeMovimiento(MovimientoInvalidoException.Motivo motivo) {
         return movimientos.getOrDefault(Objects.requireNonNull(motivo, "motivo"), SIN_TEXTO);
+    }
+
+    public String rechazoDeAccion(AccionInvalidaException.Motivo motivo) {
+        return acciones.getOrDefault(Objects.requireNonNull(motivo, "motivo"), SIN_TEXTO);
     }
 
     /** Mensaje de fin de partida, con el nombre del ganador si lo hubo. */

@@ -213,9 +213,16 @@ public class Partida {
         return deshacerHabilitado() && historialDeJugadas.hayParaRehacer() && !estado.estaFinalizada();
     }
 
-    /** Deshacer solo existe si las reglas lo permiten y la partida no tiene límite de tiempo. */
-    private boolean deshacerHabilitado() {
+    /**
+     * true si esta partida admite deshacer en algún momento: las reglas lo permiten y no tiene límite
+     * de tiempo. Lo usa la UI para mostrar u ocultar los botones.
+     */
+    public boolean permiteDeshacer() {
         return reglas.permiteDeshacer() && reloj.tiempoRestante(Bando.BLANCO).isEmpty();
+    }
+
+    private boolean deshacerHabilitado() {
+        return permiteDeshacer();
     }
 
     private void asegurarDeshacerPermitido() {

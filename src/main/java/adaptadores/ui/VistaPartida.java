@@ -27,6 +27,8 @@ public final class VistaPartida extends BorderPane {
     private final TemaPanel temaPanel;
     private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
+    private javafx.scene.control.Button deshacer;
+    private javafx.scene.control.Button rehacer;
 
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
                         RepresentacionPiezas representacion, TemaPanel temaPanel) {
@@ -90,6 +92,33 @@ public final class VistaPartida extends BorderPane {
         tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
         panel.actualizar();
         if (navegacion != null) navegacion.actualizar();
+        if (deshacer != null) {
+            deshacer.setDisable(!controlador.puedeDeshacer());
+            rehacer.setDisable(!controlador.puedeRehacer());
+        }
+    }
+
+    /**
+     * Agrega a la cabecera los botones "Deshacer" y "Rehacer", solo si la partida lo permite. Los dos
+     * jugadores pueden usarlos, por eso van en la cabecera y no en una tarjeta. Se llama antes de
+     * configurarNavegacion, así quedan a la izquierda de "Volver al menú".
+     */
+    public void configurarDeshacer() {
+        if (deshacer != null) throw new IllegalStateException("Deshacer ya configurado");
+        if (!controlador.permiteDeshacer()) return;
+        deshacer = BotonDeCabecera.crear("Deshacer", "deshacer", temaPanel.tarjeta(), temaPanel.texto());
+        rehacer = BotonDeCabecera.crear("Rehacer", "rehacer", temaPanel.tarjeta(), temaPanel.texto());
+        deshacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.deshacer()));
+        rehacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.rehacer()));
+        titulo.getChildren().addAll(deshacer, rehacer);
+        redibujar();
+    }
+
+    private void mostrarRespuestaDeshacer(java.util.Optional<Nucleo.juego.AccionInvalidaException.Motivo> rechazo) {
+        mensaje.setText(rechazo
+                .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.DESHACER, motivo))
+                .orElse(""));
+        redibujar();
     }
 
     public void actualizarRelojes() {

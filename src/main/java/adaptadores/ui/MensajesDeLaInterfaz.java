@@ -19,7 +19,7 @@ import java.util.Objects;
 public final class MensajesDeLaInterfaz {
 
     /** Lo que se intentó hacer, para los rechazos cuyo texto depende de la acción. */
-    public enum Accion { RENDIRSE, TABLAS }
+    public enum Accion { RENDIRSE, TABLAS, DESHACER }
 
     static final String SIN_TEXTO = "No se pudo completar la acción.";
 
