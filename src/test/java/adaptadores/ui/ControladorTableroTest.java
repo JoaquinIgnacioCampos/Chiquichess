@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.juego.*;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.DetectorDeJaque;
 import Nucleo.tiempo.RelojAjedrez;
 import adaptadores.EnsambladorPartida;
@@ -17,6 +16,8 @@ import java.util.Optional;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 class ControladorTableroTest {
     private final Partida partida = new EnsambladorPartida().crearSinReloj();
     private final ControladorTablero controlador = new ControladorTablero(partida);
@@ -27,7 +28,7 @@ class ControladorTableroTest {
         assertEquals(Optional.of(pos("e2")), controlador.seleccionada());
         assertEquals(posiciones("e3", "e4"), controlador.destinosLegales());
         assertTrue(partida.historial().isEmpty());
-        assertEquals(Color.BLANCO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.turno());
     }
 
     @Test
@@ -69,8 +70,8 @@ class ControladorTableroTest {
         controlador.pulsar(pos("e2"));
         assertTrue(controlador.pulsar(pos("e4")).isEmpty());
         assertTrue(partida.tablero().piezaEn(pos("e2")).isEmpty());
-        assertEquals(Color.BLANCO, partida.tablero().piezaEn(pos("e4")).orElseThrow().color());
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.tablero().piezaEn(pos("e4")).orElseThrow().color());
+        assertEquals(Bando.NEGRO, partida.turno());
         assertEquals(List.of(mov("e2", "e4")), partida.historial());
         assertTrue(controlador.seleccionada().isEmpty());
         assertTrue(controlador.destinosLegales().isEmpty());
@@ -86,10 +87,10 @@ class ControladorTableroTest {
         assertEquals(posiciones("e5", "d5"), controlador.destinosLegales());
         controlador.pulsar(pos("d5"));
         assertTrue(partida.tablero().piezaEn(pos("e4")).isEmpty());
-        assertEquals(Color.BLANCO, partida.tablero().piezaEn(pos("d5")).orElseThrow().color());
+        assertEquals(Bando.BLANCO, partida.tablero().piezaEn(pos("d5")).orElseThrow().color());
         assertEquals(31, partida.tablero().piezas().size());
         assertEquals(mov("e4", "d5"), partida.historial().getLast());
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.NEGRO, partida.turno());
         assertTrue(controlador.seleccionada().isEmpty());
     }
 
@@ -98,7 +99,7 @@ class ControladorTableroTest {
         Partida clavada = new Partida(TableroFake.desde(
                 "r...t...", "........", "........", "........",
                 "........", "........", "....T...", "....R..."),
-                new Jugador("B", Color.BLANCO), new Jugador("N", Color.NEGRO),
+                new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
                 new DetectorDeJaque(), List.of());
         ControladorTablero interaccion = new ControladorTablero(clavada);
         interaccion.pulsar(pos("e2"));
@@ -114,7 +115,7 @@ class ControladorTableroTest {
     void elNucleoPuedeRechazarUnaJugadaResaltadaPorTiempoAgotado() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
         Partida cronometrada = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("B", Color.BLANCO), new Jugador("N", Color.NEGRO),
+                new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
                 new DetectorDeJaque(), List.of(),
                 new RelojAjedrez(Duration.ofSeconds(10), Duration.ofSeconds(10), fuente));
         ControladorTablero interaccion = new ControladorTablero(cronometrada);
@@ -131,7 +132,7 @@ class ControladorTableroTest {
 
     @Test
     void noPermiteSeleccionarEnUnaPartidaTerminada() {
-        partida.rendirse(Color.BLANCO);
+        partida.rendirse(Bando.BLANCO);
         assertEquals(Optional.of(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA),
                 controlador.pulsar(pos("e2")));
         assertTrue(controlador.seleccionada().isEmpty());

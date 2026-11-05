@@ -1,7 +1,5 @@
 package adaptadores.ui;
 
-import Nucleo.juego.MotivoFinalizacion;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.EstadoPartida;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +13,8 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.Objects;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 /** Marcador: presenta el estado del núcleo y deriva las solicitudes de los jugadores. */
 public final class PanelEstadoPartida extends GridPane {
     private final ControladorTablero controlador;
@@ -34,7 +34,7 @@ public final class PanelEstadoPartida extends GridPane {
     }
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
-                               java.util.Map<Color, PresentacionClub> clubes) {
+                               java.util.Map<Bando, PresentacionClub> clubes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
         this.tema = Objects.requireNonNull(tema, "tema");
         Objects.requireNonNull(clubes, "clubes");
@@ -50,8 +50,8 @@ public final class PanelEstadoPartida extends GridPane {
             fila.setMinHeight(0);
             getRowConstraints().add(fila);
         }
-        negras = new TarjetaJugador(Color.NEGRO, tema, clubes.get(Color.NEGRO));
-        blancas = new TarjetaJugador(Color.BLANCO, tema, clubes.get(Color.BLANCO));
+        negras = new TarjetaJugador(Bando.NEGRO, tema, clubes.get(Bando.NEGRO));
+        blancas = new TarjetaJugador(Bando.BLANCO, tema, clubes.get(Bando.BLANCO));
         encabezado = new TextoLed(tema.acento());
         encabezado.setId("marcador-encabezado");
         principal = new TextoLed(tema.texto());
@@ -111,17 +111,17 @@ public final class PanelEstadoPartida extends GridPane {
 
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
-        negras.habilitarRendicion(!finalizada && controlador.turno() == Color.NEGRO);
-        blancas.habilitarRendicion(!finalizada && controlador.turno() == Color.BLANCO);
+        negras.habilitarRendicion(!finalizada && controlador.turno() == Bando.NEGRO);
+        blancas.habilitarRendicion(!finalizada && controlador.turno() == Bando.BLANCO);
         var oferta = controlador.ofertaTablasPendiente();
-        negras.actualizarTablas(!finalizada && controlador.turno() == Color.NEGRO && oferta.isEmpty(),
-                oferta.filter(color -> color == Color.NEGRO).isPresent(),
-                oferta.filter(color -> color == Color.BLANCO).isPresent());
-        blancas.actualizarTablas(!finalizada && controlador.turno() == Color.BLANCO && oferta.isEmpty(),
-                oferta.filter(color -> color == Color.BLANCO).isPresent(),
-                oferta.filter(color -> color == Color.NEGRO).isPresent());
-        negras.actualizar(controlador.jugador(Color.NEGRO), !finalizada && controlador.turno() == Color.NEGRO);
-        blancas.actualizar(controlador.jugador(Color.BLANCO), !finalizada && controlador.turno() == Color.BLANCO);
+        negras.actualizarTablas(!finalizada && controlador.turno() == Bando.NEGRO && oferta.isEmpty(),
+                oferta.filter(color -> color == Bando.NEGRO).isPresent(),
+                oferta.filter(color -> color == Bando.BLANCO).isPresent());
+        blancas.actualizarTablas(!finalizada && controlador.turno() == Bando.BLANCO && oferta.isEmpty(),
+                oferta.filter(color -> color == Bando.BLANCO).isPresent(),
+                oferta.filter(color -> color == Bando.NEGRO).isPresent());
+        negras.actualizar(controlador.jugador(Bando.NEGRO), !finalizada && controlador.turno() == Bando.NEGRO);
+        blancas.actualizar(controlador.jugador(Bando.BLANCO), !finalizada && controlador.turno() == Bando.BLANCO);
         if (controlador.resultado().isPresent()) {
             var resultado = controlador.resultado().orElseThrow();
             titulo.setText("RESULTADO FINAL");
@@ -146,23 +146,23 @@ public final class PanelEstadoPartida extends GridPane {
     /** Refresco ligero que conserva tarjetas, tablero, selección y sus nodos. */
     public void actualizarRelojes() {
         boolean enCurso = !controlador.estado().estaFinalizada();
-        negras.actualizarReloj(controlador.tiempoRestante(Color.NEGRO), enCurso && controlador.turno() == Color.NEGRO);
-        blancas.actualizarReloj(controlador.tiempoRestante(Color.BLANCO), enCurso && controlador.turno() == Color.BLANCO);
+        negras.actualizarReloj(controlador.tiempoRestante(Bando.NEGRO), enCurso && controlador.turno() == Bando.NEGRO);
+        blancas.actualizarReloj(controlador.tiempoRestante(Bando.BLANCO), enCurso && controlador.turno() == Bando.BLANCO);
     }
 
-    public void configurarRendicion(java.util.function.Consumer<Color> solicitar) {
-        negras.configurarRendicion(() -> solicitar.accept(Color.NEGRO));
-        blancas.configurarRendicion(() -> solicitar.accept(Color.BLANCO));
+    public void configurarRendicion(java.util.function.Consumer<Bando> solicitar) {
+        negras.configurarRendicion(() -> solicitar.accept(Bando.NEGRO));
+        blancas.configurarRendicion(() -> solicitar.accept(Bando.BLANCO));
         actualizar();
     }
 
-    public void configurarTablas(java.util.function.Consumer<Color> ofrecer,
-                                 java.util.function.Consumer<Color> aceptar,
-                                 java.util.function.Consumer<Color> rechazar) {
-        negras.configurarTablas(() -> ofrecer.accept(Color.NEGRO), () -> aceptar.accept(Color.NEGRO),
-                () -> rechazar.accept(Color.NEGRO));
-        blancas.configurarTablas(() -> ofrecer.accept(Color.BLANCO), () -> aceptar.accept(Color.BLANCO),
-                () -> rechazar.accept(Color.BLANCO));
+    public void configurarTablas(java.util.function.Consumer<Bando> ofrecer,
+                                 java.util.function.Consumer<Bando> aceptar,
+                                 java.util.function.Consumer<Bando> rechazar) {
+        negras.configurarTablas(() -> ofrecer.accept(Bando.NEGRO), () -> aceptar.accept(Bando.NEGRO),
+                () -> rechazar.accept(Bando.NEGRO));
+        blancas.configurarTablas(() -> ofrecer.accept(Bando.BLANCO), () -> aceptar.accept(Bando.BLANCO),
+                () -> rechazar.accept(Bando.BLANCO));
         actualizar();
     }
 
@@ -170,8 +170,8 @@ public final class PanelEstadoPartida extends GridPane {
         informacion.getChildren().add(boton);
     }
 
-    private String bando(Color color) {
-        return color == Color.BLANCO ? "BLANCAS" : "NEGRAS";
+    private String bando(Bando color) {
+        return color == Bando.BLANCO ? "BLANCAS" : "NEGRAS";
     }
 
     private String describir(MotivoFinalizacion motivo) {

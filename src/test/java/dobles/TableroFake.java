@@ -1,9 +1,10 @@
 package dobles;
 
-import Nucleo.juego.Posicion;
 import Nucleo.piezas.*;
 import Nucleo.tablero.Tablero;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Fake: arma un tablero en memoria a partir de un dibujo de texto, con las mismas letras
  * que muestra la consola (mayúscula = blancas, minúscula = negras, '.' = casilla vacía).
@@ -57,7 +58,7 @@ public final class TableroFake {
     }
 
     private static Pieza crear(char letra) {
-        Color color = Character.isUpperCase(letra) ? Color.BLANCO : Color.NEGRO;
+        Bando color = Character.isUpperCase(letra) ? Bando.BLANCO : Bando.NEGRO;
         return switch (Character.toUpperCase(letra)) {
             case 'P' -> new Peon(color);
             case 'T' -> new Torre(color);

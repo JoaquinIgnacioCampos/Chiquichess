@@ -1,7 +1,6 @@
 package Nucleo.piezas;
 
 import Nucleo.juego.DisposicionEstandar;
-import Nucleo.juego.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -12,12 +11,14 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class CaballoTest {
 
     @Test
     void enElCentroTiene8Saltos() {
         // Arrange
-        Caballo caballo = new Caballo(Color.BLANCO);
+        Caballo caballo = new Caballo(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", caballo);
 
         // Act
@@ -30,7 +31,7 @@ class CaballoTest {
     @Test
     void enLaEsquinaTiene2Saltos() {
         // Arrange
-        Caballo caballo = new Caballo(Color.BLANCO);
+        Caballo caballo = new Caballo(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("a1", caballo);
 
         // Act
@@ -56,7 +57,7 @@ class CaballoTest {
     @Test
     void seIdentificaComoCaballo() {
         // Arrange
-        Caballo caballo = new Caballo(Color.BLANCO);
+        Caballo caballo = new Caballo(Bando.BLANCO);
 
         // Assert
         assertEquals('C', caballo.codigo());

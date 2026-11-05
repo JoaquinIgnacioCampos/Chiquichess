@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.juego.MovimientoInvalidoException;
-import Nucleo.juego.Posicion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
@@ -16,6 +15,8 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Vista preparada para dibujar y enviar órdenes a la partida recibida. */
 public final class VistaPartida extends BorderPane {
     private final ControladorTablero controlador;
@@ -34,7 +35,7 @@ public final class VistaPartida extends BorderPane {
 
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
                         RepresentacionPiezas representacion, TemaPanel temaPanel,
-                        java.util.Map<Nucleo.piezas.Color, PresentacionClub> clubes) {
+                        java.util.Map<Bando, PresentacionClub> clubes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
         Objects.requireNonNull(tema, "tema");
         this.tablero = new VistaTablero(controlador.tablero(), tema, representacion, this::pulsar);

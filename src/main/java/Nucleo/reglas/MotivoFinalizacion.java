@@ -1,4 +1,4 @@
-package Nucleo.juego;
+package Nucleo.reglas;
 
 /** La causa del final es independiente del color ganador. */
 public enum MotivoFinalizacion {

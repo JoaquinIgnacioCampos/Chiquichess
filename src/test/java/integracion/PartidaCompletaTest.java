@@ -2,7 +2,6 @@ package integracion;
 
 import Nucleo.juego.*;
 import Nucleo.juego.MovimientoInvalidoException.Motivo;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
 import Nucleo.tablero.Tablero;
 import org.junit.jupiter.api.Test;
@@ -14,14 +13,15 @@ import static dobles.Casillas.mov;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 /**
  * Tests de integración: todas las clases reales trabajando juntas, armadas igual que en Main.
  * No hay dobles; se juegan partidas cortas y se verifica el resultado de punta a punta.
  */
 class PartidaCompletaTest {
 
-    private final Jugador blanco = new Jugador("Jugador 1", Color.BLANCO);
-    private final Jugador negro = new Jugador("Jugador 2", Color.NEGRO);
+    private final Jugador blanco = new Jugador("Jugador 1", Bando.BLANCO);
+    private final Jugador negro = new Jugador("Jugador 2", Bando.NEGRO);
 
     private Partida partidaEstandar() {
         return nuevaPartida(new DisposicionEstandar().crearTablero(), condicionesEstandar());
@@ -98,9 +98,9 @@ class PartidaCompletaTest {
 
         // Assert
         assertTrue(resultado.piezaCapturada().orElseThrow().esPeon());
-        assertEquals(Color.NEGRO, resultado.piezaCapturada().get().color());
+        assertEquals(Bando.NEGRO, resultado.piezaCapturada().get().color());
         assertEquals(31, partida.tablero().piezas().size());
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.NEGRO, partida.turno());
         assertEquals(EstadoPartida.EN_CURSO, resultado.estado());
     }
 
@@ -117,7 +117,7 @@ class PartidaCompletaTest {
 
         // Assert
         assertEquals(Motivo.DEJA_AL_REY_EN_JAQUE, e.motivo());
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.NEGRO, partida.turno());
 
         // Act: tapar el jaque con el peón
         ResultadoMovimiento resultado = jugar(partida, "g7g6");

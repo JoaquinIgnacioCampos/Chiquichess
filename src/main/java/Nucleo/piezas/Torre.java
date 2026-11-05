@@ -1,11 +1,11 @@
 package Nucleo.piezas;
 
 import Nucleo.movimientos.Deslizamiento;
-import Nucleo.reglas.ReglasBase;
-
+import Nucleo.bando.Bando;
+import Nucleo.movimientos.ReglasBase;
 public class Torre extends Pieza {
 
-    public Torre(Color color) {
+    public Torre(Bando color) {
         super(color, ReglasBase.ortogonales(Deslizamiento.SIN_LIMITE));
     }
 

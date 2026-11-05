@@ -1,7 +1,5 @@
 package Nucleo.reglas;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Tablero;
 
@@ -10,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Responsabilidad única: decidir qué jugadas son legales, es decir, las que permiten las reglas
  * de la pieza Y no dejan al propio rey en jaque. Se separó de Partida porque ahora también lo usan
@@ -37,7 +37,7 @@ public class MovimientosLegales {
     }
 
     /** true si el color tiene al menos una jugada legal. Corta apenas encuentra una. */
-    public boolean existeAlguno(Tablero tablero, Color color) {
+    public boolean existeAlguno(Tablero tablero, Bando color) {
         for (Map.Entry<Posicion, Pieza> entrada : tablero.piezas().entrySet()) {
             Pieza pieza = entrada.getValue();
             if (pieza.color() != color) {

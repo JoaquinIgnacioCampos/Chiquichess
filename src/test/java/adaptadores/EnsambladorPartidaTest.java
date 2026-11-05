@@ -1,8 +1,6 @@
 package adaptadores;
 
-import Nucleo.juego.MotivoFinalizacion;
 import Nucleo.juego.Partida;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.EstadoPartida;
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
@@ -13,6 +11,8 @@ import java.util.Optional;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 class EnsambladorPartidaTest {
     private final EnsambladorPartida ensamblador = new EnsambladorPartida();
 
@@ -23,11 +23,11 @@ class EnsambladorPartidaTest {
         assertEquals(8, partida.tablero().ancho());
         assertEquals(8, partida.tablero().alto());
         assertEquals(32, partida.tablero().piezas().size());
-        assertEquals(Color.BLANCO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.turno());
         assertEquals(EstadoPartida.EN_CURSO, partida.estado());
         fuente.avanzar(Duration.ofSeconds(30));
-        assertEquals(Optional.of(Duration.ofSeconds(270)), partida.tiempoRestante(Color.BLANCO));
-        assertEquals(Optional.of(Duration.ofMinutes(5)), partida.tiempoRestante(Color.NEGRO));
+        assertEquals(Optional.of(Duration.ofSeconds(270)), partida.tiempoRestante(Bando.BLANCO));
+        assertEquals(Optional.of(Duration.ofMinutes(5)), partida.tiempoRestante(Bando.NEGRO));
     }
 
     @Test
@@ -37,20 +37,20 @@ class EnsambladorPartidaTest {
         fuente.avanzar(Duration.ofSeconds(10));
         partida.verificarTiempo();
         assertEquals(MotivoFinalizacion.TIEMPO_AGOTADO, partida.resultado().orElseThrow().motivo());
-        assertEquals(Optional.of(Color.NEGRO), partida.resultado().orElseThrow().ganador());
+        assertEquals(Optional.of(Bando.NEGRO), partida.resultado().orElseThrow().ganador());
     }
 
     @Test
     void consolaConservaLasReglasRealesYSigueSinReloj() {
         Partida partida = ensamblador.crearSinReloj();
-        assertTrue(partida.tiempoRestante(Color.BLANCO).isEmpty());
-        assertTrue(partida.tiempoRestante(Color.NEGRO).isEmpty());
+        assertTrue(partida.tiempoRestante(Bando.BLANCO).isEmpty());
+        assertTrue(partida.tiempoRestante(Bando.NEGRO).isEmpty());
         partida.mover(mov("f2", "f3"));
         partida.mover(mov("e7", "e5"));
         partida.mover(mov("g2", "g4"));
         partida.mover(mov("d8", "h4"));
         assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
-        assertEquals(Color.NEGRO, partida.ganador().orElseThrow().color());
+        assertEquals(Bando.NEGRO, partida.ganador().orElseThrow().color());
     }
 
     @Test
@@ -68,12 +68,12 @@ class EnsambladorPartidaTest {
     @Test
     void seUsanRendicionYAcuerdoReales() {
         Partida rendicion = ensamblador.crearSinReloj();
-        rendicion.rendirse(Color.BLANCO);
+        rendicion.rendirse(Bando.BLANCO);
         assertEquals(MotivoFinalizacion.RENDICION, rendicion.resultado().orElseThrow().motivo());
-        assertEquals(Color.NEGRO, rendicion.ganador().orElseThrow().color());
+        assertEquals(Bando.NEGRO, rendicion.ganador().orElseThrow().color());
         Partida acuerdo = ensamblador.crearSinReloj();
-        acuerdo.ofrecerTablas(Color.BLANCO);
-        acuerdo.aceptarTablas(Color.NEGRO);
+        acuerdo.ofrecerTablas(Bando.BLANCO);
+        acuerdo.aceptarTablas(Bando.NEGRO);
         assertEquals(MotivoFinalizacion.ACUERDO, acuerdo.resultado().orElseThrow().motivo());
         assertTrue(acuerdo.ganador().isEmpty());
     }

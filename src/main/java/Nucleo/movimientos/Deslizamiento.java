@@ -1,14 +1,14 @@
 package Nucleo.movimientos;
 
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Movimiento base: avanzar en línea recta en una dirección (dc, df) hasta un máximo de pasos,
  * frenando ante la primera pieza. Si es rival se puede capturar; si es propia, no.
@@ -34,7 +34,7 @@ public class Deslizamiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         Set<Posicion> destinos = new HashSet<>();
         Posicion actual = origen.desplazada(deltaColumna, deltaFila);
         int pasos = 1;
@@ -55,7 +55,7 @@ public class Deslizamiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         return destinosPosibles(tablero, origen, color);
     }
 }

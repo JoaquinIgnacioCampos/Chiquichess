@@ -35,14 +35,14 @@
 ### 2 Resultado y rendición
 Archivos: Nucleo/juego/{MotivoFinalizacion,ResultadoPartida,AccionInvalidaException,Partida}.java,
 Nucleo/reglas/EstadoPartida.java, adaptadores/JuegoConsola.java.
-Interfaces nuevas: resultado(): Optional<ResultadoPartida>, rendirse(Color): void.
+Interfaces nuevas: resultado(): Optional<ResultadoPartida>, rendirse(Bando): void.
 - [x] Escribir y ejecutar ResultadoPartidaTest y RendicionTest antes de implementar.
 - [x] Implementar resultado compatible y rendición de ambos colores, incluso fuera de turno.
 - [x] Ejecutar suite completa, incluidos rechazos posteriores a finales.
 
 ### 3 Ofertas de tablas
 Archivos: Partida.java y OfertasTablasTest.java.
-Interfaces: ofrecerTablas(Color), aceptarTablas(Color), rechazarTablas(Color), ofertaTablasPendiente().
+Interfaces: ofrecerTablas(Bando), aceptarTablas(Bando), rechazarTablas(Bando), ofertaTablasPendiente().
 - [x] Tests primero: acuerdo, rechazo, falta de oferta, respuesta propia, doble oferta,
   oferta fuera de turno, movimiento válido e inválido, final limpia oferta.
 - [x] Ejecutar RED, implementar reglas y ejecutar suite GREEN.
@@ -50,9 +50,9 @@ Interfaces: ofrecerTablas(Color), aceptarTablas(Color), rechazarTablas(Color), o
 ### 4 Reloj e integración
 Archivos: Nucleo/tiempo/{FuenteDeTiempo,RelojPartida,RelojAjedrez,SinReloj}.java,
 adaptadores/FuenteDeTiempoSistema.java, dobles/FuenteDeTiempoFalsa.java y Partida.java.
-Interfaces: fuente ahoraEnNanos(): long; reloj iniciar(Color), cambiarTurno(), detener(),
-tiempoRestante(Color): Optional<Duration>, tiempoAgotado(Color): boolean;
-Partida.verificarTiempo(), tiempoRestante(Color) y constructores con reloj.
+Interfaces: fuente ahoraEnNanos(): long; reloj iniciar(Bando), cambiarTurno(), detener(),
+tiempoRestante(Bando): Optional<Duration>, tiempoAgotado(Bando): boolean;
+Partida.verificarTiempo(), tiempoRestante(Bando) y constructores con reloj.
 - [x] Tests primero del reloj con 30 segundos, alternancia, exacto cero y detención.
 - [x] Ejecutar RED, implementar reloj, ejecutar GREEN.
 - [x] Tests primero de integración: movimiento inválido, vencimiento antes de mover,

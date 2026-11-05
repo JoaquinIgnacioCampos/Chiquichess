@@ -1,24 +1,24 @@
 package Nucleo.tiempo;
 
-import Nucleo.piezas.Color;
 import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import Nucleo.bando.Bando;
 /** Descuenta tiempo por consultas y cambios de turno, sin ejecutar tareas propias. */
 public class RelojAjedrez implements RelojPartida {
     private final FuenteDeTiempo fuente;
-    private final Map<Color, Duration> restantes = new EnumMap<>(Color.class);
+    private final Map<Bando, Duration> restantes = new EnumMap<>(Bando.class);
     private boolean iniciado;
-    private Color activo;
+    private Bando activo;
     private long inicioDelTurno;
 
     public RelojAjedrez(Duration tiempoBlanco, Duration tiempoNegro, FuenteDeTiempo fuente) {
         this.fuente = Objects.requireNonNull(fuente, "fuente");
-        restantes.put(Color.BLANCO, validarDuracion(tiempoBlanco));
-        restantes.put(Color.NEGRO, validarDuracion(tiempoNegro));
+        restantes.put(Bando.BLANCO, validarDuracion(tiempoBlanco));
+        restantes.put(Bando.NEGRO, validarDuracion(tiempoNegro));
     }
 
     private static Duration validarDuracion(Duration duracion) {
@@ -30,7 +30,7 @@ public class RelojAjedrez implements RelojPartida {
     }
 
     @Override
-    public void iniciar(Color color) {
+    public void iniciar(Bando color) {
         Objects.requireNonNull(color, "color");
         if (iniciado) {
             throw new IllegalStateException("El reloj ya pertenece a una partida iniciada");
@@ -60,7 +60,7 @@ public class RelojAjedrez implements RelojPartida {
     }
 
     @Override
-    public Optional<Duration> tiempoRestante(Color color) {
+    public Optional<Duration> tiempoRestante(Bando color) {
         Objects.requireNonNull(color, "color");
         return Optional.of(color == activo
                 ? restanteActivo(fuente.ahoraEnNanos())

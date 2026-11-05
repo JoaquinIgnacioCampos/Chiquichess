@@ -30,7 +30,7 @@
 
 ### 1 Consultas del modelo
 Archivos: Partida.java, ControladorTablero.java, JugadorDePartidaTest.java.
-Interfaz: Partida.jugador(Color): Jugador inmutable; controlador delega jugador, turno, estado y resultado.
+Interfaz: Partida.jugador(Bando): Jugador inmutable; controlador delega jugador, turno, estado y resultado.
 - [x] Tests primero del acceso por color, consistencia con turno y argumento nulo; ejecutar RED.
 - [x] Agregar consulta mínima y delegaciones; suite GREEN.
 
@@ -56,4 +56,4 @@ Interfaces: VistaPartida(controlador, temaTablero, representacion, temaPanel), P
 - Cuatro escenas renderizadas e inspeccionadas: inicio, jaque, mate a 1280x820
   y ventana de 900x620 con nombres más largos. Sin advertencias de arranque.
 - Revisión independiente sin hallazgos accionables; consola comprobada hasta mate.
-- Único cambio del núcleo: consulta readonly jugador(Color), con dos tests nuevos.
+- Único cambio del núcleo: consulta readonly jugador(Bando), con dos tests nuevos.

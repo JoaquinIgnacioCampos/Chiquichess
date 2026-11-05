@@ -1,6 +1,5 @@
 package adaptadores.ui;
 
-import Nucleo.juego.Posicion;
 import Nucleo.piezas.*;
 import Nucleo.tablero.Tablero;
 import adaptadores.EnsambladorPartida;
@@ -12,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class VistaTableroTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
@@ -63,8 +64,8 @@ class VistaTableroTest {
     @Test
     void blancasAbajoYNegrasArribaSegunLasPiezasDelNucleo() {
         Tablero tablero = new Tablero(4, 6);
-        tablero.colocar(new Posicion(0, 0), new Rey(Color.BLANCO));
-        tablero.colocar(new Posicion(3, 5), new Rey(Color.NEGRO));
+        tablero.colocar(new Posicion(0, 0), new Rey(Bando.BLANCO));
+        tablero.colocar(new Posicion(3, 5), new Rey(Bando.NEGRO));
         VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
         assertEquals("♔", ((Text) casilla(vista, 0, 0).getChildren().getFirst()).getText());
         assertEquals("♚", ((Text) casilla(vista, 3, 5).getChildren().getFirst()).getText());

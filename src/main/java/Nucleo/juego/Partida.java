@@ -1,6 +1,5 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
 import Nucleo.tablero.ITablero;
@@ -11,6 +10,8 @@ import Nucleo.tiempo.SinReloj;
 import java.time.Duration;
 import java.util.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Orquesta una partida: turnos, validación, captura y estado.
  * Recibe sus colaboradores por constructor (inyección de dependencias), por lo que
@@ -27,10 +28,10 @@ public class Partida {
     private final RelojPartida reloj;
     private final List<Movimiento> historial = new ArrayList<>();
 
-    private Color turno = Color.BLANCO;
+    private Bando turno = Bando.BLANCO;
     private EstadoPartida estado;
     private Optional<ResultadoPartida> resultado = Optional.empty();
-    private Optional<Color> ofertaTablas = Optional.empty();
+    private Optional<Bando> ofertaTablas = Optional.empty();
 
     /**
      * Constructor de uso habitual: arma los MovimientosLegales con el mismo detector.
@@ -69,7 +70,7 @@ public class Partida {
         this.movimientosLegales = Objects.requireNonNull(movimientosLegales, "movimientosLegales");
         this.condiciones = List.copyOf(condiciones);
         this.reloj = Objects.requireNonNull(reloj, "reloj");
-        if (jugadorBlanco.color() != Color.BLANCO || jugadorNegro.color() != Color.NEGRO) {
+        if (jugadorBlanco.color() != Bando.BLANCO || jugadorNegro.color() != Bando.NEGRO) {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
         this.reloj.iniciar(turno);
@@ -80,18 +81,18 @@ public class Partida {
         return tablero;
     }
 
-    public Color turno() {
+    public Bando turno() {
         return turno;
     }
 
     public Jugador jugadorActual() {
-        return turno == Color.BLANCO ? jugadorBlanco : jugadorNegro;
+        return turno == Bando.BLANCO ? jugadorBlanco : jugadorNegro;
     }
 
     /** Identidad inmutable de un bando, independiente del turno actual. */
-    public Jugador jugador(Color color) {
+    public Jugador jugador(Bando color) {
         Objects.requireNonNull(color, "color");
-        return color == Color.BLANCO ? jugadorBlanco : jugadorNegro;
+        return color == Bando.BLANCO ? jugadorBlanco : jugadorNegro;
     }
 
     public EstadoPartida estado() {
@@ -101,7 +102,7 @@ public class Partida {
     /** Quién ganó; vacío si la partida sigue o terminó en tablas. */
     public Optional<Jugador> ganador() {
         return resultado.flatMap(ResultadoPartida::ganador)
-                .map(color -> color == Color.BLANCO ? jugadorBlanco : jugadorNegro);
+                .map(color -> color == Bando.BLANCO ? jugadorBlanco : jugadorNegro);
     }
 
     public Optional<ResultadoPartida> resultado() {
@@ -114,7 +115,7 @@ public class Partida {
     }
 
     /** Solo el jugador que tiene el turno puede rendirse. */
-    public void rendirse(Color color) {
+    public void rendirse(Bando color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
         if (color != turno) {
@@ -123,11 +124,11 @@ public class Partida {
         finalizar(EstadoPartida.RENDICION, Optional.of(color.opuesto()));
     }
 
-    public Optional<Color> ofertaTablasPendiente() {
+    public Optional<Bando> ofertaTablasPendiente() {
         return ofertaTablas;
     }
 
-    public void ofrecerTablas(Color color) {
+    public void ofrecerTablas(Bando color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
         if (color != turno) {
@@ -139,17 +140,17 @@ public class Partida {
         ofertaTablas = Optional.of(color);
     }
 
-    public void aceptarTablas(Color color) {
+    public void aceptarTablas(Bando color) {
         validarRespuestaTablas(color);
         finalizar(EstadoPartida.TABLAS_ACUERDO, Optional.empty());
     }
 
-    public void rechazarTablas(Color color) {
+    public void rechazarTablas(Bando color) {
         validarRespuestaTablas(color);
         ofertaTablas = Optional.empty();
     }
 
-    private void validarRespuestaTablas(Color color) {
+    private void validarRespuestaTablas(Bando color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
         if (ofertaTablas.isEmpty()) {
@@ -175,7 +176,7 @@ public class Partida {
         }
     }
 
-    private void finalizar(EstadoPartida estadoFinal, Optional<Color> ganador) {
+    private void finalizar(EstadoPartida estadoFinal, Optional<Bando> ganador) {
         resultado = Optional.of(new ResultadoPartida(ganador, estadoFinal.motivo().orElseThrow()));
         estado = estadoFinal;
         ofertaTablas = Optional.empty();
@@ -183,7 +184,7 @@ public class Partida {
     }
 
     /** Consulta pura: vacío significa que la partida no tiene límite de tiempo. */
-    public Optional<Duration> tiempoRestante(Color color) {
+    public Optional<Duration> tiempoRestante(Bando color) {
         return reloj.tiempoRestante(Objects.requireNonNull(color, "color"));
     }
 

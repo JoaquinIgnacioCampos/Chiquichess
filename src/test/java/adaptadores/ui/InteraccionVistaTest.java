@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.juego.Partida;
-import Nucleo.piezas.Color;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -17,6 +16,7 @@ import java.time.Duration;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 class InteraccionVistaTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
@@ -124,7 +124,7 @@ class InteraccionVistaTest {
         VistaPartida vista = vista(partida);
         pulsar(vista, "e4");
         pulsar(vista, "d5");
-        assertEquals(Color.BLANCO, partida.tablero().piezaEn(pos("d5")).orElseThrow().color());
+        assertEquals(Bando.BLANCO, partida.tablero().piezaEn(pos("d5")).orElseThrow().color());
         assertEquals(31, partida.tablero().piezas().size());
         assertEquals("♙", ((Text) casilla(vista, "d5").getChildren().getFirst()).getText());
         assertTrue(casilla(vista, "e4").getChildren().isEmpty());
@@ -140,7 +140,7 @@ class InteraccionVistaTest {
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "e4");
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.NEGRO, partida.turno());
         pulsar(vista, "d2");
         assertTrue(vista.lookupAll(".indicador-movimiento").isEmpty());
         pulsar(vista, "e7");

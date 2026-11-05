@@ -1,7 +1,5 @@
 package Nucleo.tablero;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.piezas.Torre;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,11 +9,12 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 class TableroTest {
 
     private Tablero tablero;
-    private final Pieza torreBlanca = new Torre(Color.BLANCO);
-    private final Pieza torreNegra = new Torre(Color.NEGRO);
+    private final Pieza torreBlanca = new Torre(Bando.BLANCO);
+    private final Pieza torreNegra = new Torre(Bando.NEGRO);
 
     @BeforeEach
     void prepararTablero() {

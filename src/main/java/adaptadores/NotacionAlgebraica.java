@@ -1,8 +1,8 @@
 package adaptadores;
 
 
-import Nucleo.juego.Posicion;
 
+import Nucleo.tablero.Posicion;
 /** Traduce entre el texto "e2" y una Posicion del núcleo (a1 = columna 0, fila 0). */
 public final class NotacionAlgebraica {
 

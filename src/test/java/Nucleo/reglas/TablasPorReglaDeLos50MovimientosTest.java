@@ -1,7 +1,6 @@
 package Nucleo.reglas;
 
 import Nucleo.piezas.Caballo;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Peon;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Tablero;
@@ -13,11 +12,12 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 class TablasPorReglaDeLos50MovimientosTest {
 
     private final Tablero tablero = TableroFake.vacio();
-    private final Pieza caballo = new Caballo(Color.BLANCO);
-    private final Pieza peon = new Peon(Color.BLANCO);
+    private final Pieza caballo = new Caballo(Bando.BLANCO);
+    private final Pieza peon = new Peon(Bando.BLANCO);
 
     @Test
     void rechazaUnLimiteMenorAUno() {
@@ -31,8 +31,8 @@ class TablasPorReglaDeLos50MovimientosTest {
         TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
 
         // Act
-        Optional<EstadoPartida> r1 = regla.evaluar(Contextos.inicial(tablero, Color.BLANCO));
-        Optional<EstadoPartida> r2 = regla.evaluar(Contextos.inicial(tablero, Color.BLANCO));
+        Optional<EstadoPartida> r1 = regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
+        Optional<EstadoPartida> r2 = regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
 
         // Assert
         assertTrue(r1.isEmpty());
@@ -60,7 +60,7 @@ class TablasPorReglaDeLos50MovimientosTest {
         regla.evaluar(jugadaSuelta());
 
         // Act
-        regla.evaluar(Contextos.trasMover(tablero, Color.BLANCO, peon, false));
+        regla.evaluar(Contextos.trasMover(tablero, Bando.BLANCO, peon, false));
         Optional<EstadoPartida> resultado = regla.evaluar(jugadaSuelta());
 
         // Assert
@@ -74,7 +74,7 @@ class TablasPorReglaDeLos50MovimientosTest {
         regla.evaluar(jugadaSuelta());
 
         // Act
-        regla.evaluar(Contextos.trasMover(tablero, Color.BLANCO, caballo, true));
+        regla.evaluar(Contextos.trasMover(tablero, Bando.BLANCO, caballo, true));
         Optional<EstadoPartida> resultado = regla.evaluar(jugadaSuelta());
 
         // Assert
@@ -98,6 +98,6 @@ class TablasPorReglaDeLos50MovimientosTest {
 
     /** Jugada de una pieza que no es peón y sin captura: no hay "progreso". */
     private ContextoDeJugada jugadaSuelta() {
-        return Contextos.trasMover(tablero, Color.BLANCO, caballo, false);
+        return Contextos.trasMover(tablero, Bando.BLANCO, caballo, false);
     }
 }

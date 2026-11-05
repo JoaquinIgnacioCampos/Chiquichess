@@ -1,7 +1,5 @@
 package Nucleo.movimientos;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class SaltoFijoTest {
 
     private static final int[][] SALTOS_DE_CABALLO = {
@@ -23,7 +23,7 @@ class SaltoFijoTest {
         SaltoFijo salto = new SaltoFijo(SALTOS_DE_CABALLO);
 
         // Act
-        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("d4"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("e6", "f5", "c6", "b5", "e2", "f3", "c2", "b3"), destinos);
@@ -35,7 +35,7 @@ class SaltoFijoTest {
         SaltoFijo salto = new SaltoFijo(SALTOS_DE_CABALLO);
 
         // Act
-        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("b3", "c2"), destinos);
@@ -56,7 +56,7 @@ class SaltoFijoTest {
         SaltoFijo salto = new SaltoFijo(SALTOS_DE_CABALLO);
 
         // Act
-        Set<Posicion> destinos = salto.destinosPosibles(tablero, pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = salto.destinosPosibles(tablero, pos("d4"), Bando.BLANCO);
 
         // Assert
         assertEquals(8, destinos.size());
@@ -77,7 +77,7 @@ class SaltoFijoTest {
         SaltoFijo salto = new SaltoFijo(SALTOS_DE_CABALLO);
 
         // Act
-        Set<Posicion> destinos = salto.destinosPosibles(tablero, pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = salto.destinosPosibles(tablero, pos("d4"), Bando.BLANCO);
 
         // Assert
         assertFalse(destinos.contains(pos("c6")));
@@ -94,7 +94,7 @@ class SaltoFijoTest {
         desplazamientos[0][0] = 2;
 
         // Assert
-        assertEquals(posiciones("e6"), salto.destinosPosibles(TableroFake.vacio(), pos("d4"), Color.BLANCO));
+        assertEquals(posiciones("e6"), salto.destinosPosibles(TableroFake.vacio(), pos("d4"), Bando.BLANCO));
     }
 
     @Test
@@ -103,8 +103,8 @@ class SaltoFijoTest {
         SaltoFijo salto = new SaltoFijo(SALTOS_DE_CABALLO);
 
         // Act
-        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("b1"), Color.BLANCO);
-        Set<Posicion> atacadas = salto.casillasAtacadas(TableroFake.vacio(), pos("b1"), Color.BLANCO);
+        Set<Posicion> destinos = salto.destinosPosibles(TableroFake.vacio(), pos("b1"), Bando.BLANCO);
+        Set<Posicion> atacadas = salto.casillasAtacadas(TableroFake.vacio(), pos("b1"), Bando.BLANCO);
 
         // Assert
         assertEquals(destinos, atacadas);

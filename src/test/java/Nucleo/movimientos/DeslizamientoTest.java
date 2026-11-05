@@ -1,7 +1,5 @@
 package Nucleo.movimientos;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class DeslizamientoTest {
 
     private static final int DERECHA = 1;
@@ -34,7 +34,7 @@ class DeslizamientoTest {
         Deslizamiento haciaLaDerecha = new Deslizamiento(DERECHA, 0, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = haciaLaDerecha.destinosPosibles(TableroFake.vacio(), pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = haciaLaDerecha.destinosPosibles(TableroFake.vacio(), pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("b1", "c1", "d1", "e1", "f1", "g1", "h1"), destinos);
@@ -46,7 +46,7 @@ class DeslizamientoTest {
         Deslizamiento dosPasos = new Deslizamiento(DERECHA, 0, 2);
 
         // Act
-        Set<Posicion> destinos = dosPasos.destinosPosibles(TableroFake.vacio(), pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = dosPasos.destinosPosibles(TableroFake.vacio(), pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("b1", "c1"), destinos);
@@ -67,7 +67,7 @@ class DeslizamientoTest {
         Deslizamiento hacia = new Deslizamiento(DERECHA, 0, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("b1", "c1", "d1"), destinos);
@@ -88,7 +88,7 @@ class DeslizamientoTest {
         Deslizamiento hacia = new Deslizamiento(DERECHA, 0, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("b1", "c1", "d1", "e1"), destinos);
@@ -100,7 +100,7 @@ class DeslizamientoTest {
         Deslizamiento haciaLaIzquierda = new Deslizamiento(-1, 0, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = haciaLaIzquierda.destinosPosibles(TableroFake.vacio(), pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = haciaLaIzquierda.destinosPosibles(TableroFake.vacio(), pos("a1"), Bando.BLANCO);
 
         // Assert
         assertTrue(destinos.isEmpty());
@@ -112,7 +112,7 @@ class DeslizamientoTest {
         Deslizamiento diagonal = new Deslizamiento(1, 1, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = diagonal.destinosPosibles(TableroFake.vacio(), pos("e5"), Color.BLANCO);
+        Set<Posicion> destinos = diagonal.destinosPosibles(TableroFake.vacio(), pos("e5"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("f6", "g7", "h8"), destinos);
@@ -133,8 +133,8 @@ class DeslizamientoTest {
         Deslizamiento hacia = new Deslizamiento(DERECHA, 0, Deslizamiento.SIN_LIMITE);
 
         // Act
-        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Color.BLANCO);
-        Set<Posicion> atacadas = hacia.casillasAtacadas(tablero, pos("a1"), Color.BLANCO);
+        Set<Posicion> destinos = hacia.destinosPosibles(tablero, pos("a1"), Bando.BLANCO);
+        Set<Posicion> atacadas = hacia.casillasAtacadas(tablero, pos("a1"), Bando.BLANCO);
 
         // Assert
         assertEquals(destinos, atacadas);

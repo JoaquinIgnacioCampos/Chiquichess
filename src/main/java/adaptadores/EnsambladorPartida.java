@@ -3,7 +3,6 @@ package adaptadores;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.Ahogado;
 import Nucleo.reglas.DetectorDeJaque;
 import Nucleo.reglas.JaqueMate;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import Nucleo.bando.Bando;
 /** Único lugar que construye el grafo del juego para los adaptadores de entrada. */
 public final class EnsambladorPartida {
     public Partida crearConReloj(Duration tiempoPorJugador) {
@@ -52,15 +52,15 @@ public final class EnsambladorPartida {
         RelojPartida reloj = configuracion.tiempo().duracion()
                 .<RelojPartida>map(duracion -> new RelojAjedrez(duracion, duracion, new FuenteDeTiempoSistema()))
                 .orElseGet(SinReloj::new);
-        Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : "Jugador 2", Color.BLANCO),
-                new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Color.NEGRO));
+        Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : "Jugador 2", Bando.BLANCO),
+                new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Bando.NEGRO));
         return new PartidaConfigurada(partida,
                 jugador1Blancas ? configuracion.equipoJugador1() : configuracion.equipoJugador2(),
                 jugador1Blancas ? configuracion.equipoJugador2() : configuracion.equipoJugador1(), reloj);
     }
 
     private Partida crear(RelojPartida reloj) {
-        return crear(reloj, new Jugador("Jugador 1", Color.BLANCO), new Jugador("Jugador 2", Color.NEGRO));
+        return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO));
     }
 
     private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras) {

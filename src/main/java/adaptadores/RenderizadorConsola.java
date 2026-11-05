@@ -1,13 +1,13 @@
 package adaptadores;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
 
 
 import java.util.Optional;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Adaptador de salida: dibuja el tablero como texto. Blancas en mayúscula, negras en minúscula. */
 public class RenderizadorConsola {
 
@@ -30,7 +30,7 @@ public class RenderizadorConsola {
     }
 
     private char simbolo(Pieza pieza) {
-        return pieza.color() == Color.BLANCO
+        return pieza.color() == Bando.BLANCO
                 ? Character.toUpperCase(pieza.codigo())
                 : Character.toLowerCase(pieza.codigo());
     }

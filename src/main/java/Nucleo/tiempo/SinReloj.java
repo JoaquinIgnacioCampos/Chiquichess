@@ -1,14 +1,14 @@
 package Nucleo.tiempo;
 
-import Nucleo.piezas.Color;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
+import Nucleo.bando.Bando;
 /** Null Object: partida sin límite; evita condicionales por ausencia de reloj. */
 public class SinReloj implements RelojPartida {
     @Override
-    public void iniciar(Color color) {
+    public void iniciar(Bando color) {
         Objects.requireNonNull(color, "color");
     }
 
@@ -21,7 +21,7 @@ public class SinReloj implements RelojPartida {
     }
 
     @Override
-    public Optional<Duration> tiempoRestante(Color color) {
+    public Optional<Duration> tiempoRestante(Bando color) {
         Objects.requireNonNull(color, "color");
         return Optional.empty();
     }

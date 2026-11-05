@@ -1,6 +1,5 @@
 package Nucleo.piezas;
 
-import Nucleo.juego.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -11,12 +10,14 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class PeonTest {
 
     @Test
     void blancoEnSuFilaInicialPuedeAvanzarUnaODosCasillas() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e2", peon);
 
         // Act
@@ -29,7 +30,7 @@ class PeonTest {
     @Test
     void blancoFueraDeSuFilaInicialSoloAvanzaUnaCasilla() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e3", peon);
 
         // Act
@@ -42,7 +43,7 @@ class PeonTest {
     @Test
     void negroAvanzaHaciaFilasMenores() {
         // Arrange
-        Peon peon = new Peon(Color.NEGRO);
+        Peon peon = new Peon(Bando.NEGRO);
         Tablero tablero = TableroFake.conUnaPieza("e7", peon);
 
         // Act
@@ -55,7 +56,7 @@ class PeonTest {
     @Test
     void negroFueraDeSuFilaInicialSoloAvanzaUnaCasilla() {
         // Arrange
-        Peon peon = new Peon(Color.NEGRO);
+        Peon peon = new Peon(Bando.NEGRO);
         Tablero tablero = TableroFake.conUnaPieza("e6", peon);
 
         // Act
@@ -173,7 +174,7 @@ class PeonTest {
     @Test
     void sinPiezasEnLasDiagonalesNoPuedeMoverseEnDiagonal() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e4", peon);
 
         // Act
@@ -187,7 +188,7 @@ class PeonTest {
     @Test
     void atacaSusDiagonalesAunqueEstenVaciasPeroNoLaCasillaDeAdelante() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e4", peon);
 
         // Act
@@ -200,7 +201,7 @@ class PeonTest {
     @Test
     void elPeonNegroAtacaHaciaAbajo() {
         // Arrange
-        Peon peon = new Peon(Color.NEGRO);
+        Peon peon = new Peon(Bando.NEGRO);
         Tablero tablero = TableroFake.conUnaPieza("e5", peon);
 
         // Act
@@ -213,7 +214,7 @@ class PeonTest {
     @Test
     void enElBordeSoloAtacaUnaDiagonal() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("a4", peon);
 
         // Act
@@ -226,7 +227,7 @@ class PeonTest {
     @Test
     void enLaUltimaFilaNoTieneMovimientosPorqueLaPromocionNoEstaImplementada() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e8", peon);
 
         // Act
@@ -239,7 +240,7 @@ class PeonTest {
     @Test
     void enUnTableroMasAltoElNegroEmpiezaEnLaPenultimaFila() {
         // Arrange: tablero de 8 columnas x 10 filas, la fila inicial negra es la 9
-        Peon peon = new Peon(Color.NEGRO);
+        Peon peon = new Peon(Bando.NEGRO);
         Tablero tablero = new Tablero(8, 10);
         tablero.colocar(pos("e9"), peon);
 
@@ -253,7 +254,7 @@ class PeonTest {
     @Test
     void seIdentificaComoPeon() {
         // Arrange
-        Peon peon = new Peon(Color.BLANCO);
+        Peon peon = new Peon(Bando.BLANCO);
 
         // Assert
         assertTrue(peon.esPeon());

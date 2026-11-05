@@ -1,8 +1,6 @@
 package Nucleo.reglas;
 
 import Nucleo.juego.DisposicionEstandar;
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Tablero;
 import dobles.StubDetectorDeJaque;
@@ -17,6 +15,8 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class MovimientosLegalesTest {
 
     // ---------- Con stub del detector: se prueba solo el filtrado, sin posiciones reales ----------
@@ -42,7 +42,7 @@ class MovimientosLegalesTest {
 
         // Act + Assert
         assertTrue(legales.destinos(tablero, pos("g1")).isEmpty());
-        assertFalse(legales.existeAlguno(tablero, Color.BLANCO));
+        assertFalse(legales.existeAlguno(tablero, Bando.BLANCO));
     }
 
     @Test
@@ -133,8 +133,8 @@ class MovimientosLegalesTest {
         Tablero tablero = new DisposicionEstandar().crearTablero();
 
         // Act + Assert
-        assertTrue(legales.existeAlguno(tablero, Color.BLANCO));
-        assertTrue(legales.existeAlguno(tablero, Color.NEGRO));
+        assertTrue(legales.existeAlguno(tablero, Bando.BLANCO));
+        assertTrue(legales.existeAlguno(tablero, Bando.NEGRO));
     }
 
     @Test
@@ -151,7 +151,7 @@ class MovimientosLegalesTest {
                 "........");
 
         // Act
-        boolean hayJugada = legales.existeAlguno(tablero, Color.NEGRO);
+        boolean hayJugada = legales.existeAlguno(tablero, Bando.NEGRO);
 
         // Assert
         assertFalse(hayJugada);

@@ -1,6 +1,5 @@
 package adaptadores.ui;
 
-import Nucleo.piezas.Color;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.layout.StackPane;
@@ -12,18 +11,19 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
+import Nucleo.bando.Bando;
 /** Presenta una duración del núcleo, sin descontar tiempo ni determinar resultados. */
 public final class VistaReloj extends StackPane {
     private final TemaPanel tema;
     private final TextoLed digitos;
     private final Text sinLimite = new Text("Sin límite");
 
-    public VistaReloj(Color color, TemaPanel tema) {
+    public VistaReloj(Bando color, TemaPanel tema) {
         Objects.requireNonNull(color, "color");
         this.tema = Objects.requireNonNull(tema, "tema");
-        setId(color == Color.BLANCO ? "reloj-blanco" : "reloj-negro");
+        setId(color == Bando.BLANCO ? "reloj-blanco" : "reloj-negro");
         setAccessibleRole(AccessibleRole.TEXT);
-        setAccessibleHelp(color == Color.BLANCO ? "Tiempo de blancas" : "Tiempo de negras");
+        setAccessibleHelp(color == Bando.BLANCO ? "Tiempo de blancas" : "Tiempo de negras");
         setMouseTransparent(true);
         setAlignment(Pos.CENTER_RIGHT);
         setMinSize(0, 16);

@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import Nucleo.bando.Bando;
 /** Arranque gráfico: ensambla el juego e inyecta la partida en la vista. */
 public class AplicacionAjedrez extends Application {
     private ActualizadorRelojJavaFx actualizadorReloj;
@@ -38,8 +39,8 @@ public class AplicacionAjedrez extends Application {
         ControladorTablero controlador = new ControladorTablero(partida);
         TemaPanel temaPanel = TemaPanel.marcador();
         var clubes = java.util.Map.of(
-                Nucleo.piezas.Color.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
-                Nucleo.piezas.Color.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
+                Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
+                Bando.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
         VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes);
         vista.configurarRendicion();
         vista.configurarTablas();

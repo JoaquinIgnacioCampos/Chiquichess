@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.juego.Jugador;
-import Nucleo.piezas.Color;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.effect.DropShadow;
@@ -15,11 +14,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+import Nucleo.bando.Bando;
 /** Identificación y acciones de presentación de un jugador, sin reglas del juego. */
 final class TarjetaJugador extends StackPane {
     private enum Panel { NORMAL, RENDICION, OFERTA, RESPUESTA }
     private final TemaPanel tema;
-    private final Color color;
+    private final Bando color;
     private final Text nombre = new Text();
     private final Text nombreClub = new Text();
     private final Text bando = new Text();
@@ -37,16 +37,16 @@ final class TarjetaJugador extends StackPane {
     private Panel panelVisible = Panel.NORMAL;
     private final StackPane insignia;
 
-    TarjetaJugador(Color color, TemaPanel tema) {
+    TarjetaJugador(Bando color, TemaPanel tema) {
         this(color, tema, null);
     }
 
-    TarjetaJugador(Color color, TemaPanel temaBase, PresentacionClub club) {
+    TarjetaJugador(Bando color, TemaPanel temaBase, PresentacionClub club) {
         TemaPanel tema = club == null ? temaBase : club.tema();
         this.tema = tema;
         this.color = color;
-        setId(color == Color.BLANCO ? "jugador-blanco" : "jugador-negro");
-        nombre.setId(color == Color.BLANCO ? "nombre-blanco" : "nombre-negro");
+        setId(color == Bando.BLANCO ? "jugador-blanco" : "jugador-negro");
+        nombre.setId(color == Bando.BLANCO ? "nombre-blanco" : "nombre-negro");
         nombre.setFill(tema.texto());
         setMinSize(0, 0);
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -55,7 +55,7 @@ final class TarjetaJugador extends StackPane {
         contenido.setAlignment(Pos.CENTER_LEFT);
         setBackground(new Background(new BackgroundFill(tema.tarjeta(), CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Text rol = new Text(color == Color.BLANCO ? "LOCAL" : "VISITANTE");
+        Text rol = new Text(color == Bando.BLANCO ? "LOCAL" : "VISITANTE");
         rol.setFont(Font.font("Consolas", FontWeight.BOLD, 14));
         rol.setFill(tema.textoSecundario());
         reloj = new VistaReloj(color, tema);
@@ -66,12 +66,12 @@ final class TarjetaJugador extends StackPane {
         cabecera.setAlignment(Pos.CENTER_LEFT);
 
         Polygon escudo = new Polygon(32, 0, 62, 10, 60, 46, 51, 63, 32, 76, 13, 63, 4, 46, 2, 10);
-        escudo.setFill(color == Color.BLANCO ? tema.insigniaBlanca() : tema.insigniaNegra());
+        escudo.setFill(color == Bando.BLANCO ? tema.insigniaBlanca() : tema.insigniaNegra());
         escudo.setStroke(tema.borde());
         escudo.setStrokeWidth(2);
-        Text peon = new Text(color == Color.BLANCO ? "♙" : "♟");
+        Text peon = new Text(color == Bando.BLANCO ? "♙" : "♟");
         peon.setFont(Font.font("Segoe UI Symbol", 44));
-        peon.setFill(color == Color.BLANCO ? tema.insigniaNegra() : tema.insigniaBlanca());
+        peon.setFill(color == Bando.BLANCO ? tema.insigniaNegra() : tema.insigniaBlanca());
         insignia = new StackPane();
         if (club == null) {
             insignia.getChildren().addAll(escudo, peon);
@@ -90,7 +90,7 @@ final class TarjetaJugador extends StackPane {
         insignia.setPrefSize(64, 80);
         insignia.setMaxSize(64, 80);
 
-        bando.setText(color == Color.BLANCO ? "BLANCAS" : "NEGRAS");
+        bando.setText(color == Bando.BLANCO ? "BLANCAS" : "NEGRAS");
         bando.setFill(tema.textoSecundario());
         bando.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
         nombreClub.setId("club-" + sufijo());
@@ -142,7 +142,7 @@ final class TarjetaJugador extends StackPane {
     }
 
     private String sufijo() {
-        return color == Color.BLANCO ? "blanco" : "negro";
+        return color == Bando.BLANCO ? "blanco" : "negro";
     }
 
     void actualizar(Jugador jugador, boolean activo) {
@@ -200,7 +200,7 @@ final class TarjetaJugador extends StackPane {
         if (ofrecerTablas != null) throw new IllegalStateException("Tablas ya configuradas");
         ofrecerTablas = new Button("Ofrecer tablas");
         ofrecerTablas.setId("ofrecer-tablas-" + sufijo());
-        ofrecerTablas.setAccessibleText("Ofrecer tablas: " + (color == Color.BLANCO ? "blancas" : "negras"));
+        ofrecerTablas.setAccessibleText("Ofrecer tablas: " + (color == Bando.BLANCO ? "blancas" : "negras"));
         ofrecerTablas.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
         ofrecerTablas.setTextFill(tema.acento());
         ofrecerTablas.setPadding(new Insets(5, 8, 5, 8));

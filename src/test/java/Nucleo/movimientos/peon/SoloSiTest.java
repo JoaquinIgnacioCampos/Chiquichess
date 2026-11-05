@@ -1,7 +1,5 @@
 package Nucleo.movimientos.peon;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import dobles.MockReglaMovimiento;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Se usa un mock de la regla interna para verificar si SoloSi la llama o no. */
 class SoloSiTest {
 
@@ -22,7 +22,7 @@ class SoloSiTest {
         SoloSi regla = new SoloSi((tablero, origen, color) -> true, interna);
 
         // Act
-        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e2"), Color.BLANCO);
+        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e2"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("e4"), destinos);
@@ -36,8 +36,8 @@ class SoloSiTest {
         SoloSi regla = new SoloSi((tablero, origen, color) -> false, interna);
 
         // Act
-        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e3"), Color.BLANCO);
-        Set<Posicion> atacadas = regla.casillasAtacadas(TableroFake.vacio(), pos("e3"), Color.BLANCO);
+        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e3"), Bando.BLANCO);
+        Set<Posicion> atacadas = regla.casillasAtacadas(TableroFake.vacio(), pos("e3"), Bando.BLANCO);
 
         // Assert
         assertTrue(destinos.isEmpty());
@@ -50,12 +50,12 @@ class SoloSiTest {
     void laCondicionRecibeElOrigenYElColor() {
         // Arrange: la condición solo se cumple para peones negros en la fila 7
         SoloSi regla = new SoloSi(
-                (tablero, origen, color) -> color == Color.NEGRO && origen.fila() == 6,
+                (tablero, origen, color) -> color == Bando.NEGRO && origen.fila() == 6,
                 new MockReglaMovimiento(posiciones("e5")));
 
         // Act
-        Set<Posicion> negroEnFila7 = regla.destinosPosibles(TableroFake.vacio(), pos("e7"), Color.NEGRO);
-        Set<Posicion> blancoEnFila7 = regla.destinosPosibles(TableroFake.vacio(), pos("e7"), Color.BLANCO);
+        Set<Posicion> negroEnFila7 = regla.destinosPosibles(TableroFake.vacio(), pos("e7"), Bando.NEGRO);
+        Set<Posicion> blancoEnFila7 = regla.destinosPosibles(TableroFake.vacio(), pos("e7"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("e5"), negroEnFila7);

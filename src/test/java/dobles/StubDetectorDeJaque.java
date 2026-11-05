@@ -1,9 +1,9 @@
 package dobles;
 
-import Nucleo.piezas.Color;
 import Nucleo.reglas.IDetectorDeJaque;
 import Nucleo.tablero.ITablero;
 
+import Nucleo.bando.Bando;
 /** Stub: responde siempre "en jaque" o siempre "sin jaque", sin analizar el tablero. */
 public class StubDetectorDeJaque implements IDetectorDeJaque {
 
@@ -22,7 +22,7 @@ public class StubDetectorDeJaque implements IDetectorDeJaque {
     }
 
     @Override
-    public boolean estaEnJaque(ITablero tablero, Color color) {
+    public boolean estaEnJaque(ITablero tablero, Bando color) {
         return respuesta;
     }
 }

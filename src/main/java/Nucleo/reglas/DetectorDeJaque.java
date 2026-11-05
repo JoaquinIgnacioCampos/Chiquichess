@@ -1,18 +1,17 @@
 package Nucleo.reglas;
 
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-
 import java.util.Map;
 import java.util.Optional;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Responsabilidad única: decir si el rey de un color está siendo atacado. */
 public class DetectorDeJaque implements IDetectorDeJaque {
 
     @Override
-    public boolean estaEnJaque(ITablero tablero, Color color) {
+    public boolean estaEnJaque(ITablero tablero, Bando color) {
         Optional<Posicion> posicionRey = buscarRey(tablero, color);
         if (posicionRey.isEmpty()) {
             return false;
@@ -27,7 +26,7 @@ public class DetectorDeJaque implements IDetectorDeJaque {
         return false;
     }
 
-    private Optional<Posicion> buscarRey(ITablero tablero, Color color) {
+    private Optional<Posicion> buscarRey(ITablero tablero, Bando color) {
         return tablero.piezas().entrySet().stream()
                 .filter(e -> e.getValue().esRey() && e.getValue().color() == color)
                 .map(Map.Entry::getKey)

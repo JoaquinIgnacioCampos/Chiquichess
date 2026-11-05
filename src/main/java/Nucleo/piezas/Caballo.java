@@ -1,10 +1,10 @@
 package Nucleo.piezas;
 
-import Nucleo.reglas.ReglasBase;
-
+import Nucleo.bando.Bando;
+import Nucleo.movimientos.ReglasBase;
 public class Caballo extends Pieza {
 
-    public Caballo(Color color) {
+    public Caballo(Bando color) {
         super(color, ReglasBase.saltosDeCaballo());
     }
 

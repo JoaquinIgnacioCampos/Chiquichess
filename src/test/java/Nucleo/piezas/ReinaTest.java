@@ -1,6 +1,5 @@
 package Nucleo.piezas;
 
-import Nucleo.juego.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -11,12 +10,14 @@ import java.util.Set;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class ReinaTest {
 
     @Test
     void enD4DeUnTableroVacioTiene27Destinos() {
         // Arrange
-        Reina reina = new Reina(Color.BLANCO);
+        Reina reina = new Reina(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", reina);
 
         // Act
@@ -31,11 +32,11 @@ class ReinaTest {
         // Arrange
         Tablero tablero = TableroFake.vacio();
         Set<Posicion> torreMasAlfil = new HashSet<>();
-        torreMasAlfil.addAll(new Torre(Color.BLANCO).destinosPosibles(tablero, pos("c3")));
-        torreMasAlfil.addAll(new Alfil(Color.BLANCO).destinosPosibles(tablero, pos("c3")));
+        torreMasAlfil.addAll(new Torre(Bando.BLANCO).destinosPosibles(tablero, pos("c3")));
+        torreMasAlfil.addAll(new Alfil(Bando.BLANCO).destinosPosibles(tablero, pos("c3")));
 
         // Act
-        Set<Posicion> destinosReina = new Reina(Color.BLANCO).destinosPosibles(tablero, pos("c3"));
+        Set<Posicion> destinosReina = new Reina(Bando.BLANCO).destinosPosibles(tablero, pos("c3"));
 
         // Assert
         assertEquals(torreMasAlfil, destinosReina);
@@ -68,7 +69,7 @@ class ReinaTest {
     @Test
     void seIdentificaComoDama() {
         // Arrange
-        Reina reina = new Reina(Color.BLANCO);
+        Reina reina = new Reina(Bando.BLANCO);
 
         // Assert
         assertEquals('D', reina.codigo());

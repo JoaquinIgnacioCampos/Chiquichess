@@ -13,7 +13,7 @@ Los 182 tests originales pasaron antes de ampliar el núcleo.
 
 ## Resultado y compatibilidad
 
-**Qué:** ResultadoPartida es un record con Optional<Color> ganador y
+**Qué:** ResultadoPartida es un record con Optional<Bando> ganador y
 MotivoFinalizacion motivo. Partida.resultado() es vacío mientras la partida sigue,
 incluido el jaque. Un resultado sin ganador representa tablas. Su constructor
 rechaza motivos de tablas con ganador y victorias sin ganador.
@@ -32,17 +32,17 @@ mate y las tres tablas originales, no para determinar ganadores de rendiciones.
 
 ## Órdenes de jugadores y ofertas
 
-**Qué:** rendirse(Color) admite cualquier bando mientras la partida siga.
-ofrecerTablas(Color) exige turno y ausencia de oferta. aceptarTablas(Color) y
-rechazarTablas(Color) solo admiten al rival del oferente. Una jugada válida del
+**Qué:** rendirse(Bando) admite cualquier bando mientras la partida siga.
+ofrecerTablas(Bando) exige turno y ausencia de oferta. aceptarTablas(Bando) y
+rechazarTablas(Bando) solo admiten al rival del oferente. Una jugada válida del
 rival rechaza la oferta; las jugadas del oferente y los intentos inválidos la
 conservan. Los errores de órdenes usan AccionInvalidaException con motivo tipado;
 los movimientos conservan su excepción original.
 
 **Por qué:** Estas son reglas del dominio, reutilizables desde UI, bot y pruebas.
-Color identifica uno de los dos bandos; la partida no depende de sesiones de UI.
+Bando identifica uno de los dos bandos; la partida no depende de sesiones de UI.
 
-**Cuándo se rompería:** Color no autentica al usuario que envía la orden. Una
+**Cuándo se rompería:** Bando no autentica al usuario que envía la orden. Una
 aplicación remota deberá identificarlo y autorizar el bando en la capa de aplicación.
 Otra política de ofertas requeriría revisar estas reglas y sus pruebas.
 

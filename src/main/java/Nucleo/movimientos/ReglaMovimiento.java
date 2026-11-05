@@ -1,11 +1,10 @@
 package Nucleo.movimientos;
 
-import Nucleo.piezas.Color;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Estrategia de movimiento. Es la pieza clave de la composición: los movimientos
  * base (deslizamiento, salto) y los modificadores (SoloSiVacio, SoloSiCaptura, SoloSi)
@@ -18,7 +17,7 @@ import java.util.Set;
  */
 public interface ReglaMovimiento {
 
-    Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color);
+    Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color);
 
-    Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color);
+    Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color);
 }

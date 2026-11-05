@@ -1,13 +1,13 @@
 package Nucleo.reglas;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Tablas cuando la misma posición (mismas piezas en las mismas casillas y mismo turno)
  * aparece N veces, por defecto 3. No considera derechos de enroque ni de captura al paso
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class TablasPorRepeticion implements CondicionDeFinalizacion {
 
     /** Identidad de una posición. Al ser record, equals/hashCode comparan el contenido. */
-    private record Instantanea(Map<Posicion, String> casillas, Color turno) {
+    private record Instantanea(Map<Posicion, String> casillas, Bando turno) {
     }
 
     private final int repeticionesParaTablas;

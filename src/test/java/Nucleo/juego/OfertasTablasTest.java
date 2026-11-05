@@ -1,6 +1,5 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
 import org.junit.jupiter.api.Test;
 
@@ -10,19 +9,21 @@ import java.util.Optional;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 class OfertasTablasTest {
     private Partida partida() {
         return new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Ana", Color.BLANCO), new Jugador("Beto", Color.NEGRO),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 new DetectorDeJaque(), List.of(new JaqueMate(), new Ahogado()));
     }
 
     @Test
     void ofrecerYAceptarTerminaPorAcuerdoSinGanador() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
-        partida.aceptarTablas(Color.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
+        partida.aceptarTablas(Bando.NEGRO);
         assertEquals(EstadoPartida.TABLAS_ACUERDO, partida.estado());
         assertTrue(partida.estado().estaFinalizada());
         assertTrue(partida.estado().esTablas());
@@ -37,63 +38,63 @@ class OfertasTablasTest {
     void negrasTambienPuedenOfrecerDuranteSuTurno() {
         Partida partida = partida();
         partida.mover(mov("e2", "e4"));
-        partida.ofrecerTablas(Color.NEGRO);
-        partida.aceptarTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.NEGRO);
+        partida.aceptarTablas(Bando.BLANCO);
         assertEquals(MotivoFinalizacion.ACUERDO, partida.resultado().orElseThrow().motivo());
     }
 
     @Test
     void rechazarBorraOfertaYPermiteSeguirJugando() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.rechazarTablas(Color.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.rechazarTablas(Bando.NEGRO);
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
         assertEquals(EstadoPartida.EN_CURSO, partida.estado());
-        partida.ofrecerTablas(Color.BLANCO);
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
+        partida.ofrecerTablas(Bando.BLANCO);
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
     }
 
     @Test
     void aceptarSinOfertaSeRechaza() {
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida().aceptarTablas(Color.NEGRO));
+                () -> partida().aceptarTablas(Bando.NEGRO));
         assertEquals(AccionInvalidaException.Motivo.SIN_OFERTA, error.motivo());
     }
 
     @Test
     void rechazarSinOfertaSeRechaza() {
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida().rechazarTablas(Color.NEGRO));
+                () -> partida().rechazarTablas(Bando.NEGRO));
         assertEquals(AccionInvalidaException.Motivo.SIN_OFERTA, error.motivo());
     }
 
     @Test
     void nadieAceptaNiRechazaSuPropiaOferta() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida.aceptarTablas(Color.BLANCO));
+                () -> partida.aceptarTablas(Bando.BLANCO));
         assertEquals(AccionInvalidaException.Motivo.ES_SU_PROPIA_OFERTA, error.motivo());
-        assertThrows(AccionInvalidaException.class, () -> partida.rechazarTablas(Color.BLANCO));
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
+        assertThrows(AccionInvalidaException.class, () -> partida.rechazarTablas(Bando.BLANCO));
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
         assertTrue(partida.resultado().isEmpty());
     }
 
     @Test
     void ofrecerDosVecesNoReemplazaLaOferta() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida.ofrecerTablas(Color.BLANCO));
+                () -> partida.ofrecerTablas(Bando.BLANCO));
         assertEquals(AccionInvalidaException.Motivo.OFERTA_PENDIENTE, error.motivo());
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
     }
 
     @Test
     void ofrecerFueraDeTurnoSeRechaza() {
         Partida partida = partida();
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida.ofrecerTablas(Color.NEGRO));
+                () -> partida.ofrecerTablas(Bando.NEGRO));
         assertEquals(AccionInvalidaException.Motivo.NO_ES_SU_TURNO, error.motivo());
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
     }
@@ -101,9 +102,9 @@ class OfertasTablasTest {
     @Test
     void moverElOferenteConservaLaOfertaPeroMoverElRivalLaBorra() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
         partida.mover(mov("e2", "e4"));
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
         partida.mover(mov("e7", "e5"));
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
         assertEquals(EstadoPartida.EN_CURSO, partida.estado());
@@ -112,25 +113,25 @@ class OfertasTablasTest {
     @Test
     void movimientoInvalidoDelRivalConservaOferta() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
         partida.mover(mov("e2", "e4"));
         assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e7", "e4")));
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
-        partida.aceptarTablas(Color.NEGRO);
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
+        partida.aceptarTablas(Bando.NEGRO);
         assertEquals(EstadoPartida.TABLAS_ACUERDO, partida.estado());
     }
 
     @Test
     void ofrecerYResponderTrasFinalizarSeRechaza() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.rendirse(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.rendirse(Bando.BLANCO);
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
         var error = assertThrows(AccionInvalidaException.class,
-                () -> partida.ofrecerTablas(Color.BLANCO));
+                () -> partida.ofrecerTablas(Bando.BLANCO));
         assertEquals(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA, error.motivo());
-        assertThrows(AccionInvalidaException.class, () -> partida.aceptarTablas(Color.NEGRO));
-        assertThrows(AccionInvalidaException.class, () -> partida.rechazarTablas(Color.NEGRO));
+        assertThrows(AccionInvalidaException.class, () -> partida.aceptarTablas(Bando.NEGRO));
+        assertThrows(AccionInvalidaException.class, () -> partida.rechazarTablas(Bando.NEGRO));
     }
 
     @Test
@@ -141,9 +142,9 @@ class OfertasTablasTest {
         partida.mover(mov("d1", "h5"));
         assertEquals(EstadoPartida.JAQUE, partida.estado());
         assertTrue(partida.resultado().isEmpty());
-        partida.ofrecerTablas(Color.NEGRO);
-        partida.rendirse(Color.NEGRO);
-        assertEquals(Color.BLANCO, partida.ganador().orElseThrow().color());
+        partida.ofrecerTablas(Bando.NEGRO);
+        partida.rendirse(Bando.NEGRO);
+        assertEquals(Bando.BLANCO, partida.ganador().orElseThrow().color());
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
     }
 
@@ -151,9 +152,9 @@ class OfertasTablasTest {
     void coloresNulosNoModificanLaOferta() {
         Partida partida = partida();
         assertThrows(NullPointerException.class, () -> partida.ofrecerTablas(null));
-        partida.ofrecerTablas(Color.BLANCO);
+        partida.ofrecerTablas(Bando.BLANCO);
         assertThrows(NullPointerException.class, () -> partida.aceptarTablas(null));
         assertThrows(NullPointerException.class, () -> partida.rechazarTablas(null));
-        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
+        assertEquals(Optional.of(Bando.BLANCO), partida.ofertaTablasPendiente());
     }
 }

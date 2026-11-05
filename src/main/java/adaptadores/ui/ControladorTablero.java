@@ -4,10 +4,8 @@ import Nucleo.juego.Movimiento;
 import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.Partida;
-import Nucleo.juego.Posicion;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.ResultadoPartida;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.EstadoPartida;
 import Nucleo.tablero.ITablero;
 
@@ -16,6 +14,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Interacción de presentación: selecciona casillas y envía órdenes; no calcula reglas. */
 public final class ControladorTablero {
     private final Partida partida;
@@ -29,11 +29,11 @@ public final class ControladorTablero {
         return partida.tablero();
     }
 
-    public Jugador jugador(Color color) {
+    public Jugador jugador(Bando color) {
         return partida.jugador(color);
     }
 
-    public Color turno() {
+    public Bando turno() {
         return partida.turno();
     }
 
@@ -45,7 +45,7 @@ public final class ControladorTablero {
         return partida.resultado();
     }
 
-    public Optional<Duration> tiempoRestante(Color color) {
+    public Optional<Duration> tiempoRestante(Bando color) {
         return partida.tiempoRestante(color);
     }
 
@@ -53,19 +53,19 @@ public final class ControladorTablero {
         partida.verificarTiempo();
     }
 
-    public Optional<Color> ofertaTablasPendiente() {
+    public Optional<Bando> ofertaTablasPendiente() {
         return partida.ofertaTablasPendiente();
     }
 
-    public Optional<AccionInvalidaException.Motivo> ofrecerTablas(Color color) {
+    public Optional<AccionInvalidaException.Motivo> ofrecerTablas(Bando color) {
         return ejecutarAccion(() -> partida.ofrecerTablas(color));
     }
 
-    public Optional<AccionInvalidaException.Motivo> aceptarTablas(Color color) {
+    public Optional<AccionInvalidaException.Motivo> aceptarTablas(Bando color) {
         return ejecutarAccion(() -> partida.aceptarTablas(color));
     }
 
-    public Optional<AccionInvalidaException.Motivo> rechazarTablas(Color color) {
+    public Optional<AccionInvalidaException.Motivo> rechazarTablas(Bando color) {
         return ejecutarAccion(() -> partida.rechazarTablas(color));
     }
 
@@ -80,7 +80,7 @@ public final class ControladorTablero {
     }
 
     /** El núcleo valida la orden y determina el ganador. */
-    public Optional<AccionInvalidaException.Motivo> rendirse(Color color) {
+    public Optional<AccionInvalidaException.Motivo> rendirse(Bando color) {
         partida.verificarTiempo();
         try {
             partida.rendirse(color);

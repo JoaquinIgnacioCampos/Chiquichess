@@ -1,6 +1,5 @@
 package Nucleo.reglas;
 
-import Nucleo.piezas.Color;
 import Nucleo.tablero.Tablero;
 import dobles.Contextos;
 import dobles.TableroFake;
@@ -10,6 +9,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 class TablasPorRepeticionTest {
 
     private final Tablero posicionA = TableroFake.desde(
@@ -43,9 +43,9 @@ class TablasPorRepeticionTest {
         TablasPorRepeticion regla = new TablasPorRepeticion();
 
         // Act
-        Optional<EstadoPartida> primera = regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        Optional<EstadoPartida> segunda = regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        Optional<EstadoPartida> tercera = regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
+        Optional<EstadoPartida> primera = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        Optional<EstadoPartida> segunda = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        Optional<EstadoPartida> tercera = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
 
         // Assert
         assertTrue(primera.isEmpty());
@@ -60,8 +60,8 @@ class TablasPorRepeticionTest {
         Tablero copia = posicionA.copiar();
 
         // Act
-        regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(copia, Color.BLANCO));
+        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(copia, Bando.BLANCO));
 
         // Assert
         assertEquals(Optional.of(EstadoPartida.TABLAS_REPETICION), resultado);
@@ -73,8 +73,8 @@ class TablasPorRepeticionTest {
         TablasPorRepeticion regla = new TablasPorRepeticion(2);
 
         // Act
-        regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionA, Color.NEGRO));
+        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionA, Bando.NEGRO));
 
         // Assert
         assertTrue(resultado.isEmpty());
@@ -86,10 +86,10 @@ class TablasPorRepeticionTest {
         TablasPorRepeticion regla = new TablasPorRepeticion();
 
         // Act
-        regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        regla.evaluar(Contextos.inicial(posicionB, Color.BLANCO));
-        regla.evaluar(Contextos.inicial(posicionA, Color.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionB, Color.BLANCO));
+        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        regla.evaluar(Contextos.inicial(posicionB, Bando.BLANCO));
+        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionB, Bando.BLANCO));
 
         // Assert
         assertTrue(resultado.isEmpty());

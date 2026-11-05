@@ -1,14 +1,13 @@
 package Nucleo.movimientos;
 
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Movimiento base: saltar a desplazamientos fijos, sin importar lo que haya en el medio (caballo). */
 public class SaltoFijo implements ReglaMovimiento {
 
@@ -22,7 +21,7 @@ public class SaltoFijo implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         Set<Posicion> destinos = new HashSet<>();
         for (int[] d : desplazamientos) {
             Posicion destino = origen.desplazada(d[0], d[1]);
@@ -38,7 +37,7 @@ public class SaltoFijo implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         return destinosPosibles(tablero, origen, color);
     }
 }

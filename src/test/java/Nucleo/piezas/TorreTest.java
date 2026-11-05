@@ -1,6 +1,5 @@
 package Nucleo.piezas;
 
-import Nucleo.juego.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -11,12 +10,14 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class TorreTest {
 
     @Test
     void enElCentroDeUnTableroVacioTiene14Destinos() {
         // Arrange
-        Torre torre = new Torre(Color.BLANCO);
+        Torre torre = new Torre(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", torre);
 
         // Act
@@ -29,7 +30,7 @@ class TorreTest {
     @Test
     void soloSeMueveEnFilasYColumnas() {
         // Arrange
-        Torre torre = new Torre(Color.BLANCO);
+        Torre torre = new Torre(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", torre);
 
         // Act
@@ -82,12 +83,12 @@ class TorreTest {
     @Test
     void seIdentificaComoTorre() {
         // Arrange
-        Torre torre = new Torre(Color.NEGRO);
+        Torre torre = new Torre(Bando.NEGRO);
 
         // Assert
         assertEquals('T', torre.codigo());
         assertEquals("Torre", torre.nombre());
-        assertEquals(Color.NEGRO, torre.color());
+        assertEquals(Bando.NEGRO, torre.color());
         assertFalse(torre.esRey());
         assertFalse(torre.esPeon());
     }
@@ -95,7 +96,7 @@ class TorreTest {
     @Test
     void lasCasillasAtacadasSonSusDestinos() {
         // Arrange
-        Torre torre = new Torre(Color.BLANCO);
+        Torre torre = new Torre(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("a1", torre);
 
         // Act

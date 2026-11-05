@@ -1,6 +1,5 @@
 package adaptadores.ui;
 
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
@@ -8,6 +7,7 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
+import Nucleo.bando.Bando;
 /** Traduce pieza y bando a un nodo visual; concentra la futura sustitución por sprites. */
 public class RepresentacionPiezas {
     static final double LADO_BASE = 80;
@@ -17,7 +17,7 @@ public class RepresentacionPiezas {
         Objects.requireNonNull(tema, "tema");
         Text figura = new Text(simbolo(pieza));
         figura.setFont(Font.font("Segoe UI Symbol", LADO_BASE * 0.7));
-        figura.setFill(pieza.color() == Color.BLANCO ? tema.piezaBlanca() : tema.piezaNegra());
+        figura.setFill(pieza.color() == Bando.BLANCO ? tema.piezaBlanca() : tema.piezaNegra());
         figura.setStroke(tema.contornoPiezas());
         figura.setStrokeWidth(0.8);
         figura.setMouseTransparent(true);
@@ -38,6 +38,6 @@ public class RepresentacionPiezas {
         if (blanco == -1) {
             return String.valueOf(pieza.codigo());
         }
-        return Character.toString(blanco + (pieza.color() == Color.NEGRO ? 6 : 0));
+        return Character.toString(blanco + (pieza.color() == Bando.NEGRO ? 6 : 0));
     }
 }

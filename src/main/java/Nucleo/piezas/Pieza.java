@@ -1,12 +1,13 @@
 package Nucleo.piezas;
 
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
 import Nucleo.movimientos.ReglaMovimiento;
 
 import java.util.Objects;
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /**
  * Una pieza es un color más una regla de movimiento (composición sobre herencia).
  * Las subclases concretas solo eligen cómo componer su regla; para agregar una pieza
@@ -15,15 +16,15 @@ import java.util.Set;
  */
 public abstract class Pieza {
 
-    private final Color color;
+    private final Bando color;
     private final ReglaMovimiento regla;
 
-    protected Pieza(Color color, ReglaMovimiento regla) {
+    protected Pieza(Bando color, ReglaMovimiento regla) {
         this.color = Objects.requireNonNull(color, "color");
         this.regla = Objects.requireNonNull(regla, "regla");
     }
 
-    public Color color() {
+    public Bando color() {
         return color;
     }
 

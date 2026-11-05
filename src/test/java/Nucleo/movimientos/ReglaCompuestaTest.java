@@ -1,7 +1,5 @@
 package Nucleo.movimientos;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import dobles.StubReglaMovimiento;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,8 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Se usan stubs para probar solo la "unión" de ReglaCompuesta, sin depender de reglas reales. */
 class ReglaCompuestaTest {
 
@@ -23,7 +23,7 @@ class ReglaCompuestaTest {
                 new StubReglaMovimiento(posiciones("c3")));
 
         // Act
-        Set<Posicion> destinos = compuesta.destinosPosibles(TableroFake.vacio(), pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = compuesta.destinosPosibles(TableroFake.vacio(), pos("d4"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("a1", "b2", "c3"), destinos);
@@ -37,7 +37,7 @@ class ReglaCompuestaTest {
                 new StubReglaMovimiento(Set.of(), posiciones("f6")));
 
         // Act
-        Set<Posicion> atacadas = compuesta.casillasAtacadas(TableroFake.vacio(), pos("d4"), Color.BLANCO);
+        Set<Posicion> atacadas = compuesta.casillasAtacadas(TableroFake.vacio(), pos("d4"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("e5", "f6"), atacadas);
@@ -51,7 +51,7 @@ class ReglaCompuestaTest {
                 new StubReglaMovimiento(posiciones("b2", "c3")));
 
         // Act
-        Set<Posicion> destinos = compuesta.destinosPosibles(TableroFake.vacio(), pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = compuesta.destinosPosibles(TableroFake.vacio(), pos("d4"), Bando.BLANCO);
 
         // Assert
         assertEquals(3, destinos.size());
@@ -63,7 +63,7 @@ class ReglaCompuestaTest {
         ReglaCompuesta vacia = new ReglaCompuesta();
 
         // Act
-        Set<Posicion> destinos = vacia.destinosPosibles(TableroFake.vacio(), pos("d4"), Color.BLANCO);
+        Set<Posicion> destinos = vacia.destinosPosibles(TableroFake.vacio(), pos("d4"), Bando.BLANCO);
 
         // Assert
         assertTrue(destinos.isEmpty());

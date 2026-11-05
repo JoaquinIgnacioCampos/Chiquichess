@@ -1,6 +1,5 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
 import org.junit.jupiter.api.Test;
 
@@ -9,10 +8,12 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 class ResultadoPartidaTest {
     private Partida partida(CondicionDeFinalizacion... condiciones) {
         return new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Ana", Color.BLANCO), new Jugador("Beto", Color.NEGRO),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 new DetectorDeJaque(), List.of(condiciones));
     }
 
@@ -25,9 +26,9 @@ class ResultadoPartidaTest {
     void mateSeparaGanadorYMotivoConservandoLaConsultaAnterior() {
         Partida partida = partida(c -> Optional.of(EstadoPartida.JAQUE_MATE));
         ResultadoPartida resultado = partida.resultado().orElseThrow();
-        assertEquals(Optional.of(Color.NEGRO), resultado.ganador());
+        assertEquals(Optional.of(Bando.NEGRO), resultado.ganador());
         assertEquals(MotivoFinalizacion.JAQUE_MATE, resultado.motivo());
-        assertEquals(Color.NEGRO, partida.ganador().orElseThrow().color());
+        assertEquals(Bando.NEGRO, partida.ganador().orElseThrow().color());
     }
 
     @Test
@@ -47,7 +48,7 @@ class ResultadoPartidaTest {
     @Test
     void resultadoRechazaCombinacionesInconsistentes() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ResultadoPartida(Optional.of(Color.BLANCO), MotivoFinalizacion.ACUERDO));
+                () -> new ResultadoPartida(Optional.of(Bando.BLANCO), MotivoFinalizacion.ACUERDO));
         assertThrows(IllegalArgumentException.class,
                 () -> new ResultadoPartida(Optional.empty(), MotivoFinalizacion.RENDICION));
     }

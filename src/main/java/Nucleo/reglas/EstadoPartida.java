@@ -1,6 +1,5 @@
 package Nucleo.reglas;
 
-import Nucleo.juego.MotivoFinalizacion;
 import java.util.Optional;
 
 /** Estado de la partida desde el punto de vista del jugador que tiene el turno. */

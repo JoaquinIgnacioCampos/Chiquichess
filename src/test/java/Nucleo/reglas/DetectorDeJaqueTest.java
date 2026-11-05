@@ -1,13 +1,13 @@
 package Nucleo.reglas;
 
 import Nucleo.juego.DisposicionEstandar;
-import Nucleo.piezas.Color;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
 /** Cada test arma (con el fake) una posición concreta que provoca o no un jaque. */
 class DetectorDeJaqueTest {
 
@@ -19,8 +19,8 @@ class DetectorDeJaqueTest {
         Tablero tablero = new DisposicionEstandar().crearTablero();
 
         // Act + Assert
-        assertFalse(detector.estaEnJaque(tablero, Color.BLANCO));
-        assertFalse(detector.estaEnJaque(tablero, Color.NEGRO));
+        assertFalse(detector.estaEnJaque(tablero, Bando.BLANCO));
+        assertFalse(detector.estaEnJaque(tablero, Bando.NEGRO));
     }
 
     @Test
@@ -37,7 +37,7 @@ class DetectorDeJaqueTest {
                 "....R...");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertTrue(enJaque);
@@ -57,7 +57,7 @@ class DetectorDeJaqueTest {
                 "....R...");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertFalse(enJaque);
@@ -77,7 +77,7 @@ class DetectorDeJaqueTest {
                 "....R...");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertTrue(enJaque);
@@ -97,7 +97,7 @@ class DetectorDeJaqueTest {
                 "...PPP..");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertTrue(enJaque);
@@ -117,7 +117,7 @@ class DetectorDeJaqueTest {
                 "...PPP..");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertFalse(enJaque);
@@ -146,8 +146,8 @@ class DetectorDeJaqueTest {
                 "........");
 
         // Act + Assert
-        assertTrue(detector.estaEnJaque(enDiagonal, Color.BLANCO));
-        assertFalse(detector.estaEnJaque(deFrente, Color.BLANCO));
+        assertTrue(detector.estaEnJaque(enDiagonal, Bando.BLANCO));
+        assertFalse(detector.estaEnJaque(deFrente, Bando.BLANCO));
     }
 
     @Test
@@ -164,7 +164,7 @@ class DetectorDeJaqueTest {
                 "....R...");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertFalse(enJaque);
@@ -184,8 +184,8 @@ class DetectorDeJaqueTest {
                 "R...T...");
 
         // Act + Assert
-        assertTrue(detector.estaEnJaque(tablero, Color.NEGRO));
-        assertFalse(detector.estaEnJaque(tablero, Color.BLANCO));
+        assertTrue(detector.estaEnJaque(tablero, Bando.NEGRO));
+        assertFalse(detector.estaEnJaque(tablero, Bando.BLANCO));
     }
 
     @Test
@@ -202,7 +202,7 @@ class DetectorDeJaqueTest {
                 "........");
 
         // Act
-        boolean enJaque = detector.estaEnJaque(tablero, Color.BLANCO);
+        boolean enJaque = detector.estaEnJaque(tablero, Bando.BLANCO);
 
         // Assert
         assertFalse(enJaque);

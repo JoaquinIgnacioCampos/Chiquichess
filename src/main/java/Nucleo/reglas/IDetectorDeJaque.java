@@ -1,8 +1,8 @@
 package Nucleo.reglas;
 
-import Nucleo.piezas.Color;
 import Nucleo.tablero.ITablero;
 
+import Nucleo.bando.Bando;
 /**
  * Contrato para saber si el rey de un color está siendo atacado.
  * Partida y MovimientosLegales dependen de esta interfaz y no de la implementación concreta,
@@ -10,5 +10,5 @@ import Nucleo.tablero.ITablero;
  */
 public interface IDetectorDeJaque {
 
-    boolean estaEnJaque(ITablero tablero, Color color);
+    boolean estaEnJaque(ITablero tablero, Bando color);
 }

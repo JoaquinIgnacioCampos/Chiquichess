@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class DisposicionEstandarTest {
 
     private Tablero tablero;
@@ -28,8 +30,8 @@ class DisposicionEstandarTest {
     @Test
     void cadaColorTiene16Piezas() {
         // Act
-        long blancas = tablero.piezas().values().stream().filter(p -> p.color() == Color.BLANCO).count();
-        long negras = tablero.piezas().values().stream().filter(p -> p.color() == Color.NEGRO).count();
+        long blancas = tablero.piezas().values().stream().filter(p -> p.color() == Bando.BLANCO).count();
+        long negras = tablero.piezas().values().stream().filter(p -> p.color() == Bando.NEGRO).count();
 
         // Assert
         assertEquals(16, blancas);
@@ -39,10 +41,10 @@ class DisposicionEstandarTest {
     @Test
     void losReyesYLasDamasEstanEnSusCasillas() {
         // Assert
-        assertPieza("e1", Rey.class, Color.BLANCO);
-        assertPieza("e8", Rey.class, Color.NEGRO);
-        assertPieza("d1", Reina.class, Color.BLANCO);
-        assertPieza("d8", Reina.class, Color.NEGRO);
+        assertPieza("e1", Rey.class, Bando.BLANCO);
+        assertPieza("e8", Rey.class, Bando.NEGRO);
+        assertPieza("d1", Reina.class, Bando.BLANCO);
+        assertPieza("d8", Reina.class, Bando.NEGRO);
     }
 
     @Test
@@ -65,9 +67,9 @@ class DisposicionEstandarTest {
             Pieza blanca = tablero.piezaEn(new Posicion(columna, 1)).orElseThrow();
             Pieza negra = tablero.piezaEn(new Posicion(columna, 6)).orElseThrow();
             assertTrue(blanca.esPeon());
-            assertEquals(Color.BLANCO, blanca.color());
+            assertEquals(Bando.BLANCO, blanca.color());
             assertTrue(negra.esPeon());
-            assertEquals(Color.NEGRO, negra.color());
+            assertEquals(Bando.NEGRO, negra.color());
         }
     }
 
@@ -91,7 +93,7 @@ class DisposicionEstandarTest {
         assertTrue(tablero.piezaEn(pos("e2")).isPresent());
     }
 
-    private void assertPieza(String casilla, Class<? extends Pieza> tipo, Color color) {
+    private void assertPieza(String casilla, Class<? extends Pieza> tipo, Bando color) {
         Pieza pieza = tablero.piezaEn(pos(casilla)).orElseThrow();
         assertInstanceOf(tipo, pieza);
         assertEquals(color, pieza.color());

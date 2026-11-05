@@ -1,7 +1,6 @@
 package Nucleo.tablero;
 
 
-import Nucleo.juego.Posicion;
 import Nucleo.piezas.Pieza;
 
 import java.util.Map;

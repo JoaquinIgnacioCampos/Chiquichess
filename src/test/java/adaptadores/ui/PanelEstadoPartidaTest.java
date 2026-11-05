@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.juego.*;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
@@ -20,6 +19,8 @@ import java.util.Optional;
 import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class PanelEstadoPartidaTest {
     private final TemaPanel temaPanel = TemaPanel.marcador();
     private final TemaTablero temaTablero = new TemaTablero(
@@ -55,7 +56,7 @@ class PanelEstadoPartidaTest {
     @Test
     void muestraNombresDelNucleoYElTurnoInicial() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Lucía Fernández", Color.BLANCO), new Jugador("Tomás Rodríguez", Color.NEGRO),
+                new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
                 new DetectorDeJaque(), List.of());
         VistaPartida vista = vista(partida);
         assertEquals("Lucía Fernández", texto(vista, "nombre-blanco"));
@@ -114,7 +115,7 @@ class PanelEstadoPartidaTest {
         Partida partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         partida.mover(mov("e2", "e4"));
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Bando.NEGRO);
         vista.redibujar();
         assertEquals("GANAN LAS", texto(vista, "marcador-encabezado"));
         assertEquals("BLANCAS", texto(vista, "marcador-principal"));
@@ -126,8 +127,8 @@ class PanelEstadoPartidaTest {
     void tablasPorAcuerdoMuestraEmpateYSuMotivo() {
         Partida partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.aceptarTablas(Color.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.aceptarTablas(Bando.NEGRO);
         vista.redibujar();
         assertEquals("TABLAS", texto(vista, "marcador-principal"));
         assertEquals("EMPATE", texto(vista, "estado-partida"));
@@ -143,7 +144,7 @@ class PanelEstadoPartidaTest {
                 EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS, "Regla de los 50 movimientos");
         casos.forEach((estado, motivo) -> {
             Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                    new Jugador("B", Color.BLANCO), new Jugador("N", Color.NEGRO),
+                    new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
                     new DetectorDeJaque(), List.of(c -> Optional.of(estado)));
             VistaPartida vista = vista(partida);
             assertEquals("TABLAS", texto(vista, "marcador-principal"));
@@ -185,7 +186,7 @@ class PanelEstadoPartidaTest {
     @Test
     void losNombresSeMantienenDentroDelPanelEnLaVentanaMinima() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Lucía Fernández", Color.BLANCO), new Jugador("Tomás Rodríguez", Color.NEGRO),
+                new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
                 new DetectorDeJaque(), List.of());
         VistaPartida vista = vista(partida);
         vista.resize(900, 620);

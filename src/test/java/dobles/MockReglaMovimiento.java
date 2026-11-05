@@ -1,12 +1,12 @@
 package dobles;
 
-import Nucleo.juego.Posicion;
 import Nucleo.movimientos.ReglaMovimiento;
-import Nucleo.piezas.Color;
 import Nucleo.tablero.ITablero;
 
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Mock: cuenta cuántas veces se le pidieron destinos y casillas atacadas. Devuelve un conjunto fijo. */
 public class MockReglaMovimiento implements ReglaMovimiento {
 
@@ -19,13 +19,13 @@ public class MockReglaMovimiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         llamadasDestinos++;
         return respuesta;
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         llamadasAtacadas++;
         return respuesta;
     }

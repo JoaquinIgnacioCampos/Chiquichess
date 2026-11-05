@@ -1,6 +1,5 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
 import Nucleo.tiempo.RelojAjedrez;
 import dobles.FuenteDeTiempoFalsa;
@@ -12,10 +11,12 @@ import java.util.List;
 import static dobles.Casillas.mov;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.bando.Bando;
+import Nucleo.reglas.MotivoFinalizacion;
 class HistorialTest {
     private Partida partida() {
         return new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Ana", Color.BLANCO), new Jugador("Beto", Color.NEGRO),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 new DetectorDeJaque(), List.of(new JaqueMate(), new Ahogado()));
     }
 
@@ -38,7 +39,7 @@ class HistorialTest {
         assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e2", "e5")));
         partida.mover(mov("e2", "e4"));
         assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("d2", "d4")));
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Bando.NEGRO);
         assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e7", "e5")));
         assertEquals(List.of(mov("e2", "e4")), partida.historial());
     }
@@ -68,10 +69,10 @@ class HistorialTest {
     @Test
     void ofertasYAcuerdoNoSeConfundenConMovimientos() {
         Partida partida = partida();
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.rechazarTablas(Color.NEGRO);
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.aceptarTablas(Color.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.rechazarTablas(Bando.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.aceptarTablas(Bando.NEGRO);
         assertTrue(partida.historial().isEmpty());
     }
 
@@ -79,7 +80,7 @@ class HistorialTest {
     void movimientoRechazadoPorTiempoNoSeRegistra() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Ana", Color.BLANCO), new Jugador("Beto", Color.NEGRO),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 new DetectorDeJaque(), List.of(),
                 new RelojAjedrez(Duration.ofSeconds(1), Duration.ofSeconds(1), fuente));
         fuente.avanzar(Duration.ofSeconds(1));

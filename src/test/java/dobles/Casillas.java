@@ -1,12 +1,11 @@
 package dobles;
 
 import Nucleo.juego.Movimiento;
-import Nucleo.juego.Posicion;
-
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import Nucleo.tablero.Posicion;
 /**
  * Ayuda para escribir casillas como "e4" en los tests del núcleo, sin depender del adaptador
  * NotacionAlgebraica (el núcleo se prueba sin adaptadores). a1 = columna 0, fila 0.

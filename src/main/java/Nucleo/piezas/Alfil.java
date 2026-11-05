@@ -1,11 +1,11 @@
 package Nucleo.piezas;
 
 import Nucleo.movimientos.Deslizamiento;
-import Nucleo.reglas.ReglasBase;
-
+import Nucleo.bando.Bando;
+import Nucleo.movimientos.ReglasBase;
 public class Alfil extends Pieza {
 
-    public Alfil(Color color) {
+    public Alfil(Bando color) {
         super(color, ReglasBase.diagonales(Deslizamiento.SIN_LIMITE));
     }
 

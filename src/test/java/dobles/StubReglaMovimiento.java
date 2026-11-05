@@ -1,12 +1,12 @@
 package dobles;
 
-import Nucleo.juego.Posicion;
 import Nucleo.movimientos.ReglaMovimiento;
-import Nucleo.piezas.Color;
 import Nucleo.tablero.ITablero;
 
 import java.util.Set;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 /** Stub: devuelve siempre los mismos destinos y casillas atacadas, sin mirar el tablero. */
 public class StubReglaMovimiento implements ReglaMovimiento {
 
@@ -24,12 +24,12 @@ public class StubReglaMovimiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         return destinos;
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         return atacadas;
     }
 }

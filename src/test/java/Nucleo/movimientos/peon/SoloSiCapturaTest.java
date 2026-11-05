@@ -1,7 +1,5 @@
 package Nucleo.movimientos.peon;
 
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Torre;
 import Nucleo.tablero.Tablero;
 import dobles.StubReglaMovimiento;
@@ -14,17 +12,19 @@ import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
 import static org.junit.jupiter.api.Assertions.*;
 
+import Nucleo.tablero.Posicion;
+import Nucleo.bando.Bando;
 class SoloSiCapturaTest {
 
     @Test
     void soloDejaLosDestinosDondeHayUnaPieza() {
         // Arrange
         Tablero tablero = TableroFake.vacio();
-        tablero.colocar(pos("d5"), new Torre(Color.NEGRO));
+        tablero.colocar(pos("d5"), new Torre(Bando.NEGRO));
         SoloSiCaptura regla = new SoloSiCaptura(new StubReglaMovimiento(posiciones("d5", "f5")));
 
         // Act
-        Set<Posicion> destinos = regla.destinosPosibles(tablero, pos("e4"), Color.BLANCO);
+        Set<Posicion> destinos = regla.destinosPosibles(tablero, pos("e4"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("d5"), destinos);
@@ -36,7 +36,7 @@ class SoloSiCapturaTest {
         SoloSiCaptura regla = new SoloSiCaptura(new StubReglaMovimiento(posiciones("d5", "f5")));
 
         // Act
-        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e4"), Color.BLANCO);
+        Set<Posicion> destinos = regla.destinosPosibles(TableroFake.vacio(), pos("e4"), Bando.BLANCO);
 
         // Assert
         assertTrue(destinos.isEmpty());
@@ -48,7 +48,7 @@ class SoloSiCapturaTest {
         SoloSiCaptura regla = new SoloSiCaptura(new StubReglaMovimiento(posiciones("d5", "f5")));
 
         // Act
-        Set<Posicion> atacadas = regla.casillasAtacadas(TableroFake.vacio(), pos("e4"), Color.BLANCO);
+        Set<Posicion> atacadas = regla.casillasAtacadas(TableroFake.vacio(), pos("e4"), Bando.BLANCO);
 
         // Assert
         assertEquals(posiciones("d5", "f5"), atacadas);
