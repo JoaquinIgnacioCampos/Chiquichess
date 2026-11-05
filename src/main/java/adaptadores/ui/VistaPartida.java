@@ -1,7 +1,6 @@
 package adaptadores.ui;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.tablero.Posicion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,6 +25,7 @@ public final class VistaPartida extends BorderPane {
     private final HBox titulo = new HBox(16);
     private final StackPane areaTablero = new StackPane();
     private final TemaPanel temaPanel;
+    private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
 
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
@@ -36,7 +36,14 @@ public final class VistaPartida extends BorderPane {
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
                         RepresentacionPiezas representacion, TemaPanel temaPanel,
                         java.util.Map<Bando, PresentacionClub> clubes) {
+        this(controlador, tema, representacion, temaPanel, clubes, new MensajesDeLaInterfaz());
+    }
+
+    public VistaPartida(ControladorTablero controlador, TemaTablero tema,
+                        RepresentacionPiezas representacion, TemaPanel temaPanel,
+                        java.util.Map<Bando, PresentacionClub> clubes, MensajesDeLaInterfaz mensajes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
+        this.mensajes = Objects.requireNonNull(mensajes, "mensajes");
         Objects.requireNonNull(tema, "tema");
         this.tablero = new VistaTablero(controlador.tablero(), tema, representacion, this::pulsar);
         this.temaPanel = Objects.requireNonNull(temaPanel, "temaPanel");
@@ -60,7 +67,7 @@ public final class VistaPartida extends BorderPane {
         areaTablero.getChildren().add(tablero);
         juego.setCenter(areaTablero);
         setCenter(juego);
-        panel = new PanelEstadoPartida(controlador, temaPanel, clubes);
+        panel = new PanelEstadoPartida(controlador, temaPanel, clubes, mensajes);
         panel.prefWidthProperty().bind(widthProperty().multiply(0.35));
         setRight(panel);
         mensaje.setId("mensaje-movimiento");
@@ -75,7 +82,7 @@ public final class VistaPartida extends BorderPane {
     }
 
     private void pulsar(Posicion posicion) {
-        mensaje.setText(controlador.pulsar(posicion).map(this::mensajeRechazo).orElse(""));
+        mensaje.setText(controlador.pulsar(posicion).map(mensajes::rechazoDeMovimiento).orElse(""));
         redibujar();
     }
 
@@ -106,9 +113,9 @@ public final class VistaPartida extends BorderPane {
                 redibujar();
                 return;
             }
-            mensaje.setText(controlador.rendirse(color).map(motivo ->
-                    motivo == Nucleo.juego.AccionInvalidaException.Motivo.NO_ES_SU_TURNO
-                            ? "Solo podés rendirte durante tu turno." : "La partida ya terminó.").orElse(""));
+            mensaje.setText(controlador.rendirse(color)
+                    .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.RENDIRSE, motivo))
+                    .orElse(""));
             redibujar();
         });
     }
@@ -120,26 +127,9 @@ public final class VistaPartida extends BorderPane {
     }
 
     private void mostrarRespuestaTablas(java.util.Optional<Nucleo.juego.AccionInvalidaException.Motivo> rechazo) {
-        mensaje.setText(rechazo.map(motivo -> switch (motivo) {
-            case PARTIDA_FINALIZADA -> "La partida ya terminó.";
-            case NO_ES_SU_TURNO -> "Solo podés ofrecer tablas durante tu turno.";
-            case OFERTA_PENDIENTE -> "Ya hay una oferta de tablas pendiente.";
-            case SIN_OFERTA -> "La oferta de tablas ya no está disponible.";
-            case ES_SU_PROPIA_OFERTA -> "Solo el rival puede responder a esta oferta.";
-            case DESHACER_NO_PERMITIDO -> "Esta partida no permite deshacer jugadas.";
-            case NADA_PARA_DESHACER -> "No hay jugadas para deshacer.";
-            case NADA_PARA_REHACER -> "No hay jugadas para rehacer.";
-        }).orElse(""));
+        mensaje.setText(rechazo
+                .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.TABLAS, motivo))
+                .orElse(""));
         redibujar();
-    }
-
-    private String mensajeRechazo(MovimientoInvalidoException.Motivo motivo) {
-        return switch (motivo) {
-            case SIN_PIEZA_EN_ORIGEN -> "Ya no hay una pieza en la casilla seleccionada.";
-            case NO_ES_SU_TURNO -> "Es el turno del otro jugador.";
-            case MOVIMIENTO_NO_PERMITIDO -> "El núcleo rechazó ese movimiento.";
-            case DEJA_AL_REY_EN_JAQUE -> "Esa jugada deja a tu rey en jaque.";
-            case PARTIDA_FINALIZADA -> "La partida ya terminó.";
-        };
     }
 }

@@ -41,7 +41,8 @@ public class AplicacionAjedrez extends Application {
         var clubes = java.util.Map.of(
                 Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
                 Bando.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
-        VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes);
+        VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes,
+                new MensajesDeLaInterfaz());
         vista.configurarRendicion();
         vista.configurarTablas();
         vista.configurarNavegacion(() -> {

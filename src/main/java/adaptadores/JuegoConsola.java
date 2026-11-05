@@ -11,12 +11,19 @@ public class JuegoConsola {
 
     private final Partida partida;
     private final RenderizadorConsola renderizador;
+    private final MensajesDeConsola mensajes;
     private final BufferedReader entrada;
     private final PrintStream salida;
 
     public JuegoConsola(Partida partida, RenderizadorConsola renderizador, InputStream entrada, PrintStream salida) {
+        this(partida, renderizador, new MensajesDeConsola(), entrada, salida);
+    }
+
+    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+                        InputStream entrada, PrintStream salida) {
         this.partida = partida;
         this.renderizador = renderizador;
+        this.mensajes = mensajes;
         this.entrada = new BufferedReader(new InputStreamReader(entrada));
         this.salida = salida;
     }
@@ -60,31 +67,14 @@ public class JuegoConsola {
         } catch (IllegalArgumentException e) {
             salida.println(e.getMessage());
         } catch (MovimientoInvalidoException e) {
-            salida.println(mensaje(e.motivo()));
+            salida.println(mensajes.rechazoDeMovimiento(e.motivo()));
         }
     }
 
-    private String mensaje(MovimientoInvalidoException.Motivo motivo) {
-        return switch (motivo) {
-            case SIN_PIEZA_EN_ORIGEN -> "No hay ninguna pieza en la casilla de origen.";
-            case NO_ES_SU_TURNO -> "Esa pieza no es suya: es el turno del otro jugador.";
-            case MOVIMIENTO_NO_PERMITIDO -> "Esa pieza no puede moverse ahi.";
-            case DEJA_AL_REY_EN_JAQUE -> "Movimiento ilegal: deja a su rey en jaque.";
-            case PARTIDA_FINALIZADA -> "La partida ya termino.";
-        };
-    }
-
     private String mensajeFinal() {
-        return switch (partida.estado()) {
-            case JAQUE_MATE -> "Jaque mate! Gana "
-                    + partida.ganador().map(Jugador::nombre).orElse("?") + ".";
-            case TABLAS_AHOGADO -> "Tablas por ahogado: el jugador no tiene jugadas pero no esta en jaque.";
-            case TABLAS_REPETICION -> "Tablas por repeticion de posicion.";
-            case TABLAS_REGLA_50_MOVIMIENTOS -> "Tablas por la regla de los 50 movimientos.";
-            case RENDICION -> "Gana " + partida.ganador().map(Jugador::nombre).orElse("?") + " por rendicion.";
-            case TIEMPO_AGOTADO -> "Gana " + partida.ganador().map(Jugador::nombre).orElse("?") + " por tiempo.";
-            case TABLAS_ACUERDO -> "Tablas por acuerdo.";
-            case EN_CURSO, JAQUE -> "";
-        };
+        return partida.resultado()
+                .map(resultado -> mensajes.finDePartida(resultado.motivo(),
+                        partida.ganador().map(Jugador::nombre)))
+                .orElse("");
     }
 }

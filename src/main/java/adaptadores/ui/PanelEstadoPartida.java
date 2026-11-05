@@ -2,7 +2,6 @@ package adaptadores.ui;
 
 import Nucleo.bando.Bando;
 import Nucleo.reglas.EstadoPartida;
-import Nucleo.reglas.MotivoFinalizacion;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -28,6 +27,7 @@ public final class PanelEstadoPartida extends GridPane {
     private final Text motivo = new Text();
     private final Circle punto = new Circle(5);
     private final VBox informacion;
+    private final MensajesDeLaInterfaz mensajes;
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema) {
         this(controlador, tema, java.util.Map.of());
@@ -35,7 +35,13 @@ public final class PanelEstadoPartida extends GridPane {
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
                                java.util.Map<Bando, PresentacionClub> clubes) {
+        this(controlador, tema, clubes, new MensajesDeLaInterfaz());
+    }
+
+    public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
+                               java.util.Map<Bando, PresentacionClub> clubes, MensajesDeLaInterfaz mensajes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
+        this.mensajes = Objects.requireNonNull(mensajes, "mensajes");
         this.tema = Objects.requireNonNull(tema, "tema");
         Objects.requireNonNull(clubes, "clubes");
         setId("panel-estado");
@@ -129,7 +135,7 @@ public final class PanelEstadoPartida extends GridPane {
             principal.setTexto(resultado.ganador().map(this::bando).orElse("TABLAS"));
             estado.setText(resultado.ganador().isPresent() ? "VICTORIA" : "EMPATE");
             estado.setFill(resultado.ganador().isPresent() ? tema.activo() : tema.acento());
-            motivo.setText(describir(resultado.motivo()));
+            motivo.setText(mensajes.motivoDeFinal(resultado.motivo()));
         } else {
             boolean jaque = controlador.estado() == EstadoPartida.JAQUE;
             titulo.setText("ESTADO DE LA PARTIDA");
@@ -172,17 +178,5 @@ public final class PanelEstadoPartida extends GridPane {
 
     private String bando(Bando color) {
         return color == Bando.BLANCO ? "BLANCAS" : "NEGRAS";
-    }
-
-    private String describir(MotivoFinalizacion motivo) {
-        return switch (motivo) {
-            case JAQUE_MATE -> "Por jaque mate";
-            case AHOGADO -> "Por ahogado";
-            case REPETICION -> "Por repetición";
-            case REGLA_50_MOVIMIENTOS -> "Regla de los 50 movimientos";
-            case RENDICION -> "Por rendición";
-            case TIEMPO_AGOTADO -> "Por tiempo agotado";
-            case ACUERDO -> "Por acuerdo";
-        };
     }
 }

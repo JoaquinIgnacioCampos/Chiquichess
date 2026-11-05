@@ -9,6 +9,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Partida partida = new EnsambladorPartida().crearSinReloj();
 
-        new JuegoConsola(partida, new RenderizadorConsola(), System.in, System.out).jugar();
+        new JuegoConsola(partida, new RenderizadorConsola(), new MensajesDeConsola(), System.in, System.out).jugar();
     }
 }
