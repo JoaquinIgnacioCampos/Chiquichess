@@ -1,27 +1,35 @@
 package Nucleo.reglas;
 
+import Nucleo.juego.MotivoFinalizacion;
+import java.util.Optional;
+
 /** Estado de la partida desde el punto de vista del jugador que tiene el turno. */
 public enum EstadoPartida {
-    EN_CURSO(false, false),
-    JAQUE(false, false),
-    JAQUE_MATE(true, false),
-    TABLAS_AHOGADO(true, true),
-    TABLAS_REPETICION(true, true),
-    TABLAS_REGLA_50_MOVIMIENTOS(true, true);
+    EN_CURSO(null),
+    JAQUE(null),
+    JAQUE_MATE(MotivoFinalizacion.JAQUE_MATE),
+    TABLAS_AHOGADO(MotivoFinalizacion.AHOGADO),
+    TABLAS_REPETICION(MotivoFinalizacion.REPETICION),
+    TABLAS_REGLA_50_MOVIMIENTOS(MotivoFinalizacion.REGLA_50_MOVIMIENTOS),
+    RENDICION(MotivoFinalizacion.RENDICION),
+    TIEMPO_AGOTADO(MotivoFinalizacion.TIEMPO_AGOTADO),
+    TABLAS_ACUERDO(MotivoFinalizacion.ACUERDO);
 
-    private final boolean finalizada;
-    private final boolean tablas;
+    private final MotivoFinalizacion motivo;
 
-    EstadoPartida(boolean finalizada, boolean tablas) {
-        this.finalizada = finalizada;
-        this.tablas = tablas;
+    EstadoPartida(MotivoFinalizacion motivo) {
+        this.motivo = motivo;
     }
 
     public boolean estaFinalizada() {
-        return finalizada;
+        return motivo != null;
     }
 
     public boolean esTablas() {
-        return tablas;
+        return motivo != null && motivo.esTablas();
+    }
+
+    public Optional<MotivoFinalizacion> motivo() {
+        return Optional.ofNullable(motivo);
     }
 }

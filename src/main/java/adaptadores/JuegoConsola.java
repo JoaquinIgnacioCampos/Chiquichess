@@ -81,6 +81,9 @@ public class JuegoConsola {
             case TABLAS_AHOGADO -> "Tablas por ahogado: el jugador no tiene jugadas pero no esta en jaque.";
             case TABLAS_REPETICION -> "Tablas por repeticion de posicion.";
             case TABLAS_REGLA_50_MOVIMIENTOS -> "Tablas por la regla de los 50 movimientos.";
+            case RENDICION -> "Gana " + partida.ganador().map(Jugador::nombre).orElse("?") + " por rendicion.";
+            case TIEMPO_AGOTADO -> "Gana " + partida.ganador().map(Jugador::nombre).orElse("?") + " por tiempo.";
+            case TABLAS_ACUERDO -> "Tablas por acuerdo.";
             case EN_CURSO, JAQUE -> "";
         };
     }
