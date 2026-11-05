@@ -9,10 +9,10 @@ import Nucleo.piezas.Peon;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Tablero;
 import dobles.Contextos;
+import dobles.RegistroDeJugadas;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +21,8 @@ import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * La condición solo mira el historial, así que alcanza con jugadas armadas a mano: no hace falta
- * que correspondan a un tablero real.
+ * La condición solo mira la última jugada de cada registro, así que alcanza con jugadas armadas a
+ * mano: no hace falta que correspondan a un tablero real.
  */
 class TablasPorReglaDeLos50MovimientosTest {
 
@@ -44,8 +44,10 @@ class TablasPorReglaDeLos50MovimientosTest {
                 new Retiro(new Caballo(Bando.NEGRO), pos("c3")), new Traslado(caballo, pos("b1"), pos("c3"))));
     }
 
-    private Optional<EstadoPartida> evaluar(TablasPorReglaDeLos50Movimientos regla, Jugada... jugadas) {
-        return regla.evaluar(Contextos.conHistorial(tablero, Bando.BLANCO, List.of(jugadas)));
+    /** Registra la posición inicial y las jugadas, y evalúa al final. */
+    private Optional<EstadoPartida> tras(TablasPorReglaDeLos50Movimientos regla, Jugada... jugadas) {
+        var registro = RegistroDeJugadas.registrarSinAplicar(regla, tablero, List.of(jugadas));
+        return regla.evaluar(registro.ultimoContexto());
     }
 
     @Test
@@ -55,12 +57,12 @@ class TablasPorReglaDeLos50MovimientosTest {
     }
 
     @Test
-    void sinJugadasNoHayTablas() {
+    void enLaPosicionInicialNoHayTablas() {
         // Arrange: con límite 1 bastarían 2 jugadas sueltas
         TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
 
         // Act
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = tras(regla);
 
         // Assert
         assertTrue(resultado.isEmpty());
@@ -68,12 +70,9 @@ class TablasPorReglaDeLos50MovimientosTest {
 
     @Test
     void conLimiteUnoSonTablasDespuesDeUnaJugadaSueltaDeCadaJugador() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
-
         // Act
-        Optional<EstadoPartida> trasUna = evaluar(regla, suelta());
-        Optional<EstadoPartida> trasDos = evaluar(regla, suelta(), suelta());
+        Optional<EstadoPartida> trasUna = tras(new TablasPorReglaDeLos50Movimientos(1), suelta());
+        Optional<EstadoPartida> trasDos = tras(new TablasPorReglaDeLos50Movimientos(1), suelta(), suelta());
 
         // Assert
         assertTrue(trasUna.isEmpty());
@@ -82,11 +81,8 @@ class TablasPorReglaDeLos50MovimientosTest {
 
     @Test
     void unMovimientoDePeonReiniciaLaCuenta() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
-
         // Act: después del peón hay una sola jugada suelta
-        Optional<EstadoPartida> resultado = evaluar(regla, suelta(), dePeon(), suelta());
+        Optional<EstadoPartida> resultado = tras(new TablasPorReglaDeLos50Movimientos(1), suelta(), dePeon(), suelta());
 
         // Assert
         assertTrue(resultado.isEmpty());
@@ -94,24 +90,8 @@ class TablasPorReglaDeLos50MovimientosTest {
 
     @Test
     void unaCapturaReiniciaLaCuenta() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
-
         // Act
-        Optional<EstadoPartida> resultado = evaluar(regla, suelta(), captura(), suelta());
-
-        // Assert
-        assertTrue(resultado.isEmpty());
-    }
-
-    @Test
-    void lasJugadasSueltasAnterioresAlProgresoNoCuentan() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(2);
-
-        // Act: tres sueltas, un peón y tres sueltas: solo cuentan las tres últimas
-        Optional<EstadoPartida> resultado = evaluar(regla,
-                suelta(), suelta(), suelta(), dePeon(), suelta(), suelta(), suelta());
+        Optional<EstadoPartida> resultado = tras(new TablasPorReglaDeLos50Movimientos(1), suelta(), captura(), suelta());
 
         // Assert
         assertTrue(resultado.isEmpty());
@@ -119,32 +99,56 @@ class TablasPorReglaDeLos50MovimientosTest {
 
     @Test
     void porDefectoSonTablasRecienEnLaJugada100SinProgreso() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos();
-        List<Jugada> noventaYNueve = new ArrayList<>(Collections.nCopies(99, suelta()));
-        List<Jugada> cien = new ArrayList<>(Collections.nCopies(100, suelta()));
-
         // Act
-        Optional<EstadoPartida> en99 = regla.evaluar(Contextos.conHistorial(tablero, Bando.NEGRO, noventaYNueve));
-        Optional<EstadoPartida> en100 = regla.evaluar(Contextos.conHistorial(tablero, Bando.BLANCO, cien));
+        Optional<EstadoPartida> en99 = tras(new TablasPorReglaDeLos50Movimientos(),
+                Collections.nCopies(99, suelta()).toArray(Jugada[]::new));
+        Optional<EstadoPartida> en100 = tras(new TablasPorReglaDeLos50Movimientos(),
+                Collections.nCopies(100, suelta()).toArray(Jugada[]::new));
 
         // Assert
         assertTrue(en99.isEmpty());
         assertEquals(Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS), en100);
     }
 
-    @Test
-    void noGuardaMemoriaEntreEvaluaciones() {
-        // Arrange
-        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
+    // ---------------- Memento ----------------
 
-        // Act: muchas evaluaciones con una sola jugada suelta nunca suman entre sí
-        for (int i = 0; i < 5; i++) {
-            evaluar(regla, suelta());
-        }
-        Optional<EstadoPartida> resultado = evaluar(regla, suelta());
+    @Test
+    void restaurarElUltimoRegistroDejaLaCondicionComoAntesDeRegistrarlo() {
+        // Arrange: con límite 1, dos jugadas sueltas son tablas
+        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
+        var registro = RegistroDeJugadas.registrarSinAplicar(regla, tablero, List.of(suelta(), suelta()));
+        assertEquals(Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS), regla.evaluar(registro.ultimoContexto()));
+
+        // Act: deshacer la segunda jugada
+        regla.restaurar(registro.recuerdos().get(2));
 
         // Assert
-        assertTrue(resultado.isEmpty());
+        assertTrue(regla.evaluar(registro.ultimoContexto()).isEmpty());
+    }
+
+    @Test
+    void restaurarRecuperaElContadorAunqueLaJugadaLoHayaVueltoACero() {
+        // Arrange: límite 1. Suelta (contador 1), peón (contador 0)
+        TablasPorReglaDeLos50Movimientos regla = new TablasPorReglaDeLos50Movimientos(1);
+        var registro = RegistroDeJugadas.registrarSinAplicar(regla, tablero, List.of(suelta(), dePeon()));
+
+        // Act: deshacer el peón y jugar otra suelta en su lugar
+        regla.restaurar(registro.recuerdos().get(2));
+        regla.registrar(Contextos.conHistorial(tablero, Bando.BLANCO, List.of(suelta(), suelta())));
+
+        // Assert: el contador volvió a 1 y con la nueva suelta llegó a 2
+        assertEquals(Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS), regla.evaluar(registro.ultimoContexto()));
+    }
+
+    @Test
+    void rechazaRecuerdosDeOtraCondicion() {
+        // Arrange
+        TablasPorReglaDeLos50Movimientos una = new TablasPorReglaDeLos50Movimientos();
+        TablasPorReglaDeLos50Movimientos otra = new TablasPorReglaDeLos50Movimientos();
+        Recuerdo deLaOtra = otra.registrar(Contextos.inicial(tablero, Bando.BLANCO));
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> una.restaurar(deLaOtra));
+        assertThrows(IllegalArgumentException.class, () -> una.restaurar(new Recuerdo() { }));
     }
 }

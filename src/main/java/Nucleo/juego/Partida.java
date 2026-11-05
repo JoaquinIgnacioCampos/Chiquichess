@@ -26,6 +26,11 @@ public class Partida {
     private final ReglasDePartida reglas;
     private final RelojPartida reloj;
     private final List<Jugada> jugadas = new ArrayList<>();
+    /**
+     * Memento: Partida es el cuidador. Por cada jugada guarda, en el mismo orden, los recuerdos que
+     * dejaron las condiciones con memoria, para poder restaurarlas al deshacer.
+     */
+    private final List<List<Recuerdo>> recuerdosPorJugada = new ArrayList<>();
 
     private Bando turno = Bando.BLANCO;
     private EstadoPartida estado;
@@ -47,7 +52,7 @@ public class Partida {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
         this.reloj.iniciar(turno);
-        actualizarEstado(evaluarEstado());
+        registrarYEvaluar(); // la posición inicial no se deshace: sus recuerdos no hace falta guardarlos
     }
 
     /**
@@ -269,16 +274,32 @@ public class Partida {
         }
         turno = turno.opuesto();
         reloj.cambiarTurno();
-        actualizarEstado(evaluarEstado());
+        recuerdosPorJugada.add(registrarYEvaluar());
         return new ResultadoMovimiento(capturada, estado);
     }
 
-    /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
-    private EstadoPartida evaluarEstado() {
+    /**
+     * Arma el contexto de la posición actual, hace que todas las condiciones con memoria la registren
+     * y recién después decide el estado. Registrar primero garantiza que todas anoten cada jugada,
+     * aunque una condición anterior termine la partida. Devuelve los recuerdos de ese registro.
+     */
+    private List<Recuerdo> registrarYEvaluar() {
         boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
         boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
         ContextoDeJugada contexto = new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
 
+        List<Recuerdo> recuerdos = new ArrayList<>();
+        for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
+            if (condicion instanceof CondicionConMemoria conMemoria) {
+                recuerdos.add(conMemoria.registrar(contexto));
+            }
+        }
+        actualizarEstado(evaluar(contexto, enJaque));
+        return recuerdos;
+    }
+
+    /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
+    private EstadoPartida evaluar(ContextoDeJugada contexto, boolean enJaque) {
         for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
             Optional<EstadoPartida> resultado = condicion.evaluar(contexto);
             if (resultado.isPresent()) {

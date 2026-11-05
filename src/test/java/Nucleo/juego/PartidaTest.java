@@ -345,6 +345,50 @@ class PartidaTest {
         assertEquals(1, segunda.cantidadDeLlamadas());
     }
 
+    // ---------------- Condiciones con memoria (Memento) ----------------
+
+    @Test
+    void lasCondicionesConMemoriaRegistranAunqueOtraTermineLaPartidaAntes() {
+        // Arrange: la primera condición termina la partida; la que tiene memoria está después
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+
+        // Act
+        partidaSimple(StubCondicion.siempre(EstadoPartida.TABLAS_AHOGADO), conMemoria);
+
+        // Assert: registró la posición inicial aunque no se la llegó a evaluar
+        assertEquals(1, conMemoria.registros());
+        assertEquals(0, conMemoria.evaluaciones());
+    }
+
+    @Test
+    void lasCondicionesConMemoriaRegistranCadaJugadaAntesDeEvaluar() {
+        // Arrange
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+        Partida partida = partidaSimple(conMemoria);
+
+        // Act
+        partida.mover(mov("e2", "e4"));
+
+        // Assert
+        assertEquals(2, conMemoria.registros());
+        assertEquals(2, conMemoria.evaluaciones());
+        assertEquals(1, conMemoria.ultimoRegistrado().jugadas().size());
+        assertEquals(Bando.NEGRO, conMemoria.ultimoRegistrado().turno());
+    }
+
+    @Test
+    void unaJugadaInvalidaNoRegistraNada() {
+        // Arrange
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+        Partida partida = partidaSimple(conMemoria);
+
+        // Act
+        assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e2", "e5")));
+
+        // Assert
+        assertEquals(1, conMemoria.registros());
+    }
+
     // ---------------- MovimientosLegales inyectado (stub) ----------------
 
     @Test

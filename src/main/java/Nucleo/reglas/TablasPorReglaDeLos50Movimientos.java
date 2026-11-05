@@ -2,19 +2,23 @@ package Nucleo.reglas;
 
 import Nucleo.jugadas.Jugada;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
  * Tablas si pasan 50 movimientos de cada jugador sin ninguna captura ni movimiento de peón.
  *
- * No guarda un contador: recorre el historial desde la última jugada hacia atrás hasta la última
- * captura o movimiento de peón. Así el resultado depende solo del contexto y sigue siendo correcto
- * aunque se deshagan jugadas.
+ * Lleva un contador de jugadas seguidas sin progreso. Cada registro devuelve como recuerdo el valor
+ * anterior del contador, así deshacer una jugada lo deja exactamente como estaba, incluso si esa
+ * jugada lo había vuelto a cero.
  */
-public class TablasPorReglaDeLos50Movimientos implements CondicionDeFinalizacion {
+public class TablasPorReglaDeLos50Movimientos implements CondicionConMemoria {
+
+    /** Memento: el valor del contador antes del registro. */
+    private record ContadorAnterior(TablasPorReglaDeLos50Movimientos duenio, int valor) implements Recuerdo {
+    }
 
     private final int limiteDeJugadasSueltas;
+    private int jugadasSinProgreso = 0;
 
     public TablasPorReglaDeLos50Movimientos() {
         this(50);
@@ -28,22 +32,31 @@ public class TablasPorReglaDeLos50Movimientos implements CondicionDeFinalizacion
     }
 
     @Override
-    public Optional<EstadoPartida> evaluar(ContextoDeJugada contexto) {
-        return jugadasSinProgreso(contexto.jugadas()) >= limiteDeJugadasSueltas
-                ? Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS)
-                : Optional.empty();
+    public Recuerdo registrar(ContextoDeJugada contexto) {
+        Recuerdo anterior = new ContadorAnterior(this, jugadasSinProgreso);
+        Optional<Jugada> ultima = contexto.ultimaJugada();
+        if (ultima.isEmpty()) {
+            jugadasSinProgreso = 0; // posición inicial: todavía no hubo ninguna jugada
+        } else if (ultima.get().capturada().isPresent() || ultima.get().piezaMovida().esPeon()) {
+            jugadasSinProgreso = 0;
+        } else {
+            jugadasSinProgreso++;
+        }
+        return anterior;
     }
 
-    /** Jugadas seguidas, contando desde la última, sin captura ni movimiento de peón. */
-    private static int jugadasSinProgreso(List<Jugada> jugadas) {
-        int sueltas = 0;
-        for (int i = jugadas.size() - 1; i >= 0; i--) {
-            Jugada jugada = jugadas.get(i);
-            if (jugada.capturada().isPresent() || jugada.piezaMovida().esPeon()) {
-                break;
-            }
-            sueltas++;
+    @Override
+    public void restaurar(Recuerdo recuerdo) {
+        if (!(recuerdo instanceof ContadorAnterior anterior) || anterior.duenio() != this) {
+            throw new IllegalArgumentException("El recuerdo no pertenece a esta condición");
         }
-        return sueltas;
+        jugadasSinProgreso = anterior.valor();
+    }
+
+    @Override
+    public Optional<EstadoPartida> evaluar(ContextoDeJugada contexto) {
+        return jugadasSinProgreso >= limiteDeJugadasSueltas
+                ? Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS)
+                : Optional.empty();
     }
 }

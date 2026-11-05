@@ -7,10 +7,10 @@ import java.util.Optional;
  * Partida las consulta en orden después de cada jugada y se queda con la primera que responda.
  * Agregar una condición nueva es crear una clase nueva, sin tocar Partida (Open/Closed).
  *
- * Se llama una vez al crear la partida y una vez por cada jugada ejecutada. El resultado debe
- * depender solo del contexto recibido (que incluye el historial de jugadas), sin guardar estado
- * propio: así las condiciones siguen siendo correctas si se deshace una jugada, y una misma
- * instancia se puede consultar varias veces con el mismo contexto.
+ * Se llama una vez al crear la partida y una vez por cada jugada ejecutada. evaluar es una consulta:
+ * no debe modificar estado, porque Partida deja de consultar en cuanto una condición responde.
+ * Las condiciones que necesitan recordar algo entre jugadas implementan {@link CondicionConMemoria},
+ * que separa el registro de cada jugada (siempre para todas) de la evaluación.
  */
 public interface CondicionDeFinalizacion {
 

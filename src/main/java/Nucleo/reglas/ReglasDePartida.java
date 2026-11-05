@@ -11,9 +11,8 @@ import java.util.Objects;
  * El detector de jaque no se recibe por separado: es el mismo que usan los movimientos legales,
  * de modo que no pueden quedar dos detectores distintos en una misma partida.
  *
- * Las condiciones no guardan estado propio (calculan todo desde el historial de jugadas), así que
- * compartirlas sería seguro; igual {@link #clasicas()} crea instancias nuevas en cada llamada para
- * que cada partida sea independiente si en el futuro se agrega una regla que sí necesite estado.
+ * Las condiciones con memoria (repetición, 50 movimientos) guardan estado, por eso una instancia
+ * pertenece a una sola partida. {@link #clasicas()} crea instancias nuevas en cada llamada.
  *
  * @param condiciones condiciones de fin, evaluadas en orden (la primera que se cumple gana).
  *                    Conviene poner primero jaque mate y ahogado.

@@ -74,7 +74,7 @@ public final class EnsambladorPartida {
         return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO));
     }
 
-    /** Cada partida recibe su propio tablero y sus propias reglas. */
+    /** Cada partida recibe reglas nuevas: las condiciones de repetición y 50 movimientos guardan memoria. */
     private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras) {
         return new Partida(new DisposicionEstandar().crearTablero(), blancas, negras,
                 ReglasDePartida.clasicas(), reloj);

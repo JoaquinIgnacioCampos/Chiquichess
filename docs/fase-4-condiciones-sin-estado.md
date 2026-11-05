@@ -1,5 +1,10 @@
 # Fase 4: condiciones de fin sin estado propio
 
+> **Reemplazado en parte por la fase 4b** (`fase-4b-memento-y-huella.md`): las dos condiciones de
+> tablas volvieron a llevar estado, ahora con Memento y huella de posición, para preparar la IA.
+> Sigue vigente que `ContextoDeJugada` incluya el historial. Se conserva este documento como
+> registro de la decisión anterior y de por qué se cambió.
+
 ## Qué
 
 `ContextoDeJugada` ahora incluye la lista de jugadas ejecutadas en la partida. La pieza movida y si
