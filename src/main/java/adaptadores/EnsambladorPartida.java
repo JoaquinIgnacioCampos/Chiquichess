@@ -48,6 +48,12 @@ public final class EnsambladorPartida {
         return crear(new SinReloj());
     }
 
+    /** Partida sin tiempo en la que se puede deshacer y rehacer (la usa la consola). */
+    public Partida crearSinRelojConDeshacer() {
+        return crear(new SinReloj(), new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO),
+                true);
+    }
+
     /** Resuelve el sorteo una sola vez y construye el juego elegido en el menú. */
     public Partida crearConfigurada(ConfiguracionPartida configuracion) {
         return prepararConfigurada(configuracion).partida();
@@ -64,19 +70,21 @@ public final class EnsambladorPartida {
                 .<RelojPartida>map(duracion -> new RelojAjedrez(duracion, duracion, fuente))
                 .orElseGet(SinReloj::new);
         Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : "Jugador 2", Bando.BLANCO),
-                new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Bando.NEGRO));
+                new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Bando.NEGRO),
+                configuracion.permitirDeshacer());
         return new PartidaConfigurada(partida,
                 jugador1Blancas ? configuracion.equipoJugador1() : configuracion.equipoJugador2(),
                 jugador1Blancas ? configuracion.equipoJugador2() : configuracion.equipoJugador1(), reloj);
     }
 
     private Partida crear(RelojPartida reloj) {
-        return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO));
+        return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO), false);
     }
 
     /** Cada partida recibe reglas nuevas: las condiciones de repetición y 50 movimientos guardan memoria. */
-    private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras) {
+    private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras, boolean permitirDeshacer) {
+        ReglasDePartida reglas = ReglasDePartida.clasicas();
         return new Partida(new DisposicionEstandar().crearTablero(), blancas, negras,
-                ReglasDePartida.clasicas(), reloj);
+                permitirDeshacer ? reglas.conDeshacer() : reglas, reloj);
     }
 }

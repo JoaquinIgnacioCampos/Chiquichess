@@ -135,6 +135,37 @@ class EnsambladorPartidaTest {
         assertThrows(NullPointerException.class, () -> new EnsambladorPartida(SorteoFijo.jugador1ConBlancas(), null));
     }
 
+    @Test
+    void conLaOpcionDelMenuLaPartidaPermiteDeshacer() {
+        ConfiguracionPartida conDeshacer = new ConfiguracionPartida(Modo.CLASICO, Tiempo.SIN_TIEMPO, Rival.AMIGO,
+                Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_1_BLANCAS, true);
+        Partida partida = ensamblador.crearConfigurada(conDeshacer);
+        partida.mover(mov("e2", "e4"));
+        assertTrue(partida.puedeDeshacer());
+        partida.deshacer();
+        assertTrue(partida.historial().isEmpty());
+    }
+
+    @Test
+    void sinLaOpcionDelMenuNoSePuedeDeshacer() {
+        Partida partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
+        partida.mover(mov("e2", "e4"));
+        assertFalse(partida.puedeDeshacer());
+    }
+
+    @Test
+    void laConfiguracionNoAdmiteDeshacerConTiempo() {
+        assertThrows(IllegalArgumentException.class, () -> new ConfiguracionPartida(Modo.CLASICO,
+                Tiempo.CINCO_MINUTOS, Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, Colores.ALEATORIO, true));
+    }
+
+    @Test
+    void laPartidaDeConsolaPermiteDeshacer() {
+        Partida partida = ensamblador.crearSinRelojConDeshacer();
+        partida.mover(mov("e2", "e4"));
+        assertTrue(partida.puedeDeshacer());
+    }
+
     private ConfiguracionPartida configuracion(Tiempo tiempo, Colores colores) {
         return new ConfiguracionPartida(Modo.CLASICO, tiempo, Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, colores);
     }

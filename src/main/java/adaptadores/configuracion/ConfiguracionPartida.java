@@ -4,9 +4,14 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
-/** Selección completa del menú, independiente de JavaFX y de las reglas del ajedrez. */
+/**
+ * Selección completa del menú, independiente de JavaFX y de las reglas del ajedrez.
+ *
+ * @param permitirDeshacer si los jugadores pueden deshacer y rehacer jugadas; solo se admite sin tiempo
+ */
 public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
-                                   Equipo equipoJugador1, Equipo equipoJugador2, Colores colores) {
+                                   Equipo equipoJugador1, Equipo equipoJugador2, Colores colores,
+                                   boolean permitirDeshacer) {
     public ConfiguracionPartida {
         Objects.requireNonNull(modo, "modo");
         Objects.requireNonNull(tiempo, "tiempo");
@@ -16,6 +21,15 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
         Objects.requireNonNull(colores, "colores");
         if (equipoJugador1 == equipoJugador2) throw new IllegalArgumentException("Los equipos deben ser distintos");
         if (rival == Rival.IA) throw new IllegalArgumentException("La IA todavía no está disponible");
+        if (permitirDeshacer && tiempo.duracion().isPresent()) {
+            throw new IllegalArgumentException("Solo se puede deshacer en partidas sin tiempo");
+        }
+    }
+
+    /** Configuración sin deshacer. */
+    public ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
+                                Equipo equipoJugador1, Equipo equipoJugador2, Colores colores) {
+        this(modo, tiempo, rival, equipoJugador1, equipoJugador2, colores, false);
     }
 
     public enum Modo { CLASICO }

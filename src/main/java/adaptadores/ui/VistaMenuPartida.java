@@ -25,6 +25,8 @@ public final class VistaMenuPartida extends GridPane {
     private final ToggleGroup equipo1 = new ToggleGroup();
     private final ToggleGroup equipo2 = new ToggleGroup();
     private final ToggleGroup colores = new ToggleGroup();
+    private final ToggleButton permitirDeshacer;
+    private final Label avisoDeshacer = new Label();
     private final Button jugar = new Button("Jugar");
     private final Label pendientes = new Label();
 
@@ -58,6 +60,11 @@ public final class VistaMenuPartida extends GridPane {
         for (Tiempo valor : Tiempo.values()) tiempos.getChildren().add(opcion(valor.texto(),
                 "tiempo-" + valor.name().toLowerCase(java.util.Locale.ROOT), valor, tiempo));
         opciones.getChildren().add(seccion("TIEMPO POR JUGADOR", tiempos));
+        permitirDeshacer = opcion("Permitir deshacer", "permitir-deshacer", Boolean.TRUE, null);
+        avisoDeshacer.setId("aviso-deshacer");
+        avisoDeshacer.setFont(Font.font("System", 12));
+        avisoDeshacer.setTextFill(tema.textoSecundario());
+        opciones.getChildren().add(seccion("DESHACER JUGADAS", new VBox(6, fila(permitirDeshacer), avisoDeshacer)));
         ToggleButton ia = opcion("IA · Próximamente", "rival-ia", Rival.IA, rival);
         ia.setDisable(true);
         opciones.getChildren().add(seccion("RIVAL", fila(
@@ -184,6 +191,13 @@ public final class VistaMenuPartida extends GridPane {
     private void actualizarSeleccion() {
         bloquearEquipo(equipo1, equipo2);
         bloquearEquipo(equipo2, equipo1);
+        // Deshacer solo existe en partidas sin tiempo: con un tiempo elegido se apaga y se deshabilita.
+        boolean sinTiempo = tiempo.getSelectedToggle() != null
+                && tiempo.getSelectedToggle().getUserData() == Tiempo.SIN_TIEMPO;
+        if (!sinTiempo) permitirDeshacer.setSelected(false);
+        permitirDeshacer.setDisable(!sinTiempo);
+        avisoDeshacer.setText(sinTiempo ? "Cualquiera de los dos podrá deshacer y rehacer jugadas."
+                : "Disponible solo en partidas sin tiempo.");
         var faltantes = new ArrayList<String>();
         if (modo.getSelectedToggle() == null) faltantes.add("modo");
         if (tiempo.getSelectedToggle() == null) faltantes.add("tiempo");
@@ -206,7 +220,7 @@ public final class VistaMenuPartida extends GridPane {
         ConfiguracionPartida seleccion = new ConfiguracionPartida((Modo) modo.getSelectedToggle().getUserData(),
                 (Tiempo) tiempo.getSelectedToggle().getUserData(), (Rival) rival.getSelectedToggle().getUserData(),
                 (Equipo) equipo1.getSelectedToggle().getUserData(), (Equipo) equipo2.getSelectedToggle().getUserData(),
-                (Colores) colores.getSelectedToggle().getUserData());
+                (Colores) colores.getSelectedToggle().getUserData(), permitirDeshacer.isSelected());
         iniciar.accept(seleccion);
     }
 

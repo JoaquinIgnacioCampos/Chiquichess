@@ -64,7 +64,7 @@ public class AplicacionAjedrez extends Application {
         var colores = preparada.equipoBlancas() == anterior.equipoJugador1()
                 ? ConfiguracionPartida.Colores.JUGADOR_2_BLANCAS : ConfiguracionPartida.Colores.JUGADOR_1_BLANCAS;
         iniciarPartida(ventana, new ConfiguracionPartida(anterior.modo(), anterior.tiempo(), anterior.rival(),
-                anterior.equipoJugador1(), anterior.equipoJugador2(), colores));
+                anterior.equipoJugador1(), anterior.equipoJugador2(), colores, anterior.permitirDeshacer()));
     }
 
     private void cerrarPartidaActual() {
