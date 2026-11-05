@@ -1,6 +1,7 @@
 package Nucleo.juego;
 
 import Nucleo.bando.Bando;
+import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
 import Nucleo.tablero.ITablero;
@@ -24,7 +25,7 @@ public class Partida {
     private final Jugador jugadorNegro;
     private final ReglasDePartida reglas;
     private final RelojPartida reloj;
-    private final List<Movimiento> historial = new ArrayList<>();
+    private final List<Jugada> jugadas = new ArrayList<>();
 
     private Bando turno = Bando.BLANCO;
     private EstadoPartida estado;
@@ -132,7 +133,9 @@ public class Partida {
 
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
     public List<Movimiento> historial() {
-        return List.copyOf(historial);
+        return jugadas.stream()
+                .map(jugada -> new Movimiento(jugada.origen(), jugada.destino()))
+                .toList();
     }
 
     /** Solo el jugador que tiene el turno puede rendirse. */
@@ -244,10 +247,11 @@ public class Partida {
         if (pieza.color() != turno) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.NO_ES_SU_TURNO);
         }
-        if (!pieza.destinosPosibles(tablero, movimiento.origen()).contains(movimiento.destino())) {
-            throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO);
-        }
-        if (reglas.movimientosLegales().dejaAlReyEnJaque(tablero, pieza, movimiento.origen(), movimiento.destino())) {
+        MovimientosLegales movimientosLegales = reglas.movimientosLegales();
+        Jugada jugada = movimientosLegales.jugadaPosible(tablero, movimiento.origen(), movimiento.destino())
+                .orElseThrow(() -> new MovimientoInvalidoException(
+                        MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO));
+        if (movimientosLegales.dejaAlReyEnJaque(tablero, jugada)) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.DEJA_AL_REY_EN_JAQUE);
         }
 
@@ -256,10 +260,9 @@ public class Partida {
         if (estado.estaFinalizada()) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
         }
-        Optional<Pieza> capturada = tablero.quitar(movimiento.destino());
-        tablero.quitar(movimiento.origen());
-        tablero.colocar(movimiento.destino(), pieza);
-        historial.add(movimiento);
+        jugada.aplicar(tablero);
+        jugadas.add(jugada);
+        Optional<Pieza> capturada = jugada.capturada();
 
         if (ofertaTablas.filter(oferente -> oferente != pieza.color()).isPresent()) {
             ofertaTablas = Optional.empty();

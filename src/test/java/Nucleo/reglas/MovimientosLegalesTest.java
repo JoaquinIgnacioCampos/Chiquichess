@@ -2,6 +2,7 @@ package Nucleo.reglas;
 
 import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
+import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
@@ -10,8 +11,10 @@ import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static dobles.Casillas.pos;
 import static dobles.Casillas.posiciones;
@@ -174,6 +177,75 @@ class MovimientosLegalesTest {
 
         // Act
         boolean deja = legales.dejaAlReyEnJaque(tablero, alfil, pos("e2"), pos("d3"));
+
+        // Assert
+        assertTrue(deja);
+        assertEquals(antes, tablero.piezas());
+    }
+
+    // ---------- Jugadas: la unidad que se valida y se ejecuta ----------
+
+    @Test
+    void lasJugadasPosiblesDelCaballoInicialSonDos() {
+        // Arrange
+        Tablero tablero = new DisposicionEstandar().crearTablero();
+
+        // Act
+        List<Jugada> jugadas = legales.jugadasPosibles(tablero, pos("g1"));
+
+        // Assert
+        assertEquals(Set.of(pos("f3"), pos("h3")),
+                jugadas.stream().map(Jugada::destino).collect(Collectors.toSet()));
+        assertTrue(jugadas.stream().allMatch(j -> j.origen().equals(pos("g1"))));
+    }
+
+    @Test
+    void laJugadaPosibleDeUnaCapturaIncluyeElRetiroDeLaPiezaRival() {
+        // Arrange
+        Tablero tablero = TableroFake.desde(
+                "........",
+                "........",
+                "........",
+                "...p....",
+                "....P...",
+                "........",
+                "........",
+                "........");
+
+        // Act
+        Jugada jugada = legales.jugadaPosible(tablero, pos("e4"), pos("d5")).orElseThrow();
+
+        // Assert
+        assertSame(tablero.piezaEn(pos("d5")).orElseThrow(), jugada.capturada().orElseThrow());
+    }
+
+    @Test
+    void noHayJugadaPosibleHaciaUnDestinoQueLaPiezaNoAlcanza() {
+        // Arrange
+        Tablero tablero = new DisposicionEstandar().crearTablero();
+
+        // Act + Assert
+        assertTrue(legales.jugadaPosible(tablero, pos("a1"), pos("a3")).isEmpty());
+        assertTrue(legales.jugadaPosible(tablero, pos("e4"), pos("e5")).isEmpty());
+    }
+
+    @Test
+    void dejaAlReyEnJaqueConUnaJugadaSimulaTodosSusEfectosSinTocarElTablero() {
+        // Arrange: el alfil clavado en e2 no puede salir de la columna
+        Tablero tablero = TableroFake.desde(
+                "....t...",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "....A...",
+                "....R...");
+        Map<Posicion, Pieza> antes = new HashMap<>(tablero.piezas());
+        Jugada salirDeLaClavada = Jugada.normal(tablero, pos("e2"), pos("d3"));
+
+        // Act
+        boolean deja = legales.dejaAlReyEnJaque(tablero, salirDeLaClavada);
 
         // Assert
         assertTrue(deja);

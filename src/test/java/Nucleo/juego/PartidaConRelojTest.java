@@ -1,12 +1,11 @@
 package Nucleo.juego;
 
 import Nucleo.bando.Bando;
+import Nucleo.jugadas.Jugada;
 import Nucleo.reglas.*;
 import Nucleo.reglas.MotivoFinalizacion;
-import Nucleo.tablero.Posicion;
 import Nucleo.tiempo.RelojAjedrez;
 import Nucleo.tiempo.RelojPartida;
-import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Tablero;
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
@@ -114,7 +113,7 @@ class PartidaConRelojTest {
             }
 
             @Override
-            public boolean dejaAlReyEnJaque(Tablero tablero, Pieza pieza, Posicion origen, Posicion destino) {
+            public boolean dejaAlReyEnJaque(Tablero tablero, Jugada jugada) {
                 fuente.avanzar(Duration.ofMinutes(5));
                 return false;
             }
