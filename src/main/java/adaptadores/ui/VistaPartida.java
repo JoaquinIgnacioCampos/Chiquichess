@@ -126,6 +126,9 @@ public final class VistaPartida extends BorderPane {
             case OFERTA_PENDIENTE -> "Ya hay una oferta de tablas pendiente.";
             case SIN_OFERTA -> "La oferta de tablas ya no está disponible.";
             case ES_SU_PROPIA_OFERTA -> "Solo el rival puede responder a esta oferta.";
+            case DESHACER_NO_PERMITIDO -> "Esta partida no permite deshacer jugadas.";
+            case NADA_PARA_DESHACER -> "No hay jugadas para deshacer.";
+            case NADA_PARA_REHACER -> "No hay jugadas para rehacer.";
         }).orElse(""));
         redibujar();
     }

@@ -16,13 +16,26 @@ public class MockCondicionConMemoria implements CondicionConMemoria {
     }
 
     private final List<ContextoDeJugada> registrados = new ArrayList<>();
+    private final List<Recuerdo> entregados = new ArrayList<>();
     private final List<Recuerdo> restaurados = new ArrayList<>();
     private int evaluaciones = 0;
 
     @Override
     public Recuerdo registrar(ContextoDeJugada contexto) {
         registrados.add(contexto);
-        return new Marca(registrados.size());
+        Recuerdo recuerdo = new Marca(registrados.size());
+        entregados.add(recuerdo);
+        return recuerdo;
+    }
+
+    /** Recuerdos que devolvió esta condición, en orden de registro. */
+    public List<Recuerdo> entregados() {
+        return List.copyOf(entregados);
+    }
+
+    /** Recuerdos que Partida le devolvió para restaurar, en orden. */
+    public List<Recuerdo> restaurados() {
+        return List.copyOf(restaurados);
     }
 
     @Override

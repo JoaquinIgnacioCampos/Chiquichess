@@ -25,16 +25,16 @@ public class Partida {
     private final Jugador jugadorNegro;
     private final ReglasDePartida reglas;
     private final RelojPartida reloj;
-    private final List<Jugada> jugadas = new ArrayList<>();
-    /**
-     * Memento: Partida es el cuidador. Por cada jugada guarda, en el mismo orden, los recuerdos que
-     * dejaron las condiciones con memoria, para poder restaurarlas al deshacer.
-     */
-    private final List<List<Recuerdo>> recuerdosPorJugada = new ArrayList<>();
+    /** Condiciones de las reglas que guardan estado, en el orden en que registran (Memento). */
+    private final List<CondicionConMemoria> condicionesConMemoria;
+    /** Jugadas hechas y deshechas, con los recuerdos de cada una: Partida es el cuidador del Memento. */
+    private final HistorialDeJugadas historialDeJugadas = new HistorialDeJugadas();
 
     private Bando turno = Bando.BLANCO;
     private EstadoPartida estado;
     private Optional<ResultadoPartida> resultado = Optional.empty();
+    /** true si el final lo decidió una jugada (mate o tablas automáticas): ese final se puede deshacer. */
+    private boolean terminoPorUnaJugada = false;
     private Optional<Bando> ofertaTablas = Optional.empty();
 
     /**
@@ -51,8 +51,13 @@ public class Partida {
         if (jugadorBlanco.color() != Bando.BLANCO || jugadorNegro.color() != Bando.NEGRO) {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
+        this.condicionesConMemoria = reglas.condiciones().stream()
+                .filter(CondicionConMemoria.class::isInstance)
+                .map(CondicionConMemoria.class::cast)
+                .toList();
         this.reloj.iniciar(turno);
-        registrarYEvaluar(); // la posición inicial no se deshace: sus recuerdos no hace falta guardarlos
+        // La posición inicial no se deshace: sus recuerdos no hace falta guardarlos.
+        registrarYEvaluar(historialDeJugadas.jugadas());
     }
 
     /**
@@ -138,9 +143,84 @@ public class Partida {
 
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
     public List<Movimiento> historial() {
-        return jugadas.stream()
+        return historialDeJugadas.jugadas().stream()
                 .map(jugada -> new Movimiento(jugada.origen(), jugada.destino()))
                 .toList();
+    }
+
+    /**
+     * Deshace la última jugada: tablero, turno, condiciones con memoria y estado vuelven a como
+     * estaban antes de ella. Cualquiera de los dos jugadores puede hacerlo. Se puede deshacer una
+     * jugada que terminó la partida (mate o tablas automáticas), pero no un final decidido por los
+     * jugadores o por el reloj. Borra la oferta de tablas pendiente.
+     *
+     * @throws AccionInvalidaException si la partida no permite deshacer (no se habilitó o tiene
+     *                                 límite de tiempo), si terminó por rendición, acuerdo o tiempo,
+     *                                 o si no hay jugadas para deshacer
+     */
+    public void deshacer() {
+        asegurarDeshacerPermitido();
+        if (resultado.isPresent() && !terminoPorUnaJugada) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA);
+        }
+        if (!historialDeJugadas.hayParaDeshacer()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.NADA_PARA_DESHACER);
+        }
+        HistorialDeJugadas.Entrada entrada = historialDeJugadas.deshacer();
+        entrada.jugada().revertir(tablero);
+        // Memento: cada condición recupera su propio recuerdo, en orden inverso al registro.
+        for (int i = condicionesConMemoria.size() - 1; i >= 0; i--) {
+            condicionesConMemoria.get(i).restaurar(entrada.recuerdos().get(i));
+        }
+        turno = turno.opuesto();
+        ofertaTablas = Optional.empty();
+        resultado = Optional.empty();
+        terminoPorUnaJugada = false;
+        actualizarEstado(evaluar(contexto(historialDeJugadas.jugadas())));
+    }
+
+    /**
+     * Vuelve a ejecutar la última jugada deshecha. Hacer una jugada nueva borra lo que se podía
+     * rehacer. Borra la oferta de tablas pendiente.
+     *
+     * @throws AccionInvalidaException si la partida no permite deshacer, si terminó o si no hay
+     *                                 jugadas para rehacer
+     */
+    public void rehacer() {
+        asegurarDeshacerPermitido();
+        if (estado.estaFinalizada()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA);
+        }
+        if (!historialDeJugadas.hayParaRehacer()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.NADA_PARA_REHACER);
+        }
+        Jugada jugada = historialDeJugadas.siguienteParaRehacer();
+        jugada.aplicar(tablero);
+        turno = turno.opuesto();
+        ofertaTablas = Optional.empty();
+        historialDeJugadas.confirmarRehecha(registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
+    }
+
+    /** true si en este momento {@link #deshacer()} se aceptaría. Lo usa la UI para habilitar el botón. */
+    public boolean puedeDeshacer() {
+        return deshacerHabilitado() && historialDeJugadas.hayParaDeshacer()
+                && (resultado.isEmpty() || terminoPorUnaJugada);
+    }
+
+    /** true si en este momento {@link #rehacer()} se aceptaría. */
+    public boolean puedeRehacer() {
+        return deshacerHabilitado() && historialDeJugadas.hayParaRehacer() && !estado.estaFinalizada();
+    }
+
+    /** Deshacer solo existe si las reglas lo permiten y la partida no tiene límite de tiempo. */
+    private boolean deshacerHabilitado() {
+        return reglas.permiteDeshacer() && reloj.tiempoRestante(Bando.BLANCO).isEmpty();
+    }
+
+    private void asegurarDeshacerPermitido() {
+        if (!deshacerHabilitado()) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.DESHACER_NO_PERMITIDO);
+        }
     }
 
     /** Solo el jugador que tiene el turno puede rendirse. */
@@ -197,9 +277,11 @@ public class Partida {
         }
     }
 
+    /** Aplica el estado que decidieron las condiciones de fin después de una jugada. */
     private void actualizarEstado(EstadoPartida nuevoEstado) {
         if (nuevoEstado.estaFinalizada()) {
             finalizar(nuevoEstado, nuevoEstado.esTablas() ? Optional.empty() : Optional.of(turno.opuesto()));
+            terminoPorUnaJugada = true;
         } else {
             estado = nuevoEstado;
         }
@@ -266,7 +348,6 @@ public class Partida {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
         }
         jugada.aplicar(tablero);
-        jugadas.add(jugada);
         Optional<Pieza> capturada = jugada.capturada();
 
         if (ofertaTablas.filter(oferente -> oferente != pieza.color()).isPresent()) {
@@ -274,38 +355,41 @@ public class Partida {
         }
         turno = turno.opuesto();
         reloj.cambiarTurno();
-        recuerdosPorJugada.add(registrarYEvaluar());
+        historialDeJugadas.agregar(jugada, registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
         return new ResultadoMovimiento(capturada, estado);
+    }
+
+    /** Foto de la posición actual que reciben las condiciones de fin. */
+    private ContextoDeJugada contexto(List<Jugada> jugadas) {
+        boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
+        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
+        return new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
     }
 
     /**
      * Arma el contexto de la posición actual, hace que todas las condiciones con memoria la registren
      * y recién después decide el estado. Registrar primero garantiza que todas anoten cada jugada,
-     * aunque una condición anterior termine la partida. Devuelve los recuerdos de ese registro.
+     * aunque una condición anterior termine la partida. Devuelve los recuerdos de ese registro,
+     * en el mismo orden que {@link #condicionesConMemoria}.
      */
-    private List<Recuerdo> registrarYEvaluar() {
-        boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
-        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
-        ContextoDeJugada contexto = new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
-
+    private List<Recuerdo> registrarYEvaluar(List<Jugada> jugadas) {
+        ContextoDeJugada contexto = contexto(jugadas);
         List<Recuerdo> recuerdos = new ArrayList<>();
-        for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
-            if (condicion instanceof CondicionConMemoria conMemoria) {
-                recuerdos.add(conMemoria.registrar(contexto));
-            }
+        for (CondicionConMemoria condicion : condicionesConMemoria) {
+            recuerdos.add(condicion.registrar(contexto));
         }
-        actualizarEstado(evaluar(contexto, enJaque));
+        actualizarEstado(evaluar(contexto));
         return recuerdos;
     }
 
     /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
-    private EstadoPartida evaluar(ContextoDeJugada contexto, boolean enJaque) {
+    private EstadoPartida evaluar(ContextoDeJugada contexto) {
         for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
             Optional<EstadoPartida> resultado = condicion.evaluar(contexto);
             if (resultado.isPresent()) {
                 return resultado.get();
             }
         }
-        return enJaque ? EstadoPartida.JAQUE : EstadoPartida.EN_CURSO;
+        return contexto.enJaque() ? EstadoPartida.JAQUE : EstadoPartida.EN_CURSO;
     }
 }
