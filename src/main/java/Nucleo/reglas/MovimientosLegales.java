@@ -23,6 +23,11 @@ public class MovimientosLegales {
         this.detector = Objects.requireNonNull(detector, "detector");
     }
 
+    /** Detector con el que se decide si una jugada deja al rey en jaque. */
+    public IDetectorDeJaque detector() {
+        return detector;
+    }
+
     /** Destinos legales de la pieza que está en origen (vacío si no hay pieza). */
     public Set<Posicion> destinos(Tablero tablero, Posicion origen) {
         Set<Posicion> legales = new HashSet<>();

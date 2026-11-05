@@ -7,6 +7,7 @@ import Nucleo.piezas.Torre;
 import Nucleo.reglas.*;
 import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
+import Nucleo.tiempo.SinReloj;
 import dobles.*;
 import org.junit.jupiter.api.Test;
 
@@ -354,7 +355,7 @@ class PartidaTest {
 
         // Act
         Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false), List.of(new JaqueMate(), new Ahogado()));
+                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
 
         // Assert
         assertEquals(EstadoPartida.TABLAS_AHOGADO, partida.estado());
@@ -368,7 +369,34 @@ class PartidaTest {
 
         // Act
         Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false), List.of(new JaqueMate(), new Ahogado()));
+                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
+
+        // Assert
+        assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
+    }
+
+    @Test
+    void rechazaMovimientosLegalesQueUsanOtroDetector() {
+        // Arrange: el stub de movimientos legales trae su propio detector, distinto del recibido
+        Tablero tablero = new DisposicionEstandar().crearTablero();
+        IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
+        MovimientosLegales conOtroDetector = new StubMovimientosLegales(false);
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> new Partida(tablero, blanco, negro,
+                detector, conOtroDetector, List.of(new JaqueMate())));
+    }
+
+    @Test
+    void conReglasDePartidaElDetectorEsElDeLosMovimientosLegales() {
+        // Arrange: no hay forma de pasar un segundo detector
+        IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
+        ReglasDePartida reglas = new ReglasDePartida(new StubMovimientosLegales(false, detector),
+                List.of(new JaqueMate(), new Ahogado()));
+
+        // Act
+        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), blanco, negro,
+                reglas, new SinReloj());
 
         // Assert
         assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());

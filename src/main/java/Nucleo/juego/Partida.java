@@ -22,9 +22,7 @@ public class Partida {
     private final Tablero tablero;
     private final Jugador jugadorBlanco;
     private final Jugador jugadorNegro;
-    private final IDetectorDeJaque detector;
-    private final MovimientosLegales movimientosLegales;
-    private final List<CondicionDeFinalizacion> condiciones;
+    private final ReglasDePartida reglas;
     private final RelojPartida reloj;
     private final List<Movimiento> historial = new ArrayList<>();
 
@@ -34,19 +32,38 @@ public class Partida {
     private Optional<Bando> ofertaTablas = Optional.empty();
 
     /**
-     * Constructor de uso habitual: arma los MovimientosLegales con el mismo detector.
+     * Constructor principal: las reglas (movimientos legales, detector y condiciones de fin) llegan
+     * agrupadas en {@link ReglasDePartida}; el reloj pertenece a esta única partida.
+     */
+    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
+                   ReglasDePartida reglas, RelojPartida reloj) {
+        this.tablero = Objects.requireNonNull(tablero, "tablero");
+        this.jugadorBlanco = Objects.requireNonNull(jugadorBlanco, "jugadorBlanco");
+        this.jugadorNegro = Objects.requireNonNull(jugadorNegro, "jugadorNegro");
+        this.reglas = Objects.requireNonNull(reglas, "reglas");
+        this.reloj = Objects.requireNonNull(reloj, "reloj");
+        if (jugadorBlanco.color() != Bando.BLANCO || jugadorNegro.color() != Bando.NEGRO) {
+            throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
+        }
+        this.reloj.iniciar(turno);
+        actualizarEstado(evaluarEstado(Optional.empty(), false));
+    }
+
+    /**
+     * Atajo sin reloj que arma los MovimientosLegales con el detector recibido.
      *
      * @param condiciones condiciones de fin de partida, evaluadas en orden (la primera que se cumple gana).
      *                    Conviene poner primero jaque mate y ahogado.
      */
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones) {
-        this(tablero, jugadorBlanco, jugadorNegro, detector, new MovimientosLegales(detector), condiciones);
+        this(tablero, jugadorBlanco, jugadorNegro, new ReglasDePartida(detector, condiciones), new SinReloj());
     }
 
     /**
-     * Constructor con todas las dependencias inyectadas (lo usan los tests para reemplazar
-     * MovimientosLegales por un doble). Se espera que movimientosLegales use el mismo detector.
+     * Atajo sin reloj con MovimientosLegales inyectado (lo usan los tests para reemplazarlo por un doble).
+     *
+     * @throws IllegalArgumentException si movimientosLegales no usa ese mismo detector
      */
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
@@ -54,27 +71,31 @@ public class Partida {
         this(tablero, jugadorBlanco, jugadorNegro, detector, movimientosLegales, condiciones, new SinReloj());
     }
 
-    /** Variante con reloj; la instancia inyectada pertenece a esta única partida. */
+    /** Atajo con reloj que arma los MovimientosLegales con el detector recibido. */
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
-        this(tablero, jugadorBlanco, jugadorNegro, detector, new MovimientosLegales(detector), condiciones, reloj);
+        this(tablero, jugadorBlanco, jugadorNegro, new ReglasDePartida(detector, condiciones), reloj);
     }
 
+    /**
+     * Atajo con reloj y MovimientosLegales inyectado.
+     *
+     * @throws IllegalArgumentException si movimientosLegales no usa ese mismo detector
+     */
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
                    List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
-        this.tablero = Objects.requireNonNull(tablero, "tablero");
-        this.jugadorBlanco = Objects.requireNonNull(jugadorBlanco, "jugadorBlanco");
-        this.jugadorNegro = Objects.requireNonNull(jugadorNegro, "jugadorNegro");
-        this.detector = Objects.requireNonNull(detector, "detector");
-        this.movimientosLegales = Objects.requireNonNull(movimientosLegales, "movimientosLegales");
-        this.condiciones = List.copyOf(condiciones);
-        this.reloj = Objects.requireNonNull(reloj, "reloj");
-        if (jugadorBlanco.color() != Bando.BLANCO || jugadorNegro.color() != Bando.NEGRO) {
-            throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
+        this(tablero, jugadorBlanco, jugadorNegro,
+                new ReglasDePartida(conMismoDetector(movimientosLegales, detector), condiciones), reloj);
+    }
+
+    private static MovimientosLegales conMismoDetector(MovimientosLegales movimientosLegales,
+                                                        IDetectorDeJaque detector) {
+        Objects.requireNonNull(detector, "detector");
+        if (Objects.requireNonNull(movimientosLegales, "movimientosLegales").detector() != detector) {
+            throw new IllegalArgumentException("MovimientosLegales debe usar el mismo detector de jaque");
         }
-        this.reloj.iniciar(turno);
-        actualizarEstado(evaluarEstado(Optional.empty(), false));
+        return movimientosLegales;
     }
 
     public ITablero tablero() {
@@ -204,7 +225,7 @@ public class Partida {
         if (candidata.isEmpty() || candidata.get().color() != turno) {
             return Set.of();
         }
-        return movimientosLegales.destinos(tablero, origen);
+        return reglas.movimientosLegales().destinos(tablero, origen);
     }
 
     /**
@@ -226,7 +247,7 @@ public class Partida {
         if (!pieza.destinosPosibles(tablero, movimiento.origen()).contains(movimiento.destino())) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO);
         }
-        if (movimientosLegales.dejaAlReyEnJaque(tablero, pieza, movimiento.origen(), movimiento.destino())) {
+        if (reglas.movimientosLegales().dejaAlReyEnJaque(tablero, pieza, movimiento.origen(), movimiento.destino())) {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.DEJA_AL_REY_EN_JAQUE);
         }
 
@@ -251,12 +272,12 @@ public class Partida {
 
     /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
     private EstadoPartida evaluarEstado(Optional<Pieza> piezaMovida, boolean huboCaptura) {
-        boolean enJaque = detector.estaEnJaque(tablero, turno);
-        boolean hayJugadasLegales = movimientosLegales.existeAlguno(tablero, turno);
+        boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
+        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
         ContextoDeJugada contexto = new ContextoDeJugada(
                 tablero, turno, piezaMovida, huboCaptura, enJaque, hayJugadasLegales);
 
-        for (CondicionDeFinalizacion condicion : condiciones) {
+        for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
             Optional<EstadoPartida> resultado = condicion.evaluar(contexto);
             if (resultado.isPresent()) {
                 return resultado.get();
