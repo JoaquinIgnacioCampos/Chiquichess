@@ -7,9 +7,10 @@ import java.util.Optional;
  * Partida las consulta en orden después de cada jugada y se queda con la primera que responda.
  * Agregar una condición nueva es crear una clase nueva, sin tocar Partida (Open/Closed).
  *
- * Se llama una vez al crear la partida y una vez por cada jugada ejecutada, así que las condiciones
- * con memoria (repetición, contador de 50 movimientos) pueden llevar su propio estado.
- * Por eso una instancia se usa para una sola partida.
+ * Se llama una vez al crear la partida y una vez por cada jugada ejecutada. El resultado debe
+ * depender solo del contexto recibido (que incluye el historial de jugadas), sin guardar estado
+ * propio: así las condiciones siguen siendo correctas si se deshace una jugada, y una misma
+ * instancia se puede consultar varias veces con el mismo contexto.
  */
 public interface CondicionDeFinalizacion {
 

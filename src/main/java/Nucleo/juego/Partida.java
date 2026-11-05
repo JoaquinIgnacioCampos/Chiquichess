@@ -47,7 +47,7 @@ public class Partida {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
         this.reloj.iniciar(turno);
-        actualizarEstado(evaluarEstado(Optional.empty(), false));
+        actualizarEstado(evaluarEstado());
     }
 
     /**
@@ -269,16 +269,15 @@ public class Partida {
         }
         turno = turno.opuesto();
         reloj.cambiarTurno();
-        actualizarEstado(evaluarEstado(Optional.of(pieza), capturada.isPresent()));
+        actualizarEstado(evaluarEstado());
         return new ResultadoMovimiento(capturada, estado);
     }
 
     /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
-    private EstadoPartida evaluarEstado(Optional<Pieza> piezaMovida, boolean huboCaptura) {
+    private EstadoPartida evaluarEstado() {
         boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
         boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
-        ContextoDeJugada contexto = new ContextoDeJugada(
-                tablero, turno, piezaMovida, huboCaptura, enJaque, hayJugadasLegales);
+        ContextoDeJugada contexto = new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
 
         for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
             Optional<EstadoPartida> resultado = condicion.evaluar(contexto);

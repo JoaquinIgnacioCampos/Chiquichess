@@ -1,35 +1,37 @@
 package Nucleo.reglas;
 
 import Nucleo.bando.Bando;
+import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.Contextos;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Las posiciones anteriores se reconstruyen revirtiendo el historial, así que cada test juega una
+ * secuencia real sobre un tablero armado con el fake.
+ */
 class TablasPorRepeticionTest {
 
-    private final Tablero posicionA = TableroFake.desde(
-            "....r...",
-            "........",
-            "........",
-            "........",
-            "........",
-            "........",
-            "........",
-            "....R...");
-    private final Tablero posicionB = TableroFake.desde(
-            "...r....",
-            "........",
-            "........",
-            "........",
-            "........",
-            "........",
-            "........",
-            "....R...");
+    /** Reyes en e1/e8 y caballos en g1/g8: los caballos pueden ir y volver sin cambiar nada más. */
+    private Tablero conCaballos() {
+        return TableroFake.desde(
+                "....r.c.",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "....R.C.");
+    }
 
     @Test
     void rechazaMenosDeDosRepeticiones() {
@@ -38,58 +40,95 @@ class TablasPorRepeticionTest {
     }
 
     @Test
-    void laTerceraVezQueAparecePosicionEsTablas() {
-        // Arrange
-        TablasPorRepeticion regla = new TablasPorRepeticion();
-
+    void laPosicionInicialSolaNoEsTablas() {
         // Act
-        Optional<EstadoPartida> primera = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        Optional<EstadoPartida> segunda = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        Optional<EstadoPartida> tercera = regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-
-        // Assert
-        assertTrue(primera.isEmpty());
-        assertTrue(segunda.isEmpty());
-        assertEquals(Optional.of(EstadoPartida.TABLAS_REPETICION), tercera);
-    }
-
-    @Test
-    void reconoceLaMismaPosicionAunqueSeanTablerosDistintos() {
-        // Arrange: dos objetos Tablero distintos pero con las mismas piezas en las mismas casillas
-        TablasPorRepeticion regla = new TablasPorRepeticion(2);
-        Tablero copia = posicionA.copiar();
-
-        // Act
-        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(copia, Bando.BLANCO));
-
-        // Assert
-        assertEquals(Optional.of(EstadoPartida.TABLAS_REPETICION), resultado);
-    }
-
-    @Test
-    void conTurnoDistintoNoEsLaMismaPosicion() {
-        // Arrange
-        TablasPorRepeticion regla = new TablasPorRepeticion(2);
-
-        // Act
-        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionA, Bando.NEGRO));
+        Optional<EstadoPartida> resultado = new TablasPorRepeticion(2)
+                .evaluar(Contextos.inicial(conCaballos(), Bando.BLANCO));
 
         // Assert
         assertTrue(resultado.isEmpty());
     }
 
     @Test
-    void lasPosicionesDistintasNoSeAcumulan() {
+    void laTerceraVezQueApareceUnaPosicionEsTablas() {
         // Arrange
         TablasPorRepeticion regla = new TablasPorRepeticion();
 
+        // Act: cada vuelta de los caballos repite la posición inicial
+        Optional<EstadoPartida> segundaVez = regla.evaluar(Contextos.trasJugar(conCaballos(),
+                "g1f3", "g8f6", "f3g1", "f6g8"));
+        Optional<EstadoPartida> terceraVez = regla.evaluar(Contextos.trasJugar(conCaballos(),
+                "g1f3", "g8f6", "f3g1", "f6g8", "g1f3", "g8f6", "f3g1", "f6g8"));
+
+        // Assert
+        assertTrue(segundaVez.isEmpty());
+        assertEquals(Optional.of(EstadoPartida.TABLAS_REPETICION), terceraVez);
+    }
+
+    @Test
+    void conTurnoDistintoNoEsLaMismaPosicion() {
+        // Arrange: el rey blanco hace un triángulo (3 jugadas) y el negro va y vuelve (2 jugadas).
+        // Las piezas quedan como al principio, pero ahora juegan las negras.
+        TablasPorRepeticion regla = new TablasPorRepeticion(2);
+
         // Act
-        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        regla.evaluar(Contextos.inicial(posicionB, Bando.BLANCO));
-        regla.evaluar(Contextos.inicial(posicionA, Bando.BLANCO));
-        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(posicionB, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.trasJugar(conCaballos(),
+                "e1d1", "e8d8", "d1d2", "d8e8", "d2e1"));
+
+        // Assert
+        assertTrue(resultado.isEmpty());
+    }
+
+    @Test
+    void reconstruyeLasPosicionesAunqueHayaCapturasEnElHistorial() {
+        // Arrange: la torre blanca captura el peón de a7 y después los caballos van y vuelven.
+        // La posición posterior a la captura (juegan las negras) aparece dos veces. Las anteriores a
+        // la captura no pueden repetirse (tenían un peón más), así que la regla no las revisa.
+        var contexto = Contextos.trasJugar(TableroFake.desde(
+                        "....r.c.",
+                        "p.......",
+                        "........",
+                        "........",
+                        "........",
+                        "........",
+                        "........",
+                        "T...R.C."),
+                "a1a7", "g8f6", "g1f3", "f6g8", "f3g1");
+
+        // Act
+        Optional<EstadoPartida> conDos = new TablasPorRepeticion(2).evaluar(contexto);
+        Optional<EstadoPartida> conTres = new TablasPorRepeticion(3).evaluar(contexto);
+
+        // Assert
+        assertEquals(Optional.of(EstadoPartida.TABLAS_REPETICION), conDos);
+        assertTrue(conTres.isEmpty());
+    }
+
+    @Test
+    void noModificaElTableroQueRecibe() {
+        // Arrange
+        Tablero tablero = conCaballos();
+        var contexto = Contextos.trasJugar(tablero, "g1f3", "g8f6");
+        Map<Posicion, Pieza> antes = new HashMap<>(tablero.piezas());
+
+        // Act
+        new TablasPorRepeticion().evaluar(contexto);
+
+        // Assert
+        assertEquals(antes, tablero.piezas());
+    }
+
+    @Test
+    void noGuardaMemoriaEntreEvaluaciones() {
+        // Arrange
+        TablasPorRepeticion regla = new TablasPorRepeticion(2);
+        Tablero tablero = conCaballos();
+
+        // Act: antes, cada evaluación sumaba una aparición; ahora la misma posición sin historial
+        // es siempre una sola aparición
+        regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
+        regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
+        Optional<EstadoPartida> resultado = regla.evaluar(Contextos.inicial(tablero, Bando.BLANCO));
 
         // Assert
         assertTrue(resultado.isEmpty());
