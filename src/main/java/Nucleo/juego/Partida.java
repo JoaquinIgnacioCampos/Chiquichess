@@ -315,7 +315,7 @@ public class Partida {
         if (candidata.isEmpty() || candidata.get().color() != turno) {
             return Set.of();
         }
-        return reglas.movimientosLegales().destinos(tablero, origen);
+        return reglas.movimientosLegales().destinos(tablero, origen, historialDeJugadas.jugadas());
     }
 
     /**
@@ -335,7 +335,8 @@ public class Partida {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.NO_ES_SU_TURNO);
         }
         MovimientosLegales movimientosLegales = reglas.movimientosLegales();
-        Jugada jugada = movimientosLegales.jugadaPosible(tablero, movimiento.origen(), movimiento.destino())
+        Jugada jugada = movimientosLegales
+                .jugadaPosible(tablero, movimiento.origen(), movimiento.destino(), historialDeJugadas.jugadas())
                 .orElseThrow(() -> new MovimientoInvalidoException(
                         MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO));
         if (movimientosLegales.dejaAlReyEnJaque(tablero, jugada)) {
@@ -362,7 +363,7 @@ public class Partida {
     /** Foto de la posición actual que reciben las condiciones de fin. */
     private ContextoDeJugada contexto(List<Jugada> jugadas) {
         boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
-        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno);
+        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno, jugadas);
         return new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
     }
 

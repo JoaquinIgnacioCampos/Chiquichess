@@ -108,7 +108,7 @@ class PartidaConRelojTest {
         IDetectorDeJaque detector = new DetectorDeJaque();
         MovimientosLegales validacion = new MovimientosLegales(detector) {
             @Override
-            public boolean existeAlguno(Tablero tablero, Bando color) {
+            public boolean existeAlguno(Tablero tablero, Bando color, List<Jugada> historial) {
                 return true;
             }
 

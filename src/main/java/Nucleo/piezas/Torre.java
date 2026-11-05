@@ -11,6 +11,11 @@ public class Torre extends Pieza {
     }
 
     @Override
+    public boolean esTorre() {
+        return true;
+    }
+
+    @Override
     public String nombre() {
         return "Torre";
     }

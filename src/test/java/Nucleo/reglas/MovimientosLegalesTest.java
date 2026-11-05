@@ -251,4 +251,40 @@ class MovimientosLegalesTest {
         assertTrue(deja);
         assertEquals(antes, tablero.piezas());
     }
+
+    // ---------- Reglas especiales ----------
+
+    private Tablero listoParaEnrocar() {
+        return TableroFake.desde(
+                "r.......",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "T...R..T");
+    }
+
+    @Test
+    void sinReglasEspecialesElReyNoEnroca() {
+        // Act
+        Set<Posicion> destinos = legales.destinos(listoParaEnrocar(), pos("e1"), List.of());
+
+        // Assert
+        assertFalse(destinos.contains(pos("g1")));
+        assertFalse(destinos.contains(pos("c1")));
+    }
+
+    @Test
+    void conElEnroqueInyectadoElReySumaSusDosEnroques() {
+        // Arrange
+        MovimientosLegales conEnroque = new MovimientosLegales(new DetectorDeJaque(), List.of(new Enroque()));
+
+        // Act
+        Set<Posicion> destinos = conEnroque.destinos(listoParaEnrocar(), pos("e1"), List.of());
+
+        // Assert: los cinco movimientos comunes del rey más los dos enroques
+        assertEquals(posiciones("d1", "d2", "e2", "f2", "f1", "g1", "c1"), destinos);
+    }
 }

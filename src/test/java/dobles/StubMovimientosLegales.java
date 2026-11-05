@@ -1,9 +1,12 @@
 package dobles;
 
 import Nucleo.bando.Bando;
+import Nucleo.jugadas.Jugada;
 import Nucleo.reglas.IDetectorDeJaque;
 import Nucleo.reglas.MovimientosLegales;
 import Nucleo.tablero.Tablero;
+
+import java.util.List;
 
 /**
  * Stub: fija la respuesta de "¿existe alguna jugada legal?" sin recorrer el tablero.
@@ -25,7 +28,7 @@ public class StubMovimientosLegales extends MovimientosLegales {
     }
 
     @Override
-    public boolean existeAlguno(Tablero tablero, Bando color) {
+    public boolean existeAlguno(Tablero tablero, Bando color, List<Jugada> historial) {
         return existeAlguno;
     }
 }

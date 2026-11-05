@@ -48,6 +48,11 @@ public abstract class Pieza {
         return false;
     }
 
+    /** Las torres sobreescriben esto; lo usa el enroque para saber con qué pieza puede enrocar el rey. */
+    public boolean esTorre() {
+        return false;
+    }
+
     public abstract String nombre();
 
     /** Letra que identifica a la pieza (P, T, C, A, D, R). */

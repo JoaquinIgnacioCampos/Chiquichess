@@ -32,14 +32,18 @@ public record ReglasDePartida(MovimientosLegales movimientosLegales, List<Condic
         this(movimientosLegales, condiciones, false);
     }
 
-    /** Arma los movimientos legales con el detector recibido; sin deshacer. */
+    /** Arma los movimientos legales con el detector recibido, sin reglas especiales ni deshacer. */
     public ReglasDePartida(IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones) {
         this(new MovimientosLegales(detector), condiciones);
     }
 
-    /** Ajedrez clásico: jaque mate, ahogado, triple repetición y regla de los 50 movimientos; sin deshacer. */
+    /**
+     * Ajedrez clásico: enroque; jaque mate, ahogado, triple repetición y regla de los 50 movimientos;
+     * sin deshacer.
+     */
     public static ReglasDePartida clasicas() {
-        return new ReglasDePartida(new DetectorDeJaque(), List.of(
+        IDetectorDeJaque detector = new DetectorDeJaque();
+        return new ReglasDePartida(new MovimientosLegales(detector, List.of(new Enroque())), List.of(
                 new JaqueMate(), new Ahogado(),
                 new TablasPorRepeticion(), new TablasPorReglaDeLos50Movimientos()));
     }
