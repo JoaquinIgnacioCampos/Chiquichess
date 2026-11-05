@@ -29,19 +29,34 @@ class RendicionTest {
     }
 
     @Test
-    void seRindenNegrasAunqueNoSeaSuTurnoYGananBlancas() {
+    void seRindenNegrasEnSuTurnoYGananBlancas() {
         Partida partida = partida();
+        partida.mover(mov("e2", "e4"));
         partida.rendirse(Color.NEGRO);
         assertEquals(Optional.of(Color.BLANCO), partida.resultado().orElseThrow().ganador());
         assertEquals(Color.BLANCO, partida.ganador().orElseThrow().color());
     }
 
     @Test
-    void blancasTambienPuedenRendirseDuranteElTurnoNegro() {
+    void blancasNoPuedenRendirseDuranteElTurnoNegro() {
         Partida partida = partida();
         partida.mover(mov("e2", "e4"));
-        partida.rendirse(Color.BLANCO);
-        assertEquals(Color.NEGRO, partida.ganador().orElseThrow().color());
+        var error = assertThrows(AccionInvalidaException.class, () -> partida.rendirse(Color.BLANCO));
+        assertEquals(AccionInvalidaException.Motivo.NO_ES_SU_TURNO, error.motivo());
+        assertTrue(partida.resultado().isEmpty());
+        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(List.of(mov("e2", "e4")), partida.historial());
+    }
+
+    @Test
+    void negrasNoPuedenRendirseDuranteElTurnoBlanco() {
+        Partida partida = partida();
+        partida.ofrecerTablas(Color.BLANCO);
+        var error = assertThrows(AccionInvalidaException.class, () -> partida.rendirse(Color.NEGRO));
+        assertEquals(AccionInvalidaException.Motivo.NO_ES_SU_TURNO, error.motivo());
+        assertTrue(partida.resultado().isEmpty());
+        assertEquals(EstadoPartida.EN_CURSO, partida.estado());
+        assertEquals(Optional.of(Color.BLANCO), partida.ofertaTablasPendiente());
     }
 
     @Test
@@ -70,9 +85,9 @@ class RendicionTest {
     @Test
     void rendirseDosVecesSeRechaza() {
         Partida partida = partida();
-        partida.rendirse(Color.NEGRO);
-        assertThrows(AccionInvalidaException.class, () -> partida.rendirse(Color.BLANCO));
-        assertEquals(Color.BLANCO, partida.ganador().orElseThrow().color());
+        partida.rendirse(Color.BLANCO);
+        assertThrows(AccionInvalidaException.class, () -> partida.rendirse(Color.NEGRO));
+        assertEquals(Color.NEGRO, partida.ganador().orElseThrow().color());
     }
 
     @Test

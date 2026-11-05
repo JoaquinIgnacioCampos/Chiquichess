@@ -154,13 +154,13 @@ class PartidaConRelojTest {
     void rendicionDetieneAmbosRelojesYNoSeReemplazaPorTiempo() {
         Partida partida = partida();
         avanzar(30);
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Color.BLANCO);
         avanzar(1000);
         partida.verificarTiempo();
         assertTiempo(partida, Color.BLANCO, 270);
         assertTiempo(partida, Color.NEGRO, 300);
         assertEquals(MotivoFinalizacion.RENDICION, partida.resultado().orElseThrow().motivo());
-        assertEquals(Color.BLANCO, partida.ganador().orElseThrow().color());
+        assertEquals(Color.NEGRO, partida.ganador().orElseThrow().color());
     }
 
     @Test

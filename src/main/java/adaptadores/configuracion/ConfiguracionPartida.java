@@ -1,0 +1,41 @@
+package adaptadores.configuracion;
+
+import java.time.Duration;
+import java.util.Objects;
+import java.util.Optional;
+
+/** Selección completa del menú, independiente de JavaFX y de las reglas del ajedrez. */
+public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
+                                   Equipo equipoJugador1, Equipo equipoJugador2, Colores colores) {
+    public ConfiguracionPartida {
+        Objects.requireNonNull(modo, "modo");
+        Objects.requireNonNull(tiempo, "tiempo");
+        Objects.requireNonNull(rival, "rival");
+        Objects.requireNonNull(equipoJugador1, "equipoJugador1");
+        Objects.requireNonNull(equipoJugador2, "equipoJugador2");
+        Objects.requireNonNull(colores, "colores");
+        if (equipoJugador1 == equipoJugador2) throw new IllegalArgumentException("Los equipos deben ser distintos");
+        if (rival == Rival.IA) throw new IllegalArgumentException("La IA todavía no está disponible");
+    }
+
+    public enum Modo { CLASICO }
+    public enum Rival { AMIGO, IA }
+    public enum Equipo {
+        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente");
+        private final String nombre;
+        Equipo(String nombre) { this.nombre = nombre; }
+        public String nombre() { return nombre; }
+    }
+    public enum Colores { JUGADOR_1_BLANCAS, JUGADOR_2_BLANCAS, ALEATORIO }
+    public enum Tiempo {
+        TRES_MINUTOS("3 minutos", 3), CINCO_MINUTOS("5 minutos", 5),
+        DIEZ_MINUTOS("10 minutos", 10), SIN_TIEMPO("Sin tiempo", 0);
+        private final String texto;
+        private final int minutos;
+        Tiempo(String texto, int minutos) { this.texto = texto; this.minutos = minutos; }
+        public String texto() { return texto; }
+        public Optional<Duration> duracion() {
+            return minutos == 0 ? Optional.empty() : Optional.of(Duration.ofMinutes(minutos));
+        }
+    }
+}

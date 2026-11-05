@@ -68,9 +68,9 @@ class EnsambladorPartidaTest {
     @Test
     void seUsanRendicionYAcuerdoReales() {
         Partida rendicion = ensamblador.crearSinReloj();
-        rendicion.rendirse(Color.NEGRO);
+        rendicion.rendirse(Color.BLANCO);
         assertEquals(MotivoFinalizacion.RENDICION, rendicion.resultado().orElseThrow().motivo());
-        assertEquals(Color.BLANCO, rendicion.ganador().orElseThrow().color());
+        assertEquals(Color.NEGRO, rendicion.ganador().orElseThrow().color());
         Partida acuerdo = ensamblador.crearSinReloj();
         acuerdo.ofrecerTablas(Color.BLANCO);
         acuerdo.aceptarTablas(Color.NEGRO);

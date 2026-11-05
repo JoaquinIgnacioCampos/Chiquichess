@@ -1,6 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.juego.Movimiento;
+import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.Partida;
 import Nucleo.juego.Posicion;
@@ -50,6 +51,44 @@ public final class ControladorTablero {
 
     public void verificarTiempo() {
         partida.verificarTiempo();
+    }
+
+    public Optional<Color> ofertaTablasPendiente() {
+        return partida.ofertaTablasPendiente();
+    }
+
+    public Optional<AccionInvalidaException.Motivo> ofrecerTablas(Color color) {
+        return ejecutarAccion(() -> partida.ofrecerTablas(color));
+    }
+
+    public Optional<AccionInvalidaException.Motivo> aceptarTablas(Color color) {
+        return ejecutarAccion(() -> partida.aceptarTablas(color));
+    }
+
+    public Optional<AccionInvalidaException.Motivo> rechazarTablas(Color color) {
+        return ejecutarAccion(() -> partida.rechazarTablas(color));
+    }
+
+    private Optional<AccionInvalidaException.Motivo> ejecutarAccion(Runnable accion) {
+        try {
+            accion.run();
+            seleccionada();
+            return Optional.empty();
+        } catch (AccionInvalidaException rechazo) {
+            return Optional.of(rechazo.motivo());
+        }
+    }
+
+    /** El núcleo valida la orden y determina el ganador. */
+    public Optional<AccionInvalidaException.Motivo> rendirse(Color color) {
+        partida.verificarTiempo();
+        try {
+            partida.rendirse(color);
+            seleccion = Optional.empty();
+            return Optional.empty();
+        } catch (AccionInvalidaException rechazo) {
+            return Optional.of(rechazo.motivo());
+        }
     }
 
     /** Descarta una selección que perdió vigencia por una actualización externa del núcleo. */

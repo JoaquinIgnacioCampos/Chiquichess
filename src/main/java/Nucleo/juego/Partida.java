@@ -113,10 +113,13 @@ public class Partida {
         return List.copyOf(historial);
     }
 
-    /** Cualquier bando puede rendirse, incluso fuera de su turno. */
+    /** Solo el jugador que tiene el turno puede rendirse. */
     public void rendirse(Color color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
+        if (color != turno) {
+            throw new AccionInvalidaException(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
+        }
         finalizar(EstadoPartida.RENDICION, Optional.of(color.opuesto()));
     }
 

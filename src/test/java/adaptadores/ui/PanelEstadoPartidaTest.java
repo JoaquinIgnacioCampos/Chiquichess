@@ -110,9 +110,10 @@ class PanelEstadoPartidaTest {
     }
 
     @Test
-    void rendicionFueraDeTurnoUsaElGanadorExplicitoDelResultado() {
+    void rendicionUsaElGanadorExplicitoDelResultado() {
         Partida partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
+        partida.mover(mov("e2", "e4"));
         partida.rendirse(Color.NEGRO);
         vista.redibujar();
         assertEquals("GANAN LAS", texto(vista, "marcador-encabezado"));

@@ -124,7 +124,7 @@ class OfertasTablasTest {
     void ofrecerYResponderTrasFinalizarSeRechaza() {
         Partida partida = partida();
         partida.ofrecerTablas(Color.BLANCO);
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Color.BLANCO);
         assertTrue(partida.ofertaTablasPendiente().isEmpty());
         var error = assertThrows(AccionInvalidaException.class,
                 () -> partida.ofrecerTablas(Color.BLANCO));

@@ -15,7 +15,7 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.Objects;
 
-/** Marcador de lectura: traduce el estado del núcleo a información visual. */
+/** Marcador: presenta el estado del núcleo y deriva las solicitudes de los jugadores. */
 public final class PanelEstadoPartida extends GridPane {
     private final ControladorTablero controlador;
     private final TemaPanel tema;
@@ -27,10 +27,17 @@ public final class PanelEstadoPartida extends GridPane {
     private final Text estado = new Text();
     private final Text motivo = new Text();
     private final Circle punto = new Circle(5);
+    private final VBox informacion;
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema) {
+        this(controlador, tema, java.util.Map.of());
+    }
+
+    public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
+                               java.util.Map<Color, PresentacionClub> clubes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
         this.tema = Objects.requireNonNull(tema, "tema");
+        Objects.requireNonNull(clubes, "clubes");
         setId("panel-estado");
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(tema.fondo(), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -43,8 +50,8 @@ public final class PanelEstadoPartida extends GridPane {
             fila.setMinHeight(0);
             getRowConstraints().add(fila);
         }
-        negras = new TarjetaJugador(Color.NEGRO, tema);
-        blancas = new TarjetaJugador(Color.BLANCO, tema);
+        negras = new TarjetaJugador(Color.NEGRO, tema, clubes.get(Color.NEGRO));
+        blancas = new TarjetaJugador(Color.BLANCO, tema, clubes.get(Color.BLANCO));
         encabezado = new TextoLed(tema.acento());
         encabezado.setId("marcador-encabezado");
         principal = new TextoLed(tema.texto());
@@ -70,7 +77,7 @@ public final class PanelEstadoPartida extends GridPane {
         separador.setPrefHeight(1);
         separador.setMaxHeight(1);
         separador.setBackground(new Background(new BackgroundFill(tema.borde(), CornerRadii.EMPTY, Insets.EMPTY)));
-        VBox informacion = new VBox(12, titulo, encabezado, principal, estadoActual, separador, motivo, modalidad);
+        informacion = new VBox(12, titulo, encabezado, principal, estadoActual, separador, motivo, modalidad);
         informacion.setPadding(new Insets(20));
         informacion.setAlignment(Pos.CENTER);
         informacion.setMinSize(0, 0);
@@ -104,6 +111,15 @@ public final class PanelEstadoPartida extends GridPane {
 
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
+        negras.habilitarRendicion(!finalizada && controlador.turno() == Color.NEGRO);
+        blancas.habilitarRendicion(!finalizada && controlador.turno() == Color.BLANCO);
+        var oferta = controlador.ofertaTablasPendiente();
+        negras.actualizarTablas(!finalizada && controlador.turno() == Color.NEGRO && oferta.isEmpty(),
+                oferta.filter(color -> color == Color.NEGRO).isPresent(),
+                oferta.filter(color -> color == Color.BLANCO).isPresent());
+        blancas.actualizarTablas(!finalizada && controlador.turno() == Color.BLANCO && oferta.isEmpty(),
+                oferta.filter(color -> color == Color.BLANCO).isPresent(),
+                oferta.filter(color -> color == Color.NEGRO).isPresent());
         negras.actualizar(controlador.jugador(Color.NEGRO), !finalizada && controlador.turno() == Color.NEGRO);
         blancas.actualizar(controlador.jugador(Color.BLANCO), !finalizada && controlador.turno() == Color.BLANCO);
         if (controlador.resultado().isPresent()) {
@@ -132,6 +148,26 @@ public final class PanelEstadoPartida extends GridPane {
         boolean enCurso = !controlador.estado().estaFinalizada();
         negras.actualizarReloj(controlador.tiempoRestante(Color.NEGRO), enCurso && controlador.turno() == Color.NEGRO);
         blancas.actualizarReloj(controlador.tiempoRestante(Color.BLANCO), enCurso && controlador.turno() == Color.BLANCO);
+    }
+
+    public void configurarRendicion(java.util.function.Consumer<Color> solicitar) {
+        negras.configurarRendicion(() -> solicitar.accept(Color.NEGRO));
+        blancas.configurarRendicion(() -> solicitar.accept(Color.BLANCO));
+        actualizar();
+    }
+
+    public void configurarTablas(java.util.function.Consumer<Color> ofrecer,
+                                 java.util.function.Consumer<Color> aceptar,
+                                 java.util.function.Consumer<Color> rechazar) {
+        negras.configurarTablas(() -> ofrecer.accept(Color.NEGRO), () -> aceptar.accept(Color.NEGRO),
+                () -> rechazar.accept(Color.NEGRO));
+        blancas.configurarTablas(() -> ofrecer.accept(Color.BLANCO), () -> aceptar.accept(Color.BLANCO),
+                () -> rechazar.accept(Color.BLANCO));
+        actualizar();
+    }
+
+    void configurarRevancha(javafx.scene.Node boton) {
+        informacion.getChildren().add(boton);
     }
 
     private String bando(Color color) {

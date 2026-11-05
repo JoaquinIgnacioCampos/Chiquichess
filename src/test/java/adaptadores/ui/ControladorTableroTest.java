@@ -131,7 +131,7 @@ class ControladorTableroTest {
 
     @Test
     void noPermiteSeleccionarEnUnaPartidaTerminada() {
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Color.BLANCO);
         assertEquals(Optional.of(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA),
                 controlador.pulsar(pos("e2")));
         assertTrue(controlador.seleccionada().isEmpty());
