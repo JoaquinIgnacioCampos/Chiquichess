@@ -57,6 +57,21 @@ public record Jugada(Posicion origen, Posicion destino, List<Efecto> efectos) {
                 .findFirst();
     }
 
+    /** Pieza en la que se convirtió la pieza movida (promoción), si hubo un reemplazo. */
+    public Optional<Pieza> promocion() {
+        return efectos.stream()
+                .filter(e -> e instanceof Reemplazo)
+                .map(e -> ((Reemplazo) e).nueva())
+                .findFirst();
+    }
+
+    /** La misma jugada con un efecto más al final. */
+    public Jugada con(Efecto efecto) {
+        List<Efecto> ampliados = new ArrayList<>(efectos);
+        ampliados.add(Objects.requireNonNull(efecto, "efecto"));
+        return new Jugada(origen, destino, ampliados);
+    }
+
     /** Aplica los efectos en orden. Si uno falla, revierte los anteriores y deja el tablero como estaba. */
     public void aplicar(Tablero tablero) {
         List<Efecto> aplicados = new ArrayList<>();

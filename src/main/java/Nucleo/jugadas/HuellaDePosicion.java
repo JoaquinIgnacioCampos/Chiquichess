@@ -42,6 +42,7 @@ public final class HuellaDePosicion {
             nueva ^= switch (efecto) {
                 case Traslado t -> valor(t.pieza(), t.origen()) ^ valor(t.pieza(), t.destino());
                 case Retiro r -> valor(r.pieza(), r.posicion());
+                case Reemplazo r -> valor(r.anterior(), r.posicion()) ^ valor(r.nueva(), r.posicion());
             };
         }
         return nueva;

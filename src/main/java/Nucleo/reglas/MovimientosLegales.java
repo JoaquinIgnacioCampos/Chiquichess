@@ -50,7 +50,8 @@ public class MovimientosLegales {
 
     /**
      * Jugadas de la pieza que está en origen, sin controlar todavía si dejan al propio rey en jaque:
-     * las de su movimiento propio más las de las reglas especiales. Vacío si no hay pieza.
+     * las de su movimiento propio más las de las reglas especiales, con las transformaciones de esas
+     * reglas aplicadas (por ejemplo, la promoción). Vacío si no hay pieza.
      */
     public List<Jugada> jugadasPosibles(Tablero tablero, Posicion origen, List<Jugada> historial) {
         List<Jugada> jugadas = new ArrayList<>();
@@ -62,7 +63,13 @@ public class MovimientosLegales {
                 jugadas.addAll(especial.jugadas(tablero, origen, historial, detector));
             }
         });
-        return jugadas;
+        List<Jugada> transformadas = jugadas;
+        for (ReglaEspecial especial : especiales) {
+            transformadas = transformadas.stream()
+                    .flatMap(jugada -> especial.transformar(tablero, jugada).stream())
+                    .toList();
+        }
+        return transformadas;
     }
 
     /** La jugada que llevaría la pieza de origen a destino; vacío si no puede ir ahí. */

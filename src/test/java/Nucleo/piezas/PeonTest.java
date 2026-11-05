@@ -225,8 +225,9 @@ class PeonTest {
     }
 
     @Test
-    void enLaUltimaFilaNoTieneMovimientosPorqueLaPromocionNoEstaImplementada() {
-        // Arrange
+    void enLaUltimaFilaNoTieneMovimientosPropios() {
+        // Arrange: en una partida no llega a quedarse ahí, porque la regla de promoción lo reemplaza
+        // al llegar; esto verifica solo el movimiento propio de la pieza
         Peon peon = new Peon(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("e8", peon);
 

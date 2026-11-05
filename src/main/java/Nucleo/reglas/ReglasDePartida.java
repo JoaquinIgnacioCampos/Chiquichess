@@ -38,12 +38,13 @@ public record ReglasDePartida(MovimientosLegales movimientosLegales, List<Condic
     }
 
     /**
-     * Ajedrez clásico: enroque y captura al paso; jaque mate, ahogado, triple repetición y regla de
-     * los 50 movimientos; sin deshacer.
+     * Ajedrez clásico: enroque, captura al paso y promoción; jaque mate, ahogado, triple repetición y
+     * regla de los 50 movimientos; sin deshacer.
      */
     public static ReglasDePartida clasicas() {
         IDetectorDeJaque detector = new DetectorDeJaque();
-        return new ReglasDePartida(new MovimientosLegales(detector, List.of(new Enroque(), new CapturaAlPaso())), List.of(
+        List<ReglaEspecial> especiales = List.of(new Enroque(), new CapturaAlPaso(), new Promocion());
+        return new ReglasDePartida(new MovimientosLegales(detector, especiales), List.of(
                 new JaqueMate(), new Ahogado(),
                 new TablasPorRepeticion(), new TablasPorReglaDeLos50Movimientos()));
     }

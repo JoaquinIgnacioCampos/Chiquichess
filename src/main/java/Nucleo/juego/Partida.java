@@ -144,7 +144,8 @@ public class Partida {
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
     public List<Movimiento> historial() {
         return historialDeJugadas.jugadas().stream()
-                .map(jugada -> new Movimiento(jugada.origen(), jugada.destino()))
+                .map(jugada -> new Movimiento(jugada.origen(), jugada.destino(),
+                        jugada.promocion().map(Pieza::codigo)))
                 .toList();
     }
 
@@ -335,8 +336,7 @@ public class Partida {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.NO_ES_SU_TURNO);
         }
         MovimientosLegales movimientosLegales = reglas.movimientosLegales();
-        Jugada jugada = movimientosLegales
-                .jugadaPosible(tablero, movimiento.origen(), movimiento.destino(), historialDeJugadas.jugadas())
+        Jugada jugada = elegirJugada(movimientosLegales, movimiento)
                 .orElseThrow(() -> new MovimientoInvalidoException(
                         MovimientoInvalidoException.Motivo.MOVIMIENTO_NO_PERMITIDO));
         if (movimientosLegales.dejaAlReyEnJaque(tablero, jugada)) {
@@ -358,6 +358,26 @@ public class Partida {
         reloj.cambiarTurno();
         historialDeJugadas.agregar(jugada, registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
         return new ResultadoMovimiento(capturada, estado);
+    }
+
+    /**
+     * La jugada que corresponde al movimiento pedido. Si hay varias hacia el mismo destino (una por
+     * cada pieza de promoción), se usa la promoción elegida; sin elección, la primera opción (dama).
+     * Pedir una promoción en una jugada que no promueve, o una pieza que no está entre las opciones,
+     * no corresponde a ninguna jugada.
+     */
+    private Optional<Jugada> elegirJugada(MovimientosLegales movimientosLegales, Movimiento movimiento) {
+        List<Jugada> haciaElDestino = movimientosLegales
+                .jugadasPosibles(tablero, movimiento.origen(), historialDeJugadas.jugadas()).stream()
+                .filter(jugada -> jugada.destino().equals(movimiento.destino()))
+                .toList();
+        if (movimiento.promocion().isEmpty()) {
+            return haciaElDestino.stream().findFirst();
+        }
+        char pedida = movimiento.promocion().get();
+        return haciaElDestino.stream()
+                .filter(jugada -> jugada.promocion().map(Pieza::codigo).filter(codigo -> codigo == pedida).isPresent())
+                .findFirst();
     }
 
     /** Foto de la posición actual que reciben las condiciones de fin. */
