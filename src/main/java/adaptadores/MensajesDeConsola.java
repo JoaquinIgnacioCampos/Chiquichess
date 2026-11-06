@@ -48,6 +48,8 @@ public final class MensajesDeConsola {
         finales.put(MotivoFinalizacion.RENDICION, "Gana %s por rendicion.");
         finales.put(MotivoFinalizacion.TIEMPO_AGOTADO, "Gana %s por tiempo.");
         finales.put(MotivoFinalizacion.ACUERDO, "Tablas por acuerdo.");
+        finales.put(MotivoFinalizacion.GOLES, "Gana %s por goles.");
+        finales.put(MotivoFinalizacion.EMPATE_EN_GOLES, "Empate: se llego al limite de jugadas con los goles iguales.");
     }
 
     public String rechazoDeMovimiento(MovimientoInvalidoException.Motivo motivo) {

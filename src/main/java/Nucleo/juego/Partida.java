@@ -141,6 +141,11 @@ public class Partida {
         return resultado;
     }
 
+    /** Goles de cada bando (modo fútbol), contados en las jugadas ejecutadas. 0 a 0 si no hay pelota. */
+    public Marcador marcador() {
+        return Marcador.de(historialDeJugadas.jugadas());
+    }
+
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
     public List<Movimiento> historial() {
         return historialDeJugadas.jugadas().stream()
@@ -285,13 +290,13 @@ public class Partida {
         }
     }
 
-    /** Aplica el estado que decidieron las condiciones de fin después de una jugada. */
-    private void actualizarEstado(EstadoPartida nuevoEstado) {
-        if (nuevoEstado.estaFinalizada()) {
-            finalizar(nuevoEstado, nuevoEstado.esTablas() ? Optional.empty() : Optional.of(turno.opuesto()));
+    /** Aplica el estado (y el ganador) que decidieron las condiciones de fin después de una jugada. */
+    private void actualizarEstado(Veredicto veredicto) {
+        if (veredicto.estado().estaFinalizada()) {
+            finalizar(veredicto.estado(), veredicto.ganador());
             terminoPorUnaJugada = true;
         } else {
-            estado = nuevoEstado;
+            estado = veredicto.estado();
         }
     }
 
@@ -427,14 +432,21 @@ public class Partida {
         return recuerdos;
     }
 
-    /** Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque). */
-    private EstadoPartida evaluar(ContextoDeJugada contexto) {
+    /** Estado que decidieron las condiciones de fin y, si alguna terminó la partida con victoria, quién ganó. */
+    private record Veredicto(EstadoPartida estado, Optional<Bando> ganador) {
+    }
+
+    /**
+     * Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque).
+     * La condición que termina la partida es la que dice quién ganó.
+     */
+    private Veredicto evaluar(ContextoDeJugada contexto) {
         for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
             Optional<EstadoPartida> resultado = condicion.evaluar(contexto);
             if (resultado.isPresent()) {
-                return resultado.get();
+                return new Veredicto(resultado.get(), condicion.ganador(resultado.get(), contexto));
             }
         }
-        return contexto.enJaque() ? EstadoPartida.JAQUE : EstadoPartida.EN_CURSO;
+        return new Veredicto(contexto.enJaque() ? EstadoPartida.JAQUE : EstadoPartida.EN_CURSO, Optional.empty());
     }
 }

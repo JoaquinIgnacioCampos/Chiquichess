@@ -1,5 +1,7 @@
 package Nucleo.reglas;
 
+import Nucleo.bando.Bando;
+
 import java.util.Optional;
 
 /**
@@ -16,4 +18,13 @@ public interface CondicionDeFinalizacion {
 
     /** Estado final si la condición se cumple; vacío si la partida debe continuar. */
     Optional<EstadoPartida> evaluar(ContextoDeJugada contexto);
+
+    /**
+     * Quién gana cuando esta condición terminó la partida con ese estado; vacío si son tablas.
+     * Por defecto gana el bando que acaba de mover (el contrario al que tiene el turno), como en el
+     * jaque mate. Una condición donde puede ganar el otro bando (por ejemplo, por goles) lo redefine.
+     */
+    default Optional<Bando> ganador(EstadoPartida estado, ContextoDeJugada contexto) {
+        return estado.esTablas() ? Optional.empty() : Optional.of(contexto.turno().opuesto());
+    }
 }

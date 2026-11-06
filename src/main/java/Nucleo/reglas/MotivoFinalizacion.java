@@ -8,7 +8,11 @@ public enum MotivoFinalizacion {
     REGLA_50_MOVIMIENTOS(true),
     RENDICION(false),
     TIEMPO_AGOTADO(false),
-    ACUERDO(true);
+    ACUERDO(true),
+    /** Modo fútbol: llegó a los goles para ganar, o tenía más goles al llegar al límite de jugadas. */
+    GOLES(false),
+    /** Modo fútbol: se llegó al límite de jugadas con los goles iguales. */
+    EMPATE_EN_GOLES(true);
 
     private final boolean tablas;
 

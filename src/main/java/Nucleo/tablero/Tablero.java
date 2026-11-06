@@ -13,6 +13,8 @@ public class Tablero implements ITablero {
     private final int ancho;
     private final int alto;
     private final Map<Posicion, Pieza> piezas = new HashMap<>();
+    /** Casilla de la pelota del modo fútbol; null si no se juega con pelota. */
+    private Posicion pelota;
 
     public Tablero(int ancho, int alto) {
         if (ancho <= 0 || alto <= 0) {
@@ -25,6 +27,7 @@ public class Tablero implements ITablero {
     private Tablero(Tablero otro) {
         this(otro.ancho, otro.alto);
         this.piezas.putAll(otro.piezas); // las piezas son inmutables: se pueden compartir
+        this.pelota = otro.pelota;
     }
 
     @Override
@@ -51,6 +54,19 @@ public class Tablero implements ITablero {
     @Override
     public Map<Posicion, Pieza> piezas() {
         return Collections.unmodifiableMap(piezas);
+    }
+
+    @Override
+    public Optional<Posicion> pelota() {
+        return Optional.ofNullable(pelota);
+    }
+
+    /** Pone la pelota en esa casilla (haya o no una pieza ahí); si ya estaba en otra, la mueve. */
+    public void colocarPelota(Posicion posicion) {
+        if (!contiene(posicion)) {
+            throw new IllegalArgumentException("Posición fuera del tablero: " + posicion);
+        }
+        pelota = posicion;
     }
 
     /** Coloca la pieza; si había otra en esa casilla, la reemplaza. */

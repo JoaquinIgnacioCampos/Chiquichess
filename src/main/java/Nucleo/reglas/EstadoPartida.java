@@ -12,7 +12,9 @@ public enum EstadoPartida {
     TABLAS_REGLA_50_MOVIMIENTOS(MotivoFinalizacion.REGLA_50_MOVIMIENTOS),
     RENDICION(MotivoFinalizacion.RENDICION),
     TIEMPO_AGOTADO(MotivoFinalizacion.TIEMPO_AGOTADO),
-    TABLAS_ACUERDO(MotivoFinalizacion.ACUERDO);
+    TABLAS_ACUERDO(MotivoFinalizacion.ACUERDO),
+    VICTORIA_POR_GOLES(MotivoFinalizacion.GOLES),
+    TABLAS_EMPATE_EN_GOLES(MotivoFinalizacion.EMPATE_EN_GOLES);
 
     private final MotivoFinalizacion motivo;
 

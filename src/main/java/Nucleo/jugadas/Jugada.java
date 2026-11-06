@@ -65,6 +65,11 @@ public record Jugada(Posicion origen, Posicion destino, List<Efecto> efectos) {
                 .findFirst();
     }
 
+    /** true si la jugada metió un gol (modo fútbol). */
+    public boolean esGol() {
+        return efectos.stream().anyMatch(e -> e instanceof MoverPelota m && m.gol());
+    }
+
     /** La misma jugada con un efecto más al final. */
     public Jugada con(Efecto efecto) {
         List<Efecto> ampliados = new ArrayList<>(efectos);

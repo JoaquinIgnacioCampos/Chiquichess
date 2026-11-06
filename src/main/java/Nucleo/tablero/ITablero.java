@@ -25,4 +25,10 @@ public interface ITablero {
 
     /** Vista no modificable de todas las piezas y sus posiciones. */
     Map<Posicion, Pieza> piezas();
+
+    /**
+     * Casilla donde está la pelota del modo fútbol; vacío si en este tablero no se juega con pelota
+     * (el ajedrez clásico). La pelota no es una pieza: no ocupa la casilla ni bloquea a nadie.
+     */
+    Optional<Posicion> pelota();
 }

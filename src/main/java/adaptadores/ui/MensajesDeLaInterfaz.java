@@ -56,6 +56,8 @@ public final class MensajesDeLaInterfaz {
         finales.put(MotivoFinalizacion.RENDICION, "Por rendición");
         finales.put(MotivoFinalizacion.TIEMPO_AGOTADO, "Por tiempo agotado");
         finales.put(MotivoFinalizacion.ACUERDO, "Por acuerdo");
+        finales.put(MotivoFinalizacion.GOLES, "Por goles");
+        finales.put(MotivoFinalizacion.EMPATE_EN_GOLES, "Empate en goles");
     }
 
     private Map<AccionInvalidaException.Motivo, String> porAccion(Accion accion) {
