@@ -116,6 +116,37 @@ class PromocionEnPartidaTest {
     }
 
     @Test
+    void lasOpcionesDePromocionSonLasCuatroPiezasEnOrden() {
+        // Arrange
+        Partida partida = conPeonEnA7();
+
+        // Act
+        List<Character> avanzando = codigos(partida.opcionesDePromocion(pos("a7"), pos("a8")));
+        List<Character> capturando = codigos(partida.opcionesDePromocion(pos("a7"), pos("b8")));
+
+        // Assert
+        assertEquals(List.of('D', 'T', 'A', 'C'), avanzando);
+        assertEquals(List.of('D', 'T', 'A', 'C'), capturando);
+        assertTrue(partida.opcionesDePromocion(pos("a7"), pos("a8")).stream()
+                .allMatch(pieza -> pieza.color() == Bando.BLANCO));
+    }
+
+    @Test
+    void sinPromocionNoHayOpciones() {
+        // Arrange
+        Partida partida = conPeonEnA7();
+
+        // Assert: una jugada común, un destino imposible y una pieza que no es del turno
+        assertTrue(partida.opcionesDePromocion(pos("e1"), pos("e2")).isEmpty());
+        assertTrue(partida.opcionesDePromocion(pos("a7"), pos("a6")).isEmpty());
+        assertTrue(partida.opcionesDePromocion(pos("b8"), pos("b1")).isEmpty());
+    }
+
+    private static List<Character> codigos(List<Pieza> piezas) {
+        return piezas.stream().map(Pieza::codigo).toList();
+    }
+
+    @Test
     void deshacerLaPromocionDevuelveElPeon() {
         // Arrange
         Partida partida = conPeonEnA7();

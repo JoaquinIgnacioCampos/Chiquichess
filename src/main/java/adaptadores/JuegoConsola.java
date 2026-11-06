@@ -2,7 +2,7 @@ package adaptadores;
 
 import Nucleo.juego.*;
 import Nucleo.reglas.EstadoPartida;
-
+import Nucleo.tablero.Posicion;
 
 import java.io.*;
 
@@ -32,6 +32,7 @@ public class JuegoConsola {
         salida.println(partida.permiteDeshacer()
                 ? "Escriba la jugada como 'origen destino' (ej: e2 e4), 'deshacer', 'rehacer' o 'salir'."
                 : "Escriba la jugada como 'origen destino' (ej: e2 e4) o 'salir'.");
+        salida.println("Para promover un peon, agregue la pieza: D (dama), T (torre), A (alfil) o C (caballo). Ej: e7 e8 C");
         while (true) {
             salida.println();
             salida.println(renderizador.dibujar(partida.tablero()));
@@ -73,14 +74,18 @@ public class JuegoConsola {
             return;
         }
         String[] partes = linea.split("\\s+");
-        if (partes.length != 2) {
-            salida.println("Formato invalido. Ejemplo: e2 e4");
+        // Un tercer dato, de una letra, elige la pieza al promover: "e7 e8 C". Sin él, se promueve a dama.
+        boolean conPromocion = partes.length == 3 && partes[2].length() == 1;
+        if (partes.length != 2 && !conPromocion) {
+            salida.println("Formato invalido. Ejemplo: e2 e4 (para promover: e7 e8 C)");
             return;
         }
         try {
-            Movimiento movimiento = new Movimiento(
-                    NotacionAlgebraica.parsear(partes[0]),
-                    NotacionAlgebraica.parsear(partes[1]));
+            Posicion origen = NotacionAlgebraica.parsear(partes[0]);
+            Posicion destino = NotacionAlgebraica.parsear(partes[1]);
+            Movimiento movimiento = conPromocion
+                    ? Movimiento.conPromocion(origen, destino, Character.toUpperCase(partes[2].charAt(0)))
+                    : new Movimiento(origen, destino);
             ResultadoMovimiento resultado = partida.mover(movimiento);
             resultado.piezaCapturada().ifPresent(p -> salida.println("Captura: " + p.nombre()));
         } catch (IllegalArgumentException e) {

@@ -327,6 +327,23 @@ public class Partida {
     }
 
     /**
+     * Piezas a las que puede promover el peón si va de origen a destino, en el orden de las reglas
+     * (la primera es la que se usa si no se elige). Vacío si ese movimiento no es una promoción
+     * permitida ahora: así la UI sabe cuándo preguntar qué pieza quiere el jugador.
+     */
+    public List<Pieza> opcionesDePromocion(Posicion origen, Posicion destino) {
+        Objects.requireNonNull(destino, "destino");
+        if (!movimientosLegales(origen).contains(destino)) {
+            return List.of();
+        }
+        return reglas.movimientosLegales()
+                .jugadasPosibles(tablero, origen, historialDeJugadas.jugadas()).stream()
+                .filter(jugada -> jugada.destino().equals(destino))
+                .flatMap(jugada -> jugada.promocion().stream())
+                .toList();
+    }
+
+    /**
      * Ejecuta el movimiento si es válido; si no, lanza MovimientoInvalidoException
      * y deja la partida intacta. Si el tiempo venció, registra ese final sin mover.
      */

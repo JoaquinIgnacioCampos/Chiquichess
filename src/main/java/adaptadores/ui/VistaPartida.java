@@ -24,6 +24,10 @@ public final class VistaPartida extends BorderPane {
     private final PanelEstadoPartida panel;
     private final HBox titulo = new HBox(16);
     private final StackPane areaTablero = new StackPane();
+    private final TemaTablero tema;
+    private final RepresentacionPiezas representacion;
+    /** Se crea recién la primera vez que un peón promueve: la mayoría de las partidas no lo necesita. */
+    private SelectorPromocion selectorPromocion;
     private final TemaPanel temaPanel;
     private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
@@ -66,6 +70,8 @@ public final class VistaPartida extends BorderPane {
         BorderPane.setMargin(titulo, new Insets(0, 0, 16, 0));
         juego.setTop(titulo);
         areaTablero.setMinSize(0, 0);
+        this.tema = tema;
+        this.representacion = representacion;
         areaTablero.getChildren().add(tablero);
         juego.setCenter(areaTablero);
         setCenter(juego);
@@ -88,8 +94,30 @@ public final class VistaPartida extends BorderPane {
         redibujar();
     }
 
+    private void promover(char codigo) {
+        mensaje.setText(controlador.promover(codigo).map(mensajes::rechazoDeMovimiento).orElse(""));
+        redibujar();
+    }
+
+    private void cancelarPromocion() {
+        controlador.cancelarPromocion();
+        redibujar();
+    }
+
+    private void mostrarPromocion(java.util.List<Nucleo.piezas.Pieza> opciones) {
+        if (selectorPromocion == null) {
+            if (opciones.isEmpty()) return;
+            selectorPromocion = new SelectorPromocion(tema, representacion, temaPanel,
+                    this::promover, this::cancelarPromocion);
+            // Justo encima del tablero, debajo de la confirmación de "Volver al menú" si la hay.
+            areaTablero.getChildren().add(1, selectorPromocion);
+        }
+        selectorPromocion.mostrar(opciones);
+    }
+
     public void redibujar() {
         tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
+        mostrarPromocion(controlador.promocionPendiente());
         panel.actualizar();
         if (navegacion != null) navegacion.actualizar();
         if (deshacer != null) {

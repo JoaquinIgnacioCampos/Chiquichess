@@ -1,6 +1,10 @@
 package adaptadores;
 
+import Nucleo.bando.Bando;
+import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.reglas.ReglasDePartida;
+import Nucleo.tiempo.SinReloj;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -9,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** La consola completa con una entrada simulada: muestra los rechazos y el final con los textos del catálogo. */
@@ -44,6 +49,60 @@ class JuegoConsolaTest {
 
         // Assert
         assertTrue(salida.strip().endsWith("Jaque mate! Gana Jugador 2."));
+    }
+
+    // ---------------- Promoción ----------------
+
+    /** Peón blanco en a7 a punto de promover. */
+    private Partida conPeonEnA7() {
+        return new Partida(dobles.TableroFake.desde(
+                "....r...",
+                "P.......",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "....R..."), new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.clasicas(), new SinReloj());
+    }
+
+    @Test
+    void laTerceraLetraEligeLaPiezaDeLaPromocion() throws IOException {
+        // Arrange
+        Partida partida = conPeonEnA7();
+
+        // Act
+        jugar(partida, "a7 a8 c\nsalir\n");
+
+        // Assert
+        assertEquals('C', partida.tablero().piezaEn(pos("a8")).orElseThrow().codigo());
+    }
+
+    @Test
+    void sinTerceraLetraPromueveADama() throws IOException {
+        // Arrange
+        Partida partida = conPeonEnA7();
+
+        // Act
+        jugar(partida, "a7 a8\nsalir\n");
+
+        // Assert
+        assertEquals('D', partida.tablero().piezaEn(pos("a8")).orElseThrow().codigo());
+    }
+
+    @Test
+    void unaPiezaDePromocionInvalidaSeRechaza() throws IOException {
+        // Arrange
+        Partida partida = conPeonEnA7();
+
+        // Act
+        String salida = jugar(partida, "a7 a8 R\na7 a8 dama\nsalir\n");
+
+        // Assert
+        assertTrue(salida.contains("Esa pieza no puede moverse ahi."));
+        assertTrue(salida.contains("Formato invalido. Ejemplo: e2 e4 (para promover: e7 e8 C)"));
+        assertTrue(partida.historial().isEmpty());
     }
 
     // ---------------- Deshacer y rehacer ----------------
