@@ -32,7 +32,8 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
         this(modo, tiempo, rival, equipoJugador1, equipoJugador2, colores, false);
     }
 
-    public enum Modo { CLASICO }
+    /** CLASICO: ajedrez. FUTBOL: "Posesión y gol", ajedrez con pelota (3 goles o más goles en la jugada 90). */
+    public enum Modo { CLASICO, FUTBOL }
     public enum Rival { AMIGO, IA }
     public enum Equipo {
         BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente");

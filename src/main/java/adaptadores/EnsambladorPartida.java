@@ -1,15 +1,19 @@
 package adaptadores;
 
 import Nucleo.bando.Bando;
+import Nucleo.juego.DisposicionConPelota;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.reglas.ReglaDeLaPelota;
 import Nucleo.reglas.ReglasDePartida;
+import Nucleo.tablero.DisposicionInicial;
 import Nucleo.tiempo.FuenteDeTiempo;
 import Nucleo.tiempo.RelojAjedrez;
 import Nucleo.tiempo.RelojPartida;
 import Nucleo.tiempo.SinReloj;
 import adaptadores.configuracion.ConfiguracionPartida;
+import adaptadores.configuracion.ConfiguracionPartida.Modo;
 import adaptadores.configuracion.PartidaConfigurada;
 import adaptadores.configuracion.Sorteo;
 
@@ -50,8 +54,13 @@ public final class EnsambladorPartida {
 
     /** Partida sin tiempo en la que se puede deshacer y rehacer (la usa la consola). */
     public Partida crearSinRelojConDeshacer() {
+        return crearSinRelojConDeshacer(Modo.CLASICO);
+    }
+
+    /** Partida sin tiempo, con deshacer, del modo elegido (la consola puede jugar al fútbol). */
+    public Partida crearSinRelojConDeshacer(Modo modo) {
         return crear(new SinReloj(), new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO),
-                true);
+                true, modo);
     }
 
     /** Resuelve el sorteo una sola vez y construye el juego elegido en el menú. */
@@ -71,20 +80,31 @@ public final class EnsambladorPartida {
                 .orElseGet(SinReloj::new);
         Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : "Jugador 2", Bando.BLANCO),
                 new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Bando.NEGRO),
-                configuracion.permitirDeshacer());
+                configuracion.permitirDeshacer(), configuracion.modo());
         return new PartidaConfigurada(partida,
                 jugador1Blancas ? configuracion.equipoJugador1() : configuracion.equipoJugador2(),
                 jugador1Blancas ? configuracion.equipoJugador2() : configuracion.equipoJugador1(), reloj);
     }
 
     private Partida crear(RelojPartida reloj) {
-        return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO), false);
+        return crear(reloj, new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO), false,
+                Modo.CLASICO);
     }
 
-    /** Cada partida recibe reglas nuevas: las condiciones de repetición y 50 movimientos guardan memoria. */
-    private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras, boolean permitirDeshacer) {
-        ReglasDePartida reglas = ReglasDePartida.clasicas();
-        return new Partida(new DisposicionEstandar().crearTablero(), blancas, negras,
+    /**
+     * Cada partida recibe reglas nuevas: las condiciones de repetición y 50 movimientos guardan memoria.
+     * El modo elige las reglas y la disposición: el fútbol suma la pelota en su saque inicial.
+     */
+    private Partida crear(RelojPartida reloj, Jugador blancas, Jugador negras, boolean permitirDeshacer, Modo modo) {
+        ReglasDePartida reglas = switch (modo) {
+            case CLASICO -> ReglasDePartida.clasicas();
+            case FUTBOL -> ReglasDePartida.futbol();
+        };
+        DisposicionInicial disposicion = switch (modo) {
+            case CLASICO -> new DisposicionEstandar();
+            case FUTBOL -> new DisposicionConPelota(new DisposicionEstandar(), new ReglaDeLaPelota().saqueInicial());
+        };
+        return new Partida(disposicion.crearTablero(), blancas, negras,
                 permitirDeshacer ? reglas.conDeshacer() : reglas, reloj);
     }
 }

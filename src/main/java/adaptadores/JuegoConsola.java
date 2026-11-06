@@ -1,7 +1,9 @@
 package adaptadores;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.Marcador;
 import Nucleo.tablero.Posicion;
 
 import java.io.*;
@@ -33,9 +35,16 @@ public class JuegoConsola {
                 ? "Escriba la jugada como 'origen destino' (ej: e2 e4), 'deshacer', 'rehacer' o 'salir'."
                 : "Escriba la jugada como 'origen destino' (ej: e2 e4) o 'salir'.");
         salida.println("Para promover un peon, agregue la pieza: D (dama), T (torre), A (alfil) o C (caballo). Ej: e7 e8 C");
+        if (conPelota()) {
+            salida.println("Modo futbol: lleve la pelota (o; un * marca a quien la tiene) al arco rival: d8/e8 o d1/e1.");
+            salida.println("Gana quien llega a 3 goles o tiene mas goles en la jugada 90. El jaque mate gana siempre.");
+        }
         while (true) {
             salida.println();
             salida.println(renderizador.dibujar(partida.tablero()));
+            if (conPelota()) {
+                salida.println(marcador());
+            }
             if (partida.estado().estaFinalizada()) {
                 salida.println(mensajeFinal());
                 // Un mate o unas tablas automáticas se pueden deshacer: se ofrece volver atrás.
@@ -86,13 +95,28 @@ public class JuegoConsola {
             Movimiento movimiento = conPromocion
                     ? Movimiento.conPromocion(origen, destino, Character.toUpperCase(partes[2].charAt(0)))
                     : new Movimiento(origen, destino);
+            Marcador antes = partida.marcador();
             ResultadoMovimiento resultado = partida.mover(movimiento);
             resultado.piezaCapturada().ifPresent(p -> salida.println("Captura: " + p.nombre()));
+            if (!partida.marcador().equals(antes)) {
+                salida.println("GOL!");
+            }
         } catch (IllegalArgumentException e) {
             salida.println(e.getMessage());
         } catch (MovimientoInvalidoException e) {
             salida.println(mensajes.rechazoDeMovimiento(e.motivo()));
         }
+    }
+
+    private boolean conPelota() {
+        return partida.tablero().pelota().isPresent();
+    }
+
+    private String marcador() {
+        Marcador marcador = partida.marcador();
+        return "Marcador: " + partida.jugador(Bando.BLANCO).nombre() + " " + marcador.blancas()
+                + " - " + marcador.negras() + " " + partida.jugador(Bando.NEGRO).nombre()
+                + "   (jugada " + partida.historial().size() + " de 90)";
     }
 
     private String mensajeFinal() {

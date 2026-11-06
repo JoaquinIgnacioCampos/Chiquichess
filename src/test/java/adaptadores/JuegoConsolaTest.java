@@ -162,4 +162,44 @@ class JuegoConsolaTest {
         assertFalse(partida.estado().estaFinalizada());
         assertEquals(4, partida.historial().size());
     }
+
+    // ---------------- Modo fútbol ----------------
+
+    @Test
+    void enElModoFutbolMuestraLaPelotaElMarcadorYElGol() throws IOException {
+        // Arrange: la torre blanca de d2 tiene la pelota
+        Nucleo.tablero.Tablero tablero = dobles.TableroFake.desde(
+                ".......r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "...T....",
+                "....R...");
+        tablero.colocarPelota(pos("d2"));
+        Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.futbol(), new SinReloj());
+
+        // Act
+        String salida = jugar(partida, "d2 d8\nsalir\n");
+
+        // Assert
+        assertTrue(salida.contains("Modo futbol"));
+        assertTrue(salida.contains(" 2 . . . T*. . . ."), salida);
+        assertTrue(salida.contains("Marcador: Ana 0 - 0 Beto   (jugada 0 de 90)"));
+        assertTrue(salida.contains("GOL!"));
+        assertTrue(salida.contains(" 5 . . . o . . . ."), salida);
+        assertTrue(salida.contains("Marcador: Ana 1 - 0 Beto   (jugada 1 de 90)"));
+    }
+
+    @Test
+    void elAjedrezClasicoNoMuestraMarcador() throws IOException {
+        // Act
+        String salida = jugar("salir\n");
+
+        // Assert
+        assertFalse(salida.contains("Marcador"));
+        assertFalse(salida.contains("Modo futbol"));
+    }
 }

@@ -84,4 +84,15 @@ class VistaMenuPartidaTest {
         boton("tiempo-sin_tiempo").setSelected(true);
         assertFalse(buscar("jugar").isDisable());
     }
+
+    @Test
+    void elModoFutbolViajaEnLaConfiguracion() {
+        elegirTodoMenosElTiempo();
+        boton("modo-futbol").setSelected(true);
+        boton("tiempo-sin_tiempo").setSelected(true);
+
+        ((Button) buscar("jugar")).fire();
+
+        assertEquals(ConfiguracionPartida.Modo.FUTBOL, emitidas.get(0).modo());
+    }
 }

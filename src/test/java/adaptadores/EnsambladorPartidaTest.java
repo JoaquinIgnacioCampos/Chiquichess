@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.Optional;
 
 import static dobles.Casillas.mov;
+import static dobles.Casillas.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EnsambladorPartidaTest {
@@ -175,5 +176,27 @@ class EnsambladorPartidaTest {
         partida.mover(mov("g8", "f6"));
         partida.mover(mov("f3", "g1"));
         partida.mover(mov("f6", "g8"));
+    }
+
+    @Test
+    void elModoFutbolPoneLaPelotaEnD5YJuegaConGoles() {
+        ConfiguracionPartida futbol = new ConfiguracionPartida(Modo.FUTBOL, Tiempo.SIN_TIEMPO, Rival.AMIGO,
+                Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_1_BLANCAS, true);
+        Partida partida = ensamblador.crearConfigurada(futbol);
+        assertEquals(Optional.of(pos("d5")), partida.tablero().pelota());
+        assertTrue(partida.permiteDeshacer());
+    }
+
+    @Test
+    void elModoClasicoNoTienePelota() {
+        Partida partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
+        assertTrue(partida.tablero().pelota().isEmpty());
+    }
+
+    @Test
+    void laConsolaPuedeJugarAlFutbol() {
+        Partida partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
+        assertEquals(Optional.of(pos("d5")), partida.tablero().pelota());
+        assertTrue(partida.permiteDeshacer());
     }
 }

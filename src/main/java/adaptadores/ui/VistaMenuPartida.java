@@ -55,7 +55,8 @@ public final class VistaMenuPartida extends GridPane {
         VBox titulo = new VBox(5, texto("Selección de partida", 28, tema.texto(), true),
                 texto("Completá las opciones para empezar.", 14, tema.textoSecundario(), false));
         opciones.getChildren().add(titulo);
-        opciones.getChildren().add(seccion("MODO", fila(opcion("Clásico", "modo-clasico", Modo.CLASICO, modo))));
+        opciones.getChildren().add(seccion("MODO", fila(opcion("Clásico", "modo-clasico", Modo.CLASICO, modo),
+                opcion("Fútbol · Posesión y gol", "modo-futbol", Modo.FUTBOL, modo))));
         FlowPane tiempos = fila();
         for (Tiempo valor : Tiempo.values()) tiempos.getChildren().add(opcion(valor.texto(),
                 "tiempo-" + valor.name().toLowerCase(java.util.Locale.ROOT), valor, tiempo));
