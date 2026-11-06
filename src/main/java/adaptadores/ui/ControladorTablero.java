@@ -9,6 +9,7 @@ import Nucleo.juego.Jugador;
 import Nucleo.juego.ResultadoPartida;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.Marcador;
 import Nucleo.tablero.ITablero;
 import Nucleo.tablero.Posicion;
 
@@ -47,6 +48,16 @@ public final class ControladorTablero {
 
     public Optional<ResultadoPartida> resultado() {
         return partida.resultado();
+    }
+
+    /** Goles de cada bando si se juega al fútbol (el tablero tiene pelota); vacío en el ajedrez clásico. */
+    public Optional<Marcador> marcador() {
+        return partida.tablero().pelota().isPresent() ? Optional.of(partida.marcador()) : Optional.empty();
+    }
+
+    /** Cantidad de jugadas hechas en la partida (las dos bandos juntos). */
+    public int jugadasHechas() {
+        return partida.historial().size();
     }
 
     public Optional<Duration> tiempoRestante(Bando color) {

@@ -93,10 +93,34 @@ public final class VistaTablero extends Region {
             figura.scaleYProperty().bind(casilla.heightProperty().divide(RepresentacionPiezas.LADO_BASE));
             casilla.getChildren().add(figura);
         });
+        if (tablero.pelota().filter(posicion::equals).isPresent()) {
+            agregarPelota(casilla, tablero.piezaEn(posicion).isPresent());
+        }
         if (destino) {
             agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
         }
         return casilla;
+    }
+
+    /**
+     * Pelota del modo fútbol: suelta, va en el centro de la casilla; si una pieza la lleva, va más
+     * chica en la esquina de abajo a la derecha, para que la pieza se siga viendo.
+     */
+    private void agregarPelota(StackPane casilla, boolean conPieza) {
+        Circle pelota = new Circle();
+        pelota.setId("pelota");
+        pelota.getStyleClass().add("pelota");
+        pelota.setManaged(false);
+        pelota.setMouseTransparent(true);
+        var lado = Bindings.min(casilla.widthProperty(), casilla.heightProperty());
+        pelota.radiusProperty().bind(lado.multiply(conPieza ? 0.13 : 0.22));
+        double posicion = conPieza ? 0.80 : 0.5;
+        pelota.centerXProperty().bind(casilla.widthProperty().multiply(posicion));
+        pelota.centerYProperty().bind(casilla.heightProperty().multiply(posicion));
+        pelota.setFill(javafx.scene.paint.Color.WHITE);
+        pelota.setStroke(javafx.scene.paint.Color.web("#1b1b1b"));
+        pelota.strokeWidthProperty().bind(lado.multiply(0.035));
+        casilla.getChildren().add(pelota);
     }
 
     private void agregarIndicador(StackPane casilla, boolean captura) {

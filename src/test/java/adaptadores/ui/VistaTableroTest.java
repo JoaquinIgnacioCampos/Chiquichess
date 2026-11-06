@@ -99,4 +99,30 @@ class VistaTableroTest {
         assertEquals(140, grilla.getLayoutY(), 0.01);
         assertEquals(casilla(vista, 0, 0).getWidth(), casilla(vista, 0, 0).getHeight(), 0.01);
     }
+
+    @Test
+    void dibujaLaPelotaSoloEnSuCasilla() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocarPelota(new Posicion(3, 4));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        assertEquals(1, vista.lookupAll(".pelota").size());
+        assertNotNull(casilla(vista, 3, 4).lookup("#pelota"));
+    }
+
+    @Test
+    void laPelotaSigueALaPiezaQueLaLleva() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocar(new Posicion(3, 4), new Caballo(Bando.BLANCO));
+        tablero.colocarPelota(new Posicion(3, 4));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        StackPane conPelota = casilla(vista, 3, 4);
+        assertNotNull(conPelota.lookup("#pelota"));
+        assertEquals(2, conPelota.getChildren().size()); // la pieza y la pelota
+    }
+
+    @Test
+    void elAjedrezClasicoNoTienePelota() {
+        VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionPiezas());
+        assertTrue(vista.lookupAll(".pelota").isEmpty());
+    }
 }

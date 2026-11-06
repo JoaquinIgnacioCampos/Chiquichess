@@ -200,4 +200,50 @@ class PanelEstadoPartidaTest {
             assertTrue(caja.getMinX() >= limites.getMinX() - 1);
         }
     }
+
+    // ---------------- Modo fútbol ----------------
+
+    /** Torre blanca con la pelota en d2, a un movimiento del gol en d8. */
+    private Partida futbolConTorreEnD2() {
+        Nucleo.tablero.Tablero tablero = dobles.TableroFake.desde(
+                ".......r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "...T....",
+                "....R...");
+        tablero.colocarPelota(pos("d2"));
+        return new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.futbol(), new Nucleo.tiempo.SinReloj());
+    }
+
+    @Test
+    void enElModoFutbolMuestraElMarcadorYLasJugadas() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+        assertEquals("BLANCAS 0 - 0 NEGRAS", texto(vista, "goles-partida"));
+        assertEquals("Jugada 0 de 90", texto(vista, "jugadas-futbol"));
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+    }
+
+    @Test
+    void anunciaElGolYActualizaElMarcador() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+        jugar(vista, "d2d8");
+        assertEquals("¡GOL!", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+        assertEquals("Jugada 1 de 90", texto(vista, "jugadas-futbol"));
+
+        jugar(vista, "h8g7");
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+    }
+
+    @Test
+    void elAjedrezClasicoNoMuestraGoles() {
+        VistaPartida vista = vista(new EnsambladorPartida().crearSinReloj());
+        assertEquals("", texto(vista, "goles-partida"));
+        assertFalse(vista.lookup("#goles-partida").isVisible());
+    }
 }

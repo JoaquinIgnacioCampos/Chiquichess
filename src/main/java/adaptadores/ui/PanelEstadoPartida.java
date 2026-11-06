@@ -2,6 +2,7 @@ package adaptadores.ui;
 
 import Nucleo.bando.Bando;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.Marcador;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -13,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /** Marcador: presenta el estado del núcleo y deriva las solicitudes de los jugadores. */
 public final class PanelEstadoPartida extends GridPane {
@@ -26,6 +28,11 @@ public final class PanelEstadoPartida extends GridPane {
     private final Text estado = new Text();
     private final Text motivo = new Text();
     private final Circle punto = new Circle(5);
+    /** Modo fútbol: los goles de cada bando y cuántas jugadas van de las 90. Vacíos en el clásico. */
+    private final Text goles = new Text();
+    private final Text jugadas = new Text();
+    /** Goles totales en el último refresco, para anunciar el gol recién hecho. */
+    private int golesVistos = 0;
     private final VBox informacion;
     private final MensajesDeLaInterfaz mensajes;
 
@@ -75,7 +82,18 @@ public final class PanelEstadoPartida extends GridPane {
         motivo.setTextAlignment(TextAlignment.CENTER);
         motivo.managedProperty().bind(motivo.textProperty().isNotEmpty());
         motivo.visibleProperty().bind(motivo.textProperty().isNotEmpty());
-        Text modalidad = new Text("Partida local");
+        goles.setId("goles-partida");
+        goles.setFont(Font.font("Consolas", FontWeight.BOLD, 18));
+        goles.setFill(tema.texto());
+        jugadas.setId("jugadas-futbol");
+        jugadas.setFont(Font.font("Consolas", 12));
+        jugadas.setFill(tema.textoSecundario());
+        for (Text texto : new Text[]{goles, jugadas}) {
+            texto.managedProperty().bind(texto.textProperty().isNotEmpty());
+            texto.visibleProperty().bind(texto.textProperty().isNotEmpty());
+        }
+        Text modalidad = new Text(controlador.marcador().isPresent()
+                ? "Partida local · Fútbol: posesión y gol" : "Partida local");
         modalidad.setFill(tema.textoSecundario());
         modalidad.setFont(Font.font("Consolas", 12));
         Region separador = new Region();
@@ -83,7 +101,8 @@ public final class PanelEstadoPartida extends GridPane {
         separador.setPrefHeight(1);
         separador.setMaxHeight(1);
         separador.setBackground(new Background(new BackgroundFill(tema.borde(), CornerRadii.EMPTY, Insets.EMPTY)));
-        informacion = new VBox(12, titulo, encabezado, principal, estadoActual, separador, motivo, modalidad);
+        informacion = new VBox(12, titulo, encabezado, principal, estadoActual, goles, jugadas, separador,
+                motivo, modalidad);
         informacion.setPadding(new Insets(20));
         informacion.setAlignment(Pos.CENTER);
         informacion.setMinSize(0, 0);
@@ -117,6 +136,7 @@ public final class PanelEstadoPartida extends GridPane {
 
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
+        boolean golRecien = actualizarGoles();
         negras.habilitarRendicion(!finalizada && controlador.turno() == Bando.NEGRO);
         blancas.habilitarRendicion(!finalizada && controlador.turno() == Bando.BLANCO);
         var oferta = controlador.ofertaTablasPendiente();
@@ -141,12 +161,29 @@ public final class PanelEstadoPartida extends GridPane {
             titulo.setText("ESTADO DE LA PARTIDA");
             encabezado.setTexto("TURNO DE");
             principal.setTexto(bando(controlador.turno()));
-            estado.setText(jaque ? "¡JAQUE!" : "EN JUEGO");
-            estado.setFill(jaque ? tema.alerta() : tema.activo());
+            estado.setText(golRecien ? "¡GOL!" : jaque ? "¡JAQUE!" : "EN JUEGO");
+            estado.setFill(golRecien ? tema.acento() : jaque ? tema.alerta() : tema.activo());
             motivo.setText("");
         }
         punto.setFill(estado.getFill());
         actualizarRelojes();
+    }
+
+    /** Muestra el marcador del modo fútbol; devuelve true si desde el refresco anterior hubo un gol. */
+    private boolean actualizarGoles() {
+        Optional<Marcador> marcador = controlador.marcador();
+        if (marcador.isEmpty()) {
+            goles.setText("");
+            jugadas.setText("");
+            return false;
+        }
+        Marcador actual = marcador.get();
+        goles.setText("BLANCAS " + actual.blancas() + " - " + actual.negras() + " NEGRAS");
+        jugadas.setText("Jugada " + controlador.jugadasHechas() + " de 90");
+        int total = actual.blancas() + actual.negras();
+        boolean hubo = total > golesVistos;
+        golesVistos = total;
+        return hubo;
     }
 
     /** Refresco ligero que conserva tarjetas, tablero, selección y sus nodos. */
