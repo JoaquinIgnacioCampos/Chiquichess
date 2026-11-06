@@ -125,4 +125,26 @@ class VistaTableroTest {
         VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionPiezas());
         assertTrue(vista.lookupAll(".pelota").isEmpty());
     }
+
+    @Test
+    void marcaLasCasillasDelArco() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.marcarArco(new Posicion(3, 7), Bando.NEGRO);
+        tablero.marcarArco(new Posicion(4, 0), Bando.BLANCO);
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        assertEquals(2, vista.lookupAll(".arco").size());
+        assertNotNull(casilla(vista, 3, 7).lookup("#arco-3-7"));
+        assertNotNull(casilla(vista, 4, 0).lookup("#arco-4-0"));
+    }
+
+    @Test
+    void elArcoQuedaDebajoDeLaPieza() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.marcarArco(new Posicion(4, 7), Bando.NEGRO);
+        tablero.colocar(new Posicion(4, 7), new Rey(Bando.NEGRO));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        StackPane casilla = casilla(vista, 4, 7);
+        assertTrue(casilla.getChildren().get(0).getStyleClass().contains("arco"));
+        assertEquals(2, casilla.getChildren().size());
+    }
 }

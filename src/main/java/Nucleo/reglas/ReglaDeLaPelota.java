@@ -8,7 +8,6 @@ import Nucleo.jugadas.Reemplazo;
 import Nucleo.jugadas.Retiro;
 import Nucleo.jugadas.Traslado;
 import Nucleo.piezas.Pieza;
-import Nucleo.tablero.ITablero;
 import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
@@ -20,9 +19,12 @@ import java.util.Set;
 /**
  * Modo fútbol "Posesión y gol": la pelota se lleva y se mete en el arco rival.
  *
- * La pelota es una casilla del tablero, no una pieza: no bloquea a nadie y la tiene la pieza que
- * está parada sobre ella. Esta regla no agrega jugadas: a cada jugada que toca la pelota le suma un
- * {@link MoverPelota}, igual que la promoción le suma un reemplazo.
+ * La pelota y los arcos son marcas del tablero, no piezas: la pelota no bloquea a nadie y la tiene
+ * la pieza que está parada sobre ella. {@link #prepararCancha} pone esas marcas al empezar; después
+ * la regla las lee del tablero, así el dibujo y la regla usan los mismos arcos.
+ *
+ * Esta regla no agrega jugadas: a cada jugada que toca la pelota le suma un {@link MoverPelota},
+ * igual que la promoción le suma un reemplazo.
  * <ul>
  *   <li>Terminar el movimiento en la casilla de la pelota la toma; pasar por encima no.</li>
  *   <li>Quien lleva la pelota la arrastra en cada movimiento.</li>
@@ -45,8 +47,8 @@ public class ReglaDeLaPelota implements ReglaEspecial {
     private final Posicion saqueTrasGolDeNegras;
 
     /**
-     * Tablero de 8x8: el arco son las columnas d y e de la fila de fondo rival; la pelota empieza en
-     * d5, vuelve a d5 (campo negro) tras un gol blanco y a d4 (campo blanco) tras un gol negro.
+     * Tablero de 8x8: el arco son las columnas d y e de la fila de fondo de cada bando; la pelota
+     * empieza en d5, vuelve a d5 (campo negro) tras un gol blanco y a d4 (campo blanco) tras un gol negro.
      */
     public ReglaDeLaPelota() {
         this(Set.of(3, 4), new Posicion(3, 4), new Posicion(3, 4), new Posicion(3, 3));
@@ -69,15 +71,16 @@ public class ReglaDeLaPelota implements ReglaEspecial {
         this.saqueTrasGolDeNegras = Objects.requireNonNull(saqueTrasGolDeNegras, "saqueTrasGolDeNegras");
     }
 
-    /** Casilla donde se pone la pelota al empezar la partida. */
-    public Posicion saqueInicial() {
-        return saqueInicial;
-    }
-
-    /** true si la casilla es parte del arco donde hace gol ese bando (el arco del rival). */
-    public boolean esArcoRival(ITablero tablero, Posicion casilla, Bando atacante) {
-        int filaDelArco = atacante == Bando.BLANCO ? tablero.alto() - 1 : 0;
-        return casilla.fila() == filaDelArco && columnasDelArco.contains(casilla.columna());
+    /**
+     * Marca la cancha en el tablero: el arco de cada bando en su fila de fondo y la pelota en el saque
+     * inicial. Las piezas no se tocan.
+     */
+    public void prepararCancha(Tablero tablero) {
+        for (int columna : columnasDelArco) {
+            tablero.marcarArco(new Posicion(columna, 0), Bando.BLANCO);
+            tablero.marcarArco(new Posicion(columna, tablero.alto() - 1), Bando.NEGRO);
+        }
+        tablero.colocarPelota(saqueInicial);
     }
 
     @Override
@@ -95,7 +98,8 @@ public class ReglaDeLaPelota implements ReglaEspecial {
         Posicion adonde = adondeVa(jugada, desde);
         Optional<Pieza> portador = portadorEn(jugada, adonde);
         boolean gol = portador
-                .filter(pieza -> !pieza.esRey() && esArcoRival(tablero, adonde, pieza.color()))
+                .filter(pieza -> !pieza.esRey())
+                .filter(pieza -> tablero.arcoEn(adonde).filter(defensor -> defensor != pieza.color()).isPresent())
                 .isPresent();
         if (gol) {
             Posicion saque = portador.get().color() == Bando.BLANCO ? saqueTrasGolDeBlancas : saqueTrasGolDeNegras;

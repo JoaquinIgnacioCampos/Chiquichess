@@ -21,6 +21,7 @@ class ReglaDeLaPelotaTest {
 
     private static Partida partida(String pelota, String... filas) {
         Tablero tablero = TableroFake.desde(filas);
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos(pelota));
         return new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 ReglasDePartida.futbol().conDeshacer(), new SinReloj());
@@ -274,5 +275,29 @@ class ReglaDeLaPelotaTest {
         // Assert
         assertEquals(Optional.of(pos("d5")), pelota(partida));
         assertEquals(new Marcador(1, 0), partida.marcador());
+    }
+
+    @Test
+    void sinArcosMarcadosEnElTableroNoHayGol() {
+        // Arrange: la pelota está, pero el tablero no tiene la cancha marcada
+        Tablero tablero = TableroFake.desde(
+                ".......r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "...T....",
+                "....R...");
+        tablero.colocarPelota(pos("d2"));
+        Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.futbol(), new SinReloj());
+
+        // Act
+        partida.mover(mov("d2", "d8"));
+
+        // Assert: la torre se llevó la pelota a d8, pero no fue gol
+        assertEquals(Optional.of(pos("d8")), pelota(partida));
+        assertEquals(new Marcador(0, 0), partida.marcador());
     }
 }

@@ -55,7 +55,12 @@ public final class ControladorTablero {
         return partida.tablero().pelota().isPresent() ? Optional.of(partida.marcador()) : Optional.empty();
     }
 
-    /** Cantidad de jugadas hechas en la partida (las dos bandos juntos). */
+    /** Jugadas a las que termina la partida (modo fútbol); vacío si no hay límite. */
+    public Optional<Integer> limiteDeJugadas() {
+        return partida.limiteDeJugadas();
+    }
+
+    /** Cantidad de jugadas hechas en la partida (los dos bandos juntos). */
     public int jugadasHechas() {
         return partida.historial().size();
     }

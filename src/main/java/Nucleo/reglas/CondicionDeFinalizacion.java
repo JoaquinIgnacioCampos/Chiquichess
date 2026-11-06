@@ -27,4 +27,12 @@ public interface CondicionDeFinalizacion {
     default Optional<Bando> ganador(EstadoPartida estado, ContextoDeJugada contexto) {
         return estado.esTablas() ? Optional.empty() : Optional.of(contexto.turno().opuesto());
     }
+
+    /**
+     * Cantidad de jugadas (de los dos bandos) a la que esta condición termina la partida, si tiene un
+     * límite así; vacío si no. Sirve para que la interfaz muestre cuántas jugadas quedan.
+     */
+    default Optional<Integer> limiteDeJugadas() {
+        return Optional.empty();
+    }
 }

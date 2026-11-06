@@ -95,4 +95,45 @@ class VistaMenuPartidaTest {
 
         assertEquals(ConfiguracionPartida.Modo.FUTBOL, emitidas.get(0).modo());
     }
+
+    @SuppressWarnings("unchecked")
+    private javafx.scene.control.Spinner<Integer> limite() {
+        return (javafx.scene.control.Spinner<Integer>) buscar("limite-jugadas");
+    }
+
+    @Test
+    void elLimiteDeJugadasSoloSeHabilitaEnElModoFutbol() {
+        assertTrue(limite().isDisable());
+        boton("modo-futbol").setSelected(true);
+        assertFalse(limite().isDisable());
+        boton("modo-clasico").setSelected(true);
+        assertTrue(limite().isDisable());
+    }
+
+    @Test
+    void elLimiteEscritoViajaEnLaConfiguracion() {
+        elegirTodoMenosElTiempo();
+        boton("modo-futbol").setSelected(true);
+        boton("tiempo-sin_tiempo").setSelected(true);
+        limite().getEditor().setText("40");
+
+        ((Button) buscar("jugar")).fire();
+
+        assertEquals(40, emitidas.get(0).limiteDeJugadas());
+    }
+
+    @Test
+    void unLimiteFueraDeRangoSeAjustaYUnTextoInvalidoSeDescarta() {
+        elegirTodoMenosElTiempo();
+        boton("modo-futbol").setSelected(true);
+        boton("tiempo-sin_tiempo").setSelected(true);
+
+        limite().getEditor().setText("5000");
+        ((Button) buscar("jugar")).fire();
+        limite().getEditor().setText("muchas");
+        ((Button) buscar("jugar")).fire();
+
+        assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(0).limiteDeJugadas());
+        assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(1).limiteDeJugadas());
+    }
 }

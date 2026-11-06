@@ -27,6 +27,10 @@ public final class VistaMenuPartida extends GridPane {
     private final ToggleGroup colores = new ToggleGroup();
     private final ToggleButton permitirDeshacer;
     private final Label avisoDeshacer = new Label();
+    /** Modo fútbol: jugadas (de los dos) a las que termina la partida. Solo se habilita con ese modo. */
+    private final Spinner<Integer> limiteDeJugadas = new Spinner<>(ConfiguracionPartida.LIMITE_MINIMO,
+            ConfiguracionPartida.LIMITE_MAXIMO, ConfiguracionPartida.LIMITE_POR_DEFECTO, 10);
+    private final Label avisoLimite = new Label();
     private final Button jugar = new Button("Jugar");
     private final Label pendientes = new Label();
 
@@ -57,6 +61,22 @@ public final class VistaMenuPartida extends GridPane {
         opciones.getChildren().add(titulo);
         opciones.getChildren().add(seccion("MODO", fila(opcion("Clásico", "modo-clasico", Modo.CLASICO, modo),
                 opcion("Fútbol · Posesión y gol", "modo-futbol", Modo.FUTBOL, modo))));
+        limiteDeJugadas.setId("limite-jugadas");
+        limiteDeJugadas.setEditable(true);
+        limiteDeJugadas.setPrefWidth(110);
+        limiteDeJugadas.getEditor().setFont(Font.font("System", FontWeight.BOLD, 13));
+        limiteDeJugadas.setStyle("-fx-background-color: " + css(tema.borde()) + "; -fx-background-radius: 5;");
+        limiteDeJugadas.getEditor().setStyle("-fx-background-color: " + css(tema.tarjeta())
+                + "; -fx-text-fill: " + css(tema.texto()) + "; -fx-background-radius: 5 0 0 5;");
+        // Lo escrito a mano se toma al salir del campo (y también al apretar Jugar).
+        limiteDeJugadas.getEditor().focusedProperty().addListener((p, antes, foco) -> {
+            if (!foco) confirmarLimiteEscrito();
+        });
+        avisoLimite.setId("aviso-limite");
+        avisoLimite.setFont(Font.font("System", 12));
+        avisoLimite.setTextFill(tema.textoSecundario());
+        avisoLimite.setWrapText(true);
+        opciones.getChildren().add(seccion("LÍMITE DE JUGADAS (FÚTBOL)", new VBox(6, limiteDeJugadas, avisoLimite)));
         FlowPane tiempos = fila();
         for (Tiempo valor : Tiempo.values()) tiempos.getChildren().add(opcion(valor.texto(),
                 "tiempo-" + valor.name().toLowerCase(java.util.Locale.ROOT), valor, tiempo));
@@ -199,6 +219,12 @@ public final class VistaMenuPartida extends GridPane {
         permitirDeshacer.setDisable(!sinTiempo);
         avisoDeshacer.setText(sinTiempo ? "Cualquiera de los dos podrá deshacer y rehacer jugadas."
                 : "Disponible solo en partidas sin tiempo.");
+        boolean futbol = modo.getSelectedToggle() != null && modo.getSelectedToggle().getUserData() == Modo.FUTBOL;
+        limiteDeJugadas.setDisable(!futbol);
+        avisoLimite.setText(futbol
+                ? "Jugadas de los dos juntos (de " + ConfiguracionPartida.LIMITE_MINIMO + " a "
+                + ConfiguracionPartida.LIMITE_MAXIMO + "). Al llegar, gana quien tenga más goles."
+                : "Disponible solo en el modo fútbol.");
         var faltantes = new ArrayList<String>();
         if (modo.getSelectedToggle() == null) faltantes.add("modo");
         if (tiempo.getSelectedToggle() == null) faltantes.add("tiempo");
@@ -221,8 +247,26 @@ public final class VistaMenuPartida extends GridPane {
         ConfiguracionPartida seleccion = new ConfiguracionPartida((Modo) modo.getSelectedToggle().getUserData(),
                 (Tiempo) tiempo.getSelectedToggle().getUserData(), (Rival) rival.getSelectedToggle().getUserData(),
                 (Equipo) equipo1.getSelectedToggle().getUserData(), (Equipo) equipo2.getSelectedToggle().getUserData(),
-                (Colores) colores.getSelectedToggle().getUserData(), permitirDeshacer.isSelected());
+                (Colores) colores.getSelectedToggle().getUserData(), permitirDeshacer.isSelected(),
+                limiteElegido());
         iniciar.accept(seleccion);
+    }
+
+    /** El límite elegido, tomando lo que se haya escrito a mano en el campo. */
+    private int limiteElegido() {
+        confirmarLimiteEscrito();
+        return limiteDeJugadas.getValue();
+    }
+
+    /** Pasa al valor lo escrito en el campo (fuera de rango, se ajusta al extremo); si no es un número, lo descarta. */
+    private void confirmarLimiteEscrito() {
+        var fabrica = limiteDeJugadas.getValueFactory();
+        try {
+            fabrica.setValue(fabrica.getConverter().fromString(limiteDeJugadas.getEditor().getText().trim()));
+        } catch (RuntimeException noEsUnNumero) {
+            // se queda el valor anterior
+        }
+        limiteDeJugadas.getEditor().setText(fabrica.getConverter().toString(fabrica.getValue()));
     }
 
     private VBox seccion(String titulo, javafx.scene.Node contenido) {

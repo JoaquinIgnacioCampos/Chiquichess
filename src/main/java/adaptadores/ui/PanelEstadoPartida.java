@@ -28,7 +28,7 @@ public final class PanelEstadoPartida extends GridPane {
     private final Text estado = new Text();
     private final Text motivo = new Text();
     private final Circle punto = new Circle(5);
-    /** Modo fútbol: los goles de cada bando y cuántas jugadas van de las 90. Vacíos en el clásico. */
+    /** Modo fútbol: los goles de cada bando y cuántas jugadas van del límite. Vacíos en el clásico. */
     private final Text goles = new Text();
     private final Text jugadas = new Text();
     /** Goles totales en el último refresco, para anunciar el gol recién hecho. */
@@ -179,7 +179,8 @@ public final class PanelEstadoPartida extends GridPane {
         }
         Marcador actual = marcador.get();
         goles.setText("BLANCAS " + actual.blancas() + " - " + actual.negras() + " NEGRAS");
-        jugadas.setText("Jugada " + controlador.jugadasHechas() + " de 90");
+        jugadas.setText("Jugada " + controlador.jugadasHechas()
+                + controlador.limiteDeJugadas().map(limite -> " de " + limite).orElse(""));
         int total = actual.blancas() + actual.negras();
         boolean hubo = total > golesVistos;
         golesVistos = total;

@@ -1,5 +1,6 @@
 package Nucleo.tablero;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 
 import java.util.Collections;
@@ -15,6 +16,8 @@ public class Tablero implements ITablero {
     private final Map<Posicion, Pieza> piezas = new HashMap<>();
     /** Casilla de la pelota del modo fútbol; null si no se juega con pelota. */
     private Posicion pelota;
+    /** Casillas de los arcos del modo fútbol y el bando que defiende cada una. No cambian en la partida. */
+    private final Map<Posicion, Bando> arcos = new HashMap<>();
 
     public Tablero(int ancho, int alto) {
         if (ancho <= 0 || alto <= 0) {
@@ -28,6 +31,7 @@ public class Tablero implements ITablero {
         this(otro.ancho, otro.alto);
         this.piezas.putAll(otro.piezas); // las piezas son inmutables: se pueden compartir
         this.pelota = otro.pelota;
+        this.arcos.putAll(otro.arcos);
     }
 
     @Override
@@ -67,6 +71,19 @@ public class Tablero implements ITablero {
             throw new IllegalArgumentException("Posición fuera del tablero: " + posicion);
         }
         pelota = posicion;
+    }
+
+    @Override
+    public Optional<Bando> arcoEn(Posicion posicion) {
+        return Optional.ofNullable(arcos.get(posicion));
+    }
+
+    /** Marca la casilla como parte del arco que defiende ese bando. */
+    public void marcarArco(Posicion posicion, Bando defensor) {
+        if (!contiene(posicion)) {
+            throw new IllegalArgumentException("Posición fuera del tablero: " + posicion);
+        }
+        arcos.put(posicion, java.util.Objects.requireNonNull(defensor, "defensor"));
     }
 
     /** Coloca la pieza; si había otra en esa casilla, la reemplaza. */

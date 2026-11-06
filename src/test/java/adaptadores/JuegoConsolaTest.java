@@ -177,6 +177,7 @@ class JuegoConsolaTest {
                 "........",
                 "...T....",
                 "....R...");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 ReglasDePartida.futbol(), new SinReloj());
@@ -190,6 +191,7 @@ class JuegoConsolaTest {
         assertTrue(salida.contains("Marcador: Ana 0 - 0 Beto   (jugada 0 de 90)"));
         assertTrue(salida.contains("GOL!"));
         assertTrue(salida.contains(" 5 . . . o . . . ."), salida);
+        assertTrue(salida.contains(" 1 . . . # R . . ."), salida);
         assertTrue(salida.contains("Marcador: Ana 1 - 0 Beto   (jugada 1 de 90)"));
     }
 
@@ -201,5 +203,17 @@ class JuegoConsolaTest {
         // Assert
         assertFalse(salida.contains("Marcador"));
         assertFalse(salida.contains("Modo futbol"));
+    }
+
+    @Test
+    void laConsolaMuestraElLimiteElegido() throws IOException {
+        // Act
+        String salida = jugar(new EnsambladorPartida().crearSinRelojConDeshacer(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.FUTBOL, 40), "salir\n");
+
+        // Assert
+        assertTrue(salida.contains("mas goles en la jugada 40."), salida);
+        assertTrue(salida.contains("(jugada 0 de 40)"), salida);
+        assertTrue(salida.contains(" 5 . . . o . . . ."), salida);
     }
 }

@@ -5,11 +5,12 @@ import Nucleo.bando.Bando;
 import java.util.Optional;
 
 /**
- * Final del modo fútbol: gana quien llega a 3 goles. Si se llega a la jugada 90 (contando las de los
- * dos bandos) sin que nadie llegue, gana quien tenga más goles, y con los goles iguales es empate.
+ * Final del modo fútbol: gana quien llega a 3 goles. Si se llega al límite de jugadas (90 por
+ * defecto, contando las de los dos bandos; lo elige el usuario) sin que nadie llegue, gana quien
+ * tenga más goles, y con los goles iguales es empate.
  *
  * No guarda estado: cuenta los goles en las jugadas del contexto (ver {@link Marcador}), así deshacer
- * un gol funciona solo. Como al llegar a la jugada 90 puede ganar el bando que tiene el turno, esta
+ * un gol funciona solo. Como al llegar al límite de jugadas puede ganar el bando que tiene el turno, esta
  * condición dice quién gana en lugar de dejar que se asuma que ganó el que acaba de mover.
  *
  * Conviene ponerla después del jaque mate, que gana siempre.
@@ -44,6 +45,11 @@ public class VictoriaPorGoles implements CondicionDeFinalizacion {
                     : EstadoPartida.TABLAS_EMPATE_EN_GOLES);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Integer> limiteDeJugadas() {
+        return Optional.of(jugadasMaximas);
     }
 
     /** Gana quien tiene más goles, haya movido o no. */

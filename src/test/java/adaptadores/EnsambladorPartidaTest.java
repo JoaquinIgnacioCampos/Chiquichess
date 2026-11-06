@@ -199,4 +199,30 @@ class EnsambladorPartidaTest {
         assertEquals(Optional.of(pos("d5")), partida.tablero().pelota());
         assertTrue(partida.permiteDeshacer());
     }
+
+    @Test
+    void elLimiteDeJugadasDelMenuLlegaALaPartida() {
+        ConfiguracionPartida futbol = new ConfiguracionPartida(Modo.FUTBOL, Tiempo.SIN_TIEMPO, Rival.AMIGO,
+                Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_1_BLANCAS, false, 40);
+        assertEquals(Optional.of(40), ensamblador.crearConfigurada(futbol).limiteDeJugadas());
+        assertEquals(Optional.of(90), ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL).limiteDeJugadas());
+        assertEquals(Optional.of(30), ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL, 30).limiteDeJugadas());
+    }
+
+    @Test
+    void laConfiguracionRechazaLimitesFueraDeRango() {
+        assertThrows(IllegalArgumentException.class, () -> new ConfiguracionPartida(Modo.FUTBOL,
+                Tiempo.SIN_TIEMPO, Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, Colores.ALEATORIO, false,
+                ConfiguracionPartida.LIMITE_MINIMO - 1));
+        assertThrows(IllegalArgumentException.class, () -> new ConfiguracionPartida(Modo.FUTBOL,
+                Tiempo.SIN_TIEMPO, Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, Colores.ALEATORIO, false,
+                ConfiguracionPartida.LIMITE_MAXIMO + 1));
+    }
+
+    @Test
+    void elModoFutbolMarcaLosArcos() {
+        Partida partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
+        assertEquals(Optional.of(Bando.NEGRO), partida.tablero().arcoEn(pos("e8")));
+        assertEquals(Optional.of(Bando.BLANCO), partida.tablero().arcoEn(pos("d1")));
+    }
 }

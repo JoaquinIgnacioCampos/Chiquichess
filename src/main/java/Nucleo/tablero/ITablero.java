@@ -1,6 +1,7 @@
 package Nucleo.tablero;
 
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 
 import java.util.Map;
@@ -31,4 +32,10 @@ public interface ITablero {
      * (el ajedrez clásico). La pelota no es una pieza: no ocupa la casilla ni bloquea a nadie.
      */
     Optional<Posicion> pelota();
+
+    /**
+     * Si la casilla es parte de un arco del modo fútbol, el bando que lo defiende (el rival hace gol
+     * ahí); vacío si no es arco o si en este tablero no se juega con arcos.
+     */
+    Optional<Bando> arcoEn(Posicion posicion);
 }

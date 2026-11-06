@@ -33,6 +33,7 @@ class VictoriaPorGolesTest {
                 "........",
                 "...T....",
                 "....R...");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         IDetectorDeJaque detector = new DetectorDeJaque();
         ReglasDePartida reglas = new ReglasDePartida(
@@ -105,6 +106,7 @@ class VictoriaPorGolesTest {
                 "........",
                 "...T....",
                 "........");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         IDetectorDeJaque detector = new DetectorDeJaque();
         ReglasDePartida reglas = new ReglasDePartida(
@@ -147,5 +149,21 @@ class VictoriaPorGolesTest {
         assertTrue(condiciones.stream().anyMatch(Ahogado.class::isInstance));
         assertTrue(condiciones.stream().anyMatch(TablasPorRepeticion.class::isInstance));
         assertTrue(condiciones.stream().anyMatch(TablasPorReglaDeLos50Movimientos.class::isInstance));
+    }
+
+    @Test
+    void elLimiteDeJugadasLoEligeQuienArmaLasReglas() {
+        // Arrange
+        Partida futbol = new Partida(new Nucleo.juego.DisposicionDeFutbol(new Nucleo.juego.DisposicionEstandar(),
+                new ReglaDeLaPelota()).crearTablero(), new Jugador("Ana", Bando.BLANCO),
+                new Jugador("Beto", Bando.NEGRO), ReglasDePartida.futbol(30), new SinReloj());
+        Partida clasica = new Partida(new Nucleo.juego.DisposicionEstandar().crearTablero(),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.clasicas(), new SinReloj());
+
+        // Act + Assert
+        assertEquals(Optional.of(30), futbol.limiteDeJugadas());
+        assertEquals(Optional.of(90), ReglasDePartida.futbol().condiciones().get(1).limiteDeJugadas());
+        assertEquals(Optional.empty(), clasica.limiteDeJugadas());
     }
 }

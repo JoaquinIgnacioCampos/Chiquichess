@@ -50,17 +50,26 @@ public record ReglasDePartida(MovimientosLegales movimientosLegales, List<Condic
     }
 
     /**
-     * Modo fútbol "Posesión y gol": las reglas clásicas más la pelota. Gana quien llega a 3 goles o
-     * tiene más goles en la jugada 90; el jaque mate gana siempre y las tablas clásicas siguen
-     * valiendo. La pelota se pone en el tablero con {@link Nucleo.juego.DisposicionConPelota}, en
-     * el saque inicial de {@link ReglaDeLaPelota}.
+     * Modo fútbol "Posesión y gol" con el límite por defecto de 90 jugadas.
      */
     public static ReglasDePartida futbol() {
+        return futbol(90);
+    }
+
+    /**
+     * Modo fútbol "Posesión y gol": las reglas clásicas más la pelota. Gana quien llega a 3 goles o
+     * tiene más goles al llegar al límite de jugadas; el jaque mate gana siempre y las tablas
+     * clásicas siguen valiendo. La cancha (arcos y pelota) se marca en el tablero con
+     * {@link Nucleo.juego.DisposicionDeFutbol}.
+     *
+     * @param limiteDeJugadas jugadas de los dos bandos juntos a las que termina la partida
+     */
+    public static ReglasDePartida futbol(int limiteDeJugadas) {
         IDetectorDeJaque detector = new DetectorDeJaque();
         List<ReglaEspecial> especiales = List.of(
                 new Enroque(), new CapturaAlPaso(), new Promocion(), new ReglaDeLaPelota());
         return new ReglasDePartida(new MovimientosLegales(detector, especiales), List.of(
-                new JaqueMate(), new VictoriaPorGoles(), new Ahogado(),
+                new JaqueMate(), new VictoriaPorGoles(3, limiteDeJugadas), new Ahogado(),
                 new TablasPorRepeticion(), new TablasPorReglaDeLos50Movimientos()));
     }
 

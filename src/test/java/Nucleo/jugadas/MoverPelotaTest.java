@@ -1,7 +1,7 @@
 package Nucleo.jugadas;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.DisposicionConPelota;
+import Nucleo.juego.DisposicionDeFutbol;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.piezas.Torre;
 import Nucleo.reglas.Marcador;
@@ -32,16 +32,18 @@ class MoverPelotaTest {
     }
 
     @Test
-    void copiarElTableroCopiaLaPelota() {
+    void copiarElTableroCopiaLaPelotaYLosArcos() {
         // Arrange
         Tablero tablero = TableroFake.vacio();
         tablero.colocarPelota(pos("d5"));
+        tablero.marcarArco(pos("d8"), Bando.NEGRO);
 
         // Act
         Tablero copia = tablero.copiar();
         copia.colocarPelota(pos("e4"));
 
         // Assert: la copia es independiente
+        assertEquals(Optional.of(Bando.NEGRO), copia.arcoEn(pos("d8")));
         assertEquals(Optional.of(pos("d5")), tablero.pelota());
         assertEquals(Optional.of(pos("e4")), copia.pelota());
     }
@@ -75,21 +77,28 @@ class MoverPelotaTest {
     }
 
     @Test
-    void laDisposicionConPelotaLaPoneEnElSaqueSinCambiarLasPiezas() {
+    void laDisposicionDeFutbolMarcaLaCanchaSinCambiarLasPiezas() {
         // Act
-        Tablero tablero = new DisposicionConPelota(new DisposicionEstandar(), pos("d5")).crearTablero();
+        Tablero tablero = new DisposicionDeFutbol(new DisposicionEstandar(), new ReglaDeLaPelota()).crearTablero();
 
-        // Assert
+        // Assert: pelota en d5, arcos en d/e de cada fila de fondo, y las mismas 32 piezas
         assertEquals(Optional.of(pos("d5")), tablero.pelota());
         assertEquals(32, tablero.piezas().size());
+        assertEquals(Optional.of(Bando.BLANCO), tablero.arcoEn(pos("d1")));
+        assertEquals(Optional.of(Bando.BLANCO), tablero.arcoEn(pos("e1")));
+        assertEquals(Optional.of(Bando.NEGRO), tablero.arcoEn(pos("d8")));
+        assertEquals(Optional.of(Bando.NEGRO), tablero.arcoEn(pos("e8")));
+        assertTrue(tablero.arcoEn(pos("c8")).isEmpty());
+        assertTrue(tablero.arcoEn(pos("d2")).isEmpty());
     }
 
     @Test
     void laCasillaDeLaPelotaCambiaLaHuella() {
         // Arrange
         Tablero sinPelota = new DisposicionEstandar().crearTablero();
-        Tablero enD5 = new DisposicionConPelota(new DisposicionEstandar(), pos("d5")).crearTablero();
-        Tablero enD4 = new DisposicionConPelota(new DisposicionEstandar(), pos("d4")).crearTablero();
+        Tablero enD5 = new DisposicionDeFutbol(new DisposicionEstandar(), new ReglaDeLaPelota()).crearTablero();
+        Tablero enD4 = new DisposicionDeFutbol(new DisposicionEstandar(), new ReglaDeLaPelota(
+                java.util.Set.of(3, 4), pos("d4"), pos("d5"), pos("d4"))).crearTablero();
 
         // Act
         long huellaSin = HuellaDePosicion.de(sinPelota, Bando.BLANCO);
@@ -113,6 +122,7 @@ class MoverPelotaTest {
                 "........",
                 "...T....",
                 "....R...");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         long antes = HuellaDePosicion.de(tablero, Bando.BLANCO);
         Jugada gol = new ReglaDeLaPelota().transformar(tablero, Jugada.normal(tablero, pos("d2"), pos("d8"))).get(0);

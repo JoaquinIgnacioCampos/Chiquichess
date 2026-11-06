@@ -141,6 +141,17 @@ public class Partida {
         return resultado;
     }
 
+    /**
+     * Jugadas (de los dos bandos) a las que termina la partida, si alguna condición de fin tiene ese
+     * límite (el modo fútbol); vacío si no hay límite.
+     */
+    public Optional<Integer> limiteDeJugadas() {
+        return reglas.condiciones().stream()
+                .map(CondicionDeFinalizacion::limiteDeJugadas)
+                .flatMap(Optional::stream)
+                .min(Integer::compare);
+    }
+
     /** Goles de cada bando (modo fútbol), contados en las jugadas ejecutadas. 0 a 0 si no hay pelota. */
     public Marcador marcador() {
         return Marcador.de(historialDeJugadas.jugadas());

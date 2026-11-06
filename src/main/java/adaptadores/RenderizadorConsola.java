@@ -10,7 +10,8 @@ import java.util.Optional;
 
 /**
  * Adaptador de salida: dibuja el tablero como texto. Blancas en mayúscula, negras en minúscula.
- * En el modo fútbol la pelota suelta se dibuja con 'o', y la pieza que la lleva, con un '*' al lado.
+ * En el modo fútbol la pelota suelta se dibuja con 'o', y la pieza que la lleva, con un '*' al lado;
+ * las casillas vacías del arco, con '#'.
  */
 public class RenderizadorConsola {
 
@@ -23,7 +24,7 @@ public class RenderizadorConsola {
                 Posicion casilla = new Posicion(columna, fila);
                 Optional<Pieza> pieza = tablero.piezaEn(casilla);
                 boolean pelota = tablero.pelota().filter(casilla::equals).isPresent();
-                char vacia = pelota ? 'o' : '.';
+                char vacia = pelota ? 'o' : tablero.arcoEn(casilla).isPresent() ? '#' : '.';
                 sb.append(pieza.isPresent() ? simbolo(pieza.get()) : vacia)
                         .append(pelota && pieza.isPresent() ? '*' : ' ');
             }

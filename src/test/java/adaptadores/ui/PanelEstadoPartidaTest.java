@@ -214,6 +214,7 @@ class PanelEstadoPartidaTest {
                 "........",
                 "...T....",
                 "....R...");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         return new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 ReglasDePartida.futbol(), new Nucleo.tiempo.SinReloj());
@@ -245,5 +246,12 @@ class PanelEstadoPartidaTest {
         VistaPartida vista = vista(new EnsambladorPartida().crearSinReloj());
         assertEquals("", texto(vista, "goles-partida"));
         assertFalse(vista.lookup("#goles-partida").isVisible());
+    }
+
+    @Test
+    void muestraElLimiteDeJugadasElegido() {
+        VistaPartida vista = vista(new EnsambladorPartida().crearSinRelojConDeshacer(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.FUTBOL, 40));
+        assertEquals("Jugada 0 de 40", texto(vista, "jugadas-futbol"));
     }
 }

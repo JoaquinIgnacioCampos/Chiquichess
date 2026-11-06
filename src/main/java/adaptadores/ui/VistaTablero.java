@@ -87,6 +87,7 @@ public final class VistaTablero extends Region {
             }
         });
         casilla.setAccessibleText("Columna " + (posicion.columna() + 1) + ", fila " + (posicion.fila() + 1));
+        tablero.arcoEn(posicion).ifPresent(defensor -> agregarArco(casilla, posicion));
         tablero.piezaEn(posicion).ifPresent(pieza -> {
             Node figura = representacion.crear(pieza, tema);
             figura.scaleXProperty().bind(casilla.widthProperty().divide(RepresentacionPiezas.LADO_BASE));
@@ -100,6 +101,43 @@ public final class VistaTablero extends Region {
             agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
         }
         return casilla;
+    }
+
+    /**
+     * Arco del modo fútbol: una red (líneas cruzadas sobre un velo claro) y la línea de gol gruesa del
+     * lado del borde del tablero. Va debajo de la pieza para no taparla.
+     */
+    private void agregarArco(StackPane casilla, Posicion posicion) {
+        Pane arco = new Pane();
+        arco.setId("arco-" + posicion.columna() + "-" + posicion.fila());
+        arco.getStyleClass().add("arco");
+        arco.setMouseTransparent(true);
+        arco.setMinSize(0, 0);
+        arco.setBackground(new Background(new BackgroundFill(
+                javafx.scene.paint.Color.web("#FFFFFF", 0.30), CornerRadii.EMPTY, Insets.EMPTY)));
+        boolean arriba = posicion.fila() == tablero.alto() - 1;
+        double grosor = 5;
+        arco.setBorder(new Border(new BorderStroke(javafx.scene.paint.Color.WHITE, BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(arriba ? grosor : 0, 0, arriba ? 0 : grosor, 0))));
+        javafx.scene.paint.Color hilo = javafx.scene.paint.Color.web("#FFFFFF", 0.55);
+        for (int i = 1; i < 4; i++) {
+            double fraccion = i / 4.0;
+            javafx.scene.shape.Line vertical = new javafx.scene.shape.Line();
+            vertical.startXProperty().bind(arco.widthProperty().multiply(fraccion));
+            vertical.endXProperty().bind(arco.widthProperty().multiply(fraccion));
+            vertical.endYProperty().bind(arco.heightProperty());
+            javafx.scene.shape.Line horizontal = new javafx.scene.shape.Line();
+            horizontal.startYProperty().bind(arco.heightProperty().multiply(fraccion));
+            horizontal.endYProperty().bind(arco.heightProperty().multiply(fraccion));
+            horizontal.endXProperty().bind(arco.widthProperty());
+            for (javafx.scene.shape.Line linea : new javafx.scene.shape.Line[]{vertical, horizontal}) {
+                linea.setStroke(hilo);
+                linea.setStrokeWidth(1);
+                linea.setManaged(false);
+                arco.getChildren().add(linea);
+            }
+        }
+        casilla.getChildren().add(arco);
     }
 
     /**
