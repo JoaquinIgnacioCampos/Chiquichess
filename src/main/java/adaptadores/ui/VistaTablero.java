@@ -46,6 +46,8 @@ public final class VistaTablero extends Region {
     public void redibujar(Optional<Posicion> seleccionada, Set<Posicion> destinos) {
         Objects.requireNonNull(seleccionada, "seleccionada");
         Objects.requireNonNull(destinos, "destinos");
+        // Color de la pieza elegida: un destino ocupado por una pieza del mismo color es un pase.
+        Optional<Nucleo.bando.Bando> colorElegido = seleccionada.flatMap(tablero::piezaEn).map(Nucleo.piezas.Pieza::color);
         grilla.getChildren().clear();
         grilla.getColumnConstraints().clear();
         grilla.getRowConstraints().clear();
@@ -61,14 +63,15 @@ public final class VistaTablero extends Region {
             for (int columna = 0; columna < tablero.ancho(); columna++) {
                 Posicion posicion = new Posicion(columna, fila);
                 StackPane casilla = crearCasilla(posicion,
-                        seleccionada.filter(posicion::equals).isPresent(), destinos.contains(posicion));
+                        seleccionada.filter(posicion::equals).isPresent(), destinos.contains(posicion), colorElegido);
                 grilla.add(casilla, columna, tablero.alto() - 1 - fila);
             }
         }
         requestLayout();
     }
 
-    private StackPane crearCasilla(Posicion posicion, boolean seleccionada, boolean destino) {
+    private StackPane crearCasilla(Posicion posicion, boolean seleccionada, boolean destino,
+                                   Optional<Nucleo.bando.Bando> colorElegido) {
         StackPane casilla = new StackPane();
         casilla.setMinSize(0, 0);
         casilla.setId("casilla-" + posicion.columna() + "-" + posicion.fila());
@@ -98,7 +101,14 @@ public final class VistaTablero extends Region {
             agregarPelota(casilla, tablero.piezaEn(posicion).isPresent());
         }
         if (destino) {
-            agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
+            boolean pase = tablero.piezaEn(posicion)
+                    .filter(pieza -> colorElegido.filter(color -> color == pieza.color()).isPresent())
+                    .isPresent();
+            if (pase) {
+                agregarIndicadorDePase(casilla);
+            } else {
+                agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
+            }
         }
         return casilla;
     }
@@ -159,6 +169,23 @@ public final class VistaTablero extends Region {
         pelota.setStroke(javafx.scene.paint.Color.web("#1b1b1b"));
         pelota.strokeWidthProperty().bind(lado.multiply(0.035));
         casilla.getChildren().add(pelota);
+    }
+
+    /** Destino de un pase (modo fútbol): un anillo blanco punteado, distinto del de captura. */
+    private void agregarIndicadorDePase(StackPane casilla) {
+        Circle indicador = new Circle();
+        indicador.setManaged(false);
+        indicador.setMouseTransparent(true);
+        indicador.getStyleClass().add("indicador-pase");
+        indicador.centerXProperty().bind(casilla.widthProperty().divide(2));
+        indicador.centerYProperty().bind(casilla.heightProperty().divide(2));
+        var lado = Bindings.min(casilla.widthProperty(), casilla.heightProperty());
+        indicador.radiusProperty().bind(lado.multiply(0.42));
+        indicador.setFill(null);
+        indicador.setStroke(javafx.scene.paint.Color.WHITE);
+        indicador.strokeWidthProperty().bind(lado.multiply(0.06));
+        indicador.getStrokeDashArray().addAll(10.0, 9.0);
+        casilla.getChildren().add(indicador);
     }
 
     private void agregarIndicador(StackPane casilla, boolean captura) {

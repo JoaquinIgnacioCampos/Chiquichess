@@ -156,4 +156,62 @@ class MoverPelotaTest {
         assertEquals(Optional.of(Bando.BLANCO), marcador.lider());
         assertEquals(Optional.empty(), Marcador.de(List.of(golBlanco, golNegro)).lider());
     }
+
+    @Test
+    void elPaseMueveLaPelotaSinMoverLasPiezasYSeRevierte() {
+        // Arrange
+        Tablero tablero = TableroFake.vacio();
+        Torre pasador = new Torre(Bando.BLANCO);
+        Torre receptor = new Torre(Bando.BLANCO);
+        tablero.colocar(pos("a1"), pasador);
+        tablero.colocar(pos("a5"), receptor);
+        tablero.colocarPelota(pos("a1"));
+        Pase pase = new Pase(pasador, pos("a1"), receptor, pos("a5"));
+
+        // Act + Assert
+        pase.aplicar(tablero);
+        assertEquals(Optional.of(pos("a5")), tablero.pelota());
+        assertSame(pasador, tablero.piezaEn(pos("a1")).orElseThrow());
+        pase.revertir(tablero);
+        assertEquals(Optional.of(pos("a1")), tablero.pelota());
+    }
+
+    @Test
+    void elPaseFallaSiFaltaElCompanieroOEsUnRival() {
+        // Arrange
+        Tablero tablero = TableroFake.vacio();
+        Torre pasador = new Torre(Bando.BLANCO);
+        tablero.colocar(pos("a1"), pasador);
+        tablero.colocarPelota(pos("a1"));
+
+        // Act + Assert
+        assertThrows(IllegalStateException.class,
+                () -> new Pase(pasador, pos("a1"), new Torre(Bando.BLANCO), pos("a5")).aplicar(tablero));
+        assertEquals(Optional.of(pos("a1")), tablero.pelota());
+        assertThrows(IllegalArgumentException.class,
+                () -> new Pase(pasador, pos("a1"), new Torre(Bando.NEGRO), pos("a5")));
+    }
+
+    @Test
+    void unaJugadaDePaseTieneComoPiezaJugadaAlQuePasaYLaHuellaSeActualiza() {
+        // Arrange
+        Tablero tablero = TableroFake.vacio();
+        Torre pasador = new Torre(Bando.BLANCO);
+        Torre receptor = new Torre(Bando.BLANCO);
+        tablero.colocar(pos("a1"), pasador);
+        tablero.colocar(pos("a5"), receptor);
+        tablero.colocarPelota(pos("a1"));
+        Jugada pase = new Jugada(pos("a1"), pos("a5"), List.of(new Pase(pasador, pos("a1"), receptor, pos("a5"))));
+        long antes = HuellaDePosicion.de(tablero, Bando.BLANCO);
+
+        // Act
+        pase.aplicar(tablero);
+
+        // Assert
+        assertTrue(pase.esPase());
+        assertSame(pasador, pase.piezaMovida());
+        assertEquals(HuellaDePosicion.de(tablero, Bando.NEGRO), HuellaDePosicion.tras(antes, pase));
+        assertThrows(IllegalArgumentException.class, () -> new Jugada(pos("b1"), pos("a5"),
+                List.of(new Pase(pasador, pos("a1"), receptor, pos("a5")))));
+    }
 }

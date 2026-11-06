@@ -2,7 +2,8 @@
 
 Un modo de juego nuevo sobre el ajedrez: una pelota que se lleva y se mete en el arco rival. El
 ajedrez clásico no cambia. Se hizo en tres commits (núcleo, ensamblado y consola, e interfaz) y uno
-más para que el usuario elija el límite de jugadas y para marcar los arcos.
+más para que el usuario elija el límite de jugadas y para marcar los arcos. Al final se sumaron
+los pases.
 
 ## Las reglas
 
@@ -16,6 +17,14 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
   marcadas como arco.
   - El rey puede llevar la pelota pero no hace gol.
   - Un peón puede promover y hacer gol en la misma jugada (el gol lo hace la pieza nueva).
+- **El pase.** Quien tiene la pelota se la puede dar a un compañero parado en una casilla que
+  podría capturar si fuera un rival. Así el rey, que no hace gol, se puede librar de la pelota.
+  - Torre, alfil y dama: en su línea, con el camino libre.
+  - Caballo: con su salto, por arriba de quien sea.
+  - Rey: a una casilla de al lado.
+  - Peón: solo en diagonal hacia adelante.
+  - Las piezas no se mueven y el pase gasta el turno.
+  - Si el que recibe está en el arco rival y no es el rey, es gol.
 - **El saque.** Después del gol la pelota vuelve al campo del que lo recibió: d5 tras un gol blanco,
   d4 tras uno negro. Las piezas no se mueven. Si hay una pieza parada en el saque, esa pieza se queda
   con la pelota.
@@ -25,7 +34,6 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
     los goles iguales es empate. El límite lo elige el usuario, entre 10 y 400; por defecto, 90.
   - El jaque mate gana siempre. El ahogado, la triple repetición y la regla de los 50 movimientos
     siguen valiendo.
-- **Quedó para después:** los pases.
 
 ## Qué
 
@@ -61,6 +69,18 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
 - `ReglasDePartida.futbol()` arma las reglas: las especiales clásicas más la pelota. Las condiciones
   son, en orden: mate, goles, ahogado, repetición y 50 movimientos.
 - `DisposicionDeFutbol` (Decorator) marca la cancha sobre otra disposición inicial.
+- **El pase.**
+  - `Pase(pasador, desde, receptor, hacia)` es un `Efecto` nuevo: verifica que las dos piezas sigan en
+    su lugar y mueve la pelota. Si es gol, la jugada le suma un `MoverPelota` al saque, como un gol
+    llevando la pelota.
+  - `Jugada` ahora acepta jugadas que mueven la pieza de origen **o** son un pase desde ahí.
+    `piezaMovida()` devuelve al que pasa y `esPase()` las distingue.
+  - `ReglaDeLaPelota.jugadas()` genera los pases de quien tiene la pelota. Para saber a quién llega,
+    pone un rival de mentira en la casilla del compañero, en una copia del tablero, y pregunta si la
+    pieza lo podría capturar. Así cada pieza pasa con su propio movimiento de captura, sin repetir
+    las reglas de movimiento.
+  - `Promocion` ignora los pases (el peón no se mueve) y la regla de los 50 movimientos no cuenta el
+    pase de un peón como un avance de peón.
 
 ### 2. Menú, ensamblado y consola
 
@@ -75,6 +95,7 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
   - El tablero dibuja la pelota suelta con `o`, marca con `*` a la pieza que la lleva (`T*`) y dibuja
     las casillas vacías del arco con `#`.
   - Muestra el marcador, la jugada sobre el límite y "GOL!".
+  - Un pase se escribe como un movimiento hacia el compañero (`e2 d3`) y se avisa con "Pase!".
 
 ### 3. Interfaz
 
@@ -82,6 +103,8 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
   en una esquina si una pieza la lleva.
 - `VistaTablero` dibuja el arco como una red: un velo claro con líneas cruzadas y una línea de gol
   blanca y gruesa del lado del borde del tablero. Va debajo de la pieza, así no la tapa.
+- Para pasar se hace clic en la pieza con la pelota y después en el compañero. Los compañeros que
+  pueden recibir se marcan con un anillo blanco punteado, distinto del anillo de captura.
 - El panel muestra "BLANCAS 1 - 0 NEGRAS" y "Jugada 12 de 90" (con el límite elegido), y anuncia
   "¡GOL!" en el estado.
   La modalidad dice "Partida local · Fútbol: posesión y gol".
@@ -101,6 +124,11 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
 - **Los arcos viven en el tablero, como la pelota.** La regla los marca una vez y después los lee;
   la vista y la consola dibujan lo que tiene el tablero. Así la regla y el dibujo no pueden mostrar
   arcos distintos, y la vista no necesita conocer las reglas.
+- **El pase es una jugada más.** Usa la misma notación que un movimiento, porque nadie puede moverse
+  a una casilla ocupada por una pieza propia: no hay confusión posible. Por eso la consola, el clic en
+  la interfaz, deshacer y la validación de jaque funcionan sin cambios. De ahí salen solas varias
+  reglas: en jaque no se puede pasar (el pase no saca al rey del jaque), un pase cuenta como jugada
+  legal para el ahogado, y pasarse la pelota de ida y vuelta lleva a tablas por repetición.
 - **El límite lo informa la condición.** La interfaz no sabe qué condición termina la partida: le
   pregunta a `Partida` si hay un límite de jugadas. Si mañana otra condición tiene un límite, se
   muestra igual.
@@ -122,6 +150,10 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
 - **Los arcos y los saques son de 8x8.** `new ReglaDeLaPelota()` usa d/e y d4/d5. Para otro tablero
   hay que pasarlos por el constructor.
 - **Los goles para ganar (3) no se eligen.** Solo el límite de jugadas es configurable.
+- **El pase depende de que el movimiento de captura de cada pieza no mire qué pieza captura.** El
+  rival de mentira es un peón. Si una pieza nueva solo pudiera capturar ciertas piezas, habría que
+  revisar `ReglaDeLaPelota.alcanza`.
+- **Un pase desde la casilla inicial del rey no le quita el enroque**, porque el rey no se movió.
 
 ## Pruebas
 
@@ -134,11 +166,16 @@ más para que el usuario elija el límite de jugadas y para marcar los arcos.
   - La huella y el marcador.
   - La cancha: los arcos marcados, que sin ellos no hay gol, y el límite que eligió quien armó las
     reglas.
+  - `PaseTest`: el rey que se libra de la pelota, la torre con camino libre o tapado, el caballo
+    por arriba, el peón solo en diagonal hacia adelante, el pase al arco (gol, salvo al rey), sin
+    pase en jaque, el peón que pasa desde la séptima sin promover, deshacer un pase y que solo pasa
+    quien tiene la pelota.
+  - El efecto `Pase`, la huella y la regla de los 50 con un pase de peón.
 - **Adaptadores:**
   - El ensamblado según el modo y el límite.
   - El modo y el límite en el menú: se habilita solo en fútbol, viaja en la configuración, se ajusta
     si está fuera de rango y descarta lo que no es un número.
-  - La consola con la pelota, el arco, el marcador, el límite y el gol.
-  - La pelota y el arco en la vista del tablero (el arco debajo de la pieza).
+  - La consola con la pelota, el arco, el marcador, el límite, el gol y el pase.
+  - La pelota, el arco y el anillo de pase en la vista del tablero (el arco debajo de la pieza).
   - El marcador, el límite y el "¡GOL!" en el panel.
-- **En total:** 503 tests, 52 más que antes de la fase.
+- **En total:** 519 tests, 68 más que antes de la fase.

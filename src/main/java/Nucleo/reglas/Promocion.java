@@ -49,7 +49,8 @@ public class Promocion implements ReglaEspecial {
     @Override
     public List<Jugada> transformar(Tablero tablero, Jugada jugada) {
         Pieza peon = jugada.piezaMovida();
-        if (!peon.esPeon() || jugada.destino().fila() != ultimaFila(tablero, peon.color())) {
+        // Un peón que pasa la pelota (modo fútbol) no se mueve, así que no promueve.
+        if (jugada.esPase() || !peon.esPeon() || jugada.destino().fila() != ultimaFila(tablero, peon.color())) {
             return List.of(jugada);
         }
         return opciones.stream()

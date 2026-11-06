@@ -37,6 +37,7 @@ public class JuegoConsola {
         salida.println("Para promover un peon, agregue la pieza: D (dama), T (torre), A (alfil) o C (caballo). Ej: e7 e8 C");
         if (conPelota()) {
             salida.println("Modo futbol: lleve la pelota (o; un * marca a quien la tiene) al arco rival (#).");
+            salida.println("Para pasarla, mueva a quien la tiene hacia un companero que podria capturar (ej: d4 d7).");
             salida.println("Gana quien llega a 3 goles o tiene mas goles en la jugada "
                     + partida.limiteDeJugadas().map(String::valueOf).orElse("final") + ". El jaque mate gana siempre.");
         }
@@ -97,7 +98,12 @@ public class JuegoConsola {
                     ? Movimiento.conPromocion(origen, destino, Character.toUpperCase(partes[2].charAt(0)))
                     : new Movimiento(origen, destino);
             Marcador antes = partida.marcador();
+            boolean pase = partida.tablero().piezaEn(destino)
+                    .filter(pieza -> pieza.color() == partida.turno()).isPresent();
             ResultadoMovimiento resultado = partida.mover(movimiento);
+            if (pase) {
+                salida.println("Pase!");
+            }
             resultado.piezaCapturada().ifPresent(p -> salida.println("Captura: " + p.nombre()));
             if (!partida.marcador().equals(antes)) {
                 salida.println("GOL!");

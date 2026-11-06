@@ -37,7 +37,9 @@ public class TablasPorReglaDeLos50Movimientos implements CondicionConMemoria {
         Optional<Jugada> ultima = contexto.ultimaJugada();
         if (ultima.isEmpty()) {
             jugadasSinProgreso = 0; // posición inicial: todavía no hubo ninguna jugada
-        } else if (ultima.get().capturada().isPresent() || ultima.get().piezaMovida().esPeon()) {
+        } else if (ultima.get().capturada().isPresent()
+                || (!ultima.get().esPase() && ultima.get().piezaMovida().esPeon())) {
+            // Captura o avance de peón. Un pase de un peón no cuenta: el peón no se movió.
             jugadasSinProgreso = 0;
         } else {
             jugadasSinProgreso++;

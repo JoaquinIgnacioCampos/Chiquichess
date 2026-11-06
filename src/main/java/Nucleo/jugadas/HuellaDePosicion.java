@@ -48,6 +48,7 @@ public final class HuellaDePosicion {
                 case Retiro r -> valor(r.pieza(), r.posicion());
                 case Reemplazo r -> valor(r.anterior(), r.posicion()) ^ valor(r.nueva(), r.posicion());
                 case MoverPelota m -> valorDeLaPelota(m.desde()) ^ valorDeLaPelota(m.hacia());
+                case Pase pase -> valorDeLaPelota(pase.desde()) ^ valorDeLaPelota(pase.hacia());
             };
         }
         return nueva;

@@ -151,4 +151,16 @@ class TablasPorReglaDeLos50MovimientosTest {
         assertThrows(IllegalArgumentException.class, () -> una.restaurar(deLaOtra));
         assertThrows(IllegalArgumentException.class, () -> una.restaurar(new Recuerdo() { }));
     }
+
+    @Test
+    void unPaseDeUnPeonNoCuentaComoAvanceDePeon() {
+        // Arrange: con límite 1 (una jugada de cada uno), dos jugadas sin progreso alcanzan
+        Jugada paseDePeon = new Jugada(pos("e2"), pos("d3"), List.of(
+                new Nucleo.jugadas.Pase(peon, pos("e2"), caballo, pos("d3"))));
+
+        // Act + Assert: igual que dos jugadas sueltas, y no como un avance de peón
+        assertEquals(Optional.of(EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS),
+                tras(new TablasPorReglaDeLos50Movimientos(1), suelta(), paseDePeon));
+        assertEquals(Optional.empty(), tras(new TablasPorReglaDeLos50Movimientos(1), suelta(), dePeon()));
+    }
 }

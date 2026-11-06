@@ -4,14 +4,18 @@ import Nucleo.bando.Bando;
 import Nucleo.jugadas.Efecto;
 import Nucleo.jugadas.Jugada;
 import Nucleo.jugadas.MoverPelota;
+import Nucleo.jugadas.Pase;
 import Nucleo.jugadas.Reemplazo;
 import Nucleo.jugadas.Retiro;
 import Nucleo.jugadas.Traslado;
+import Nucleo.piezas.Peon;
 import Nucleo.piezas.Pieza;
 import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -23,8 +27,8 @@ import java.util.Set;
  * la pieza que está parada sobre ella. {@link #prepararCancha} pone esas marcas al empezar; después
  * la regla las lee del tablero, así el dibujo y la regla usan los mismos arcos.
  *
- * Esta regla no agrega jugadas: a cada jugada que toca la pelota le suma un {@link MoverPelota},
- * igual que la promoción le suma un reemplazo.
+ * A cada jugada que toca la pelota le suma un {@link MoverPelota}, igual que la promoción le suma un
+ * reemplazo. Además agrega los pases.
  * <ul>
  *   <li>Terminar el movimiento en la casilla de la pelota la toma; pasar por encima no.</li>
  *   <li>Quien lleva la pelota la arrastra en cada movimiento.</li>
@@ -34,6 +38,11 @@ import java.util.Set;
  *       peón que promueve en el arco hace gol con la pieza nueva.</li>
  *   <li>Después del gol la pelota va al saque del bando que lo recibió, sin mover las piezas. Si
  *       hay una pieza parada en el saque, esa pieza se queda con la pelota.</li>
+ *   <li>Pase: quien tiene la pelota se la puede dar a un compañero parado en una casilla que podría
+ *       capturar si fuera rival. Las piezas que se deslizan necesitan el camino libre; el caballo
+ *       la pasa por arriba; el rey, a una casilla de al lado; el peón, solo en diagonal hacia
+ *       adelante. El pase gasta el turno. Si el que recibe está en el arco rival y no es el rey,
+ *       es gol.</li>
  * </ul>
  *
  * Tiene que ir después de la promoción en la lista de reglas especiales, para ver la pieza nueva.
@@ -83,9 +92,46 @@ public class ReglaDeLaPelota implements ReglaEspecial {
         tablero.colocarPelota(saqueInicial);
     }
 
+    /** Los pases de la pieza que está en origen, si es la que tiene la pelota. */
     @Override
     public List<Jugada> jugadas(Tablero tablero, Posicion origen, List<Jugada> historial, IDetectorDeJaque detector) {
-        return List.of();
+        Optional<Pieza> pasador = tablero.piezaEn(origen);
+        if (pasador.isEmpty() || !tablero.pelota().filter(origen::equals).isPresent()) {
+            return List.of();
+        }
+        List<Jugada> pases = new ArrayList<>();
+        for (Map.Entry<Posicion, Pieza> entrada : tablero.piezas().entrySet()) {
+            Posicion hacia = entrada.getKey();
+            Pieza receptor = entrada.getValue();
+            if (!hacia.equals(origen) && receptor.color() == pasador.get().color()
+                    && alcanza(tablero, pasador.get(), origen, hacia)) {
+                pases.add(pase(tablero, pasador.get(), origen, receptor, hacia));
+            }
+        }
+        return pases;
+    }
+
+    /**
+     * true si la pieza podría capturar en esa casilla si ahí hubiera un rival. Así cada pieza pasa
+     * con su propio movimiento de captura: camino libre para las que se deslizan, salto para el
+     * caballo, diagonal hacia adelante para el peón.
+     */
+    private static boolean alcanza(Tablero tablero, Pieza pasador, Posicion origen, Posicion hacia) {
+        Tablero prueba = tablero.copiar();
+        prueba.colocar(hacia, new Peon(pasador.color().opuesto()));
+        return pasador.destinosPosibles(prueba, origen).contains(hacia);
+    }
+
+    /** Jugada de pase; si el que recibe está en el arco rival y no es el rey, la pelota va al saque. */
+    private Jugada pase(Tablero tablero, Pieza pasador, Posicion origen, Pieza receptor, Posicion hacia) {
+        Jugada pase = new Jugada(origen, hacia, List.of(new Pase(pasador, origen, receptor, hacia)));
+        boolean gol = !receptor.esRey()
+                && tablero.arcoEn(hacia).filter(defensor -> defensor != receptor.color()).isPresent();
+        return gol ? pase.con(new MoverPelota(hacia, saqueTrasGolDe(receptor.color()), true)) : pase;
+    }
+
+    private Posicion saqueTrasGolDe(Bando goleador) {
+        return goleador == Bando.BLANCO ? saqueTrasGolDeBlancas : saqueTrasGolDeNegras;
     }
 
     @Override
@@ -102,8 +148,7 @@ public class ReglaDeLaPelota implements ReglaEspecial {
                 .filter(pieza -> tablero.arcoEn(adonde).filter(defensor -> defensor != pieza.color()).isPresent())
                 .isPresent();
         if (gol) {
-            Posicion saque = portador.get().color() == Bando.BLANCO ? saqueTrasGolDeBlancas : saqueTrasGolDeNegras;
-            return List.of(jugada.con(new MoverPelota(desde, saque, true)));
+            return List.of(jugada.con(new MoverPelota(desde, saqueTrasGolDe(portador.get().color()), true)));
         }
         if (adonde.equals(desde)) {
             return List.of(jugada);

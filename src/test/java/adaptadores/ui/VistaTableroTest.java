@@ -147,4 +147,18 @@ class VistaTableroTest {
         assertTrue(casilla.getChildren().get(0).getStyleClass().contains("arco"));
         assertEquals(2, casilla.getChildren().size());
     }
+
+    @Test
+    void unDestinoOcupadoPorUnCompanieroSeMarcaComoPase() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocar(new Posicion(0, 0), new Torre(Bando.BLANCO));
+        tablero.colocar(new Posicion(0, 4), new Caballo(Bando.BLANCO));
+        tablero.colocar(new Posicion(0, 6), new Caballo(Bando.NEGRO));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        vista.redibujar(java.util.Optional.of(new Posicion(0, 0)),
+                java.util.Set.of(new Posicion(0, 4), new Posicion(0, 6)));
+        assertEquals(1, casilla(vista, 0, 4).lookupAll(".indicador-pase").size());
+        assertTrue(casilla(vista, 0, 4).lookupAll(".indicador-captura").isEmpty());
+        assertEquals(1, casilla(vista, 0, 6).lookupAll(".indicador-captura").size());
+    }
 }

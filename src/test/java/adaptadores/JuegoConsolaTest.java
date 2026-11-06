@@ -216,4 +216,29 @@ class JuegoConsolaTest {
         assertTrue(salida.contains("(jugada 0 de 40)"), salida);
         assertTrue(salida.contains(" 5 . . . o . . . ."), salida);
     }
+
+    @Test
+    void enLaConsolaSePasaComoUnMovimientoHaciaElCompaniero() throws IOException {
+        // Arrange: el rey blanco de e2 tiene la pelota y el caballo está en d3
+        Nucleo.tablero.Tablero tablero = dobles.TableroFake.desde(
+                ".......r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "...C....",
+                "....R...",
+                "........");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
+        tablero.colocarPelota(pos("e2"));
+        Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.futbol(), new SinReloj());
+
+        // Act
+        String salida = jugar(partida, "e2 d3\nsalir\n");
+
+        // Assert
+        assertTrue(salida.contains("Pase!"), salida);
+        assertTrue(salida.contains(" 3 . . . C*. . . ."), salida);
+    }
 }
