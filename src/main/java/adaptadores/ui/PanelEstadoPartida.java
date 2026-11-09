@@ -1,6 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.bando.Bando;
+import Nucleo.juego.EventoDePartida;
 import Nucleo.reglas.EstadoPartida;
 import Nucleo.reglas.Marcador;
 import javafx.geometry.Insets;
@@ -31,8 +32,8 @@ public final class PanelEstadoPartida extends GridPane {
     /** Modo fútbol: los goles de cada bando y cuántas jugadas van del límite. Vacíos en el clásico. */
     private final Text goles = new Text();
     private final Text jugadas = new Text();
-    /** Goles totales en el último refresco, para anunciar el gol recién hecho. */
-    private int golesVistos = 0;
+    /** true si la última jugada (hecha o rehecha) fue gol: lo dice el evento, no se deduce. */
+    private boolean golRecien = false;
     private final VBox informacion;
     private final MensajesDeLaInterfaz mensajes;
 
@@ -122,7 +123,21 @@ public final class PanelEstadoPartida extends GridPane {
         add(negras, 0, 0);
         add(marcador, 0, 1);
         add(blancas, 0, 2);
+        controlador.escuchar(this::anotar);
         actualizar();
+    }
+
+    /**
+     * Recuerda si la última jugada fue gol, para anunciarlo hasta la jugada siguiente. Deshacer lo borra
+     * y rehacer un gol lo vuelve a anunciar. Lo llama la partida antes de que la vista se redibuje.
+     */
+    void anotar(EventoDePartida evento) {
+        golRecien = switch (evento) {
+            case EventoDePartida.JugadaHecha hecha -> hecha.tiene(EventoDePartida.Rasgo.GOL);
+            case EventoDePartida.JugadaRehecha rehecha -> rehecha.rasgos().contains(EventoDePartida.Rasgo.GOL);
+            case EventoDePartida.JugadaDeshecha deshecha -> false;
+            case EventoDePartida.PartidaFinalizada fin -> false;
+        };
     }
 
     private void dibujarTrama(Canvas trama) {
@@ -136,7 +151,7 @@ public final class PanelEstadoPartida extends GridPane {
 
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
-        boolean golRecien = actualizarGoles();
+        actualizarGoles();
         negras.habilitarRendicion(!finalizada && controlador.turno() == Bando.NEGRO);
         blancas.habilitarRendicion(!finalizada && controlador.turno() == Bando.BLANCO);
         var oferta = controlador.ofertaTablasPendiente();
@@ -169,22 +184,18 @@ public final class PanelEstadoPartida extends GridPane {
         actualizarRelojes();
     }
 
-    /** Muestra el marcador del modo fútbol; devuelve true si desde el refresco anterior hubo un gol. */
-    private boolean actualizarGoles() {
+    /** Muestra el marcador del modo fútbol; en el clásico deja los textos vacíos. */
+    private void actualizarGoles() {
         Optional<Marcador> marcador = controlador.marcador();
         if (marcador.isEmpty()) {
             goles.setText("");
             jugadas.setText("");
-            return false;
+            return;
         }
         Marcador actual = marcador.get();
         goles.setText("BLANCAS " + actual.blancas() + " - " + actual.negras() + " NEGRAS");
         jugadas.setText("Jugada " + controlador.jugadasHechas()
                 + controlador.limiteDeJugadas().map(limite -> " de " + limite).orElse(""));
-        int total = actual.blancas() + actual.negras();
-        boolean hubo = total > golesVistos;
-        golesVistos = total;
-        return hubo;
     }
 
     /** Refresco ligero que conserva tarjetas, tablero, selección y sus nodos. */

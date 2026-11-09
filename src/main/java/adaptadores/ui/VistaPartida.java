@@ -89,6 +89,8 @@ public final class VistaPartida extends BorderPane {
         mensaje.visibleProperty().bind(mensaje.textProperty().isNotEmpty());
         BorderPane.setMargin(mensaje, new Insets(12, 0, 0, 0));
         juego.setBottom(mensaje);
+        // Después del panel: el panel anota el evento y recién entonces se redibuja todo.
+        controlador.escuchar(evento -> redibujar());
         redibujar();
     }
 

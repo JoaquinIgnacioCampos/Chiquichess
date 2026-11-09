@@ -6,6 +6,7 @@ import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.Partida;
 import Nucleo.juego.Jugador;
+import Nucleo.juego.ObservadorDePartida;
 import Nucleo.juego.ResultadoPartida;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.EstadoPartida;
@@ -28,6 +29,14 @@ public final class ControladorTablero {
 
     public ControladorTablero(Partida partida) {
         this.partida = Objects.requireNonNull(partida, "partida");
+    }
+
+    /**
+     * Suscribe a la vista a los eventos de la partida: así se entera de lo que pasa aunque no lo haya
+     * provocado ella (por ejemplo, el final por tiempo que detecta el reloj).
+     */
+    public void escuchar(ObservadorDePartida observador) {
+        partida.agregarObservador(observador);
     }
 
     public ITablero tablero() {

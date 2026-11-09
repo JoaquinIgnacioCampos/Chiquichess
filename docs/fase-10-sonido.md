@@ -56,6 +56,18 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 
 ### 3. Interfaz
 
+- **La vista también escucha los eventos.** `ControladorTablero.escuchar` suscribe a la vista y al
+  panel a la partida:
+  - `PanelEstadoPartida` anuncia "¡GOL!" porque el evento de la última jugada dice que fue gol. Antes
+    lo deducía comparando el total de goles con el del refresco anterior. Deshacer saca el anuncio y
+    rehacer un gol lo vuelve a mostrar.
+  - `VistaPartida` se redibuja con cada evento, así sigue a la partida aunque el cambio no lo haya
+    provocado ella. El caso de hoy es el final por tiempo: lo detecta el pulso del reloj, la partida
+    avisa y la vista muestra el resultado.
+  - `ActualizadorRelojJavaFx` ya no se encarga de mostrar el final: solo hace latir los relojes y se
+    detiene cuando la partida terminó.
+  - La vista sigue redibujándose sola después de sus propias acciones, porque hay cosas que no son
+    eventos de la partida: la casilla seleccionada, el selector de promoción y las ofertas de tablas.
 - `AplicacionAjedrez` crea un reproductor y un control de volumen para todo el programa. En cada
   partida conecta un `SonidosDePartida` con los clubes de cada bando, y lo cierra al salir de ella.
 - `VistaPartida.configurarSonido` agrega el botón de silencio y la barra de volumen.
@@ -64,7 +76,8 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 
 - **Eventos desde el núcleo y no deducidos en el adaptador.** El núcleo ya sabe qué pasó en cada
   jugada: si hubo gol, captura o jaque. Si el adaptador lo dedujera comparando antes y después (como
-  hace hoy el panel con los goles), esa lógica quedaría repetida en cada adaptador. El evento dice
+  hacía el panel con los goles), esa lógica quedaría repetida en cada adaptador. Ahora la usan el
+  sonido y la vista. El evento dice
   *qué pasó* y nada de *cómo se muestra*, así que el núcleo sigue sin saber que hay sonido.
 - **Observer como puerto de salida.** Es el mismo patrón de `FuenteDeTiempo` al revés: allá el núcleo
   pide algo al exterior por una interfaz suya; acá le avisa por una interfaz suya. Las dependencias
@@ -107,6 +120,10 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
   alternativos, y qué pasa si no hay archivos.
 - `IntensidadDeHinchadaTest`: crece con el avance, el final parejo suena más, el que gana canta más,
   siempre entre 0 y 1, y depende solo del estado.
+- `PanelEstadoPartidaTest`:
+  - deshacer un gol saca el anuncio y rehacerlo lo vuelve a mostrar, aunque se haga desde la partida
+    y no desde la vista;
+  - el final por tiempo se muestra solo por el evento, sin redibujar a mano.
 - `SonidosDePartidaTest`: partidas reales con un `ReproductorFalso` y archivos de prueba. Cubre:
   - el club ganador;
   - una o dos hinchadas;

@@ -62,7 +62,7 @@ public class AplicacionAjedrez extends Application {
         vista.configurarNavegacion(() -> {
             if (partidaActual == preparada) volverAlMenu(ventana);
         }, () -> iniciarRevancha(ventana, configuracion, preparada));
-        actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes, vista::redibujar);
+        actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes);
         ventana.getScene().setRoot(vista);
         sonidosActuales = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
                 Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),

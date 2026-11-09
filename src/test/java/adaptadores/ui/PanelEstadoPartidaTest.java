@@ -205,6 +205,10 @@ class PanelEstadoPartidaTest {
 
     /** Torre blanca con la pelota en d2, a un movimiento del gol en d8. */
     private Partida futbolConTorreEnD2() {
+        return futbolConTorreEnD2(ReglasDePartida.futbol());
+    }
+
+    private Partida futbolConTorreEnD2(ReglasDePartida reglas) {
         Nucleo.tablero.Tablero tablero = dobles.TableroFake.desde(
                 ".......r",
                 "........",
@@ -217,7 +221,7 @@ class PanelEstadoPartidaTest {
         new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
         return new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                ReglasDePartida.futbol(), new Nucleo.tiempo.SinReloj());
+                reglas, new Nucleo.tiempo.SinReloj());
     }
 
     @Test
@@ -239,6 +243,40 @@ class PanelEstadoPartidaTest {
         jugar(vista, "h8g7");
         assertEquals("EN JUEGO", texto(vista, "estado-partida"));
         assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+    }
+
+    @Test
+    void deshacerElGolDejaDeAnunciarloYRehacerloLoVuelveAAnunciar() {
+        // Arrange
+        Partida partida = futbolConTorreEnD2(ReglasDePartida.futbol().conDeshacer());
+        VistaPartida vista = vista(partida);
+        jugar(vista, "d2d8");
+
+        // Act + Assert: se deshace y rehace desde la partida, no desde la vista; la vista se entera por los eventos
+        partida.deshacer();
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 0 - 0 NEGRAS", texto(vista, "goles-partida"));
+        partida.rehacer();
+        assertEquals("¡GOL!", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+    }
+
+    @Test
+    void elFinalPorTiempoSeMuestraPorElEventoSinRedibujarAMano() {
+        // Arrange
+        FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
+        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
+                new Jugador("Beto", Bando.NEGRO), ReglasDePartida.clasicas(),
+                new Nucleo.tiempo.RelojAjedrez(Duration.ofMinutes(1), Duration.ofMinutes(1), fuente));
+        VistaPartida vista = vista(partida);
+
+        // Act: lo que hace el reloj de la interfaz en cada pulso
+        fuente.avanzar(Duration.ofMinutes(2));
+        partida.verificarTiempo();
+
+        // Assert
+        assertEquals("RESULTADO FINAL", texto(vista, "titulo-estado"));
+        assertEquals("NEGRAS", texto(vista, "marcador-principal"));
     }
 
     @Test
