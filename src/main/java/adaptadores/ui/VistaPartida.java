@@ -2,12 +2,14 @@ package adaptadores.ui;
 
 import Nucleo.bando.Bando;
 import Nucleo.tablero.Posicion;
+import adaptadores.audio.ControlDeVolumen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -22,7 +24,8 @@ public final class VistaPartida extends BorderPane {
     private final VistaTablero tablero;
     private final Text mensaje = new Text();
     private final PanelEstadoPartida panel;
-    private final HBox titulo = new HBox(16);
+    /** Marca y botones de la cabecera; si no entran en una fila, los botones bajan a la siguiente. */
+    private final FlowPane titulo = new FlowPane(16, 10);
     private final StackPane areaTablero = new StackPane();
     private final TemaTablero tema;
     private final RepresentacionPiezas representacion;
@@ -147,6 +150,31 @@ public final class VistaPartida extends BorderPane {
                 .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.DESHACER, motivo))
                 .orElse(""));
         redibujar();
+    }
+
+    /**
+     * Agrega a la cabecera el botón de silencio y el volumen. El control se comparte entre partidas, así
+     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configurarNavegacion.
+     */
+    public void configurarSonido(ControlDeVolumen control) {
+        Objects.requireNonNull(control, "control");
+        if (titulo.lookup("#silencio") != null) throw new IllegalStateException("Sonido ya configurado");
+        javafx.scene.control.Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio",
+                temaPanel.tarjeta(), temaPanel.texto());
+        silencio.setOnAction(e -> {
+            control.silenciar(!control.silenciado());
+            silencio.setText(textoSilencio(control));
+        });
+        javafx.scene.control.Slider volumen = new javafx.scene.control.Slider(0, 1, control.volumen());
+        volumen.setId("volumen");
+        volumen.setPrefWidth(90);
+        volumen.setFocusTraversable(false);
+        volumen.valueProperty().addListener((p, antes, ahora) -> control.cambiarVolumen(ahora.doubleValue()));
+        titulo.getChildren().addAll(silencio, volumen);
+    }
+
+    private static String textoSilencio(ControlDeVolumen control) {
+        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
     }
 
     public void actualizarRelojes() {

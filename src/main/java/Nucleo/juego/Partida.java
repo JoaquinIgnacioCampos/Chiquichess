@@ -36,6 +36,8 @@ public class Partida {
     /** true si el final lo decidió una jugada (mate o tablas automáticas): ese final se puede deshacer. */
     private boolean terminoPorUnaJugada = false;
     private Optional<Bando> ofertaTablas = Optional.empty();
+    /** Adaptadores que se enteran de lo que pasa (Observer), en el orden en que se agregaron. */
+    private final List<ObservadorDePartida> observadores = new ArrayList<>();
 
     /**
      * Constructor principal: las reglas (movimientos legales, detector y condiciones de fin) llegan
@@ -111,6 +113,28 @@ public class Partida {
 
     public ITablero tablero() {
         return tablero;
+    }
+
+    /** Suscribe un adaptador a los eventos de esta partida (ver {@link EventoDePartida}). */
+    public void agregarObservador(ObservadorDePartida observador) {
+        observadores.add(Objects.requireNonNull(observador, "observador"));
+    }
+
+    public void quitarObservador(ObservadorDePartida observador) {
+        observadores.remove(observador);
+    }
+
+    private void avisar(EventoDePartida evento) {
+        // Copia: un observador puede desuscribirse mientras recibe el aviso.
+        for (ObservadorDePartida observador : List.copyOf(observadores)) {
+            observador.notificar(evento);
+        }
+    }
+
+    /** Avisa el final si la partida está terminada. Se llama después del aviso de la jugada que la terminó. */
+    private void avisarSiTermino() {
+        resultado.filter(r -> estado.estaFinalizada())
+                .ifPresent(r -> avisar(new EventoDePartida.PartidaFinalizada(r)));
     }
 
     public Bando turno() {
@@ -194,6 +218,7 @@ public class Partida {
         resultado = Optional.empty();
         terminoPorUnaJugada = false;
         actualizarEstado(evaluar(contexto(historialDeJugadas.jugadas())));
+        avisar(new EventoDePartida.JugadaDeshecha(estado));
     }
 
     /**
@@ -216,6 +241,9 @@ public class Partida {
         turno = turno.opuesto();
         ofertaTablas = Optional.empty();
         historialDeJugadas.confirmarRehecha(registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
+        avisar(new EventoDePartida.JugadaRehecha(jugada.piezaMovida().color(),
+                EventoDePartida.Rasgo.de(jugada), estado));
+        avisarSiTermino();
     }
 
     /** true si en este momento {@link #deshacer()} se aceptaría. Lo usa la UI para habilitar el botón. */
@@ -255,6 +283,7 @@ public class Partida {
             throw new AccionInvalidaException(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
         }
         finalizar(EstadoPartida.RENDICION, Optional.of(color.opuesto()));
+        avisarSiTermino();
     }
 
     public Optional<Bando> ofertaTablasPendiente() {
@@ -276,6 +305,7 @@ public class Partida {
     public void aceptarTablas(Bando color) {
         validarRespuestaTablas(color);
         finalizar(EstadoPartida.TABLAS_ACUERDO, Optional.empty());
+        avisarSiTermino();
     }
 
     public void rechazarTablas(Bando color) {
@@ -327,6 +357,7 @@ public class Partida {
     public void verificarTiempo() {
         if (!estado.estaFinalizada() && reloj.tiempoAgotado(turno)) {
             finalizar(EstadoPartida.TIEMPO_AGOTADO, Optional.of(turno.opuesto()));
+            avisarSiTermino();
         }
     }
 
@@ -397,6 +428,8 @@ public class Partida {
         turno = turno.opuesto();
         reloj.cambiarTurno();
         historialDeJugadas.agregar(jugada, registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
+        avisar(new EventoDePartida.JugadaHecha(pieza.color(), EventoDePartida.Rasgo.de(jugada), estado));
+        avisarSiTermino();
         return new ResultadoMovimiento(capturada, estado);
     }
 
