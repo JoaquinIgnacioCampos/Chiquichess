@@ -36,3 +36,5 @@ build/
 
 ### Mac OS ###
 .DS_Store
+# Sonidos locales de prueba (ver src/main/resources/sonidos/LEEME.txt)
+/sonidos/
