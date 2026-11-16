@@ -79,7 +79,7 @@ public final class VistaPartida extends BorderPane {
     }
 
     public void redibujar() {
-        tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
+        tablero.redibujar(controlador.seleccionada().orElse(null), controlador.destinosLegales());
         panel.actualizar();
         if (navegacion != null) navegacion.actualizar();
     }

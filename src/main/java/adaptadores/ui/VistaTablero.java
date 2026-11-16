@@ -3,14 +3,14 @@ package adaptadores.ui;
 import Nucleo.juego.Posicion;
 import Nucleo.tablero.ITablero;
 import javafx.beans.binding.Bindings;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -39,12 +39,11 @@ public final class VistaTablero extends Region {
 
     /** Reconstruye la representación consultando el núcleo, sin almacenar piezas por separado. */
     public void redibujar() {
-        redibujar(Optional.empty(), Set.of());
+        redibujar(null, Set.of());
     }
 
-    /** Los destinos ya fueron consultados al núcleo; aquí solo se representan. */
-    public void redibujar(Optional<Posicion> seleccionada, Set<Posicion> destinos) {
-        Objects.requireNonNull(seleccionada, "seleccionada");
+    /** La selección puede estar vacía y los destinos ya vienen calculados por el núcleo. */
+    public void redibujar(Posicion seleccionada, Set<Posicion> destinos) {
         Objects.requireNonNull(destinos, "destinos");
         grilla.getChildren().clear();
         grilla.getColumnConstraints().clear();
@@ -61,7 +60,7 @@ public final class VistaTablero extends Region {
             for (int columna = 0; columna < tablero.ancho(); columna++) {
                 Posicion posicion = new Posicion(columna, fila);
                 StackPane casilla = crearCasilla(posicion,
-                        seleccionada.filter(posicion::equals).isPresent(), destinos.contains(posicion));
+                        posicion.equals(seleccionada), destinos.contains(posicion));
                 grilla.add(casilla, columna, tablero.alto() - 1 - fila);
             }
         }
@@ -74,27 +73,36 @@ public final class VistaTablero extends Region {
         casilla.setId("casilla-" + posicion.columna() + "-" + posicion.fila());
         casilla.getStyleClass().add("casilla");
         boolean oscura = (posicion.columna() + posicion.fila()) % 2 == 0;
+        Color color = oscura ? tema.casillaOscura() : tema.casillaClara();
         if (seleccionada) {
             casilla.getStyleClass().add("casilla-seleccionada");
+            color = tema.casillaSeleccionada();
         }
-        casilla.setBackground(new Background(new BackgroundFill(
-                seleccionada ? tema.casillaSeleccionada()
-                        : oscura ? tema.casillaOscura() : tema.casillaClara(),
-                CornerRadii.EMPTY, Insets.EMPTY)));
+        casilla.setBackground(Background.fill(color));
+        if (tema.textura() != null) {
+            ImageView pasto = new ImageView(tema.textura());
+            pasto.setManaged(false);
+            pasto.setMouseTransparent(true);
+            pasto.setOpacity(seleccionada ? 0.15 : 0.28);
+            pasto.fitWidthProperty().bind(casilla.widthProperty());
+            pasto.fitHeightProperty().bind(casilla.heightProperty());
+            casilla.getChildren().add(pasto);
+        }
         casilla.setOnMouseClicked(evento -> {
             if (evento.getButton() == MouseButton.PRIMARY) {
                 alPulsar.accept(posicion);
             }
         });
         casilla.setAccessibleText("Columna " + (posicion.columna() + 1) + ", fila " + (posicion.fila() + 1));
-        tablero.piezaEn(posicion).ifPresent(pieza -> {
+        var ocupante = tablero.piezaEn(posicion);
+        ocupante.ifPresent(pieza -> {
             Node figura = representacion.crear(pieza, tema);
             figura.scaleXProperty().bind(casilla.widthProperty().divide(RepresentacionPiezas.LADO_BASE));
             figura.scaleYProperty().bind(casilla.heightProperty().divide(RepresentacionPiezas.LADO_BASE));
             casilla.getChildren().add(figura);
         });
         if (destino) {
-            agregarIndicador(casilla, tablero.piezaEn(posicion).isPresent());
+            agregarIndicador(casilla, ocupante.isPresent());
         }
         return casilla;
     }

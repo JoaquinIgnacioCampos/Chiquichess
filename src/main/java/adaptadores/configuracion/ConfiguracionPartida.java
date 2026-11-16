@@ -21,7 +21,8 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
     public enum Modo { CLASICO }
     public enum Rival { AMIGO, IA }
     public enum Equipo {
-        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente");
+        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente"),
+        SAN_LORENZO("San Lorenzo"), RACING("Racing");
         private final String nombre;
         Equipo(String nombre) { this.nombre = nombre; }
         public String nombre() { return nombre; }

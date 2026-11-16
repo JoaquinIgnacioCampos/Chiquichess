@@ -9,10 +9,12 @@ import java.util.Objects;
 
 /** Catálogo visual: escudos originales y colores de clubes, fuera del núcleo. */
 public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
-    private static final Map<Equipo, Image> ESCUDOS = Map.of(
-            Equipo.BOCA, cargar("boca.png"),
-            Equipo.INDEPENDIENTE, cargar("independiente.png"),
-            Equipo.RIVER, cargar("river.png"));
+    private static final Map<Equipo, Estilo> ESTILOS = Map.of(
+            Equipo.BOCA, new Estilo("boca.png", "#102B50", "#F9B923", "#315783"),
+            Equipo.INDEPENDIENTE, new Estilo("independiente.png", "#321719", "#FF777D", "#7E3A41"),
+            Equipo.RIVER, new Estilo("river.png", "#E8E5DF", "#A51D2D", "#FFFFFF"),
+            Equipo.SAN_LORENZO, new Estilo("san-lorenzo.png", "#182941", "#FF6573", "#704354"),
+            Equipo.RACING, new Estilo("racing.png", "#103342", "#66D8FA", "#3486A1"));
 
     public PresentacionClub {
         Objects.requireNonNull(equipo, "equipo");
@@ -23,17 +25,23 @@ public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
     public static PresentacionClub de(Equipo equipo, TemaPanel base) {
         Objects.requireNonNull(equipo, "equipo");
         Objects.requireNonNull(base, "base");
-        Color fondo = Color.web(switch (equipo) {
-            case BOCA -> "#102B50";
-            case RIVER -> "#29171C";
-            case INDEPENDIENTE -> "#321719";
-        });
-        Color acento = Color.web(equipo == Equipo.BOCA ? "#F9B923" : "#FF777D");
-        Color borde = Color.web(equipo == Equipo.BOCA ? "#315783" : "#7E3A41");
-        TemaPanel tema = new TemaPanel(base.fondo(), fondo, base.texto(), base.textoSecundario(),
-                acento, base.activo(), base.alerta(), borde, base.puntoApagado(),
+        Estilo estilo = ESTILOS.get(equipo);
+        Color texto = equipo == Equipo.RIVER ? Color.web("#242424") : base.texto();
+        Color textoSecundario = equipo == Equipo.RIVER ? Color.web("#505050") : base.textoSecundario();
+        TemaPanel tema = new TemaPanel(base.fondo(), estilo.tarjeta(), texto, textoSecundario,
+                estilo.acento(), base.activo(), base.alerta(), estilo.borde(), base.puntoApagado(),
                 base.insigniaBlanca(), base.insigniaNegra());
-        return new PresentacionClub(equipo, ESCUDOS.get(equipo), tema);
+        return new PresentacionClub(equipo, estilo.escudo(), tema);
+    }
+
+    static Image escudoDe(Equipo equipo) {
+        return ESTILOS.get(equipo).escudo();
+    }
+
+    private record Estilo(Image escudo, Color tarjeta, Color acento, Color borde) {
+        Estilo(String archivo, String tarjeta, String acento, String borde) {
+            this(cargar(archivo), Color.web(tarjeta), Color.web(acento), Color.web(borde));
+        }
     }
 
     private static Image cargar(String archivo) {
