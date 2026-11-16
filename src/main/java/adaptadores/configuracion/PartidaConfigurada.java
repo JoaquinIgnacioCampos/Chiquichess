@@ -1,7 +1,7 @@
 package adaptadores.configuracion;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
-import Nucleo.piezas.Color;
 import Nucleo.tiempo.RelojPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 
@@ -18,8 +18,8 @@ public record PartidaConfigurada(Partida partida, Equipo equipoBlancas, Equipo e
         if (equipoBlancas == equipoNegras) throw new IllegalArgumentException("Los equipos deben ser distintos");
     }
 
-    public Equipo equipo(Color color) {
-        return Objects.requireNonNull(color, "color") == Color.BLANCO ? equipoBlancas : equipoNegras;
+    public Equipo equipo(Bando color) {
+        return Objects.requireNonNull(color, "color") == Bando.BLANCO ? equipoBlancas : equipoNegras;
     }
 
     /** Libera el reloj de una partida descartada sin inventar un resultado deportivo. */

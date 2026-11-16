@@ -1,6 +1,6 @@
 package Nucleo.reglas;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
 
 /**
@@ -10,5 +10,5 @@ import Nucleo.tablero.ITablero;
  */
 public interface IDetectorDeJaque {
 
-    boolean estaEnJaque(ITablero tablero, Color color);
+    boolean estaEnJaque(ITablero tablero, Bando color);
 }

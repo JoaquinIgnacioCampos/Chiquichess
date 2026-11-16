@@ -1,8 +1,9 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
 import Nucleo.movimientos.ReglaMovimiento;
+import Nucleo.tablero.Posicion;
 
 import java.util.Objects;
 import java.util.Set;
@@ -15,15 +16,15 @@ import java.util.Set;
  */
 public abstract class Pieza {
 
-    private final Color color;
+    private final Bando color;
     private final ReglaMovimiento regla;
 
-    protected Pieza(Color color, ReglaMovimiento regla) {
+    protected Pieza(Bando color, ReglaMovimiento regla) {
         this.color = Objects.requireNonNull(color, "color");
         this.regla = Objects.requireNonNull(regla, "regla");
     }
 
-    public Color color() {
+    public Bando color() {
         return color;
     }
 
@@ -44,6 +45,11 @@ public abstract class Pieza {
 
     /** Los peones sobreescriben esto; lo usa la regla de los 50 movimientos (un movimiento de peón es "progreso"). */
     public boolean esPeon() {
+        return false;
+    }
+
+    /** Las torres sobreescriben esto; lo usa el enroque para saber con qué pieza puede enrocar el rey. */
+    public boolean esTorre() {
         return false;
     }
 

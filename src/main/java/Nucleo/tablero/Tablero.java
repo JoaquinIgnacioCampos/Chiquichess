@@ -1,6 +1,6 @@
 package Nucleo.tablero;
 
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 
 import java.util.Collections;
@@ -14,6 +14,10 @@ public class Tablero implements ITablero {
     private final int ancho;
     private final int alto;
     private final Map<Posicion, Pieza> piezas = new HashMap<>();
+    /** Casilla de la pelota del modo fútbol; null si no se juega con pelota. */
+    private Posicion pelota;
+    /** Casillas de los arcos del modo fútbol y el bando que defiende cada una. No cambian en la partida. */
+    private final Map<Posicion, Bando> arcos = new HashMap<>();
 
     public Tablero(int ancho, int alto) {
         if (ancho <= 0 || alto <= 0) {
@@ -26,6 +30,8 @@ public class Tablero implements ITablero {
     private Tablero(Tablero otro) {
         this(otro.ancho, otro.alto);
         this.piezas.putAll(otro.piezas); // las piezas son inmutables: se pueden compartir
+        this.pelota = otro.pelota;
+        this.arcos.putAll(otro.arcos);
     }
 
     @Override
@@ -52,6 +58,32 @@ public class Tablero implements ITablero {
     @Override
     public Map<Posicion, Pieza> piezas() {
         return Collections.unmodifiableMap(piezas);
+    }
+
+    @Override
+    public Optional<Posicion> pelota() {
+        return Optional.ofNullable(pelota);
+    }
+
+    /** Pone la pelota en esa casilla (haya o no una pieza ahí); si ya estaba en otra, la mueve. */
+    public void colocarPelota(Posicion posicion) {
+        if (!contiene(posicion)) {
+            throw new IllegalArgumentException("Posición fuera del tablero: " + posicion);
+        }
+        pelota = posicion;
+    }
+
+    @Override
+    public Optional<Bando> arcoEn(Posicion posicion) {
+        return Optional.ofNullable(arcos.get(posicion));
+    }
+
+    /** Marca la casilla como parte del arco que defiende ese bando. */
+    public void marcarArco(Posicion posicion, Bando defensor) {
+        if (!contiene(posicion)) {
+            throw new IllegalArgumentException("Posición fuera del tablero: " + posicion);
+        }
+        arcos.put(posicion, java.util.Objects.requireNonNull(defensor, "defensor"));
     }
 
     /** Coloca la pieza; si había otra en esa casilla, la reemplaza. */

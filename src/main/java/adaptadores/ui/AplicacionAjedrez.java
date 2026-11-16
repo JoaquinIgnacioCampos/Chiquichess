@@ -1,7 +1,14 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
 import adaptadores.EnsambladorPartida;
+import adaptadores.audio.CatalogoDeSonidos;
+import adaptadores.audio.ControlDeVolumen;
+import adaptadores.audio.ReproductorDeAudio;
+import adaptadores.audio.ReproductorJavaSound;
+import adaptadores.audio.SonidosDePartida;
+import java.util.Map;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.PartidaConfigurada;
 import javafx.application.Application;
@@ -14,9 +21,15 @@ import javafx.stage.Stage;
 public class AplicacionAjedrez extends Application {
     private ActualizadorRelojJavaFx actualizadorReloj;
     private PartidaConfigurada partidaActual;
+    private SonidosDePartida sonidosActuales;
+    /** Uno solo para todo el programa: el volumen elegido sigue valiendo en las partidas siguientes. */
+    private final ControlDeVolumen volumen = new ControlDeVolumen();
+    private final CatalogoDeSonidos catalogoDeSonidos = new CatalogoDeSonidos();
+    private ReproductorDeAudio reproductor;
 
     @Override
     public void start(Stage ventana) {
+        reproductor = new ReproductorJavaSound();
         VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
         ventana.setTitle("ChiquiChess");
         ventana.setScene(new Scene(menu, 1280, 820));
@@ -40,16 +53,22 @@ public class AplicacionAjedrez extends Application {
         ControladorTablero controlador = new ControladorTablero(partida);
         TemaPanel temaPanel = TemaPanel.marcador();
         var clubes = java.util.Map.of(
-                Nucleo.piezas.Color.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
-                Nucleo.piezas.Color.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
-        VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes);
+                Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
+                Bando.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
+        VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes,
+                new MensajesDeLaInterfaz());
         vista.configurarRendicion();
         vista.configurarTablas();
+        vista.configurarDeshacer();
+        vista.configurarSonido(volumen);
         vista.configurarNavegacion(() -> {
             if (partidaActual == preparada) volverAlMenu(ventana);
         }, () -> iniciarRevancha(ventana, configuracion, preparada));
-        actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes, vista::redibujar);
+        actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes);
         ventana.getScene().setRoot(vista);
+        sonidosActuales = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
+                Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),
+                volumen, configuracion.modo() == ConfiguracionPartida.Modo.FUTBOL);
         actualizadorReloj.iniciar();
     }
 
@@ -64,10 +83,15 @@ public class AplicacionAjedrez extends Application {
         var colores = preparada.equipoBlancas() == anterior.equipoJugador1()
                 ? ConfiguracionPartida.Colores.JUGADOR_2_BLANCAS : ConfiguracionPartida.Colores.JUGADOR_1_BLANCAS;
         iniciarPartida(ventana, new ConfiguracionPartida(anterior.modo(), anterior.tiempo(), anterior.rival(),
-                anterior.equipoJugador1(), anterior.equipoJugador2(), colores));
+                anterior.equipoJugador1(), anterior.equipoJugador2(), colores, anterior.permitirDeshacer(),
+                anterior.limiteDeJugadas()));
     }
 
     private void cerrarPartidaActual() {
+        if (sonidosActuales != null) {
+            sonidosActuales.close();
+            sonidosActuales = null;
+        }
         if (actualizadorReloj != null) {
             actualizadorReloj.close();
             actualizadorReloj = null;
@@ -80,5 +104,6 @@ public class AplicacionAjedrez extends Application {
 
     @Override public void stop() {
         cerrarPartidaActual();
+        if (reproductor != null) reproductor.close();
     }
 }

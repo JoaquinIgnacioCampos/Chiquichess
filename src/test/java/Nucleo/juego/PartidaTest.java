@@ -1,11 +1,13 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.MovimientoInvalidoException.Motivo;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
 import Nucleo.piezas.Torre;
 import Nucleo.reglas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
+import Nucleo.tiempo.SinReloj;
 import dobles.*;
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PartidaTest {
 
-    private final Jugador blanco = new Jugador("Ana", Color.BLANCO);
-    private final Jugador negro = new Jugador("Beto", Color.NEGRO);
+    private final Jugador blanco = new Jugador("Ana", Bando.BLANCO);
+    private final Jugador negro = new Jugador("Beto", Bando.NEGRO);
 
     private Partida partida(Tablero tablero, IDetectorDeJaque detector, CondicionDeFinalizacion... condiciones) {
         return new Partida(tablero, blanco, negro, detector, List.of(condiciones));
@@ -74,7 +76,7 @@ class PartidaTest {
         Partida partida = partidaSimple();
 
         // Assert
-        assertEquals(Color.BLANCO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.turno());
         assertEquals(blanco, partida.jugadorActual());
     }
 
@@ -87,7 +89,7 @@ class PartidaTest {
         partida.mover(mov("e2", "e4"));
 
         // Assert
-        assertEquals(Color.NEGRO, partida.turno());
+        assertEquals(Bando.NEGRO, partida.turno());
         assertEquals(negro, partida.jugadorActual());
     }
 
@@ -101,7 +103,7 @@ class PartidaTest {
         partida.mover(mov("e7", "e5"));
 
         // Assert
-        assertEquals(Color.BLANCO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.turno());
     }
 
     // ---------------- Ejecución del movimiento ----------------
@@ -142,7 +144,7 @@ class PartidaTest {
 
         // Assert
         assertEquals(Optional.of(torreNegra), resultado.piezaCapturada());
-        assertEquals(Color.BLANCO, partida.tablero().piezaEn(pos("a8")).orElseThrow().color());
+        assertEquals(Bando.BLANCO, partida.tablero().piezaEn(pos("a8")).orElseThrow().color());
         assertEquals(1, partida.tablero().piezas().size());
     }
 
@@ -224,7 +226,7 @@ class PartidaTest {
 
         // Assert
         assertEquals(antes, partida.tablero().piezas());
-        assertEquals(Color.BLANCO, partida.turno());
+        assertEquals(Bando.BLANCO, partida.turno());
     }
 
     // ---------------- Estado y condiciones de fin (stubs y mocks) ----------------
@@ -259,7 +261,7 @@ class PartidaTest {
         // Assert
         assertEquals(1, mock.cantidadDeLlamadas());
         assertTrue(mock.ultimoContexto().piezaMovida().isEmpty());
-        assertEquals(Color.BLANCO, mock.ultimoContexto().turno());
+        assertEquals(Bando.BLANCO, mock.ultimoContexto().turno());
     }
 
     @Test
@@ -274,7 +276,7 @@ class PartidaTest {
         // Assert
         assertEquals(2, mock.cantidadDeLlamadas());
         ContextoDeJugada contexto = mock.ultimoContexto();
-        assertEquals(Color.NEGRO, contexto.turno(), "El contexto es desde el punto de vista de quien juega ahora");
+        assertEquals(Bando.NEGRO, contexto.turno(), "El contexto es desde el punto de vista de quien juega ahora");
         assertTrue(contexto.piezaMovida().orElseThrow().esPeon());
         assertFalse(contexto.huboCaptura());
         assertFalse(contexto.enJaque());
@@ -343,6 +345,50 @@ class PartidaTest {
         assertEquals(1, segunda.cantidadDeLlamadas());
     }
 
+    // ---------------- Condiciones con memoria (Memento) ----------------
+
+    @Test
+    void lasCondicionesConMemoriaRegistranAunqueOtraTermineLaPartidaAntes() {
+        // Arrange: la primera condición termina la partida; la que tiene memoria está después
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+
+        // Act
+        partidaSimple(StubCondicion.siempre(EstadoPartida.TABLAS_AHOGADO), conMemoria);
+
+        // Assert: registró la posición inicial aunque no se la llegó a evaluar
+        assertEquals(1, conMemoria.registros());
+        assertEquals(0, conMemoria.evaluaciones());
+    }
+
+    @Test
+    void lasCondicionesConMemoriaRegistranCadaJugadaAntesDeEvaluar() {
+        // Arrange
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+        Partida partida = partidaSimple(conMemoria);
+
+        // Act
+        partida.mover(mov("e2", "e4"));
+
+        // Assert
+        assertEquals(2, conMemoria.registros());
+        assertEquals(2, conMemoria.evaluaciones());
+        assertEquals(1, conMemoria.ultimoRegistrado().jugadas().size());
+        assertEquals(Bando.NEGRO, conMemoria.ultimoRegistrado().turno());
+    }
+
+    @Test
+    void unaJugadaInvalidaNoRegistraNada() {
+        // Arrange
+        MockCondicionConMemoria conMemoria = new MockCondicionConMemoria();
+        Partida partida = partidaSimple(conMemoria);
+
+        // Act
+        assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e2", "e5")));
+
+        // Assert
+        assertEquals(1, conMemoria.registros());
+    }
+
     // ---------------- MovimientosLegales inyectado (stub) ----------------
 
     @Test
@@ -353,7 +399,7 @@ class PartidaTest {
 
         // Act
         Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false), List.of(new JaqueMate(), new Ahogado()));
+                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
 
         // Assert
         assertEquals(EstadoPartida.TABLAS_AHOGADO, partida.estado());
@@ -367,7 +413,34 @@ class PartidaTest {
 
         // Act
         Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false), List.of(new JaqueMate(), new Ahogado()));
+                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
+
+        // Assert
+        assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
+    }
+
+    @Test
+    void rechazaMovimientosLegalesQueUsanOtroDetector() {
+        // Arrange: el stub de movimientos legales trae su propio detector, distinto del recibido
+        Tablero tablero = new DisposicionEstandar().crearTablero();
+        IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
+        MovimientosLegales conOtroDetector = new StubMovimientosLegales(false);
+
+        // Act + Assert
+        assertThrows(IllegalArgumentException.class, () -> new Partida(tablero, blanco, negro,
+                detector, conOtroDetector, List.of(new JaqueMate())));
+    }
+
+    @Test
+    void conReglasDePartidaElDetectorEsElDeLosMovimientosLegales() {
+        // Arrange: no hay forma de pasar un segundo detector
+        IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
+        ReglasDePartida reglas = new ReglasDePartida(new StubMovimientosLegales(false, detector),
+                List.of(new JaqueMate(), new Ahogado()));
+
+        // Act
+        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), blanco, negro,
+                reglas, new SinReloj());
 
         // Assert
         assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
@@ -448,6 +521,6 @@ class PartidaTest {
 
         // Act + Assert
         assertThrows(UnsupportedOperationException.class,
-                () -> partida.tablero().piezas().put(pos("e4"), new Torre(Color.BLANCO)));
+                () -> partida.tablero().piezas().put(pos("e4"), new Torre(Bando.BLANCO)));
     }
 }

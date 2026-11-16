@@ -1,4 +1,4 @@
-package Nucleo.juego;
+package Nucleo.tablero;
 
 import org.junit.jupiter.api.Test;
 

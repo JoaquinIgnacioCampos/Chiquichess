@@ -1,7 +1,8 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
-import Nucleo.juego.Posicion;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class AlfilTest {
     @Test
     void enD4DeUnTableroVacioTiene13Destinos() {
         // Arrange
-        Alfil alfil = new Alfil(Color.BLANCO);
+        Alfil alfil = new Alfil(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", alfil);
 
         // Act
@@ -29,7 +30,7 @@ class AlfilTest {
     @Test
     void soloSeMueveEnDiagonalYNuncaCambiaDeColorDeCasilla() {
         // Arrange
-        Alfil alfil = new Alfil(Color.BLANCO);
+        Alfil alfil = new Alfil(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", alfil);
         int colorDeCasillaOrigen = (3 + 3) % 2;
 
@@ -83,7 +84,7 @@ class AlfilTest {
     @Test
     void seIdentificaComoAlfil() {
         // Arrange
-        Alfil alfil = new Alfil(Color.BLANCO);
+        Alfil alfil = new Alfil(Bando.BLANCO);
 
         // Assert
         assertEquals('A', alfil.codigo());

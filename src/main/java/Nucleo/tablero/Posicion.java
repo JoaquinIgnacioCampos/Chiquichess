@@ -1,4 +1,4 @@
-package Nucleo.juego;
+package Nucleo.tablero;
 
 /**
  * Coordenada en el tablero (value object inmutable). Es la clave del Map del Tablero,

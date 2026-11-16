@@ -1,9 +1,10 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
+
 import java.util.Objects;
 
-public record Jugador(String nombre, Color color) {
+public record Jugador(String nombre, Bando color) {
 
     public Jugador {
         Objects.requireNonNull(nombre, "nombre");

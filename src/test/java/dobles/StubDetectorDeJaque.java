@@ -1,6 +1,6 @@
 package dobles;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
 import Nucleo.reglas.IDetectorDeJaque;
 import Nucleo.tablero.ITablero;
 
@@ -22,7 +22,7 @@ public class StubDetectorDeJaque implements IDetectorDeJaque {
     }
 
     @Override
-    public boolean estaEnJaque(ITablero tablero, Color color) {
+    public boolean estaEnJaque(ITablero tablero, Bando color) {
         return respuesta;
     }
 }
