@@ -1,13 +1,15 @@
 package adaptadores.ui;
 
-import Nucleo.juego.MovimientoInvalidoException;
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
+import adaptadores.audio.ControlDeVolumen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
@@ -22,10 +24,18 @@ public final class VistaPartida extends BorderPane {
     private final VistaTablero tablero;
     private final Text mensaje = new Text();
     private final PanelEstadoPartida panel;
-    private final HBox titulo = new HBox(16);
+    /** Marca y botones de la cabecera; si no entran en una fila, los botones bajan a la siguiente. */
+    private final FlowPane titulo = new FlowPane(16, 10);
     private final StackPane areaTablero = new StackPane();
+    private final TemaTablero tema;
+    private final RepresentacionPiezas representacion;
+    /** Se crea recién la primera vez que un peón promueve: la mayoría de las partidas no lo necesita. */
+    private SelectorPromocion selectorPromocion;
     private final TemaPanel temaPanel;
+    private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
+    private javafx.scene.control.Button deshacer;
+    private javafx.scene.control.Button rehacer;
 
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
                         RepresentacionPiezas representacion, TemaPanel temaPanel) {
@@ -34,8 +44,15 @@ public final class VistaPartida extends BorderPane {
 
     public VistaPartida(ControladorTablero controlador, TemaTablero tema,
                         RepresentacionPiezas representacion, TemaPanel temaPanel,
-                        java.util.Map<Nucleo.piezas.Color, PresentacionClub> clubes) {
+                        java.util.Map<Bando, PresentacionClub> clubes) {
+        this(controlador, tema, representacion, temaPanel, clubes, new MensajesDeLaInterfaz());
+    }
+
+    public VistaPartida(ControladorTablero controlador, TemaTablero tema,
+                        RepresentacionPiezas representacion, TemaPanel temaPanel,
+                        java.util.Map<Bando, PresentacionClub> clubes, MensajesDeLaInterfaz mensajes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
+        this.mensajes = Objects.requireNonNull(mensajes, "mensajes");
         Objects.requireNonNull(tema, "tema");
         this.tablero = new VistaTablero(controlador.tablero(), tema, representacion, this::pulsar);
         this.temaPanel = Objects.requireNonNull(temaPanel, "temaPanel");
@@ -56,10 +73,12 @@ public final class VistaPartida extends BorderPane {
         BorderPane.setMargin(titulo, new Insets(0, 0, 16, 0));
         juego.setTop(titulo);
         areaTablero.setMinSize(0, 0);
+        this.tema = tema;
+        this.representacion = representacion;
         areaTablero.getChildren().add(tablero);
         juego.setCenter(areaTablero);
         setCenter(juego);
-        panel = new PanelEstadoPartida(controlador, temaPanel, clubes);
+        panel = new PanelEstadoPartida(controlador, temaPanel, clubes, mensajes);
         panel.prefWidthProperty().bind(widthProperty().multiply(0.35));
         setRight(panel);
         mensaje.setId("mensaje-movimiento");
@@ -70,18 +89,94 @@ public final class VistaPartida extends BorderPane {
         mensaje.visibleProperty().bind(mensaje.textProperty().isNotEmpty());
         BorderPane.setMargin(mensaje, new Insets(12, 0, 0, 0));
         juego.setBottom(mensaje);
+        // Después del panel: el panel anota el evento y recién entonces se redibuja todo.
+        controlador.escuchar(evento -> redibujar());
         redibujar();
     }
 
     private void pulsar(Posicion posicion) {
-        mensaje.setText(controlador.pulsar(posicion).map(this::mensajeRechazo).orElse(""));
+        mensaje.setText(controlador.pulsar(posicion).map(mensajes::rechazoDeMovimiento).orElse(""));
         redibujar();
+    }
+
+    private void promover(char codigo) {
+        mensaje.setText(controlador.promover(codigo).map(mensajes::rechazoDeMovimiento).orElse(""));
+        redibujar();
+    }
+
+    private void cancelarPromocion() {
+        controlador.cancelarPromocion();
+        redibujar();
+    }
+
+    private void mostrarPromocion(java.util.List<Nucleo.piezas.Pieza> opciones) {
+        if (selectorPromocion == null) {
+            if (opciones.isEmpty()) return;
+            selectorPromocion = new SelectorPromocion(tema, representacion, temaPanel,
+                    this::promover, this::cancelarPromocion);
+            // Justo encima del tablero, debajo de la confirmación de "Volver al menú" si la hay.
+            areaTablero.getChildren().add(1, selectorPromocion);
+        }
+        selectorPromocion.mostrar(opciones);
     }
 
     public void redibujar() {
         tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
+        mostrarPromocion(controlador.promocionPendiente());
         panel.actualizar();
         if (navegacion != null) navegacion.actualizar();
+        if (deshacer != null) {
+            deshacer.setDisable(!controlador.puedeDeshacer());
+            rehacer.setDisable(!controlador.puedeRehacer());
+        }
+    }
+
+    /**
+     * Agrega a la cabecera los botones "Deshacer" y "Rehacer", solo si la partida lo permite. Los dos
+     * jugadores pueden usarlos, por eso van en la cabecera y no en una tarjeta. Se llama antes de
+     * configurarNavegacion, así quedan a la izquierda de "Volver al menú".
+     */
+    public void configurarDeshacer() {
+        if (deshacer != null) throw new IllegalStateException("Deshacer ya configurado");
+        if (!controlador.permiteDeshacer()) return;
+        deshacer = BotonDeCabecera.crear("Deshacer", "deshacer", temaPanel.tarjeta(), temaPanel.texto());
+        rehacer = BotonDeCabecera.crear("Rehacer", "rehacer", temaPanel.tarjeta(), temaPanel.texto());
+        deshacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.deshacer()));
+        rehacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.rehacer()));
+        titulo.getChildren().addAll(deshacer, rehacer);
+        redibujar();
+    }
+
+    private void mostrarRespuestaDeshacer(java.util.Optional<Nucleo.juego.AccionInvalidaException.Motivo> rechazo) {
+        mensaje.setText(rechazo
+                .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.DESHACER, motivo))
+                .orElse(""));
+        redibujar();
+    }
+
+    /**
+     * Agrega a la cabecera el botón de silencio y el volumen. El control se comparte entre partidas, así
+     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configurarNavegacion.
+     */
+    public void configurarSonido(ControlDeVolumen control) {
+        Objects.requireNonNull(control, "control");
+        if (titulo.lookup("#silencio") != null) throw new IllegalStateException("Sonido ya configurado");
+        javafx.scene.control.Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio",
+                temaPanel.tarjeta(), temaPanel.texto());
+        silencio.setOnAction(e -> {
+            control.silenciar(!control.silenciado());
+            silencio.setText(textoSilencio(control));
+        });
+        javafx.scene.control.Slider volumen = new javafx.scene.control.Slider(0, 1, control.volumen());
+        volumen.setId("volumen");
+        volumen.setPrefWidth(90);
+        volumen.setFocusTraversable(false);
+        volumen.valueProperty().addListener((p, antes, ahora) -> control.cambiarVolumen(ahora.doubleValue()));
+        titulo.getChildren().addAll(silencio, volumen);
+    }
+
+    private static String textoSilencio(ControlDeVolumen control) {
+        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
     }
 
     public void actualizarRelojes() {
@@ -105,9 +200,9 @@ public final class VistaPartida extends BorderPane {
                 redibujar();
                 return;
             }
-            mensaje.setText(controlador.rendirse(color).map(motivo ->
-                    motivo == Nucleo.juego.AccionInvalidaException.Motivo.NO_ES_SU_TURNO
-                            ? "Solo podés rendirte durante tu turno." : "La partida ya terminó.").orElse(""));
+            mensaje.setText(controlador.rendirse(color)
+                    .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.RENDIRSE, motivo))
+                    .orElse(""));
             redibujar();
         });
     }
@@ -119,23 +214,9 @@ public final class VistaPartida extends BorderPane {
     }
 
     private void mostrarRespuestaTablas(java.util.Optional<Nucleo.juego.AccionInvalidaException.Motivo> rechazo) {
-        mensaje.setText(rechazo.map(motivo -> switch (motivo) {
-            case PARTIDA_FINALIZADA -> "La partida ya terminó.";
-            case NO_ES_SU_TURNO -> "Solo podés ofrecer tablas durante tu turno.";
-            case OFERTA_PENDIENTE -> "Ya hay una oferta de tablas pendiente.";
-            case SIN_OFERTA -> "La oferta de tablas ya no está disponible.";
-            case ES_SU_PROPIA_OFERTA -> "Solo el rival puede responder a esta oferta.";
-        }).orElse(""));
+        mensaje.setText(rechazo
+                .map(motivo -> mensajes.rechazoDeAccion(MensajesDeLaInterfaz.Accion.TABLAS, motivo))
+                .orElse(""));
         redibujar();
-    }
-
-    private String mensajeRechazo(MovimientoInvalidoException.Motivo motivo) {
-        return switch (motivo) {
-            case SIN_PIEZA_EN_ORIGEN -> "Ya no hay una pieza en la casilla seleccionada.";
-            case NO_ES_SU_TURNO -> "Es el turno del otro jugador.";
-            case MOVIMIENTO_NO_PERMITIDO -> "El núcleo rechazó ese movimiento.";
-            case DEJA_AL_REY_EN_JAQUE -> "Esa jugada deja a tu rey en jaque.";
-            case PARTIDA_FINALIZADA -> "La partida ya terminó.";
-        };
     }
 }

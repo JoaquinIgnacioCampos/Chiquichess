@@ -1,8 +1,7 @@
 package dobles;
 
 import Nucleo.juego.Movimiento;
-import Nucleo.juego.Posicion;
-
+import Nucleo.tablero.Posicion;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;

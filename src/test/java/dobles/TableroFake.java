@@ -1,7 +1,8 @@
 package dobles;
 
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
 /**
@@ -57,7 +58,7 @@ public final class TableroFake {
     }
 
     private static Pieza crear(char letra) {
-        Color color = Character.isUpperCase(letra) ? Color.BLANCO : Color.NEGRO;
+        Bando color = Character.isUpperCase(letra) ? Bando.BLANCO : Bando.NEGRO;
         return switch (Character.toUpperCase(letra)) {
             case 'P' -> new Peon(color);
             case 'T' -> new Torre(color);

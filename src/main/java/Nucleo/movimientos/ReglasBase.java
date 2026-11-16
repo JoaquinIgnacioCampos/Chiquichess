@@ -1,9 +1,4 @@
-package Nucleo.reglas;
-
-import Nucleo.movimientos.Deslizamiento;
-import Nucleo.movimientos.ReglaCompuesta;
-import Nucleo.movimientos.ReglaMovimiento;
-import Nucleo.movimientos.SaltoFijo;
+package Nucleo.movimientos;
 
 public class ReglasBase {
 

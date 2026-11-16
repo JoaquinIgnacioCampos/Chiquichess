@@ -1,8 +1,9 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.juego.*;
-import Nucleo.piezas.Color;
 import Nucleo.reglas.*;
+import Nucleo.tablero.Posicion;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -55,7 +56,7 @@ class PanelEstadoPartidaTest {
     @Test
     void muestraNombresDelNucleoYElTurnoInicial() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Lucía Fernández", Color.BLANCO), new Jugador("Tomás Rodríguez", Color.NEGRO),
+                new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
                 new DetectorDeJaque(), List.of());
         VistaPartida vista = vista(partida);
         assertEquals("Lucía Fernández", texto(vista, "nombre-blanco"));
@@ -114,7 +115,7 @@ class PanelEstadoPartidaTest {
         Partida partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         partida.mover(mov("e2", "e4"));
-        partida.rendirse(Color.NEGRO);
+        partida.rendirse(Bando.NEGRO);
         vista.redibujar();
         assertEquals("GANAN LAS", texto(vista, "marcador-encabezado"));
         assertEquals("BLANCAS", texto(vista, "marcador-principal"));
@@ -126,8 +127,8 @@ class PanelEstadoPartidaTest {
     void tablasPorAcuerdoMuestraEmpateYSuMotivo() {
         Partida partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
-        partida.ofrecerTablas(Color.BLANCO);
-        partida.aceptarTablas(Color.NEGRO);
+        partida.ofrecerTablas(Bando.BLANCO);
+        partida.aceptarTablas(Bando.NEGRO);
         vista.redibujar();
         assertEquals("TABLAS", texto(vista, "marcador-principal"));
         assertEquals("EMPATE", texto(vista, "estado-partida"));
@@ -143,7 +144,7 @@ class PanelEstadoPartidaTest {
                 EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS, "Regla de los 50 movimientos");
         casos.forEach((estado, motivo) -> {
             Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                    new Jugador("B", Color.BLANCO), new Jugador("N", Color.NEGRO),
+                    new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
                     new DetectorDeJaque(), List.of(c -> Optional.of(estado)));
             VistaPartida vista = vista(partida);
             assertEquals("TABLAS", texto(vista, "marcador-principal"));
@@ -185,7 +186,7 @@ class PanelEstadoPartidaTest {
     @Test
     void losNombresSeMantienenDentroDelPanelEnLaVentanaMinima() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-                new Jugador("Lucía Fernández", Color.BLANCO), new Jugador("Tomás Rodríguez", Color.NEGRO),
+                new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
                 new DetectorDeJaque(), List.of());
         VistaPartida vista = vista(partida);
         vista.resize(900, 620);
@@ -198,5 +199,97 @@ class PanelEstadoPartidaTest {
             assertTrue(caja.getMaxY() <= limites.getMaxY() + 1);
             assertTrue(caja.getMinX() >= limites.getMinX() - 1);
         }
+    }
+
+    // ---------------- Modo fútbol ----------------
+
+    /** Torre blanca con la pelota en d2, a un movimiento del gol en d8. */
+    private Partida futbolConTorreEnD2() {
+        return futbolConTorreEnD2(ReglasDePartida.futbol());
+    }
+
+    private Partida futbolConTorreEnD2(ReglasDePartida reglas) {
+        Nucleo.tablero.Tablero tablero = dobles.TableroFake.desde(
+                ".......r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "...T....",
+                "....R...");
+        new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
+        tablero.colocarPelota(pos("d2"));
+        return new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                reglas, new Nucleo.tiempo.SinReloj());
+    }
+
+    @Test
+    void enElModoFutbolMuestraElMarcadorYLasJugadas() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+        assertEquals("BLANCAS 0 - 0 NEGRAS", texto(vista, "goles-partida"));
+        assertEquals("Jugada 0 de 90", texto(vista, "jugadas-futbol"));
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+    }
+
+    @Test
+    void anunciaElGolYActualizaElMarcador() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+        jugar(vista, "d2d8");
+        assertEquals("¡GOL!", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+        assertEquals("Jugada 1 de 90", texto(vista, "jugadas-futbol"));
+
+        jugar(vista, "h8g7");
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+    }
+
+    @Test
+    void deshacerElGolDejaDeAnunciarloYRehacerloLoVuelveAAnunciar() {
+        // Arrange
+        Partida partida = futbolConTorreEnD2(ReglasDePartida.futbol().conDeshacer());
+        VistaPartida vista = vista(partida);
+        jugar(vista, "d2d8");
+
+        // Act + Assert: se deshace y rehace desde la partida, no desde la vista; la vista se entera por los eventos
+        partida.deshacer();
+        assertEquals("EN JUEGO", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 0 - 0 NEGRAS", texto(vista, "goles-partida"));
+        partida.rehacer();
+        assertEquals("¡GOL!", texto(vista, "estado-partida"));
+        assertEquals("BLANCAS 1 - 0 NEGRAS", texto(vista, "goles-partida"));
+    }
+
+    @Test
+    void elFinalPorTiempoSeMuestraPorElEventoSinRedibujarAMano() {
+        // Arrange
+        FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
+        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
+                new Jugador("Beto", Bando.NEGRO), ReglasDePartida.clasicas(),
+                new Nucleo.tiempo.RelojAjedrez(Duration.ofMinutes(1), Duration.ofMinutes(1), fuente));
+        VistaPartida vista = vista(partida);
+
+        // Act: lo que hace el reloj de la interfaz en cada pulso
+        fuente.avanzar(Duration.ofMinutes(2));
+        partida.verificarTiempo();
+
+        // Assert
+        assertEquals("RESULTADO FINAL", texto(vista, "titulo-estado"));
+        assertEquals("NEGRAS", texto(vista, "marcador-principal"));
+    }
+
+    @Test
+    void elAjedrezClasicoNoMuestraGoles() {
+        VistaPartida vista = vista(new EnsambladorPartida().crearSinReloj());
+        assertEquals("", texto(vista, "goles-partida"));
+        assertFalse(vista.lookup("#goles-partida").isVisible());
+    }
+
+    @Test
+    void muestraElLimiteDeJugadasElegido() {
+        VistaPartida vista = vista(new EnsambladorPartida().crearSinRelojConDeshacer(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.FUTBOL, 40));
+        assertEquals("Jugada 0 de 40", texto(vista, "jugadas-futbol"));
     }
 }

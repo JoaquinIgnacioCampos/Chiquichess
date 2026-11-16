@@ -1,7 +1,7 @@
 package Nucleo.tablero;
 
 
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
 import Nucleo.piezas.Pieza;
 
 import java.util.Map;
@@ -26,4 +26,16 @@ public interface ITablero {
 
     /** Vista no modificable de todas las piezas y sus posiciones. */
     Map<Posicion, Pieza> piezas();
+
+    /**
+     * Casilla donde está la pelota del modo fútbol; vacío si en este tablero no se juega con pelota
+     * (el ajedrez clásico). La pelota no es una pieza: no ocupa la casilla ni bloquea a nadie.
+     */
+    Optional<Posicion> pelota();
+
+    /**
+     * Si la casilla es parte de un arco del modo fútbol, el bando que lo defiende (el rival hace gol
+     * ahí); vacío si no es arco o si en este tablero no se juega con arcos.
+     */
+    Optional<Bando> arcoEn(Posicion posicion);
 }

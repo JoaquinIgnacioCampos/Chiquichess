@@ -1,6 +1,8 @@
 package Nucleo.juego;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +27,7 @@ class MovimientoTest {
     @Test
     void unJugadorNoAceptaNombreNiColorNulos() {
         // Act + Assert
-        assertThrows(NullPointerException.class, () -> new Jugador(null, Color.BLANCO));
+        assertThrows(NullPointerException.class, () -> new Jugador(null, Bando.BLANCO));
         assertThrows(NullPointerException.class, () -> new Jugador("Ana", null));
     }
 

@@ -1,7 +1,8 @@
 package adaptadores.ui;
 
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import adaptadores.EnsambladorPartida;
 import javafx.scene.layout.GridPane;
@@ -63,8 +64,8 @@ class VistaTableroTest {
     @Test
     void blancasAbajoYNegrasArribaSegunLasPiezasDelNucleo() {
         Tablero tablero = new Tablero(4, 6);
-        tablero.colocar(new Posicion(0, 0), new Rey(Color.BLANCO));
-        tablero.colocar(new Posicion(3, 5), new Rey(Color.NEGRO));
+        tablero.colocar(new Posicion(0, 0), new Rey(Bando.BLANCO));
+        tablero.colocar(new Posicion(3, 5), new Rey(Bando.NEGRO));
         VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
         assertEquals("♔", ((Text) casilla(vista, 0, 0).getChildren().getFirst()).getText());
         assertEquals("♚", ((Text) casilla(vista, 3, 5).getChildren().getFirst()).getText());
@@ -97,5 +98,67 @@ class VistaTableroTest {
         assertEquals(0, grilla.getLayoutX(), 0.01);
         assertEquals(140, grilla.getLayoutY(), 0.01);
         assertEquals(casilla(vista, 0, 0).getWidth(), casilla(vista, 0, 0).getHeight(), 0.01);
+    }
+
+    @Test
+    void dibujaLaPelotaSoloEnSuCasilla() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocarPelota(new Posicion(3, 4));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        assertEquals(1, vista.lookupAll(".pelota").size());
+        assertNotNull(casilla(vista, 3, 4).lookup("#pelota"));
+    }
+
+    @Test
+    void laPelotaSigueALaPiezaQueLaLleva() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocar(new Posicion(3, 4), new Caballo(Bando.BLANCO));
+        tablero.colocarPelota(new Posicion(3, 4));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        StackPane conPelota = casilla(vista, 3, 4);
+        assertNotNull(conPelota.lookup("#pelota"));
+        assertEquals(2, conPelota.getChildren().size()); // la pieza y la pelota
+    }
+
+    @Test
+    void elAjedrezClasicoNoTienePelota() {
+        VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionPiezas());
+        assertTrue(vista.lookupAll(".pelota").isEmpty());
+    }
+
+    @Test
+    void marcaLasCasillasDelArco() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.marcarArco(new Posicion(3, 7), Bando.NEGRO);
+        tablero.marcarArco(new Posicion(4, 0), Bando.BLANCO);
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        assertEquals(2, vista.lookupAll(".arco").size());
+        assertNotNull(casilla(vista, 3, 7).lookup("#arco-3-7"));
+        assertNotNull(casilla(vista, 4, 0).lookup("#arco-4-0"));
+    }
+
+    @Test
+    void elArcoQuedaDebajoDeLaPieza() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.marcarArco(new Posicion(4, 7), Bando.NEGRO);
+        tablero.colocar(new Posicion(4, 7), new Rey(Bando.NEGRO));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        StackPane casilla = casilla(vista, 4, 7);
+        assertTrue(casilla.getChildren().get(0).getStyleClass().contains("arco"));
+        assertEquals(2, casilla.getChildren().size());
+    }
+
+    @Test
+    void unDestinoOcupadoPorUnCompanieroSeMarcaComoPase() {
+        Tablero tablero = new Tablero(8, 8);
+        tablero.colocar(new Posicion(0, 0), new Torre(Bando.BLANCO));
+        tablero.colocar(new Posicion(0, 4), new Caballo(Bando.BLANCO));
+        tablero.colocar(new Posicion(0, 6), new Caballo(Bando.NEGRO));
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        vista.redibujar(java.util.Optional.of(new Posicion(0, 0)),
+                java.util.Set.of(new Posicion(0, 4), new Posicion(0, 6)));
+        assertEquals(1, casilla(vista, 0, 4).lookupAll(".indicador-pase").size());
+        assertTrue(casilla(vista, 0, 4).lookupAll(".indicador-captura").isEmpty());
+        assertEquals(1, casilla(vista, 0, 6).lookupAll(".indicador-captura").size());
     }
 }

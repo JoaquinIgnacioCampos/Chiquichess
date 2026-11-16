@@ -1,0 +1,27 @@
+Sonidos de ChiquiChess
+======================
+
+Formatos: WAV (recomendado), AIFF o AU. MP3, OGG y FLAC no se pueden usar (Java Sound no los lee).
+
+Dónde va cada archivo
+---------------------
+comunes/<nombre>.wav               iguales para todos
+clubes/boca/<nombre>.wav           solo para Boca (y lo mismo con river e independiente)
+
+Los clubes pueden tener su propio: gol, victoria, hinchada.
+Si un club no tiene el suyo, se usa el de comunes.
+
+Nombres
+-------
+movimiento, captura, enroque, promocion, jaque, pase, gol, victoria, tablas,
+silbato-inicial, silbato-final, rebobinar, hinchada
+
+Si falta captura, enroque, promocion o pase, suena movimiento.
+Si falta silbato-final, suena silbato-inicial. Si falta otro, ese momento no suena.
+
+Cambiar un sonido sin recompilar
+--------------------------------
+Crear una carpeta "sonidos" (con la misma estructura) en la carpeta desde la que se ejecuta el juego.
+Lo que haya ahí tiene prioridad sobre lo de esta carpeta.
+
+La lista de sonidos elegidos y sus autores está en docs/fase-10-sonido.md.

@@ -7,7 +7,11 @@ public class AccionInvalidaException extends RuntimeException {
         NO_ES_SU_TURNO,
         OFERTA_PENDIENTE,
         SIN_OFERTA,
-        ES_SU_PROPIA_OFERTA
+        ES_SU_PROPIA_OFERTA,
+        /** La partida no habilita deshacer: no se eligió esa opción o se juega con tiempo. */
+        DESHACER_NO_PERMITIDO,
+        NADA_PARA_DESHACER,
+        NADA_PARA_REHACER
     }
 
     private static final long serialVersionUID = 1L;

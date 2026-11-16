@@ -1,7 +1,9 @@
 package Nucleo.juego;
 
+import Nucleo.bando.Bando;
 import Nucleo.piezas.*;
 import Nucleo.tablero.DisposicionInicial;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 
 /** Posición inicial clásica del ajedrez en un tablero de 8x8. */
@@ -12,9 +14,9 @@ public class DisposicionEstandar implements DisposicionInicial {
     @Override
     public Tablero crearTablero() {
         Tablero tablero = new Tablero(TAMANIO, TAMANIO);
-        for (Color color : Color.values()) {
-            int filaBase = color == Color.BLANCO ? 0 : TAMANIO - 1;
-            int filaPeones = color == Color.BLANCO ? 1 : TAMANIO - 2;
+        for (Bando color : Bando.values()) {
+            int filaBase = color == Bando.BLANCO ? 0 : TAMANIO - 1;
+            int filaPeones = color == Bando.BLANCO ? 1 : TAMANIO - 2;
 
             Pieza[] filaDePiezas = {
                     new Torre(color), new Caballo(color), new Alfil(color), new Reina(color),

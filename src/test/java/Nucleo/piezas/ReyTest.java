@@ -1,6 +1,7 @@
 package Nucleo.piezas;
 
-import Nucleo.juego.Posicion;
+import Nucleo.bando.Bando;
+import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import dobles.TableroFake;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class ReyTest {
     @Test
     void enElCentroSeMueveUnaCasillaEnLas8Direcciones() {
         // Arrange
-        Rey rey = new Rey(Color.BLANCO);
+        Rey rey = new Rey(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("d4", rey);
 
         // Act
@@ -29,7 +30,7 @@ class ReyTest {
     @Test
     void enLaEsquinaTiene3Destinos() {
         // Arrange
-        Rey rey = new Rey(Color.BLANCO);
+        Rey rey = new Rey(Bando.BLANCO);
         Tablero tablero = TableroFake.conUnaPieza("a1", rey);
 
         // Act
@@ -64,7 +65,7 @@ class ReyTest {
     @Test
     void esElUnicoQueSeIdentificaComoRey() {
         // Arrange
-        Rey rey = new Rey(Color.NEGRO);
+        Rey rey = new Rey(Bando.NEGRO);
 
         // Assert
         assertTrue(rey.esRey());

@@ -10,7 +10,7 @@ El tablero conserva sus piezas Unicode y los colores del tema actual.
 
 ## Qué por qué y cuándo cambiaría
 
-**Qué:** consulta de solo lectura Partida.jugador(Color), panel con datos del
+**Qué:** consulta de solo lectura Partida.jugador(Bando), panel con datos del
 controlador, tema de presentación independiente y dibujo de letras LED en Canvas.
 La zona del tablero contiene también el título y los mensajes de rechazo.
 
@@ -37,6 +37,6 @@ además de una escena de 900x620 con nombres de jugadores de mayor longitud. Se
 ajustó la tipografía secundaria y se centró el motivo del resultado. La consola
 conserva el mate del loco. Revisión independiente sin hallazgos accionables.
 
-La consulta jugador(Color) es el único cambio del núcleo; no cambia reglas ni
+La consulta jugador(Bando) es el único cambio del núcleo; no cambia reglas ni
 incorpora dependencias gráficas. Los nombres se ajustan a varias líneas; un límite
 o truncado de entradas arbitrariamente largas deberá definirse con el futuro menú.

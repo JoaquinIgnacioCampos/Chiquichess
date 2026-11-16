@@ -1,8 +1,9 @@
 package adaptadores.ui;
 
-import Nucleo.juego.MotivoFinalizacion;
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
+import Nucleo.juego.EventoDePartida;
 import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.Marcador;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -14,6 +15,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /** Marcador: presenta el estado del núcleo y deriva las solicitudes de los jugadores. */
 public final class PanelEstadoPartida extends GridPane {
@@ -27,15 +29,27 @@ public final class PanelEstadoPartida extends GridPane {
     private final Text estado = new Text();
     private final Text motivo = new Text();
     private final Circle punto = new Circle(5);
+    /** Modo fútbol: los goles de cada bando y cuántas jugadas van del límite. Vacíos en el clásico. */
+    private final Text goles = new Text();
+    private final Text jugadas = new Text();
+    /** true si la última jugada (hecha o rehecha) fue gol: lo dice el evento, no se deduce. */
+    private boolean golRecien = false;
     private final VBox informacion;
+    private final MensajesDeLaInterfaz mensajes;
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema) {
         this(controlador, tema, java.util.Map.of());
     }
 
     public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
-                               java.util.Map<Color, PresentacionClub> clubes) {
+                               java.util.Map<Bando, PresentacionClub> clubes) {
+        this(controlador, tema, clubes, new MensajesDeLaInterfaz());
+    }
+
+    public PanelEstadoPartida(ControladorTablero controlador, TemaPanel tema,
+                               java.util.Map<Bando, PresentacionClub> clubes, MensajesDeLaInterfaz mensajes) {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
+        this.mensajes = Objects.requireNonNull(mensajes, "mensajes");
         this.tema = Objects.requireNonNull(tema, "tema");
         Objects.requireNonNull(clubes, "clubes");
         setId("panel-estado");
@@ -50,8 +64,8 @@ public final class PanelEstadoPartida extends GridPane {
             fila.setMinHeight(0);
             getRowConstraints().add(fila);
         }
-        negras = new TarjetaJugador(Color.NEGRO, tema, clubes.get(Color.NEGRO));
-        blancas = new TarjetaJugador(Color.BLANCO, tema, clubes.get(Color.BLANCO));
+        negras = new TarjetaJugador(Bando.NEGRO, tema, clubes.get(Bando.NEGRO));
+        blancas = new TarjetaJugador(Bando.BLANCO, tema, clubes.get(Bando.BLANCO));
         encabezado = new TextoLed(tema.acento());
         encabezado.setId("marcador-encabezado");
         principal = new TextoLed(tema.texto());
@@ -69,7 +83,18 @@ public final class PanelEstadoPartida extends GridPane {
         motivo.setTextAlignment(TextAlignment.CENTER);
         motivo.managedProperty().bind(motivo.textProperty().isNotEmpty());
         motivo.visibleProperty().bind(motivo.textProperty().isNotEmpty());
-        Text modalidad = new Text("Partida local");
+        goles.setId("goles-partida");
+        goles.setFont(Font.font("Consolas", FontWeight.BOLD, 18));
+        goles.setFill(tema.texto());
+        jugadas.setId("jugadas-futbol");
+        jugadas.setFont(Font.font("Consolas", 12));
+        jugadas.setFill(tema.textoSecundario());
+        for (Text texto : new Text[]{goles, jugadas}) {
+            texto.managedProperty().bind(texto.textProperty().isNotEmpty());
+            texto.visibleProperty().bind(texto.textProperty().isNotEmpty());
+        }
+        Text modalidad = new Text(controlador.marcador().isPresent()
+                ? "Partida local · Fútbol: posesión y gol" : "Partida local");
         modalidad.setFill(tema.textoSecundario());
         modalidad.setFont(Font.font("Consolas", 12));
         Region separador = new Region();
@@ -77,7 +102,8 @@ public final class PanelEstadoPartida extends GridPane {
         separador.setPrefHeight(1);
         separador.setMaxHeight(1);
         separador.setBackground(new Background(new BackgroundFill(tema.borde(), CornerRadii.EMPTY, Insets.EMPTY)));
-        informacion = new VBox(12, titulo, encabezado, principal, estadoActual, separador, motivo, modalidad);
+        informacion = new VBox(12, titulo, encabezado, principal, estadoActual, goles, jugadas, separador,
+                motivo, modalidad);
         informacion.setPadding(new Insets(20));
         informacion.setAlignment(Pos.CENTER);
         informacion.setMinSize(0, 0);
@@ -97,7 +123,21 @@ public final class PanelEstadoPartida extends GridPane {
         add(negras, 0, 0);
         add(marcador, 0, 1);
         add(blancas, 0, 2);
+        controlador.escuchar(this::anotar);
         actualizar();
+    }
+
+    /**
+     * Recuerda si la última jugada fue gol, para anunciarlo hasta la jugada siguiente. Deshacer lo borra
+     * y rehacer un gol lo vuelve a anunciar. Lo llama la partida antes de que la vista se redibuje.
+     */
+    void anotar(EventoDePartida evento) {
+        golRecien = switch (evento) {
+            case EventoDePartida.JugadaHecha hecha -> hecha.tiene(EventoDePartida.Rasgo.GOL);
+            case EventoDePartida.JugadaRehecha rehecha -> rehecha.rasgos().contains(EventoDePartida.Rasgo.GOL);
+            case EventoDePartida.JugadaDeshecha deshecha -> false;
+            case EventoDePartida.PartidaFinalizada fin -> false;
+        };
     }
 
     private void dibujarTrama(Canvas trama) {
@@ -111,17 +151,18 @@ public final class PanelEstadoPartida extends GridPane {
 
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
-        negras.habilitarRendicion(!finalizada && controlador.turno() == Color.NEGRO);
-        blancas.habilitarRendicion(!finalizada && controlador.turno() == Color.BLANCO);
+        actualizarGoles();
+        negras.habilitarRendicion(!finalizada && controlador.turno() == Bando.NEGRO);
+        blancas.habilitarRendicion(!finalizada && controlador.turno() == Bando.BLANCO);
         var oferta = controlador.ofertaTablasPendiente();
-        negras.actualizarTablas(!finalizada && controlador.turno() == Color.NEGRO && oferta.isEmpty(),
-                oferta.filter(color -> color == Color.NEGRO).isPresent(),
-                oferta.filter(color -> color == Color.BLANCO).isPresent());
-        blancas.actualizarTablas(!finalizada && controlador.turno() == Color.BLANCO && oferta.isEmpty(),
-                oferta.filter(color -> color == Color.BLANCO).isPresent(),
-                oferta.filter(color -> color == Color.NEGRO).isPresent());
-        negras.actualizar(controlador.jugador(Color.NEGRO), !finalizada && controlador.turno() == Color.NEGRO);
-        blancas.actualizar(controlador.jugador(Color.BLANCO), !finalizada && controlador.turno() == Color.BLANCO);
+        negras.actualizarTablas(!finalizada && controlador.turno() == Bando.NEGRO && oferta.isEmpty(),
+                oferta.filter(color -> color == Bando.NEGRO).isPresent(),
+                oferta.filter(color -> color == Bando.BLANCO).isPresent());
+        blancas.actualizarTablas(!finalizada && controlador.turno() == Bando.BLANCO && oferta.isEmpty(),
+                oferta.filter(color -> color == Bando.BLANCO).isPresent(),
+                oferta.filter(color -> color == Bando.NEGRO).isPresent());
+        negras.actualizar(controlador.jugador(Bando.NEGRO), !finalizada && controlador.turno() == Bando.NEGRO);
+        blancas.actualizar(controlador.jugador(Bando.BLANCO), !finalizada && controlador.turno() == Bando.BLANCO);
         if (controlador.resultado().isPresent()) {
             var resultado = controlador.resultado().orElseThrow();
             titulo.setText("RESULTADO FINAL");
@@ -129,40 +170,54 @@ public final class PanelEstadoPartida extends GridPane {
             principal.setTexto(resultado.ganador().map(this::bando).orElse("TABLAS"));
             estado.setText(resultado.ganador().isPresent() ? "VICTORIA" : "EMPATE");
             estado.setFill(resultado.ganador().isPresent() ? tema.activo() : tema.acento());
-            motivo.setText(describir(resultado.motivo()));
+            motivo.setText(mensajes.motivoDeFinal(resultado.motivo()));
         } else {
             boolean jaque = controlador.estado() == EstadoPartida.JAQUE;
             titulo.setText("ESTADO DE LA PARTIDA");
             encabezado.setTexto("TURNO DE");
             principal.setTexto(bando(controlador.turno()));
-            estado.setText(jaque ? "¡JAQUE!" : "EN JUEGO");
-            estado.setFill(jaque ? tema.alerta() : tema.activo());
+            estado.setText(golRecien ? "¡GOL!" : jaque ? "¡JAQUE!" : "EN JUEGO");
+            estado.setFill(golRecien ? tema.acento() : jaque ? tema.alerta() : tema.activo());
             motivo.setText("");
         }
         punto.setFill(estado.getFill());
         actualizarRelojes();
     }
 
+    /** Muestra el marcador del modo fútbol; en el clásico deja los textos vacíos. */
+    private void actualizarGoles() {
+        Optional<Marcador> marcador = controlador.marcador();
+        if (marcador.isEmpty()) {
+            goles.setText("");
+            jugadas.setText("");
+            return;
+        }
+        Marcador actual = marcador.get();
+        goles.setText("BLANCAS " + actual.blancas() + " - " + actual.negras() + " NEGRAS");
+        jugadas.setText("Jugada " + controlador.jugadasHechas()
+                + controlador.limiteDeJugadas().map(limite -> " de " + limite).orElse(""));
+    }
+
     /** Refresco ligero que conserva tarjetas, tablero, selección y sus nodos. */
     public void actualizarRelojes() {
         boolean enCurso = !controlador.estado().estaFinalizada();
-        negras.actualizarReloj(controlador.tiempoRestante(Color.NEGRO), enCurso && controlador.turno() == Color.NEGRO);
-        blancas.actualizarReloj(controlador.tiempoRestante(Color.BLANCO), enCurso && controlador.turno() == Color.BLANCO);
+        negras.actualizarReloj(controlador.tiempoRestante(Bando.NEGRO), enCurso && controlador.turno() == Bando.NEGRO);
+        blancas.actualizarReloj(controlador.tiempoRestante(Bando.BLANCO), enCurso && controlador.turno() == Bando.BLANCO);
     }
 
-    public void configurarRendicion(java.util.function.Consumer<Color> solicitar) {
-        negras.configurarRendicion(() -> solicitar.accept(Color.NEGRO));
-        blancas.configurarRendicion(() -> solicitar.accept(Color.BLANCO));
+    public void configurarRendicion(java.util.function.Consumer<Bando> solicitar) {
+        negras.configurarRendicion(() -> solicitar.accept(Bando.NEGRO));
+        blancas.configurarRendicion(() -> solicitar.accept(Bando.BLANCO));
         actualizar();
     }
 
-    public void configurarTablas(java.util.function.Consumer<Color> ofrecer,
-                                 java.util.function.Consumer<Color> aceptar,
-                                 java.util.function.Consumer<Color> rechazar) {
-        negras.configurarTablas(() -> ofrecer.accept(Color.NEGRO), () -> aceptar.accept(Color.NEGRO),
-                () -> rechazar.accept(Color.NEGRO));
-        blancas.configurarTablas(() -> ofrecer.accept(Color.BLANCO), () -> aceptar.accept(Color.BLANCO),
-                () -> rechazar.accept(Color.BLANCO));
+    public void configurarTablas(java.util.function.Consumer<Bando> ofrecer,
+                                 java.util.function.Consumer<Bando> aceptar,
+                                 java.util.function.Consumer<Bando> rechazar) {
+        negras.configurarTablas(() -> ofrecer.accept(Bando.NEGRO), () -> aceptar.accept(Bando.NEGRO),
+                () -> rechazar.accept(Bando.NEGRO));
+        blancas.configurarTablas(() -> ofrecer.accept(Bando.BLANCO), () -> aceptar.accept(Bando.BLANCO),
+                () -> rechazar.accept(Bando.BLANCO));
         actualizar();
     }
 
@@ -170,19 +225,7 @@ public final class PanelEstadoPartida extends GridPane {
         informacion.getChildren().add(boton);
     }
 
-    private String bando(Color color) {
-        return color == Color.BLANCO ? "BLANCAS" : "NEGRAS";
-    }
-
-    private String describir(MotivoFinalizacion motivo) {
-        return switch (motivo) {
-            case JAQUE_MATE -> "Por jaque mate";
-            case AHOGADO -> "Por ahogado";
-            case REPETICION -> "Por repetición";
-            case REGLA_50_MOVIMIENTOS -> "Regla de los 50 movimientos";
-            case RENDICION -> "Por rendición";
-            case TIEMPO_AGOTADO -> "Por tiempo agotado";
-            case ACUERDO -> "Por acuerdo";
-        };
+    private String bando(Bando color) {
+        return color == Bando.BLANCO ? "BLANCAS" : "NEGRAS";
     }
 }

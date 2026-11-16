@@ -1,9 +1,8 @@
 package Nucleo.movimientos;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-
+import Nucleo.tablero.Posicion;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +18,7 @@ public class ReglaCompuesta implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         Set<Posicion> resultado = new HashSet<>();
         for (ReglaMovimiento regla : reglas) {
             resultado.addAll(regla.destinosPosibles(tablero, origen, color));
@@ -28,7 +27,7 @@ public class ReglaCompuesta implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         Set<Posicion> resultado = new HashSet<>();
         for (ReglaMovimiento regla : reglas) {
             resultado.addAll(regla.casillasAtacadas(tablero, origen, color));

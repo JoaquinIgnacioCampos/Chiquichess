@@ -1,9 +1,9 @@
 package Nucleo.movimientos;
 
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-import Nucleo.piezas.Color;
 import Nucleo.piezas.Pieza;
+import Nucleo.tablero.Posicion;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class Deslizamiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color) {
         Set<Posicion> destinos = new HashSet<>();
         Posicion actual = origen.desplazada(deltaColumna, deltaFila);
         int pasos = 1;
@@ -55,7 +55,7 @@ public class Deslizamiento implements ReglaMovimiento {
     }
 
     @Override
-    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color) {
+    public Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color) {
         return destinosPosibles(tablero, origen, color);
     }
 }

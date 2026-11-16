@@ -1,9 +1,8 @@
 package Nucleo.movimientos;
 
-import Nucleo.piezas.Color;
+import Nucleo.bando.Bando;
 import Nucleo.tablero.ITablero;
-import Nucleo.juego.Posicion;
-
+import Nucleo.tablero.Posicion;
 import java.util.Set;
 
 /**
@@ -18,7 +17,7 @@ import java.util.Set;
  */
 public interface ReglaMovimiento {
 
-    Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Color color);
+    Set<Posicion> destinosPosibles(ITablero tablero, Posicion origen, Bando color);
 
-    Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Color color);
+    Set<Posicion> casillasAtacadas(ITablero tablero, Posicion origen, Bando color);
 }

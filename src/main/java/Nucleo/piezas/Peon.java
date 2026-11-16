@@ -1,5 +1,6 @@
 package Nucleo.piezas;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.Deslizamiento;
 import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.movimientos.ReglaMovimiento;
@@ -10,11 +11,11 @@ import Nucleo.tablero.ITablero;
 
 public class Peon extends Pieza {
 
-    public Peon(Color color) {
+    public Peon(Bando color) {
         super(color, construirRegla(color));
     }
 
-    private static ReglaMovimiento construirRegla(Color color) {
+    private static ReglaMovimiento construirRegla(Bando color) {
         int adelante = color.direccionAvance();
 
         ReglaMovimiento avanceSimple = new SoloSiVacio(new Deslizamiento(0, adelante, 1));
@@ -27,8 +28,8 @@ public class Peon extends Pieza {
         return new ReglaCompuesta(avanceSimple, avanceDoble, capturaIzquierda, capturaDerecha);
     }
 
-    private static int filaInicial(ITablero tablero, Color color) {
-        return color == Color.BLANCO ? 1 : tablero.alto() - 2;
+    private static int filaInicial(ITablero tablero, Bando color) {
+        return color == Bando.BLANCO ? 1 : tablero.alto() - 2;
     }
 
     @Override

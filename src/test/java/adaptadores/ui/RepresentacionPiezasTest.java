@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.bando.Bando;
 import Nucleo.movimientos.ReglaCompuesta;
 import Nucleo.piezas.*;
 import javafx.scene.text.Text;
@@ -18,10 +19,10 @@ class RepresentacionPiezasTest {
 
     @Test
     void traduceLosSeisTiposYAmbosColoresEnElSimboloCorrecto() {
-        for (Color color : Color.values()) {
+        for (Bando color : Bando.values()) {
             List<Pieza> piezas = List.of(new Rey(color), new Reina(color), new Torre(color),
                     new Alfil(color), new Caballo(color), new Peon(color));
-            List<String> esperados = color == Color.BLANCO
+            List<String> esperados = color == Bando.BLANCO
                     ? List.of("♔", "♕", "♖", "♗", "♘", "♙")
                     : List.of("♚", "♛", "♜", "♝", "♞", "♟");
             for (int i = 0; i < piezas.size(); i++) {
@@ -32,8 +33,8 @@ class RepresentacionPiezasTest {
 
     @Test
     void usaLosColoresDePiezasYContornoRecibidosEnElTema() {
-        Text blanca = (Text) representacion.crear(new Torre(Color.BLANCO), tema);
-        Text negra = (Text) representacion.crear(new Torre(Color.NEGRO), tema);
+        Text blanca = (Text) representacion.crear(new Torre(Bando.BLANCO), tema);
+        Text negra = (Text) representacion.crear(new Torre(Bando.NEGRO), tema);
         assertEquals(javafx.scene.paint.Color.WHITE, blanca.getFill());
         assertEquals(javafx.scene.paint.Color.BLACK, negra.getFill());
         assertEquals(javafx.scene.paint.Color.DARKSLATEGRAY, blanca.getStroke());
@@ -42,7 +43,7 @@ class RepresentacionPiezasTest {
 
     @Test
     void unaPiezaNuevaSePuedeMostrarConSuCodigoSinRomperLaVista() {
-        Pieza nueva = new Pieza(Color.BLANCO, new ReglaCompuesta()) {
+        Pieza nueva = new Pieza(Bando.BLANCO, new ReglaCompuesta()) {
             @Override public String nombre() { return "Nueva"; }
             @Override public char codigo() { return 'X'; }
         };
