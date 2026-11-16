@@ -10,12 +10,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RepresentacionPiezasTest {
+class RepresentacionUnicodeTest {
     private final TemaTablero tema = new TemaTablero(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
             javafx.scene.paint.Color.WHITE, javafx.scene.paint.Color.BLACK,
             javafx.scene.paint.Color.DARKSLATEGRAY, javafx.scene.paint.Color.GRAY);
-    private final RepresentacionPiezas representacion = new RepresentacionPiezas();
+    private final RepresentacionPiezas representacion = new RepresentacionUnicode();
 
     @Test
     void traduceLosSeisTiposYAmbosColoresEnElSimboloCorrecto() {

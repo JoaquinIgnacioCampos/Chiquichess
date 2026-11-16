@@ -30,7 +30,7 @@ class PanelEstadoPartidaTest {
 
     private VistaPartida vista(Partida partida) {
         return new VistaPartida(new ControladorTablero(partida), temaTablero,
-                new RepresentacionPiezas(), temaPanel);
+                new RepresentacionUnicode(), temaPanel);
     }
 
     private String texto(VistaPartida vista, String id) {

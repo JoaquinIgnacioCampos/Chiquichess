@@ -12,12 +12,20 @@ import java.util.Map;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.PartidaConfigurada;
 import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /** Arranque gráfico: ensambla el juego e inyecta la partida en la vista. */
 public class AplicacionAjedrez extends Application {
+    /** Tamaños de la ventana con sus bordes; en una pantalla más chica manda la pantalla. */
+    private static final double ANCHO_PREFERIDO = 1296;
+    private static final double ALTO_PREFERIDO = 858;
+    private static final double ANCHO_MINIMO = 900;
+    private static final double ALTO_MINIMO = 620;
+
     private ActualizadorRelojJavaFx actualizadorReloj;
     private PartidaConfigurada partidaActual;
     private SonidosDePartida sonidosActuales;
@@ -31,11 +39,22 @@ public class AplicacionAjedrez extends Application {
         reproductor = new ReproductorJavaSound();
         VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
         ventana.setTitle("ChiquiChess");
-        ventana.setScene(new Scene(menu, 1280, 820));
-        ventana.setMinWidth(900);
-        ventana.setMinHeight(620);
+        ventana.setScene(new Scene(menu));
+        ajustarAPantalla(ventana, Screen.getPrimary().getVisualBounds());
         ventana.setOnHidden(evento -> cerrarPartidaActual());
         ventana.show();
+    }
+
+    /** La ventana arranca entera dentro de la pantalla, centrada y con la barra de título visible. */
+    private void ajustarAPantalla(Stage ventana, Rectangle2D pantalla) {
+        double ancho = Math.min(ANCHO_PREFERIDO, pantalla.getWidth());
+        double alto = Math.min(ALTO_PREFERIDO, pantalla.getHeight());
+        ventana.setWidth(ancho);
+        ventana.setHeight(alto);
+        ventana.setX(pantalla.getMinX() + (pantalla.getWidth() - ancho) / 2);
+        ventana.setY(pantalla.getMinY() + (pantalla.getHeight() - alto) / 2);
+        ventana.setMinWidth(Math.min(ANCHO_MINIMO, ancho));
+        ventana.setMinHeight(Math.min(ALTO_MINIMO, alto));
     }
 
     private void iniciarPartida(Stage ventana, ConfiguracionPartida configuracion) {
@@ -53,7 +72,10 @@ public class AplicacionAjedrez extends Application {
         var clubes = java.util.Map.of(
                 Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
                 Bando.NEGRO, PresentacionClub.de(preparada.equipoNegras(), temaPanel));
-        VistaPartida vista = new VistaPartida(controlador, tema, new RepresentacionPiezas(), temaPanel, clubes,
+        RepresentacionPiezas representacion = new RepresentacionConSprites(java.util.Map.of(
+                Bando.BLANCO, CatalogoSprites.de(preparada.equipoBlancas()),
+                Bando.NEGRO, CatalogoSprites.de(preparada.equipoNegras())), new RepresentacionUnicode());
+        VistaPartida vista = new VistaPartida(controlador, tema, representacion, temaPanel, clubes,
                 new MensajesDeLaInterfaz());
         vista.configurarRendicion();
         vista.configurarTablas();

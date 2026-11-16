@@ -87,6 +87,7 @@ final class SelectorPromocion extends StackPane {
         boton.setGraphic(representacion.crear(pieza, temaTablero));
         boton.setAccessibleText(pieza.nombre());
         boton.setPrefSize(72, 72);
+        boton.setPadding(new Insets(2));
         boton.setCursor(Cursor.HAND);
         Runnable pintar = () -> boton.setBackground(new Background(new BackgroundFill(
                 boton.isFocused() || boton.isHover() ? tema.acento() : temaTablero.casillaClara(),
