@@ -6,6 +6,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -17,6 +19,9 @@ import java.util.function.Consumer;
 
 /** Menú de selección: emite una configuración completa; no crea partidas ni relojes. */
 public final class VistaMenuPartida extends GridPane {
+    /** Altura desde la que las opciones entran sin juntarlas. */
+    private static final double ALTO_COMODO = 810;
+
     private final TemaPanel tema;
     private final Consumer<ConfiguracionPartida> iniciar;
     private final ToggleGroup modo = new ToggleGroup();
@@ -119,7 +124,7 @@ public final class VistaMenuPartida extends GridPane {
         HBox pie = new HBox(16, pendientes, jugar);
         pie.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(pendientes, Priority.ALWAYS);
-        opciones.getChildren().add(pie);
+        pie.setBackground(fondo(tema.tarjeta()));
 
         ScrollPane desplazamiento = new ScrollPane(opciones);
         desplazamiento.setId("opciones-menu");
@@ -127,19 +132,44 @@ public final class VistaMenuPartida extends GridPane {
         desplazamiento.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         desplazamiento.setMinSize(0, 0);
         desplazamiento.setStyle("-fx-background: " + css(tema.fondo()) + "; -fx-background-color: " + css(tema.fondo()) + ";");
-        add(desplazamiento, 1, 0);
+        // "Jugar" queda fijo debajo de las opciones: se ve siempre, aunque haya que desplazarlas.
+        VBox columnaOpciones = new VBox(desplazamiento, pie);
+        columnaOpciones.setMinSize(0, 0);
+        VBox.setVgrow(desplazamiento, Priority.ALWAYS);
+        add(columnaOpciones, 1, 0);
+        heightProperty().addListener((p, antes, alto) -> ajustarDensidad(opciones, pie, alto.doubleValue()));
+        ajustarDensidad(opciones, pie, getHeight());
         for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores}) {
             grupo.selectedToggleProperty().addListener((p, antes, ahora) -> actualizarSeleccion());
         }
         actualizarSeleccion();
     }
 
+    /** En pantallas bajas junta las opciones para que entren sin desplazarlas. */
+    private void ajustarDensidad(VBox opciones, HBox pie, double alto) {
+        boolean compacto = alto < ALTO_COMODO;
+        opciones.setSpacing(compacto ? 11 : 18);
+        opciones.setPadding(compacto ? new Insets(16, 32, 8, 32) : new Insets(28, 32, 12, 32));
+        pie.setPadding(compacto ? new Insets(8, 32, 12, 32) : new Insets(12, 32, 20, 32));
+    }
+
+    private static Image cargarPersonaje() {
+        var recurso = Objects.requireNonNull(VistaMenuPartida.class.getResource("/personaje/chiquichess.png"),
+                "Falta la imagen del personaje");
+        Image imagen = new Image(recurso.toExternalForm(), false);
+        if (imagen.isError()) throw new IllegalStateException("No se pudo cargar la imagen del personaje", imagen.getException());
+        return imagen;
+    }
+
     private VBox portada() {
         Text marca = texto("CHIQUICHESS", 32, tema.texto(), true);
         Text subtitulo = texto("AJEDREZ ARGENTINO", 13, tema.acento(), true);
-        Text simbolo = texto("♚", 190, tema.acento(), false);
-        simbolo.setFont(Font.font("Segoe UI Symbol", 190));
-        StackPane personaje = new StackPane(simbolo);
+        ImageView figura = new ImageView(cargarPersonaje());
+        figura.setPreserveRatio(true);
+        figura.setSmooth(true);
+        StackPane personaje = new StackPane(figura);
+        figura.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.widthProperty().subtract(24)));
+        figura.fitHeightProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.heightProperty().subtract(24)));
         personaje.setId("espacio-personaje");
         personaje.setMinSize(0, 0);
         personaje.setPrefHeight(370);
@@ -147,7 +177,7 @@ public final class VistaMenuPartida extends GridPane {
         personaje.setBackground(new Background(new BackgroundFill(tema.fondo(), new CornerRadii(12), Insets.EMPTY)));
         personaje.setBorder(new Border(new BorderStroke(tema.borde(), BorderStrokeStyle.DASHED,
                 new CornerRadii(12), new BorderWidths(1))));
-        personaje.setAccessibleText("Espacio reservado para el personaje de ChiquiChess");
+        personaje.setAccessibleText("Personaje de ChiquiChess");
         Text leyenda = texto("Elegí tu equipo.\nJugá tu clásico.", 23, tema.texto(), true);
         leyenda.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
         marca.fontProperty().bind(javafx.beans.binding.Bindings.createObjectBinding(() ->

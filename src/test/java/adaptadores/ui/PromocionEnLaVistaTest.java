@@ -129,7 +129,7 @@ class PromocionEnLaVistaTest {
     private VistaPartida vista() {
         TemaTablero tema = new TemaTablero(Color.BEIGE, Color.BROWN, Color.WHITE, Color.BLACK,
                 Color.BLACK, Color.GRAY, Color.YELLOW, Color.PURPLE, Color.BLUE);
-        return new VistaPartida(controlador, tema, new RepresentacionPiezas(), TemaPanel.marcador());
+        return new VistaPartida(controlador, tema, new RepresentacionUnicode(), TemaPanel.marcador());
     }
 
     private void pulsar(VistaPartida vista, String casilla) {

@@ -30,8 +30,13 @@ class VistaMenuPartidaTest {
     private final VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), emitidas::add);
 
     /** Las opciones están dentro de un ScrollPane: sin ventana dibujada, hay que buscar en su contenido. */
-    private javafx.scene.Node buscar(String id) {
+    private javafx.scene.Node buscarEnOpciones(String id) {
         return ((ScrollPane) menu.lookup("#opciones-menu")).getContent().lookup("#" + id);
+    }
+
+    private javafx.scene.Node buscar(String id) {
+        javafx.scene.Node enOpciones = buscarEnOpciones(id);
+        return enOpciones != null ? enOpciones : menu.lookup("#" + id);
     }
 
     private ToggleButton boton(String id) {
@@ -44,6 +49,20 @@ class VistaMenuPartidaTest {
         boton("jugador-1-boca").setSelected(true);
         boton("jugador-2-river").setSelected(true);
         boton("color-jugador-1").setSelected(true);
+    }
+
+    @Test
+    void laPortadaMuestraLaImagenDelPersonaje() {
+        var espacio = (javafx.scene.layout.StackPane) menu.lookup("#espacio-personaje");
+        var figura = assertInstanceOf(javafx.scene.image.ImageView.class, espacio.getChildren().getFirst());
+        assertFalse(figura.getImage().isError());
+        assertEquals(500, figura.getImage().getWidth());
+    }
+
+    @Test
+    void jugarQuedaFueraDelDesplazamientoParaVerseSiempre() {
+        assertNull(buscarEnOpciones("jugar"));
+        assertNotNull(menu.lookup("#jugar"));
     }
 
     @Test

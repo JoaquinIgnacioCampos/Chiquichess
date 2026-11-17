@@ -33,7 +33,7 @@ class DeshacerEnLaVistaTest {
                 javafx.scene.paint.Color.YELLOW, javafx.scene.paint.Color.PURPLE,
                 javafx.scene.paint.Color.BLUE);
         VistaPartida vista = new VistaPartida(new ControladorTablero(partida), tema,
-                new RepresentacionPiezas(), TemaPanel.marcador());
+                new RepresentacionUnicode(), TemaPanel.marcador());
         vista.configurarDeshacer();
         return vista;
     }

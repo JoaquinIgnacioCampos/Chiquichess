@@ -25,7 +25,7 @@ class VistaTableroTest {
 
     @Test
     void usaLasDimensionesRealesInclusoEnTablerosRectangulares() {
-        VistaTablero vista = new VistaTablero(new Tablero(10, 6), tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(new Tablero(10, 6), tema, new RepresentacionUnicode());
         assertEquals(60, vista.lookupAll(".casilla").size());
         assertNotNull(casilla(vista, 9, 5));
         assertNull(casilla(vista, 10, 5));
@@ -37,7 +37,7 @@ class VistaTableroTest {
 
     @Test
     void alternaDesdeLasCoordenadasDelNucleoConA1Oscura() {
-        VistaTablero vista = new VistaTablero(new Tablero(3, 5), tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(new Tablero(3, 5), tema, new RepresentacionUnicode());
         assertEquals(javafx.scene.paint.Color.BROWN,
                 casilla(vista, 0, 0).getBackground().getFills().getFirst().getFill());
         assertEquals(javafx.scene.paint.Color.BEIGE,
@@ -54,7 +54,7 @@ class VistaTableroTest {
                 javafx.scene.paint.Color.BLUE, javafx.scene.paint.Color.WHITE,
                 javafx.scene.paint.Color.BLACK, javafx.scene.paint.Color.BLACK,
                 javafx.scene.paint.Color.NAVY);
-        VistaTablero vista = new VistaTablero(new Tablero(2, 2), otroTema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(new Tablero(2, 2), otroTema, new RepresentacionUnicode());
         assertEquals(javafx.scene.paint.Color.BLUE,
                 casilla(vista, 0, 0).getBackground().getFills().getFirst().getFill());
         assertEquals(javafx.scene.paint.Color.YELLOW,
@@ -66,7 +66,7 @@ class VistaTableroTest {
         Tablero tablero = new Tablero(4, 6);
         tablero.colocar(new Posicion(0, 0), new Rey(Bando.BLANCO));
         tablero.colocar(new Posicion(3, 5), new Rey(Bando.NEGRO));
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         assertEquals("♔", ((Text) casilla(vista, 0, 0).getChildren().getFirst()).getText());
         assertEquals("♚", ((Text) casilla(vista, 3, 5).getChildren().getFirst()).getText());
         assertEquals(5, GridPane.getRowIndex(casilla(vista, 0, 0)));
@@ -77,7 +77,7 @@ class VistaTableroTest {
     void redibujarConsultaElEstadoActualEnLugarDeUnaCopiaLocal() {
         var partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = new VistaPartida(new ControladorTablero(partida), tema,
-                new RepresentacionPiezas(), TemaPanel.marcador());
+                new RepresentacionUnicode(), TemaPanel.marcador());
         assertFalse(casilla(vista, 4, 1).getChildren().isEmpty());
         assertTrue(casilla(vista, 4, 3).getChildren().isEmpty());
         partida.mover(mov("e2", "e4"));
@@ -89,7 +89,7 @@ class VistaTableroTest {
 
     @Test
     void alRedimensionarConservaCasillasCuadradasYElTableroCentrado() {
-        VistaTablero vista = new VistaTablero(new Tablero(10, 6), tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(new Tablero(10, 6), tema, new RepresentacionUnicode());
         vista.resize(700, 700);
         vista.layout();
         GridPane grilla = (GridPane) vista.getChildrenUnmodifiable().getFirst();
@@ -104,7 +104,7 @@ class VistaTableroTest {
     void dibujaLaPelotaSoloEnSuCasilla() {
         Tablero tablero = new Tablero(8, 8);
         tablero.colocarPelota(new Posicion(3, 4));
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         assertEquals(1, vista.lookupAll(".pelota").size());
         assertNotNull(casilla(vista, 3, 4).lookup("#pelota"));
     }
@@ -114,7 +114,7 @@ class VistaTableroTest {
         Tablero tablero = new Tablero(8, 8);
         tablero.colocar(new Posicion(3, 4), new Caballo(Bando.BLANCO));
         tablero.colocarPelota(new Posicion(3, 4));
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         StackPane conPelota = casilla(vista, 3, 4);
         assertNotNull(conPelota.lookup("#pelota"));
         assertEquals(2, conPelota.getChildren().size()); // la pieza y la pelota
@@ -122,7 +122,7 @@ class VistaTableroTest {
 
     @Test
     void elAjedrezClasicoNoTienePelota() {
-        VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionUnicode());
         assertTrue(vista.lookupAll(".pelota").isEmpty());
     }
 
@@ -131,7 +131,7 @@ class VistaTableroTest {
         Tablero tablero = new Tablero(8, 8);
         tablero.marcarArco(new Posicion(3, 7), Bando.NEGRO);
         tablero.marcarArco(new Posicion(4, 0), Bando.BLANCO);
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         assertEquals(2, vista.lookupAll(".arco").size());
         assertNotNull(casilla(vista, 3, 7).lookup("#arco-3-7"));
         assertNotNull(casilla(vista, 4, 0).lookup("#arco-4-0"));
@@ -142,7 +142,7 @@ class VistaTableroTest {
         Tablero tablero = new Tablero(8, 8);
         tablero.marcarArco(new Posicion(4, 7), Bando.NEGRO);
         tablero.colocar(new Posicion(4, 7), new Rey(Bando.NEGRO));
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         StackPane casilla = casilla(vista, 4, 7);
         assertTrue(casilla.getChildren().get(0).getStyleClass().contains("arco"));
         assertEquals(2, casilla.getChildren().size());
@@ -154,7 +154,7 @@ class VistaTableroTest {
         tablero.colocar(new Posicion(0, 0), new Torre(Bando.BLANCO));
         tablero.colocar(new Posicion(0, 4), new Caballo(Bando.BLANCO));
         tablero.colocar(new Posicion(0, 6), new Caballo(Bando.NEGRO));
-        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionPiezas());
+        VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
         vista.redibujar(java.util.Optional.of(new Posicion(0, 0)),
                 java.util.Set.of(new Posicion(0, 4), new Posicion(0, 6)));
         assertEquals(1, casilla(vista, 0, 4).lookupAll(".indicador-pase").size());

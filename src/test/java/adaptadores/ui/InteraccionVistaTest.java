@@ -27,7 +27,7 @@ class InteraccionVistaTest {
 
     private VistaPartida vista(Partida partida) {
         return new VistaPartida(new ControladorTablero(partida), tema,
-                new RepresentacionPiezas(), TemaPanel.marcador());
+                new RepresentacionUnicode(), TemaPanel.marcador());
     }
 
     private StackPane casilla(VistaPartida vista, String nombre) {
