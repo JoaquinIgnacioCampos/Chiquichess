@@ -39,6 +39,12 @@ public final class SonidosDelMenu implements AutoCloseable {
         entrarAlMenu();
     }
 
+    /** La persona tocó una opción del menú: el mismo clic suave que al elegir una pieza. */
+    public void opcionElegida() {
+        catalogo.buscar(Sonido.SELECCION, Optional.empty()).ifPresent(archivo ->
+                reproductor.reproducir(archivo, control.efectivo() * SonidosDePartida.VOLUMEN_SELECCION));
+    }
+
     /** Empieza el ambiente, si no estaba sonando. */
     public void entrarAlMenu() {
         if (ambiente.isPresent()) return;

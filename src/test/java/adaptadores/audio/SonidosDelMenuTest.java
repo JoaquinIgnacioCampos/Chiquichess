@@ -24,7 +24,7 @@ class SonidosDelMenuTest {
 
     @BeforeEach
     void preparar() throws IOException {
-        for (String nombre : List.of("risa", "menu")) {
+        for (String nombre : List.of("risa", "menu", "seleccion")) {
             Path archivo = carpeta.resolve("sonidos/comunes/" + nombre + ".wav");
             Files.createDirectories(archivo.getParent());
             Files.write(archivo, new byte[]{0});
@@ -95,5 +95,15 @@ class SonidosDelMenuTest {
         // Assert
         assertTrue(reproductor.tocados.isEmpty());
         assertTrue(reproductor.pistas.isEmpty());
+    }
+
+    @Test
+    void elegirUnaOpcionSuenaElMismoClicQueElegirUnaPieza() {
+        // Act
+        sonidos.opcionElegida();
+
+        // Assert
+        assertEquals(List.of("comunes/seleccion.wav"), reproductor.tocados);
+        assertEquals(control.efectivo() * SonidosDePartida.VOLUMEN_SELECCION, reproductor.volumenes.getFirst(), 1e-9);
     }
 }

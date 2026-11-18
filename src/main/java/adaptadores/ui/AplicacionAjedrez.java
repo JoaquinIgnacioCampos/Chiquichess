@@ -64,6 +64,7 @@ public class AplicacionAjedrez extends Application {
     private VistaMenuPartida nuevoMenu(Stage ventana) {
         VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
         menu.configurarSonido(volumen);
+        menu.alElegirOpcion(sonidosDelMenu::opcionElegida);
         return menu;
     }
 
@@ -109,9 +110,11 @@ public class AplicacionAjedrez extends Application {
         }, () -> iniciarRevancha(ventana, configuracion, preparada));
         actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes);
         ventana.getScene().setRoot(vista);
-        sonidosActuales = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
+        SonidosDePartida sonidos = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
                 Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),
                 volumen, configuracion.modo() == ConfiguracionPartida.Modo.FUTBOL);
+        sonidosActuales = sonidos;
+        vista.alSeleccionarPieza(sonidos::piezaSeleccionada);
         actualizadorReloj.iniciar();
         // Último: si la IA juega con blancas, empieza a pensar ya con la vista y el sonido listos.
         preparada.rival().ifPresent(rival -> {

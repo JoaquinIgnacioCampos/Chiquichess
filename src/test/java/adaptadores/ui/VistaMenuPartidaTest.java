@@ -225,4 +225,16 @@ class VistaMenuPartidaTest {
         assertTrue(control.silenciado());
         assertEquals("Sonido: no", silencio.getText());
     }
+
+    @Test
+    void tocarUnaOpcionAvisaYLasSeleccionesDelPropioMenuNo() {
+        int[] avisos = {0};
+        menu.alElegirOpcion(() -> avisos[0]++);
+
+        boton("modo-clasico").fire();
+        boton("jugador-1-argentina").fire();
+        boton("rival-amigo").setSelected(true);   // lo hace el programa, no un clic: no avisa
+
+        assertEquals(2, avisos[0]);
+    }
 }

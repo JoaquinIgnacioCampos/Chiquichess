@@ -34,6 +34,7 @@ public final class VistaPartida extends BorderPane {
     private final TemaPanel temaPanel;
     private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
+    private Runnable alSeleccionarPieza = () -> { };
     private javafx.scene.control.Button deshacer;
     private javafx.scene.control.Button rehacer;
 
@@ -95,8 +96,17 @@ public final class VistaPartida extends BorderPane {
     }
 
     private void pulsar(Posicion posicion) {
+        var antes = controlador.seleccionada();
         mensaje.setText(controlador.pulsar(posicion).map(mensajes::rechazoDeMovimiento).orElse(""));
+        // Una pieza recién elegida (no deseleccionar, no mover): lo puede aprovechar el sonido.
+        var ahora = controlador.seleccionada();
+        if (ahora.isPresent() && !ahora.equals(antes)) alSeleccionarPieza.run();
         redibujar();
+    }
+
+    /** Qué hacer cuando la persona elige una pieza para mover (por ejemplo, un clic de sonido). */
+    public void alSeleccionarPieza(Runnable accion) {
+        alSeleccionarPieza = Objects.requireNonNull(accion, "accion");
     }
 
     private void promover(char codigo) {

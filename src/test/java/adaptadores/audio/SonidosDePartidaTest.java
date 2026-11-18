@@ -194,4 +194,17 @@ class SonidosDePartidaTest {
         assertTrue(hinchada.detenida);
         assertEquals(alCerrar, hinchada.volumen);
     }
+
+    @Test
+    void elegirUnaPiezaSuenaUnClicMasSuaveQueUnMovimiento() {
+        // Arrange
+        SonidosDePartida sonidos = conectar(clasica(), false);
+
+        // Act
+        sonidos.piezaSeleccionada();
+
+        // Assert
+        assertEquals(List.of("comunes/seleccion.wav"), reproductor.tocados);
+        assertEquals(control.efectivo() * SonidosDePartida.VOLUMEN_SELECCION, reproductor.volumenes.getFirst(), 1e-9);
+    }
 }

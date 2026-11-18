@@ -23,6 +23,8 @@ import java.util.Optional;
  * callan y queda el sonido del final; si se deshace ese final, vuelven.
  */
 public final class SonidosDePartida implements ObservadorDePartida, AutoCloseable {
+    /** El clic de seleccionar una pieza es más suave que un movimiento. */
+    static final double VOLUMEN_SELECCION = 0.6;
     /** Las hinchadas suenan más bajo que los efectos, para que no los tapen. */
     static final double VOLUMEN_HINCHADA = 0.6;
 
@@ -69,6 +71,16 @@ public final class SonidosDePartida implements ObservadorDePartida, AutoCloseabl
         if (cerrado) return;
         guion.para(evento).forEach(this::tocar);
         actualizarHinchadas();
+    }
+
+    /**
+     * La persona tocó una pieza suya para moverla. No es un evento de la partida (la partida no cambió):
+     * lo avisa la vista.
+     */
+    public void piezaSeleccionada() {
+        if (cerrado) return;
+        catalogo.buscar(Sonido.SELECCION, Optional.empty())
+                .ifPresent(archivo -> reproductor.reproducir(archivo, control.efectivo() * VOLUMEN_SELECCION));
     }
 
     private void tocar(Toque toque) {

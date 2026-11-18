@@ -21,6 +21,8 @@ public enum Sonido {
     REBOBINAR("rebobinar", false),
     /** Ambiente del modo fútbol: suena en bucle y su volumen sigue a la partida (ver {@link IntensidadDeHinchada}). */
     HINCHADA("hinchada", true),
+    /** Al tocar una pieza propia para moverla: un clic corto y bajo (no es un evento de la partida). */
+    SELECCION("seleccion", false),
     /** Fuera de la partida: la risa del personaje al abrir el juego (ver {@link SonidosDelMenu}). */
     RISA("risa", false),
     /** Fuera de la partida: ambiente suave en bucle mientras se eligen las opciones. */

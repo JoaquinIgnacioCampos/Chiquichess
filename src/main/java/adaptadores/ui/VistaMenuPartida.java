@@ -44,6 +44,7 @@ public final class VistaMenuPartida extends GridPane {
     private final Button jugar = new Button("Jugar");
     /** La imagen del personaje de la portada (se balancea al abrir el juego). */
     private ImageView figura;
+    private Runnable alElegirOpcion = () -> { };
     private HBox pie;
     private final Label pendientes = new Label();
 
@@ -195,6 +196,11 @@ public final class VistaMenuPartida extends GridPane {
         return risa;
     }
 
+    /** Qué hacer cuando la persona toca una opción del menú (por ejemplo, un clic de sonido). */
+    public void alElegirOpcion(Runnable accion) {
+        alElegirOpcion = Objects.requireNonNull(accion, "accion");
+    }
+
     /**
      * Agrega al pie el botón de silencio, con el mismo control de volumen que la partida: lo que se elige
      * acá sigue valiendo al jugar.
@@ -291,6 +297,8 @@ public final class VistaMenuPartida extends GridPane {
         boton.setFont(Font.font("System", FontWeight.BOLD, 13));
         boton.setPadding(new Insets(9, 12, 9, 12));
         boton.setCursor(Cursor.HAND);
+        // Solo los clics de la persona (no las selecciones que hace el propio menú) avisan.
+        boton.setOnAction(evento -> alElegirOpcion.run());
         boton.selectedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         boton.focusedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         pintarOpcion(boton);
