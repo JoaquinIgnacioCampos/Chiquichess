@@ -241,4 +241,40 @@ class JuegoConsolaTest {
         assertTrue(salida.contains("Pase!"), salida);
         assertTrue(salida.contains(" 3 . . . C*. . . ."), salida);
     }
+
+    // ---------------- Contra la IA ----------------
+
+    /** Lo que la consola esperó a la IA; en los tests no se espera de verdad. */
+    private final java.util.List<java.time.Duration> esperado = new java.util.ArrayList<>();
+
+    @Test
+    void contraLaIaEstaJuegaSolaYMuestraSuJugada() throws IOException {
+        var contraLaIa = new EnsambladorPartida().crearSinRelojContraLaIa(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.CLASICO, 90, Nucleo.ia.Dificultad.FACIL);
+        ByteArrayOutputStream salida = new ByteArrayOutputStream();
+
+        new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
+                new ByteArrayInputStream("e2 e4\nsalir\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(salida, true, StandardCharsets.UTF_8), java.util.Optional.of(contraLaIa.rival()), esperado::add).jugar();
+
+        String texto = salida.toString(StandardCharsets.UTF_8);
+        assertTrue(texto.contains("IA (fácil) juega "), texto);
+        assertEquals(2, contraLaIa.partida().historial().size());
+        // Esperó como una persona: entre medio segundo (apertura) y los 3 s del fácil
+        assertEquals(1, esperado.size());
+        assertTrue(esperado.getFirst().toMillis() > 300 && esperado.getFirst().toMillis() <= 3000, esperado.toString());
+    }
+
+    @Test
+    void contraLaIaDeshacerVuelveAlTurnoDeLaPersona() throws IOException {
+        var contraLaIa = new EnsambladorPartida().crearSinRelojContraLaIa(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.CLASICO, 90, Nucleo.ia.Dificultad.FACIL);
+
+        new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
+                new ByteArrayInputStream("e2 e4\ndeshacer\nsalir\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8),
+                java.util.Optional.of(contraLaIa.rival()), esperado::add).jugar();
+
+        assertTrue(contraLaIa.partida().historial().isEmpty());
+    }
 }

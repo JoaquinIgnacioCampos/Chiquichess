@@ -1,5 +1,7 @@
 package adaptadores.configuracion;
 
+import Nucleo.ia.Dificultad;
+
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -11,10 +13,12 @@ import java.util.Optional;
  * @param limiteDeJugadas  en el modo fútbol, jugadas de los dos bandos juntos a las que termina la
  *                         partida (entre {@link #LIMITE_MINIMO} y {@link #LIMITE_MAXIMO}); el
  *                         ajedrez clásico no lo usa
+ * @param dificultad       la dificultad de la IA, que juega como Jugador 2; presente si y solo si el
+ *                         rival es la IA
  */
 public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
                                    Equipo equipoJugador1, Equipo equipoJugador2, Colores colores,
-                                   boolean permitirDeshacer, int limiteDeJugadas) {
+                                   boolean permitirDeshacer, int limiteDeJugadas, Optional<Dificultad> dificultad) {
 
     public static final int LIMITE_POR_DEFECTO = 90;
     public static final int LIMITE_MINIMO = 10;
@@ -28,7 +32,10 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
         Objects.requireNonNull(equipoJugador2, "equipoJugador2");
         Objects.requireNonNull(colores, "colores");
         if (equipoJugador1 == equipoJugador2) throw new IllegalArgumentException("Los equipos deben ser distintos");
-        if (rival == Rival.IA) throw new IllegalArgumentException("La IA todavía no está disponible");
+        Objects.requireNonNull(dificultad, "dificultad");
+        if ((rival == Rival.IA) != dificultad.isPresent()) {
+            throw new IllegalArgumentException("La dificultad se elige solo, y siempre, para jugar contra la IA");
+        }
         if (permitirDeshacer && tiempo.duracion().isPresent()) {
             throw new IllegalArgumentException("Solo se puede deshacer en partidas sin tiempo");
         }
@@ -36,6 +43,14 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
             throw new IllegalArgumentException("El límite de jugadas debe estar entre "
                     + LIMITE_MINIMO + " y " + LIMITE_MAXIMO);
         }
+    }
+
+    /** Configuración contra un amigo, con el límite de jugadas elegido. */
+    public ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
+                                Equipo equipoJugador1, Equipo equipoJugador2, Colores colores,
+                                boolean permitirDeshacer, int limiteDeJugadas) {
+        this(modo, tiempo, rival, equipoJugador1, equipoJugador2, colores, permitirDeshacer, limiteDeJugadas,
+                Optional.empty());
     }
 
     /** Configuración con el límite de jugadas por defecto (90). */
@@ -55,7 +70,8 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
     public enum Modo { CLASICO, FUTBOL }
     public enum Rival { AMIGO, IA }
     public enum Equipo {
-        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente");
+        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente"),
+        SAN_LORENZO("San Lorenzo"), RACING("Racing"), ARGENTINA("Argentina");
         private final String nombre;
         Equipo(String nombre) { this.nombre = nombre; }
         public String nombre() { return nombre; }

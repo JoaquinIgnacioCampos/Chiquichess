@@ -1,6 +1,7 @@
 package Nucleo.juego;
 
 import Nucleo.bando.Bando;
+import Nucleo.ia.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
@@ -183,10 +184,15 @@ public class Partida {
 
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
     public List<Movimiento> historial() {
-        return historialDeJugadas.jugadas().stream()
-                .map(jugada -> new Movimiento(jugada.origen(), jugada.destino(),
-                        jugada.promocion().map(Pieza::codigo)))
-                .toList();
+        return historialDeJugadas.jugadas().stream().map(Movimiento::de).toList();
+    }
+
+    /**
+     * Copia de la situación actual para que una IA la analice: tablero copiado, turno, jugadas hechas y
+     * reglas. Lo que la IA haga sobre la copia no toca la partida ni dispara eventos.
+     */
+    public SituacionDePartida situacion() {
+        return new SituacionDePartida(tablero.copiar(), turno, historialDeJugadas.jugadas(), reglas);
     }
 
     /**

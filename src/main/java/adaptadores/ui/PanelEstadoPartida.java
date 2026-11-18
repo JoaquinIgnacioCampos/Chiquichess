@@ -152,13 +152,16 @@ public final class PanelEstadoPartida extends GridPane {
     public void actualizar() {
         boolean finalizada = controlador.estado().estaFinalizada();
         actualizarGoles();
-        negras.habilitarRendicion(!finalizada && controlador.turno() == Bando.NEGRO);
-        blancas.habilitarRendicion(!finalizada && controlador.turno() == Bando.BLANCO);
+        // Contra la IA, su tarjeta no tiene botones activos: rendirse u ofrecer tablas es cosa de personas.
+        boolean juegaNegras = !finalizada && controlador.turno() == Bando.NEGRO && controlador.esHumano(Bando.NEGRO);
+        boolean juegaBlancas = !finalizada && controlador.turno() == Bando.BLANCO && controlador.esHumano(Bando.BLANCO);
+        negras.habilitarRendicion(juegaNegras);
+        blancas.habilitarRendicion(juegaBlancas);
         var oferta = controlador.ofertaTablasPendiente();
-        negras.actualizarTablas(!finalizada && controlador.turno() == Bando.NEGRO && oferta.isEmpty(),
+        negras.actualizarTablas(juegaNegras && oferta.isEmpty(),
                 oferta.filter(color -> color == Bando.NEGRO).isPresent(),
                 oferta.filter(color -> color == Bando.BLANCO).isPresent());
-        blancas.actualizarTablas(!finalizada && controlador.turno() == Bando.BLANCO && oferta.isEmpty(),
+        blancas.actualizarTablas(juegaBlancas && oferta.isEmpty(),
                 oferta.filter(color -> color == Bando.BLANCO).isPresent(),
                 oferta.filter(color -> color == Bando.NEGRO).isPresent());
         negras.actualizar(controlador.jugador(Bando.NEGRO), !finalizada && controlador.turno() == Bando.NEGRO);
@@ -176,8 +179,9 @@ public final class PanelEstadoPartida extends GridPane {
             titulo.setText("ESTADO DE LA PARTIDA");
             encabezado.setTexto("TURNO DE");
             principal.setTexto(bando(controlador.turno()));
-            estado.setText(golRecien ? "¡GOL!" : jaque ? "¡JAQUE!" : "EN JUEGO");
-            estado.setFill(golRecien ? tema.acento() : jaque ? tema.alerta() : tema.activo());
+            boolean pensando = controlador.leTocaALaIa();
+            estado.setText(golRecien ? "¡GOL!" : jaque ? "¡JAQUE!" : pensando ? "IA PENSANDO…" : "EN JUEGO");
+            estado.setFill(golRecien ? tema.acento() : jaque ? tema.alerta() : pensando ? tema.textoSecundario() : tema.activo());
             motivo.setText("");
         }
         punto.setFill(estado.getFill());

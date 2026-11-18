@@ -13,6 +13,7 @@ import Nucleo.reglas.EstadoPartida;
 import Nucleo.reglas.Marcador;
 import Nucleo.tablero.ITablero;
 import Nucleo.tablero.Posicion;
+import adaptadores.RivalArtificial;
 
 import java.time.Duration;
 import java.util.List;
@@ -20,15 +21,36 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-/** Interacción de presentación: selecciona casillas y envía órdenes; no calcula reglas. */
+/**
+ * Interacción de presentación: selecciona casillas y envía órdenes; no calcula reglas.
+ *
+ * Contra la IA, solo deja actuar a la persona: no se pueden tocar piezas mientras le toca a la IA, ni
+ * rendirse u ofrecer tablas en su nombre. Deshacer y rehacer van de a dos jugadas (ver {@link RivalArtificial}).
+ */
 public final class ControladorTablero {
     private final Partida partida;
+    private final Optional<RivalArtificial> rival;
     private Optional<Posicion> seleccion = Optional.empty();
     /** Movimiento de un peón a la última fila que espera la elección de la pieza. */
     private Optional<Movimiento> promocion = Optional.empty();
 
     public ControladorTablero(Partida partida) {
+        this(partida, Optional.empty());
+    }
+
+    public ControladorTablero(Partida partida, Optional<RivalArtificial> rival) {
         this.partida = Objects.requireNonNull(partida, "partida");
+        this.rival = Objects.requireNonNull(rival, "rival");
+    }
+
+    /** true si ese bando lo juega una persona (en una partida entre amigos, los dos). */
+    public boolean esHumano(Bando color) {
+        return rival.map(ia -> ia.bando() != color).orElse(true);
+    }
+
+    /** true si la partida sigue y le toca a la IA: la vista lo muestra como "pensando". */
+    public boolean leTocaALaIa() {
+        return rival.map(RivalArtificial::leToca).orElse(false);
     }
 
     /**
@@ -86,8 +108,13 @@ public final class ControladorTablero {
         return partida.ofertaTablasPendiente();
     }
 
+    /** Contra la IA, la oferta se responde enseguida: la IA acepta solo si va claramente perdiendo. */
     public Optional<AccionInvalidaException.Motivo> ofrecerTablas(Bando color) {
-        return ejecutarAccion(() -> partida.ofrecerTablas(color));
+        if (!esHumano(color)) return Optional.of(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
+        return ejecutarAccion(() -> {
+            partida.ofrecerTablas(color);
+            rival.ifPresent(RivalArtificial::responderTablas);
+        });
     }
 
     public Optional<AccionInvalidaException.Motivo> aceptarTablas(Bando color) {
@@ -121,13 +148,16 @@ public final class ControladorTablero {
         return partida.puedeRehacer();
     }
 
-    /** Deshace la última jugada; la selección se descarta porque el tablero cambió. */
+    /**
+     * Deshace la última jugada (contra la IA, hasta que vuelva a tocarle a la persona); la selección se
+     * descarta porque el tablero cambió.
+     */
     public Optional<AccionInvalidaException.Motivo> deshacer() {
-        return ejecutarYLimpiarSeleccion(partida::deshacer);
+        return ejecutarYLimpiarSeleccion(rival.<Runnable>map(ia -> ia::deshacer).orElse(partida::deshacer));
     }
 
     public Optional<AccionInvalidaException.Motivo> rehacer() {
-        return ejecutarYLimpiarSeleccion(partida::rehacer);
+        return ejecutarYLimpiarSeleccion(rival.<Runnable>map(ia -> ia::rehacer).orElse(partida::rehacer));
     }
 
     private Optional<AccionInvalidaException.Motivo> ejecutarYLimpiarSeleccion(Runnable accion) {
@@ -143,6 +173,7 @@ public final class ControladorTablero {
 
     /** El núcleo valida la orden y determina el ganador. */
     public Optional<AccionInvalidaException.Motivo> rendirse(Bando color) {
+        if (!esHumano(color)) return Optional.of(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
         partida.verificarTiempo();
         try {
             partida.rendirse(color);
@@ -207,6 +238,11 @@ public final class ControladorTablero {
         if (partida.estado().estaFinalizada()) {
             seleccion = Optional.empty();
             return Optional.of(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
+        }
+        if (leTocaALaIa()) {
+            // Mientras piensa la IA, el tablero no responde: sus piezas no se tocan.
+            seleccion = Optional.empty();
+            return Optional.of(MovimientoInvalidoException.Motivo.NO_ES_SU_TURNO);
         }
         Optional<Posicion> origen = seleccionada();
         if (origen.isPresent() && destinosLegales().contains(posicion)) {

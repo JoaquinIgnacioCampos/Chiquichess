@@ -173,4 +173,22 @@ class InteraccionVistaTest {
         assertTrue(vista.lookupAll(".casilla-seleccionada").isEmpty());
         assertTrue(partida.historial().isEmpty());
     }
+
+    @Test
+    void avisaSoloCuandoSeEligeUnaPiezaParaMover() {
+        Partida partida = new EnsambladorPartida().crearSinReloj();
+        VistaPartida vista = vista(partida);
+        int[] avisos = {0};
+        vista.alSeleccionarPieza(() -> avisos[0]++);
+
+        pulsar(vista, "e7");   // pieza rival: nada
+        pulsar(vista, "e5");   // casilla vacía: nada
+        assertEquals(0, avisos[0]);
+        pulsar(vista, "e2");   // elige un peón
+        pulsar(vista, "g1");   // cambia al caballo
+        assertEquals(2, avisos[0]);
+        pulsar(vista, "f3");   // mueve: suena el movimiento, no la selección
+        assertEquals(2, avisos[0]);
+        assertEquals(1, partida.historial().size());
+    }
 }

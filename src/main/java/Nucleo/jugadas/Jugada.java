@@ -28,12 +28,24 @@ public record Jugada(Posicion origen, Posicion destino, List<Efecto> efectos) {
         Objects.requireNonNull(origen, "origen");
         Objects.requireNonNull(destino, "destino");
         efectos = List.copyOf(Objects.requireNonNull(efectos, "efectos"));
-        if (efectos.stream().noneMatch(e -> e instanceof Traslado t && t.origen().equals(origen)
-                || e instanceof Pase pase && pase.desde().equals(origen))) {
+        if (!mueveDesde(efectos, origen)) {
             throw new IllegalArgumentException("La jugada debe trasladar la pieza que está en " + origen
                     + " o ser un pase desde ahí");
         }
     }
+
+    /** true si algún efecto traslada la pieza de origen o es un pase desde ahí. */
+    private static boolean mueveDesde(List<Efecto> efectos, Posicion origen) {
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof Traslado t && t.origen().equals(origen)
+                    || efecto instanceof Pase pase && pase.desde().equals(origen)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Las consultas de abajo usan ciclos y no streams: la IA las llama millones de veces al pensar.
 
     /** Jugada común: la pieza de origen va a destino y, si había una pieza rival ahí, la captura. */
     public static Jugada normal(ITablero tablero, Posicion origen, Posicion destino) {
@@ -52,37 +64,52 @@ public record Jugada(Posicion origen, Posicion destino, List<Efecto> efectos) {
                 return t.pieza();
             }
         }
-        return efectos.stream()
-                .filter(e -> e instanceof Pase)
-                .map(e -> ((Pase) e).pasador())
-                .findFirst()
-                .orElseThrow();
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof Pase pase) {
+                return pase.pasador();
+            }
+        }
+        throw new IllegalStateException("La jugada no mueve ninguna pieza");
     }
 
     /** true si la jugada es un pase (modo fútbol): ninguna pieza se mueve, solo la pelota. */
     public boolean esPase() {
-        return efectos.stream().noneMatch(e -> e instanceof Traslado t && t.origen().equals(origen));
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof Traslado t && t.origen().equals(origen)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Pieza capturada, si la hubo. */
     public Optional<Pieza> capturada() {
-        return efectos.stream()
-                .filter(e -> e instanceof Retiro)
-                .map(e -> ((Retiro) e).pieza())
-                .findFirst();
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof Retiro retiro) {
+                return Optional.of(retiro.pieza());
+            }
+        }
+        return Optional.empty();
     }
 
     /** Pieza en la que se convirtió la pieza movida (promoción), si hubo un reemplazo. */
     public Optional<Pieza> promocion() {
-        return efectos.stream()
-                .filter(e -> e instanceof Reemplazo)
-                .map(e -> ((Reemplazo) e).nueva())
-                .findFirst();
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof Reemplazo reemplazo) {
+                return Optional.of(reemplazo.nueva());
+            }
+        }
+        return Optional.empty();
     }
 
     /** true si la jugada metió un gol (modo fútbol). */
     public boolean esGol() {
-        return efectos.stream().anyMatch(e -> e instanceof MoverPelota m && m.gol());
+        for (Efecto efecto : efectos) {
+            if (efecto instanceof MoverPelota m && m.gol()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** La misma jugada con un efecto más al final. */

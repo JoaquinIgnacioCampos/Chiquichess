@@ -1,5 +1,7 @@
 package adaptadores.ui;
 
+import Nucleo.ia.Dificultad;
+import adaptadores.audio.ControlDeVolumen;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.*;
 import javafx.geometry.Insets;
@@ -30,6 +32,9 @@ public final class VistaMenuPartida extends GridPane {
     private final ToggleGroup equipo1 = new ToggleGroup();
     private final ToggleGroup equipo2 = new ToggleGroup();
     private final ToggleGroup colores = new ToggleGroup();
+    /** Solo se habilita con el rival IA. */
+    private final ToggleGroup dificultad = new ToggleGroup();
+    private final Label avisoDificultad = new Label();
     private final ToggleButton permitirDeshacer;
     private final Label avisoDeshacer = new Label();
     /** Modo fútbol: jugadas (de los dos) a las que termina la partida. Solo se habilita con ese modo. */
@@ -37,6 +42,10 @@ public final class VistaMenuPartida extends GridPane {
             ConfiguracionPartida.LIMITE_MAXIMO, ConfiguracionPartida.LIMITE_POR_DEFECTO, 10);
     private final Label avisoLimite = new Label();
     private final Button jugar = new Button("Jugar");
+    /** La imagen del personaje de la portada (se balancea al abrir el juego). */
+    private ImageView figura;
+    private Runnable alElegirOpcion = () -> { };
+    private HBox pie;
     private final Label pendientes = new Label();
 
     public VistaMenuPartida(TemaPanel tema, Consumer<ConfiguracionPartida> iniciar) {
@@ -91,10 +100,17 @@ public final class VistaMenuPartida extends GridPane {
         avisoDeshacer.setFont(Font.font("System", 12));
         avisoDeshacer.setTextFill(tema.textoSecundario());
         opciones.getChildren().add(seccion("DESHACER JUGADAS", new VBox(6, fila(permitirDeshacer), avisoDeshacer)));
-        ToggleButton ia = opcion("IA · Próximamente", "rival-ia", Rival.IA, rival);
-        ia.setDisable(true);
         opciones.getChildren().add(seccion("RIVAL", fila(
-                opcion("Amigo · misma pantalla", "rival-amigo", Rival.AMIGO, rival), ia)));
+                opcion("Amigo · misma pantalla", "rival-amigo", Rival.AMIGO, rival),
+                opcion("IA · la computadora", "rival-ia", Rival.IA, rival))));
+        avisoDificultad.setId("aviso-dificultad");
+        avisoDificultad.setFont(Font.font("System", 12));
+        avisoDificultad.setTextFill(tema.textoSecundario());
+        avisoDificultad.setWrapText(true);
+        opciones.getChildren().add(seccion("DIFICULTAD DE LA IA", new VBox(6, fila(
+                opcion("Fácil", "dificultad-facil", Dificultad.FACIL, dificultad),
+                opcion("Medio", "dificultad-medio", Dificultad.MEDIO, dificultad),
+                opcion("Difícil", "dificultad-dificil", Dificultad.DIFICIL, dificultad)), avisoDificultad)));
         VBox equipos = new VBox(10, seleccionEquipo("Jugador 1", "jugador-1", equipo1),
                 seleccionEquipo("Jugador 2", "jugador-2", equipo2));
         opciones.getChildren().add(seccion("EQUIPOS", equipos));
@@ -107,6 +123,8 @@ public final class VistaMenuPartida extends GridPane {
         pendientes.setFont(Font.font("System", 13));
         pendientes.setTextFill(tema.textoSecundario());
         pendientes.setWrapText(true);
+        // Puede necesitar varios renglones en ventanas angostas: crece en alto en vez de cortarse.
+        pendientes.setMinHeight(Region.USE_PREF_SIZE);
         pendientes.setMinWidth(0);
         pendientes.setMaxWidth(Double.MAX_VALUE);
         jugar.setId("jugar");
@@ -121,7 +139,7 @@ public final class VistaMenuPartida extends GridPane {
         jugar.focusedProperty().addListener((p, antes, foco) -> pintarJugar());
         pintarJugar();
         jugar.setOnAction(e -> emitirConfiguracion());
-        HBox pie = new HBox(16, pendientes, jugar);
+        pie = new HBox(16, pendientes, jugar);
         pie.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(pendientes, Priority.ALWAYS);
         pie.setBackground(fondo(tema.tarjeta()));
@@ -139,10 +157,69 @@ public final class VistaMenuPartida extends GridPane {
         add(columnaOpciones, 1, 0);
         heightProperty().addListener((p, antes, alto) -> ajustarDensidad(opciones, pie, alto.doubleValue()));
         ajustarDensidad(opciones, pie, getHeight());
-        for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores}) {
+        for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores, dificultad}) {
             grupo.selectedToggleProperty().addListener((p, antes, ahora) -> actualizarSeleccion());
         }
         actualizarSeleccion();
+    }
+
+    /**
+     * El personaje se ríe: se balancea de un lado al otro, con un pequeño rebote, y vuelve a quedar
+     * quieto. Dura unos 3 segundos, lo que dura la risa. Devuelve la animación (ya iniciada).
+     */
+    public javafx.animation.Animation animarPersonaje() {
+        javafx.util.Duration vaivenDuracion = javafx.util.Duration.millis(260);
+        var aLaIzquierda = new javafx.animation.RotateTransition(javafx.util.Duration.millis(150), figura);
+        aLaIzquierda.setToAngle(-9);
+        var vaiven = new javafx.animation.RotateTransition(vaivenDuracion, figura);
+        vaiven.setFromAngle(-9);
+        vaiven.setToAngle(9);
+        vaiven.setCycleCount(10);
+        vaiven.setAutoReverse(true);
+        var rebote = new javafx.animation.ScaleTransition(vaivenDuracion, figura);
+        rebote.setFromX(1);
+        rebote.setFromY(1);
+        rebote.setToX(1.06);
+        rebote.setToY(1.06);
+        rebote.setCycleCount(10);
+        rebote.setAutoReverse(true);
+        var alCentro = new javafx.animation.RotateTransition(javafx.util.Duration.millis(200), figura);
+        alCentro.setToAngle(0);
+        var risa = new javafx.animation.SequentialTransition(aLaIzquierda,
+                new javafx.animation.ParallelTransition(vaiven, rebote), alCentro);
+        risa.setOnFinished(evento -> {
+            figura.setRotate(0);
+            figura.setScaleX(1);
+            figura.setScaleY(1);
+        });
+        risa.play();
+        return risa;
+    }
+
+    /** Qué hacer cuando la persona toca una opción del menú (por ejemplo, un clic de sonido). */
+    public void alElegirOpcion(Runnable accion) {
+        alElegirOpcion = Objects.requireNonNull(accion, "accion");
+    }
+
+    /**
+     * Agrega al pie el botón de silencio, con el mismo control de volumen que la partida: lo que se elige
+     * acá sigue valiendo al jugar.
+     */
+    public void configurarSonido(ControlDeVolumen control) {
+        Objects.requireNonNull(control, "control");
+        if (pie.lookup("#silencio-menu") != null) throw new IllegalStateException("Sonido ya configurado");
+        Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio-menu", tema.borde(), tema.texto());
+        // El texto de "Falta elegir" ocupa el resto: el botón nunca se achica hasta cortarse.
+        silencio.setMinWidth(Region.USE_PREF_SIZE);
+        silencio.setOnAction(e -> {
+            control.silenciar(!control.silenciado());
+            silencio.setText(textoSilencio(control));
+        });
+        pie.getChildren().addFirst(silencio);
+    }
+
+    private static String textoSilencio(ControlDeVolumen control) {
+        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
     }
 
     /** En pantallas bajas junta las opciones para que entren sin desplazarlas. */
@@ -164,7 +241,8 @@ public final class VistaMenuPartida extends GridPane {
     private VBox portada() {
         Text marca = texto("CHIQUICHESS", 32, tema.texto(), true);
         Text subtitulo = texto("AJEDREZ ARGENTINO", 13, tema.acento(), true);
-        ImageView figura = new ImageView(cargarPersonaje());
+        figura = new ImageView(cargarPersonaje());
+        figura.setId("personaje");
         figura.setPreserveRatio(true);
         figura.setSmooth(true);
         StackPane personaje = new StackPane(figura);
@@ -198,7 +276,7 @@ public final class VistaMenuPartida extends GridPane {
         for (Equipo equipo : Equipo.values()) {
             ToggleButton boton = opcion(equipo.nombre(),
                     id + "-" + equipo.name().toLowerCase(java.util.Locale.ROOT), equipo, grupo);
-            var imagen = new javafx.scene.image.ImageView(PresentacionClub.de(equipo, tema).escudo());
+            var imagen = new javafx.scene.image.ImageView(PresentacionClub.escudoDe(equipo));
             imagen.setFitWidth(26);
             imagen.setFitHeight(30);
             imagen.setPreserveRatio(true);
@@ -219,6 +297,8 @@ public final class VistaMenuPartida extends GridPane {
         boton.setFont(Font.font("System", FontWeight.BOLD, 13));
         boton.setPadding(new Insets(9, 12, 9, 12));
         boton.setCursor(Cursor.HAND);
+        // Solo los clics de la persona (no las selecciones que hace el propio menú) avisan.
+        boton.setOnAction(evento -> alElegirOpcion.run());
         boton.selectedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         boton.focusedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         pintarOpcion(boton);
@@ -249,6 +329,12 @@ public final class VistaMenuPartida extends GridPane {
         permitirDeshacer.setDisable(!sinTiempo);
         avisoDeshacer.setText(sinTiempo ? "Cualquiera de los dos podrá deshacer y rehacer jugadas."
                 : "Disponible solo en partidas sin tiempo.");
+        // La dificultad solo existe contra la IA: con otro rival se borra y se deshabilita.
+        boolean contraLaIa = rival.getSelectedToggle() != null && rival.getSelectedToggle().getUserData() == Rival.IA;
+        if (!contraLaIa && dificultad.getSelectedToggle() != null) dificultad.selectToggle(null);
+        for (Toggle opcion : dificultad.getToggles()) ((ToggleButton) opcion).setDisable(!contraLaIa);
+        avisoDificultad.setText(contraLaIa ? "La IA juega como Jugador 2, con su equipo."
+                : "Disponible solo contra la IA.");
         boolean futbol = modo.getSelectedToggle() != null && modo.getSelectedToggle().getUserData() == Modo.FUTBOL;
         limiteDeJugadas.setDisable(!futbol);
         avisoLimite.setText(futbol
@@ -259,6 +345,7 @@ public final class VistaMenuPartida extends GridPane {
         if (modo.getSelectedToggle() == null) faltantes.add("modo");
         if (tiempo.getSelectedToggle() == null) faltantes.add("tiempo");
         if (rival.getSelectedToggle() == null) faltantes.add("rival");
+        if (contraLaIa && dificultad.getSelectedToggle() == null) faltantes.add("dificultad");
         if (equipo1.getSelectedToggle() == null) faltantes.add("equipo de Jugador 1");
         if (equipo2.getSelectedToggle() == null) faltantes.add("equipo de Jugador 2");
         if (colores.getSelectedToggle() == null) faltantes.add("colores");
@@ -278,7 +365,8 @@ public final class VistaMenuPartida extends GridPane {
                 (Tiempo) tiempo.getSelectedToggle().getUserData(), (Rival) rival.getSelectedToggle().getUserData(),
                 (Equipo) equipo1.getSelectedToggle().getUserData(), (Equipo) equipo2.getSelectedToggle().getUserData(),
                 (Colores) colores.getSelectedToggle().getUserData(), permitirDeshacer.isSelected(),
-                limiteElegido());
+                limiteElegido(), java.util.Optional.ofNullable(dificultad.getSelectedToggle())
+                .map(elegida -> (Dificultad) elegida.getUserData()));
         iniciar.accept(seleccion);
     }
 

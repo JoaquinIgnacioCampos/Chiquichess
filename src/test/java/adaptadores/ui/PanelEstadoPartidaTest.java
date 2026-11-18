@@ -292,4 +292,40 @@ class PanelEstadoPartidaTest {
                 adaptadores.configuracion.ConfiguracionPartida.Modo.FUTBOL, 40));
         assertEquals("Jugada 0 de 40", texto(vista, "jugadas-futbol"));
     }
+
+    // ---------------- Cartel de gol ----------------
+
+    @Test
+    void sinGolNoHayCartel() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+        assertFalse(vista.lookup("#cartel-gol").isVisible());
+    }
+
+    @Test
+    void elGolMuestraElCartelDeLucesConElNombreDelBando() {
+        VistaPartida vista = vista(futbolConTorreEnD2());
+
+        jugar(vista, "d2d8");
+
+        assertTrue(vista.lookup("#cartel-gol").isVisible());
+        assertEquals("¡GOL!", texto(vista, "gol-luces"));
+        assertEquals("BLANCAS", texto(vista, "gol-equipo"));
+    }
+
+    @Test
+    void conClubesElCartelLlevaElEscudoYElColorDelEquipoQueHizoElGol() {
+        var clubes = Map.of(
+                Bando.BLANCO, PresentacionClub.de(adaptadores.configuracion.ConfiguracionPartida.Equipo.ARGENTINA, temaPanel),
+                Bando.NEGRO, PresentacionClub.de(adaptadores.configuracion.ConfiguracionPartida.Equipo.BOCA, temaPanel));
+        VistaPartida vista = new VistaPartida(new ControladorTablero(futbolConTorreEnD2()), temaTablero,
+                new RepresentacionUnicode(), temaPanel, clubes);
+
+        jugar(vista, "d2d8");
+
+        assertEquals("ARGENTINA", texto(vista, "gol-equipo"));
+        var cartel = vista.lookup("#cartel-gol");
+        var escudo = (javafx.scene.image.ImageView) cartel.lookup(".image-view");
+        assertSame(clubes.get(Bando.BLANCO).escudo(), escudo.getImage());
+        assertTrue(escudo.isVisible());
+    }
 }

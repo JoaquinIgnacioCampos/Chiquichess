@@ -8,12 +8,17 @@ import adaptadores.audio.ControlDeVolumen;
 import adaptadores.audio.ReproductorDeAudio;
 import adaptadores.audio.ReproductorJavaSound;
 import adaptadores.audio.SonidosDePartida;
+import adaptadores.audio.SonidosDelMenu;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.PartidaConfigurada;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -29,20 +34,39 @@ public class AplicacionAjedrez extends Application {
     private ActualizadorRelojJavaFx actualizadorReloj;
     private PartidaConfigurada partidaActual;
     private SonidosDePartida sonidosActuales;
+    private TurnoDeLaIa turnoDeLaIa;
+    /** Hilos donde piensa la IA; son daemon para no impedir que el programa se cierre. */
+    private final ExecutorService hilosDeLaIa = Executors.newCachedThreadPool(tarea -> {
+        Thread hilo = new Thread(tarea, "ia-pensando");
+        hilo.setDaemon(true);
+        return hilo;
+    });
     /** Uno solo para todo el programa: el volumen elegido sigue valiendo en las partidas siguientes. */
     private final ControlDeVolumen volumen = new ControlDeVolumen();
     private final CatalogoDeSonidos catalogoDeSonidos = new CatalogoDeSonidos();
     private ReproductorDeAudio reproductor;
+    private SonidosDelMenu sonidosDelMenu;
 
     @Override
     public void start(Stage ventana) {
         reproductor = new ReproductorJavaSound();
-        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
+        sonidosDelMenu = new SonidosDelMenu(catalogoDeSonidos, reproductor, volumen);
+        VistaMenuPartida menu = nuevoMenu(ventana);
         ventana.setTitle("ChiquiChess");
         ventana.setScene(new Scene(menu));
         ajustarAPantalla(ventana, Screen.getPrimary().getVisualBounds());
         ventana.setOnHidden(evento -> cerrarPartidaActual());
         ventana.show();
+        // Al abrir el juego, y solo entonces: el personaje se ríe y se balancea.
+        sonidosDelMenu.abrirJuego();
+        menu.animarPersonaje();
+    }
+
+    private VistaMenuPartida nuevoMenu(Stage ventana) {
+        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
+        menu.configurarSonido(volumen);
+        menu.alElegirOpcion(sonidosDelMenu::opcionElegida);
+        return menu;
     }
 
     /** La ventana arranca entera dentro de la pantalla, centrada y con la barra de título visible. */
@@ -59,15 +83,17 @@ public class AplicacionAjedrez extends Application {
 
     private void iniciarPartida(Stage ventana, ConfiguracionPartida configuracion) {
         cerrarPartidaActual();
+        sonidosDelMenu.salirDelMenu();
         var preparada = new EnsambladorPartida().prepararConfigurada(configuracion);
         partidaActual = preparada;
         Partida partida = preparada.partida();
         TemaTablero tema = new TemaTablero(
-                Color.web("#F0D9B5"), Color.web("#B58863"),
+                Color.web("#9FBE70"), Color.web("#527B3D"),
                 Color.web("#FFFBEF"), Color.web("#202733"),
                 Color.web("#202733"), Color.web("#1B212B"),
-                Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23));
-        ControladorTablero controlador = new ControladorTablero(partida);
+                Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23),
+                new Image("/tablero/pasto.jpg", 1280, 1280, true, true));
+        ControladorTablero controlador = new ControladorTablero(partida, preparada.rival());
         TemaPanel temaPanel = TemaPanel.marcador();
         var clubes = java.util.Map.of(
                 Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
@@ -86,16 +112,23 @@ public class AplicacionAjedrez extends Application {
         }, () -> iniciarRevancha(ventana, configuracion, preparada));
         actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes);
         ventana.getScene().setRoot(vista);
-        sonidosActuales = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
+        SonidosDePartida sonidos = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
                 Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),
                 volumen, configuracion.modo() == ConfiguracionPartida.Modo.FUTBOL);
+        sonidosActuales = sonidos;
+        vista.alSeleccionarPieza(sonidos::piezaSeleccionada);
         actualizadorReloj.iniciar();
+        // Último: si la IA juega con blancas, empieza a pensar ya con la vista y el sonido listos.
+        preparada.rival().ifPresent(rival -> {
+            turnoDeLaIa = new TurnoDeLaIa(partida, rival, hilosDeLaIa, Platform::runLater);
+            turnoDeLaIa.iniciar();
+        });
     }
 
     private void volverAlMenu(Stage ventana) {
         cerrarPartidaActual();
-        ventana.getScene().setRoot(new VistaMenuPartida(TemaPanel.marcador(),
-                configuracion -> iniciarPartida(ventana, configuracion)));
+        ventana.getScene().setRoot(nuevoMenu(ventana));
+        sonidosDelMenu.entrarAlMenu();
     }
 
     private void iniciarRevancha(Stage ventana, ConfiguracionPartida anterior, PartidaConfigurada preparada) {
@@ -104,10 +137,14 @@ public class AplicacionAjedrez extends Application {
                 ? ConfiguracionPartida.Colores.JUGADOR_2_BLANCAS : ConfiguracionPartida.Colores.JUGADOR_1_BLANCAS;
         iniciarPartida(ventana, new ConfiguracionPartida(anterior.modo(), anterior.tiempo(), anterior.rival(),
                 anterior.equipoJugador1(), anterior.equipoJugador2(), colores, anterior.permitirDeshacer(),
-                anterior.limiteDeJugadas()));
+                anterior.limiteDeJugadas(), anterior.dificultad()));
     }
 
     private void cerrarPartidaActual() {
+        if (turnoDeLaIa != null) {
+            turnoDeLaIa.close();
+            turnoDeLaIa = null;
+        }
         if (sonidosActuales != null) {
             sonidosActuales.close();
             sonidosActuales = null;
@@ -124,6 +161,8 @@ public class AplicacionAjedrez extends Application {
 
     @Override public void stop() {
         cerrarPartidaActual();
+        if (sonidosDelMenu != null) sonidosDelMenu.close();
         if (reproductor != null) reproductor.close();
+        hilosDeLaIa.shutdownNow();
     }
 }

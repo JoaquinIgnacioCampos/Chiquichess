@@ -7,6 +7,10 @@ import Nucleo.reglas.Marcador;
 import Nucleo.tablero.Posicion;
 
 import java.io.*;
+import java.time.Duration;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /** Adaptador de entrada/salida por consola: lee jugadas como "e2 e4" y las envía a la Partida. */
 public class JuegoConsola {
@@ -16,6 +20,10 @@ public class JuegoConsola {
     private final MensajesDeConsola mensajes;
     private final BufferedReader entrada;
     private final PrintStream salida;
+    /** La IA, si se juega contra ella: cuando le toca, juega sola y se muestra qué hizo. */
+    private final Optional<RivalArtificial> rival;
+    /** Cómo espera mientras la IA "piensa" como una persona; en los tests, no espera. */
+    private final Consumer<Duration> esperar;
 
     public JuegoConsola(Partida partida, RenderizadorConsola renderizador, InputStream entrada, PrintStream salida) {
         this(partida, renderizador, new MensajesDeConsola(), entrada, salida);
@@ -23,6 +31,19 @@ public class JuegoConsola {
 
     public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
                         InputStream entrada, PrintStream salida) {
+        this(partida, renderizador, mensajes, entrada, salida, Optional.empty());
+    }
+
+    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+                        InputStream entrada, PrintStream salida, Optional<RivalArtificial> rival) {
+        this(partida, renderizador, mensajes, entrada, salida, rival, JuegoConsola::dormir);
+    }
+
+    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+                        InputStream entrada, PrintStream salida, Optional<RivalArtificial> rival,
+                        Consumer<Duration> esperar) {
+        this.rival = Objects.requireNonNull(rival, "rival");
+        this.esperar = Objects.requireNonNull(esperar, "esperar");
         this.partida = partida;
         this.renderizador = renderizador;
         this.mensajes = mensajes;
@@ -58,6 +79,10 @@ public class JuegoConsola {
                 if (partida.estado() == EstadoPartida.JAQUE) {
                     salida.println("Jaque!");
                 }
+                if (rival.filter(RivalArtificial::leToca).isPresent()) {
+                    jugarLaIa(rival.get());
+                    continue;
+                }
                 salida.print("Turno de " + partida.jugadorActual().nombre()
                         + " (" + partida.turno() + "): ");
             }
@@ -74,10 +99,11 @@ public class JuegoConsola {
     private void procesar(String linea) {
         if (linea.equalsIgnoreCase("deshacer") || linea.equalsIgnoreCase("rehacer")) {
             try {
+                // Contra la IA se deshace de a dos jugadas, para que vuelva a tocarle a la persona.
                 if (linea.equalsIgnoreCase("deshacer")) {
-                    partida.deshacer();
+                    if (rival.isPresent()) rival.get().deshacer(); else partida.deshacer();
                 } else {
-                    partida.rehacer();
+                    if (rival.isPresent()) rival.get().rehacer(); else partida.rehacer();
                 }
             } catch (AccionInvalidaException e) {
                 salida.println(mensajes.rechazoDeAccion(e.motivo()));
@@ -112,6 +138,33 @@ public class JuegoConsola {
             salida.println(e.getMessage());
         } catch (MovimientoInvalidoException e) {
             salida.println(mensajes.rechazoDeMovimiento(e.motivo()));
+        }
+    }
+
+    /** La IA piensa (la consola espera) y juega; se muestra la jugada como la escribiría una persona. */
+    private void jugarLaIa(RivalArtificial ia) {
+        salida.println(partida.jugadorActual().nombre() + " esta pensando...");
+        Marcador antes = partida.marcador();
+        long inicio = System.nanoTime();
+        RivalArtificial.Respuesta respuesta = ia.pensar();
+        // Mueve recién cuando pasó lo que tardaría una persona de su nivel.
+        Duration falta = respuesta.demora().minusNanos(System.nanoTime() - inicio);
+        if (!falta.isNegative() && !falta.isZero()) esperar.accept(falta);
+        Movimiento jugada = respuesta.movimiento();
+        partida.mover(jugada);
+        salida.println(partida.jugador(ia.bando()).nombre() + " juega " + NotacionAlgebraica.formatear(jugada.origen())
+                + " " + NotacionAlgebraica.formatear(jugada.destino())
+                + jugada.promocion().map(codigo -> " " + codigo).orElse(""));
+        if (!partida.marcador().equals(antes)) {
+            salida.println("GOL!");
+        }
+    }
+
+    private static void dormir(Duration tiempo) {
+        try {
+            Thread.sleep(tiempo);
+        } catch (InterruptedException interrumpido) {
+            Thread.currentThread().interrupt();
         }
     }
 

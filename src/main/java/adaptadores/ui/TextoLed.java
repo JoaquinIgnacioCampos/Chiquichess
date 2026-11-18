@@ -25,6 +25,8 @@ public final class TextoLed extends Region {
             Map.entry('8', "01110/10001/10001/01110/10001/10001/01110"),
             Map.entry('9', "01110/10001/10001/01111/00001/00001/01110"),
             Map.entry(':', "00000/00100/00100/00000/00100/00100/00000"),
+            Map.entry('!', "00100/00100/00100/00100/00100/00000/00100"),
+            Map.entry('¡', "00100/00000/00100/00100/00100/00100/00100"),
             Map.entry('A', "01110/10001/10001/11111/10001/10001/10001"),
             Map.entry('B', "11110/10001/10001/11110/10001/10001/11110"),
             Map.entry('C', "01111/10000/10000/10000/10000/10000/01111"),
@@ -54,6 +56,8 @@ public final class TextoLed extends Region {
 
     private final Canvas lienzo = new Canvas();
     private Color color;
+    /** Color de los puntos apagados; null si no se dibujan (como en el panel). */
+    private Color apagado;
     private String texto = "";
 
     public TextoLed(Color color) {
@@ -75,6 +79,12 @@ public final class TextoLed extends Region {
         Objects.requireNonNull(color, "color");
         if (this.color.equals(color)) return;
         this.color = color;
+        requestLayout();
+    }
+
+    /** Dibuja también los puntos apagados, tenues, como un cartel de luces de estadio. */
+    public void setColorApagado(Color apagado) {
+        this.apagado = Objects.requireNonNull(apagado, "apagado");
         requestLayout();
     }
 
@@ -109,10 +119,11 @@ public final class TextoLed extends Region {
             String glifo = GLIFOS.getOrDefault(letras.charAt(letra), VACIO);
             for (int fila = 0; fila < 7; fila++) {
                 for (int columna = 0; columna < 5; columna++) {
-                    if (glifo.charAt(fila * 6 + columna) == '1') {
-                        dibujo.fillOval(inicioX + (letra * 6 + columna + 0.14) * paso,
-                                inicioY + (fila + 0.14) * paso, diametro, diametro);
-                    }
+                    boolean prendido = glifo.charAt(fila * 6 + columna) == '1';
+                    if (!prendido && apagado == null) continue;
+                    dibujo.setFill(prendido ? color : apagado);
+                    dibujo.fillOval(inicioX + (letra * 6 + columna + 0.14) * paso,
+                            inicioY + (fila + 0.14) * paso, diametro, diametro);
                 }
             }
         }

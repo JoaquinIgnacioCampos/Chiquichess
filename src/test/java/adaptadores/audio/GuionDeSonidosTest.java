@@ -113,6 +113,8 @@ class GuionDeSonidosTest {
         usados.addAll(sonidos(futbol.alEmpezar()));
 
         // Assert
-        assertEquals(EnumSet.complementOf(EnumSet.of(Sonido.HINCHADA)), usados);
+        // La hinchada suena en bucle, la selección la avisa la vista, y la risa y el ambiente son del menú.
+        assertEquals(EnumSet.complementOf(EnumSet.of(Sonido.HINCHADA, Sonido.SELECCION, Sonido.RISA,
+                Sonido.AMBIENTE_MENU)), usados);
     }
 }

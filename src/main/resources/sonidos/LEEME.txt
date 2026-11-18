@@ -6,7 +6,8 @@ Formatos: WAV (recomendado), AIFF o AU. MP3, OGG y FLAC no se pueden usar (Java 
 Dónde va cada archivo
 ---------------------
 comunes/<nombre>.wav               iguales para todos
-clubes/boca/<nombre>.wav           solo para Boca (y lo mismo con river e independiente)
+clubes/boca/<nombre>.wav           solo para Boca (y lo mismo con river, independiente, san_lorenzo,
+                                   racing y argentina)
 
 Los clubes pueden tener su propio: gol, victoria, hinchada.
 Si un club no tiene el suyo, se usa el de comunes.

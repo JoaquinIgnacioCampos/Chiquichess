@@ -155,4 +155,86 @@ class VistaMenuPartidaTest {
         assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(0).limiteDeJugadas());
         assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(1).limiteDeJugadas());
     }
+
+    // ---------------- Rival IA ----------------
+
+    @Test
+    void laDificultadSoloSeHabilitaContraLaIaYEsObligatoria() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        assertTrue(boton("dificultad-medio").isDisable());
+
+        boton("rival-ia").setSelected(true);
+
+        assertFalse(boton("dificultad-medio").isDisable());
+        assertTrue(buscar("jugar").isDisable());
+        assertTrue(((javafx.scene.control.Label) menu.lookup("#selecciones-pendientes")).getText().contains("dificultad"));
+    }
+
+    @Test
+    void laDificultadElegidaViajaEnLaConfiguracion() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        boton("rival-ia").setSelected(true);
+        boton("dificultad-dificil").setSelected(true);
+
+        ((Button) buscar("jugar")).fire();
+
+        assertEquals(ConfiguracionPartida.Rival.IA, emitidas.getFirst().rival());
+        assertEquals(java.util.Optional.of(Nucleo.ia.Dificultad.DIFICIL), emitidas.getFirst().dificultad());
+    }
+
+    @Test
+    void volverAElegirAmigoBorraLaDificultad() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        boton("rival-ia").setSelected(true);
+        boton("dificultad-facil").setSelected(true);
+
+        boton("rival-amigo").setSelected(true);
+
+        assertFalse(boton("dificultad-facil").isSelected());
+        ((Button) buscar("jugar")).fire();
+        assertTrue(emitidas.getFirst().dificultad().isEmpty());
+    }
+
+    // ---------------- Portada y sonido ----------------
+
+    @Test
+    void alAbrirElPersonajeSeBalanceaUnosSegundosYVuelveAQuedarQuieto() {
+        var risa = menu.animarPersonaje();
+        var personaje = buscar("personaje");
+
+        assertEquals(javafx.animation.Animation.Status.RUNNING, risa.getStatus());
+        double segundos = risa.getTotalDuration().toSeconds();
+        assertTrue(segundos > 2 && segundos < 4, "dura " + segundos + " s");
+        risa.stop();
+        risa.getOnFinished().handle(null);
+        assertEquals(0, personaje.getRotate());
+        assertEquals(1, personaje.getScaleX());
+    }
+
+    @Test
+    void elBotonDeSonidoDelMenuUsaElMismoControlQueLaPartida() {
+        var control = new adaptadores.audio.ControlDeVolumen();
+        menu.configurarSonido(control);
+        Button silencio = (Button) menu.lookup("#silencio-menu");
+
+        silencio.fire();
+
+        assertTrue(control.silenciado());
+        assertEquals("Sonido: no", silencio.getText());
+    }
+
+    @Test
+    void tocarUnaOpcionAvisaYLasSeleccionesDelPropioMenuNo() {
+        int[] avisos = {0};
+        menu.alElegirOpcion(() -> avisos[0]++);
+
+        boton("modo-clasico").fire();
+        boton("jugador-1-argentina").fire();
+        boton("rival-amigo").setSelected(true);   // lo hace el programa, no un clic: no avisa
+
+        assertEquals(2, avisos[0]);
+    }
 }

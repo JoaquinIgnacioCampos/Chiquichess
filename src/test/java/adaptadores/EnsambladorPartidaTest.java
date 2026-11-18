@@ -225,4 +225,34 @@ class EnsambladorPartidaTest {
         assertEquals(Optional.of(Bando.NEGRO), partida.tablero().arcoEn(pos("e8")));
         assertEquals(Optional.of(Bando.BLANCO), partida.tablero().arcoEn(pos("d1")));
     }
+
+    // ---------------- Contra la IA ----------------
+
+    @Test
+    void contraLaIaElJugador2EsLaIaConSuColorYSuNombre() {
+        ConfiguracionPartida contraLaIa = new ConfiguracionPartida(Modo.CLASICO, Tiempo.SIN_TIEMPO, Rival.IA,
+                Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_2_BLANCAS, false, ConfiguracionPartida.LIMITE_POR_DEFECTO,
+                java.util.Optional.of(Nucleo.ia.Dificultad.FACIL));
+
+        var preparada = ensamblador.prepararConfigurada(contraLaIa);
+
+        assertEquals(Bando.BLANCO, preparada.rival().orElseThrow().bando());
+        assertEquals("IA (fácil)", preparada.partida().jugador(Bando.BLANCO).nombre());
+        assertEquals(Equipo.RIVER, preparada.equipoBlancas());
+    }
+
+    @Test
+    void contraUnAmigoNoHayIa() {
+        var preparada = ensamblador.prepararConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
+        assertTrue(preparada.rival().isEmpty());
+    }
+
+    @Test
+    void laDificultadVaSoloYSiempreConLaIa() {
+        assertThrows(IllegalArgumentException.class, () -> new ConfiguracionPartida(Modo.CLASICO, Tiempo.SIN_TIEMPO,
+                Rival.IA, Equipo.BOCA, Equipo.RIVER, Colores.ALEATORIO, false));
+        assertThrows(IllegalArgumentException.class, () -> new ConfiguracionPartida(Modo.CLASICO, Tiempo.SIN_TIEMPO,
+                Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, Colores.ALEATORIO, false, ConfiguracionPartida.LIMITE_POR_DEFECTO,
+                java.util.Optional.of(Nucleo.ia.Dificultad.MEDIO)));
+    }
 }

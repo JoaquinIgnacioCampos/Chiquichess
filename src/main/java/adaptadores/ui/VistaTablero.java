@@ -5,8 +5,10 @@ import Nucleo.tablero.Posicion;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.Objects;
@@ -42,7 +44,7 @@ public final class VistaTablero extends Region {
         redibujar(Optional.empty(), Set.of());
     }
 
-    /** Los destinos ya fueron consultados al núcleo; aquí solo se representan. */
+    /** La selección puede estar vacía y los destinos ya vienen calculados por el núcleo. */
     public void redibujar(Optional<Posicion> seleccionada, Set<Posicion> destinos) {
         Objects.requireNonNull(seleccionada, "seleccionada");
         Objects.requireNonNull(destinos, "destinos");
@@ -77,13 +79,21 @@ public final class VistaTablero extends Region {
         casilla.setId("casilla-" + posicion.columna() + "-" + posicion.fila());
         casilla.getStyleClass().add("casilla");
         boolean oscura = (posicion.columna() + posicion.fila()) % 2 == 0;
+        Color colorCasilla = oscura ? tema.casillaOscura() : tema.casillaClara();
         if (seleccionada) {
             casilla.getStyleClass().add("casilla-seleccionada");
+            colorCasilla = tema.casillaSeleccionada();
         }
-        casilla.setBackground(new Background(new BackgroundFill(
-                seleccionada ? tema.casillaSeleccionada()
-                        : oscura ? tema.casillaOscura() : tema.casillaClara(),
-                CornerRadii.EMPTY, Insets.EMPTY)));
+        casilla.setBackground(Background.fill(colorCasilla));
+        if (tema.textura() != null) {
+            ImageView pasto = new ImageView(tema.textura());
+            pasto.setManaged(false);
+            pasto.setMouseTransparent(true);
+            pasto.setOpacity(seleccionada ? 0.15 : 0.28);
+            pasto.fitWidthProperty().bind(casilla.widthProperty());
+            pasto.fitHeightProperty().bind(casilla.heightProperty());
+            casilla.getChildren().add(pasto);
+        }
         casilla.setOnMouseClicked(evento -> {
             if (evento.getButton() == MouseButton.PRIMARY) {
                 alPulsar.accept(posicion);
