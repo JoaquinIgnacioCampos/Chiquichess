@@ -52,7 +52,7 @@ class RivalArtificialTest {
         ia.pensar(partida.situacion(), Optional.of(Duration.ofSeconds(60)));
 
         // Assert
-        assertEquals(Duration.ofSeconds(60).dividedBy(RivalArtificial.FRACCION_DEL_TIEMPO_RESTANTE),
+        assertEquals(Duration.ofSeconds(60).dividedBy(Nucleo.ia.RitmoHumano.FRACCION_DEL_TIEMPO_RESTANTE),
                 estrategia.tiemposRecibidos.getFirst());
     }
 

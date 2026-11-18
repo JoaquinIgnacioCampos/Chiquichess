@@ -118,6 +118,11 @@ final class BuscadorMinimax {
         return resultado;
     }
 
+    /** Cuántas jugadas legales tiene ese bando en la posición inicial. */
+    int cantidadDeJugadasLegales(Bando turno) {
+        return legales(turno).size();
+    }
+
     /** Cuántas posiciones miró en la última búsqueda (para medir). */
     long posiciones() {
         return posiciones;

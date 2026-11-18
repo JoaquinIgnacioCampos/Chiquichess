@@ -333,6 +333,54 @@ class JugadorArtificialTest {
         assertEquals(Optional.of('D'), movimiento.promocion());
     }
 
+    @Test
+    void conUnaSolaJugadaPosibleRespondeEnUnSegundo() {
+        // Arrange: el rey blanco solo puede ir a a2 (la torre negra controla la columna b)
+        Partida partida = partida(ReglasDePartida.clasicas(),
+                ".t.....r",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "........",
+                "R.......");
+
+        // Act
+        DecisionDeJuego decision = ia(Dificultad.DIFICIL).decidir(partida.situacion(), Optional.empty());
+
+        // Assert
+        assertEquals(pos("a2"), decision.jugada().destino());
+        assertTrue(decision.tiempoDeRespuesta().toMillis() <= 1200, decision.tiempoDeRespuesta().toString());
+    }
+
+    @Test
+    void elDificilTardaComoUnaPersonaDeSuNivelYPiensaEseTiempo() {
+        // Arrange: cada consulta del tiempo avanza un segundo, así la búsqueda se corta enseguida
+        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
+                new Jugador("IA", Bando.NEGRO), ReglasDePartida.clasicas(), new SinReloj());
+        JugadorArtificial ia = new JugadorArtificial(Dificultad.DIFICIL, new Random(3), new FuenteQueAvanzaUnSegundo());
+
+        // Act
+        DecisionDeJuego decision = ia.decidir(partida.situacion(), Optional.empty());
+
+        // Assert: en la apertura, la mitad de su rango de 3 a 7 s
+        long ms = decision.tiempoDeRespuesta().toMillis();
+        assertTrue(ms >= 1500 && ms <= 3500, decision.tiempoDeRespuesta().toString());
+        assertTrue(partida.movimientosLegales(decision.jugada().origen()).contains(decision.jugada().destino()));
+    }
+
+    /** Cada consulta del tiempo avanza un segundo. */
+    private static final class FuenteQueAvanzaUnSegundo implements FuenteDeTiempo {
+        private long nanos;
+
+        @Override
+        public long ahoraEnNanos() {
+            nanos += 1_000_000_000L;
+            return nanos;
+        }
+    }
+
     /** Cada consulta del tiempo avanza un milisegundo: la búsqueda se corta sola enseguida. */
     private static final class FuenteQueAvanza implements FuenteDeTiempo {
         private long nanos;

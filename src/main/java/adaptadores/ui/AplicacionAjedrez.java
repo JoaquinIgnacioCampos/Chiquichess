@@ -102,7 +102,7 @@ public class AplicacionAjedrez extends Application {
         actualizadorReloj.iniciar();
         // Último: si la IA juega con blancas, empieza a pensar ya con la vista y el sonido listos.
         preparada.rival().ifPresent(rival -> {
-            turnoDeLaIa = new TurnoDeLaIa(partida, rival, hilosDeLaIa, Platform::runLater, TurnoDeLaIa.PAUSA_MINIMA);
+            turnoDeLaIa = new TurnoDeLaIa(partida, rival, hilosDeLaIa, Platform::runLater);
             turnoDeLaIa.iniciar();
         });
     }

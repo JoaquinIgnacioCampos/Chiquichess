@@ -20,19 +20,16 @@ import java.util.function.Consumer;
  * Se entera de que le toca escuchando los eventos de la partida. Si la partida cambia mientras piensa
  * (la persona deshizo, se acabó el tiempo, se volvió al menú), lo pensado se descarta.
  *
- * Tarda al menos {@link #PAUSA_MINIMA}, aunque decida antes: una respuesta instantánea se siente como
- * un salto, no como un rival.
+ * Mueve recién cuando pasó el tiempo que tardaría una persona de su nivel (la demora de la
+ * {@link RivalArtificial.Respuesta}): una respuesta instantánea se siente como un salto, no como un rival.
  *
  * Los hilos se reciben por constructor: en los tests, los dos son "ejecutar ya", y todo pasa en orden.
  */
 public final class TurnoDeLaIa implements AutoCloseable {
-    public static final Duration PAUSA_MINIMA = Duration.ofMillis(700);
-
     private final Partida partida;
     private final RivalArtificial rival;
     private final Executor hiloDePensar;
     private final Consumer<Runnable> hiloDeLaInterfaz;
-    private final Duration pausaMinima;
     /** Cambia con cada evento: si al terminar de pensar no es la misma, lo pensado ya no sirve. */
     private int version = 0;
     private boolean pensando = false;
@@ -43,12 +40,11 @@ public final class TurnoDeLaIa implements AutoCloseable {
     };
 
     public TurnoDeLaIa(Partida partida, RivalArtificial rival, Executor hiloDePensar,
-                       Consumer<Runnable> hiloDeLaInterfaz, Duration pausaMinima) {
+                       Consumer<Runnable> hiloDeLaInterfaz) {
         this.partida = Objects.requireNonNull(partida, "partida");
         this.rival = Objects.requireNonNull(rival, "rival");
         this.hiloDePensar = Objects.requireNonNull(hiloDePensar, "hiloDePensar");
         this.hiloDeLaInterfaz = Objects.requireNonNull(hiloDeLaInterfaz, "hiloDeLaInterfaz");
-        this.pausaMinima = Objects.requireNonNull(pausaMinima, "pausaMinima");
     }
 
     /** Empieza a escuchar la partida y, si la IA empieza (juega con blancas), se pone a pensar. */
@@ -73,8 +69,9 @@ public final class TurnoDeLaIa implements AutoCloseable {
             long inicio = System.nanoTime();
             Movimiento elegido = null;
             try {
-                elegido = rival.pensar(situacion, tiempoRestante);
-                esperarLaPausa(inicio);
+                RivalArtificial.Respuesta respuesta = rival.pensar(situacion, tiempoRestante);
+                elegido = respuesta.movimiento();
+                esperarHasta(inicio, respuesta.demora());
             } catch (RuntimeException fallo) {
                 // Sin jugada (no debería pasar: si no hay jugadas, la partida ya terminó).
             }
@@ -97,8 +94,9 @@ public final class TurnoDeLaIa implements AutoCloseable {
         }
     }
 
-    private void esperarLaPausa(long inicio) {
-        long falta = pausaMinima.toNanos() - (System.nanoTime() - inicio);
+    /** Espera hasta que pase la demora desde que empezó a pensar (si pensó más, no espera nada). */
+    private static void esperarHasta(long inicio, Duration demora) {
+        long falta = demora.toNanos() - (System.nanoTime() - inicio);
         if (falta <= 0) return;
         try {
             Thread.sleep(Duration.ofNanos(falta));

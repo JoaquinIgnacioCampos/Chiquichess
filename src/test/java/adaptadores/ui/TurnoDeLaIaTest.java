@@ -10,7 +10,6 @@ import adaptadores.RivalArtificial;
 import dobles.EstrategiaFalsa;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.Executor;
@@ -34,7 +33,7 @@ class TurnoDeLaIaTest {
 
     private TurnoDeLaIa turno(Partida partida, Bando bandoDeLaIa) {
         RivalArtificial rival = new RivalArtificial(partida, bandoDeLaIa, new EstrategiaFalsa(false));
-        return new TurnoDeLaIa(partida, rival, enCola, Runnable::run, Duration.ZERO);
+        return new TurnoDeLaIa(partida, rival, enCola, Runnable::run);
     }
 
     private void terminarDePensar() {

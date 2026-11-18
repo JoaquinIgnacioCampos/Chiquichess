@@ -28,8 +28,9 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 
 | | Fácil | Medio | Difícil |
 |---|---|---|---|
-| Mira hasta | 1 jugada | 3 jugadas + quietud | lo que entre en el tiempo (~4) + quietud |
-| Tiempo de cálculo | ~10 ms | hasta 0,8 s | 1,5 s |
+| Mira hasta | 1 jugada | 3 jugadas + quietud | lo que entre en su tiempo de respuesta (~5) + quietud |
+| Tiempo de cálculo | ~10 ms | hasta 0,8 s | todo su tiempo de respuesta |
+| Tiempo de respuesta | 1 – 3 s | 2 – 5 s | 3 – 7 s |
 | Error al elegir | hasta 1,5 peones | hasta 1/4 de peón | ninguno |
 | Descuidos | 1 de cada 5 jugadas | no | no |
 
@@ -41,9 +42,34 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
   puntaje resultante. El fácil puede elegir una jugada hasta un peón y medio peor que la mejor, pero
   nunca regala una pieza que vio.
 - **Entre jugadas iguales elige al azar**, así dos partidas no son idénticas.
-- **Pausa mínima:** en la ventana, todas tardan al menos 0,7 s en mover, para que se sienta un rival y
-  no un salto.
-- **Con reloj**, piensa como mucho 1/30 de lo que le queda: nunca pierde por tiempo.
+- **Con reloj**, nunca piensa ni tarda más de 1/40 de lo que le queda: no pierde por tiempo.
+
+## El tiempo de respuesta
+
+La IA tarda en mover lo que tardaría una persona de su nivel (`RitmoHumano`), en la ventana y en la
+consola. El fácil y el medio calculan lo de siempre y esperan el resto; **el difícil calcula todo ese
+tiempo**, y por eso mira más hondo que antes (cuando calculaba 1,5 s).
+
+- **Jugada común:** un valor al azar dentro del rango de la dificultad, más cerca del medio. El
+  principiante es más impulsivo y el fuerte se toma su tiempo.
+- **Una sola jugada posible:** ~1 s, sin buscar nada.
+- **En jaque con pocas salidas:** el mínimo de su rango.
+- **Apertura** (las primeras 10 jugadas de la partida): la mitad, como quien juega de memoria.
+- **Posición complicada** (otra jugada a menos de un tercio de peón de la mejor): duda y tarda un
+  valor al azar de la mitad alta de su rango. En la apertura no, porque ahí casi todas son parecidas.
+- **Con reloj:** nunca más de 1/40 de lo que le queda.
+
+Medido a lo largo de una partida (después de la apertura):
+
+| | Mínimo | Promedio | Máximo |
+|---|---|---|---|
+| Fácil | 1,5 s | 2,2 s | 2,9 s |
+| Medio | 2,9 s | 4,3 s | 5,0 s |
+| Difícil | 3,2 s | 5,0 s | 6,6 s |
+
+En la apertura: el fácil ~1 s, el medio ~1,7 s y el difícil ~2,7 s.
+
+No hay una opción para que la IA juegue al instante: para eso está jugar sin tiempo o elegir el fácil.
 
 ## Qué
 
@@ -56,7 +82,9 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 | `EvaluadorDePosicion` | El puntaje de una posición. |
 | `Dificultad` | Profundidad, tiempo, error y quietud de cada nivel. |
 | `EstrategiaDeJuego` | Interfaz (Strategy): elegir jugada y responder tablas. |
-| `JugadorArtificial` | La implementación: busca según la dificultad y elige con el error. El azar y el tiempo se inyectan. |
+| `JugadorArtificial` | La implementación: busca según la dificultad, elige con el error y dice cuánto tardar (`decidir`). El azar y el tiempo se inyectan. |
+| `RitmoHumano` | Función pura: cuánto tardaría una persona de ese nivel en responder. |
+| `DecisionDeJuego` | La jugada elegida y su tiempo de respuesta. |
 
 - `Movimiento.de(jugada)` convierte la jugada elegida en el movimiento que se le pide a la partida.
 - **Los finales los deciden las reglas.** El buscador usa las mismas condiciones de fin que la
@@ -68,14 +96,16 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 - **`RivalArtificial`** (sin JavaFX): la IA sentada a la mesa. Juega con `Partida.mover` como una
   persona, responde las ofertas de tablas y deshace y rehace de a dos jugadas.
 - **Ventana:**
-  - `TurnoDeLaIa` hace pensar a la IA en otro hilo y juega en el de la interfaz. Si la partida cambia
+  - `TurnoDeLaIa` hace pensar a la IA en otro hilo, espera su tiempo de respuesta y juega en el de la
+    interfaz. Si la partida cambia
     mientras piensa (deshacer, tiempo, volver al menú), lo pensado se descarta.
   - `ControladorTablero` no deja tocar las piezas mientras le toca a la IA, ni rendirse u ofrecer
     tablas en su nombre.
   - El panel muestra "IA PENSANDO…" y la tarjeta de la IA no tiene botones activos.
   - Menú: "IA · la computadora" y la dificultad, que es obligatoria contra la IA.
 - **Consola:** `ia` como argumento, con `facil`, `medio` o `dificil` (por defecto, medio). Por
-  ejemplo: `futbol 60 ia dificil`. La IA juega con negras y la consola muestra su jugada.
+  ejemplo: `futbol 60 ia dificil`. La IA juega con negras, la consola espera su tiempo de respuesta
+  ("pensando...") y muestra su jugada.
 - La IA es el Jugador 2: usa su equipo y se llama "IA (medio)", según la dificultad.
 
 ## Decisiones
@@ -148,6 +178,10 @@ Medido haciendo jugar a la IA contra sí misma 40 jugadas:
   - pensar no toca la partida ni dispara eventos;
   - tablas solo si va claramente perdiendo; sin jugadas no elige; la promoción lleva la pieza.
   - El tiempo es falso: los resultados no dependen de la velocidad de la máquina.
+- `RitmoHumanoTest`: el rango de cada dificultad, el principiante más rápido que el fuerte, la jugada
+  forzada, el jaque con pocas salidas, la apertura, el límite del reloj y la duda.
+- `JugadorArtificialTest` también: con una sola jugada responde en ~1 s, y el difícil tarda lo de su
+  rango.
 - `RivalArtificialTest`: juega solo en su turno, la fracción del reloj, deshacer y rehacer de a dos,
   respuesta a las tablas.
 - `TurnoDeLaIaTest` (sin hilos de verdad): empieza si juega con blancas, responde a cada jugada,

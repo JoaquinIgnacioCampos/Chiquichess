@@ -1,6 +1,7 @@
 package adaptadores;
 
 import Nucleo.bando.Bando;
+import Nucleo.ia.DecisionDeJuego;
 import Nucleo.ia.EstrategiaDeJuego;
 import Nucleo.ia.SituacionDePartida;
 import Nucleo.juego.Movimiento;
@@ -20,10 +21,12 @@ import java.util.Optional;
  * como deshacer contra la IA tiene que devolverle el turno a la persona, deshace de a dos jugadas.
  */
 public final class RivalArtificial {
-    /** Con reloj, piensa como mucho esta fracción de lo que le queda: nunca pierde por tiempo. */
-    static final int FRACCION_DEL_TIEMPO_RESTANTE = 30;
-    /** Sin reloj, el único límite es el de su dificultad. */
-    private static final Duration SIN_LIMITE = Duration.ofMinutes(10);
+    /**
+     * Lo que decidió la IA: el movimiento y cuánto tardaría una persona en jugarlo, contando desde que
+     * empezó a pensar. La consola y la ventana esperan hasta ese momento para mover.
+     */
+    public record Respuesta(Movimiento movimiento, Duration demora) {
+    }
 
     private final Partida partida;
     private final Bando bando;
@@ -46,26 +49,26 @@ public final class RivalArtificial {
     }
 
     /**
-     * Elige la jugada para esa situación. No toca la partida, así que se puede llamar desde otro hilo
-     * con una situación tomada antes.
+     * Elige la jugada para esa situación y cuánto tardaría una persona en jugarla. No toca la partida,
+     * así que se puede llamar desde otro hilo con una situación tomada antes. Con reloj, nunca piensa ni
+     * tarda más de una fracción de lo que le queda: no pierde por tiempo.
      *
      * @param tiempoRestante lo que le queda en el reloj; vacío si la partida no tiene tiempo
      */
-    public Movimiento pensar(SituacionDePartida situacion, Optional<Duration> tiempoRestante) {
-        Duration maximo = tiempoRestante.map(restante -> restante.dividedBy(FRACCION_DEL_TIEMPO_RESTANTE))
-                .orElse(SIN_LIMITE);
-        return Movimiento.de(estrategia.elegirJugada(situacion, maximo));
+    public Respuesta pensar(SituacionDePartida situacion, Optional<Duration> tiempoRestante) {
+        DecisionDeJuego decision = estrategia.decidir(situacion, tiempoRestante);
+        return new Respuesta(Movimiento.de(decision.jugada()), decision.tiempoDeRespuesta());
     }
 
     /** Piensa sobre la situación actual de la partida (en este mismo hilo). */
-    public Movimiento pensar() {
+    public Respuesta pensar() {
         return pensar(partida.situacion(), partida.tiempoRestante(bando));
     }
 
-    /** Piensa y juega, en este mismo hilo. Devuelve lo que jugó. */
+    /** Piensa y juega enseguida, en este mismo hilo, sin esperar la demora. Devuelve lo que jugó. */
     public Movimiento jugar() {
         if (!leToca()) throw new IllegalStateException("No es el turno de la IA");
-        Movimiento movimiento = pensar();
+        Movimiento movimiento = pensar().movimiento();
         partida.mover(movimiento);
         return movimiento;
     }

@@ -244,6 +244,9 @@ class JuegoConsolaTest {
 
     // ---------------- Contra la IA ----------------
 
+    /** Lo que la consola esperó a la IA; en los tests no se espera de verdad. */
+    private final java.util.List<java.time.Duration> esperado = new java.util.ArrayList<>();
+
     @Test
     void contraLaIaEstaJuegaSolaYMuestraSuJugada() throws IOException {
         var contraLaIa = new EnsambladorPartida().crearSinRelojContraLaIa(
@@ -252,11 +255,14 @@ class JuegoConsolaTest {
 
         new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
                 new ByteArrayInputStream("e2 e4\nsalir\n".getBytes(StandardCharsets.UTF_8)),
-                new PrintStream(salida, true, StandardCharsets.UTF_8), java.util.Optional.of(contraLaIa.rival())).jugar();
+                new PrintStream(salida, true, StandardCharsets.UTF_8), java.util.Optional.of(contraLaIa.rival()), esperado::add).jugar();
 
         String texto = salida.toString(StandardCharsets.UTF_8);
         assertTrue(texto.contains("IA (fácil) juega "), texto);
         assertEquals(2, contraLaIa.partida().historial().size());
+        // Esperó como una persona: entre medio segundo (apertura) y los 3 s del fácil
+        assertEquals(1, esperado.size());
+        assertTrue(esperado.getFirst().toMillis() > 300 && esperado.getFirst().toMillis() <= 3000, esperado.toString());
     }
 
     @Test
@@ -267,7 +273,7 @@ class JuegoConsolaTest {
         new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
                 new ByteArrayInputStream("e2 e4\ndeshacer\nsalir\n".getBytes(StandardCharsets.UTF_8)),
                 new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8),
-                java.util.Optional.of(contraLaIa.rival())).jugar();
+                java.util.Optional.of(contraLaIa.rival()), esperado::add).jugar();
 
         assertTrue(contraLaIa.partida().historial().isEmpty());
     }
