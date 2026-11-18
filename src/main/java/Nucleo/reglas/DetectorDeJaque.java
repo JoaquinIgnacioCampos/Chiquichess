@@ -27,9 +27,12 @@ public class DetectorDeJaque implements IDetectorDeJaque {
     }
 
     private Optional<Posicion> buscarRey(ITablero tablero, Bando color) {
-        return tablero.piezas().entrySet().stream()
-                .filter(e -> e.getValue().esRey() && e.getValue().color() == color)
-                .map(Map.Entry::getKey)
-                .findFirst();
+        // Ciclo y no stream: se llama por cada jugada que se prueba (la IA prueba muchísimas).
+        for (Map.Entry<Posicion, Pieza> entrada : tablero.piezas().entrySet()) {
+            if (entrada.getValue().esRey() && entrada.getValue().color() == color) {
+                return Optional.of(entrada.getKey());
+            }
+        }
+        return Optional.empty();
     }
 }
