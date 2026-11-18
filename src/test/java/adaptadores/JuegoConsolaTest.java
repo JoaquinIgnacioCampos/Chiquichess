@@ -241,4 +241,34 @@ class JuegoConsolaTest {
         assertTrue(salida.contains("Pase!"), salida);
         assertTrue(salida.contains(" 3 . . . C*. . . ."), salida);
     }
+
+    // ---------------- Contra la IA ----------------
+
+    @Test
+    void contraLaIaEstaJuegaSolaYMuestraSuJugada() throws IOException {
+        var contraLaIa = new EnsambladorPartida().crearSinRelojContraLaIa(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.CLASICO, 90, Nucleo.ia.Dificultad.FACIL);
+        ByteArrayOutputStream salida = new ByteArrayOutputStream();
+
+        new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
+                new ByteArrayInputStream("e2 e4\nsalir\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(salida, true, StandardCharsets.UTF_8), java.util.Optional.of(contraLaIa.rival())).jugar();
+
+        String texto = salida.toString(StandardCharsets.UTF_8);
+        assertTrue(texto.contains("IA (fácil) juega "), texto);
+        assertEquals(2, contraLaIa.partida().historial().size());
+    }
+
+    @Test
+    void contraLaIaDeshacerVuelveAlTurnoDeLaPersona() throws IOException {
+        var contraLaIa = new EnsambladorPartida().crearSinRelojContraLaIa(
+                adaptadores.configuracion.ConfiguracionPartida.Modo.CLASICO, 90, Nucleo.ia.Dificultad.FACIL);
+
+        new JuegoConsola(contraLaIa.partida(), new RenderizadorConsola(), new MensajesDeConsola(),
+                new ByteArrayInputStream("e2 e4\ndeshacer\nsalir\n".getBytes(StandardCharsets.UTF_8)),
+                new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8),
+                java.util.Optional.of(contraLaIa.rival())).jugar();
+
+        assertTrue(contraLaIa.partida().historial().isEmpty());
+    }
 }

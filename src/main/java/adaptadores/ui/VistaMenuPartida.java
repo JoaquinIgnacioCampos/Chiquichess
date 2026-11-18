@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import Nucleo.ia.Dificultad;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.*;
 import javafx.geometry.Insets;
@@ -30,6 +31,9 @@ public final class VistaMenuPartida extends GridPane {
     private final ToggleGroup equipo1 = new ToggleGroup();
     private final ToggleGroup equipo2 = new ToggleGroup();
     private final ToggleGroup colores = new ToggleGroup();
+    /** Solo se habilita con el rival IA. */
+    private final ToggleGroup dificultad = new ToggleGroup();
+    private final Label avisoDificultad = new Label();
     private final ToggleButton permitirDeshacer;
     private final Label avisoDeshacer = new Label();
     /** Modo fútbol: jugadas (de los dos) a las que termina la partida. Solo se habilita con ese modo. */
@@ -91,10 +95,17 @@ public final class VistaMenuPartida extends GridPane {
         avisoDeshacer.setFont(Font.font("System", 12));
         avisoDeshacer.setTextFill(tema.textoSecundario());
         opciones.getChildren().add(seccion("DESHACER JUGADAS", new VBox(6, fila(permitirDeshacer), avisoDeshacer)));
-        ToggleButton ia = opcion("IA · Próximamente", "rival-ia", Rival.IA, rival);
-        ia.setDisable(true);
         opciones.getChildren().add(seccion("RIVAL", fila(
-                opcion("Amigo · misma pantalla", "rival-amigo", Rival.AMIGO, rival), ia)));
+                opcion("Amigo · misma pantalla", "rival-amigo", Rival.AMIGO, rival),
+                opcion("IA · la computadora", "rival-ia", Rival.IA, rival))));
+        avisoDificultad.setId("aviso-dificultad");
+        avisoDificultad.setFont(Font.font("System", 12));
+        avisoDificultad.setTextFill(tema.textoSecundario());
+        avisoDificultad.setWrapText(true);
+        opciones.getChildren().add(seccion("DIFICULTAD DE LA IA", new VBox(6, fila(
+                opcion("Fácil", "dificultad-facil", Dificultad.FACIL, dificultad),
+                opcion("Medio", "dificultad-medio", Dificultad.MEDIO, dificultad),
+                opcion("Difícil", "dificultad-dificil", Dificultad.DIFICIL, dificultad)), avisoDificultad)));
         VBox equipos = new VBox(10, seleccionEquipo("Jugador 1", "jugador-1", equipo1),
                 seleccionEquipo("Jugador 2", "jugador-2", equipo2));
         opciones.getChildren().add(seccion("EQUIPOS", equipos));
@@ -139,7 +150,7 @@ public final class VistaMenuPartida extends GridPane {
         add(columnaOpciones, 1, 0);
         heightProperty().addListener((p, antes, alto) -> ajustarDensidad(opciones, pie, alto.doubleValue()));
         ajustarDensidad(opciones, pie, getHeight());
-        for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores}) {
+        for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores, dificultad}) {
             grupo.selectedToggleProperty().addListener((p, antes, ahora) -> actualizarSeleccion());
         }
         actualizarSeleccion();
@@ -249,6 +260,12 @@ public final class VistaMenuPartida extends GridPane {
         permitirDeshacer.setDisable(!sinTiempo);
         avisoDeshacer.setText(sinTiempo ? "Cualquiera de los dos podrá deshacer y rehacer jugadas."
                 : "Disponible solo en partidas sin tiempo.");
+        // La dificultad solo existe contra la IA: con otro rival se borra y se deshabilita.
+        boolean contraLaIa = rival.getSelectedToggle() != null && rival.getSelectedToggle().getUserData() == Rival.IA;
+        if (!contraLaIa && dificultad.getSelectedToggle() != null) dificultad.selectToggle(null);
+        for (Toggle opcion : dificultad.getToggles()) ((ToggleButton) opcion).setDisable(!contraLaIa);
+        avisoDificultad.setText(contraLaIa ? "La IA juega como Jugador 2, con su equipo."
+                : "Disponible solo contra la IA.");
         boolean futbol = modo.getSelectedToggle() != null && modo.getSelectedToggle().getUserData() == Modo.FUTBOL;
         limiteDeJugadas.setDisable(!futbol);
         avisoLimite.setText(futbol
@@ -259,6 +276,7 @@ public final class VistaMenuPartida extends GridPane {
         if (modo.getSelectedToggle() == null) faltantes.add("modo");
         if (tiempo.getSelectedToggle() == null) faltantes.add("tiempo");
         if (rival.getSelectedToggle() == null) faltantes.add("rival");
+        if (contraLaIa && dificultad.getSelectedToggle() == null) faltantes.add("dificultad");
         if (equipo1.getSelectedToggle() == null) faltantes.add("equipo de Jugador 1");
         if (equipo2.getSelectedToggle() == null) faltantes.add("equipo de Jugador 2");
         if (colores.getSelectedToggle() == null) faltantes.add("colores");
@@ -278,7 +296,8 @@ public final class VistaMenuPartida extends GridPane {
                 (Tiempo) tiempo.getSelectedToggle().getUserData(), (Rival) rival.getSelectedToggle().getUserData(),
                 (Equipo) equipo1.getSelectedToggle().getUserData(), (Equipo) equipo2.getSelectedToggle().getUserData(),
                 (Colores) colores.getSelectedToggle().getUserData(), permitirDeshacer.isSelected(),
-                limiteElegido());
+                limiteElegido(), java.util.Optional.ofNullable(dificultad.getSelectedToggle())
+                .map(elegida -> (Dificultad) elegida.getUserData()));
         iniciar.accept(seleccion);
     }
 

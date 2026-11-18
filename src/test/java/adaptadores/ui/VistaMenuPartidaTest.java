@@ -155,4 +155,46 @@ class VistaMenuPartidaTest {
         assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(0).limiteDeJugadas());
         assertEquals(ConfiguracionPartida.LIMITE_MAXIMO, emitidas.get(1).limiteDeJugadas());
     }
+
+    // ---------------- Rival IA ----------------
+
+    @Test
+    void laDificultadSoloSeHabilitaContraLaIaYEsObligatoria() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        assertTrue(boton("dificultad-medio").isDisable());
+
+        boton("rival-ia").setSelected(true);
+
+        assertFalse(boton("dificultad-medio").isDisable());
+        assertTrue(buscar("jugar").isDisable());
+        assertTrue(((javafx.scene.control.Label) menu.lookup("#selecciones-pendientes")).getText().contains("dificultad"));
+    }
+
+    @Test
+    void laDificultadElegidaViajaEnLaConfiguracion() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        boton("rival-ia").setSelected(true);
+        boton("dificultad-dificil").setSelected(true);
+
+        ((Button) buscar("jugar")).fire();
+
+        assertEquals(ConfiguracionPartida.Rival.IA, emitidas.getFirst().rival());
+        assertEquals(java.util.Optional.of(Nucleo.ia.Dificultad.DIFICIL), emitidas.getFirst().dificultad());
+    }
+
+    @Test
+    void volverAElegirAmigoBorraLaDificultad() {
+        elegirTodoMenosElTiempo();
+        boton("tiempo-sin_tiempo").setSelected(true);
+        boton("rival-ia").setSelected(true);
+        boton("dificultad-facil").setSelected(true);
+
+        boton("rival-amigo").setSelected(true);
+
+        assertFalse(boton("dificultad-facil").isSelected());
+        ((Button) buscar("jugar")).fire();
+        assertTrue(emitidas.getFirst().dificultad().isEmpty());
+    }
 }

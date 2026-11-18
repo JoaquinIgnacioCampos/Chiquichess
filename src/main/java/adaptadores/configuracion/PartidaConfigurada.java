@@ -2,16 +2,23 @@ package adaptadores.configuracion;
 
 import Nucleo.bando.Bando;
 import Nucleo.juego.Partida;
+import adaptadores.RivalArtificial;
 import Nucleo.tiempo.RelojPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 
 import java.util.Objects;
+import java.util.Optional;
 
-/** Resultado del ensamblado: el sorteo y los equipos comparten la misma asignación. */
+/**
+ * Resultado del ensamblado: el sorteo y los equipos comparten la misma asignación.
+ *
+ * @param rival la IA, si se eligió jugar contra ella (juega con el equipo del Jugador 2)
+ */
 public record PartidaConfigurada(Partida partida, Equipo equipoBlancas, Equipo equipoNegras,
-                                 RelojPartida reloj) implements AutoCloseable {
+                                 RelojPartida reloj, Optional<RivalArtificial> rival) implements AutoCloseable {
     public PartidaConfigurada {
         Objects.requireNonNull(partida, "partida");
+        Objects.requireNonNull(rival, "rival");
         Objects.requireNonNull(equipoBlancas, "equipoBlancas");
         Objects.requireNonNull(equipoNegras, "equipoNegras");
         Objects.requireNonNull(reloj, "reloj");

@@ -9,9 +9,12 @@ import adaptadores.audio.ReproductorDeAudio;
 import adaptadores.audio.ReproductorJavaSound;
 import adaptadores.audio.SonidosDePartida;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.PartidaConfigurada;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -29,6 +32,13 @@ public class AplicacionAjedrez extends Application {
     private ActualizadorRelojJavaFx actualizadorReloj;
     private PartidaConfigurada partidaActual;
     private SonidosDePartida sonidosActuales;
+    private TurnoDeLaIa turnoDeLaIa;
+    /** Hilos donde piensa la IA; son daemon para no impedir que el programa se cierre. */
+    private final ExecutorService hilosDeLaIa = Executors.newCachedThreadPool(tarea -> {
+        Thread hilo = new Thread(tarea, "ia-pensando");
+        hilo.setDaemon(true);
+        return hilo;
+    });
     /** Uno solo para todo el programa: el volumen elegido sigue valiendo en las partidas siguientes. */
     private final ControlDeVolumen volumen = new ControlDeVolumen();
     private final CatalogoDeSonidos catalogoDeSonidos = new CatalogoDeSonidos();
@@ -67,7 +77,7 @@ public class AplicacionAjedrez extends Application {
                 Color.web("#FFFBEF"), Color.web("#202733"),
                 Color.web("#202733"), Color.web("#1B212B"),
                 Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23));
-        ControladorTablero controlador = new ControladorTablero(partida);
+        ControladorTablero controlador = new ControladorTablero(partida, preparada.rival());
         TemaPanel temaPanel = TemaPanel.marcador();
         var clubes = java.util.Map.of(
                 Bando.BLANCO, PresentacionClub.de(preparada.equipoBlancas(), temaPanel),
@@ -90,6 +100,11 @@ public class AplicacionAjedrez extends Application {
                 Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),
                 volumen, configuracion.modo() == ConfiguracionPartida.Modo.FUTBOL);
         actualizadorReloj.iniciar();
+        // Último: si la IA juega con blancas, empieza a pensar ya con la vista y el sonido listos.
+        preparada.rival().ifPresent(rival -> {
+            turnoDeLaIa = new TurnoDeLaIa(partida, rival, hilosDeLaIa, Platform::runLater, TurnoDeLaIa.PAUSA_MINIMA);
+            turnoDeLaIa.iniciar();
+        });
     }
 
     private void volverAlMenu(Stage ventana) {
@@ -104,10 +119,14 @@ public class AplicacionAjedrez extends Application {
                 ? ConfiguracionPartida.Colores.JUGADOR_2_BLANCAS : ConfiguracionPartida.Colores.JUGADOR_1_BLANCAS;
         iniciarPartida(ventana, new ConfiguracionPartida(anterior.modo(), anterior.tiempo(), anterior.rival(),
                 anterior.equipoJugador1(), anterior.equipoJugador2(), colores, anterior.permitirDeshacer(),
-                anterior.limiteDeJugadas()));
+                anterior.limiteDeJugadas(), anterior.dificultad()));
     }
 
     private void cerrarPartidaActual() {
+        if (turnoDeLaIa != null) {
+            turnoDeLaIa.close();
+            turnoDeLaIa = null;
+        }
         if (sonidosActuales != null) {
             sonidosActuales.close();
             sonidosActuales = null;
@@ -125,5 +144,6 @@ public class AplicacionAjedrez extends Application {
     @Override public void stop() {
         cerrarPartidaActual();
         if (reproductor != null) reproductor.close();
+        hilosDeLaIa.shutdownNow();
     }
 }

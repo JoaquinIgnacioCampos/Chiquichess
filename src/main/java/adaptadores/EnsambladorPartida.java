@@ -1,6 +1,8 @@
 package adaptadores;
 
 import Nucleo.bando.Bando;
+import Nucleo.ia.Dificultad;
+import Nucleo.ia.JugadorArtificial;
 import Nucleo.juego.DisposicionDeFutbol;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
@@ -19,6 +21,8 @@ import adaptadores.configuracion.Sorteo;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 
 /**
  * Único lugar que construye el grafo del juego para los adaptadores de entrada.
@@ -68,6 +72,32 @@ public final class EnsambladorPartida {
                 true, modo, limiteDeJugadas);
     }
 
+    /**
+     * Partida de consola contra la IA: sin tiempo y con deshacer. La IA juega con negras.
+     */
+    public PartidaContraLaIa crearSinRelojContraLaIa(Modo modo, int limiteDeJugadas, Dificultad dificultad) {
+        Partida partida = crear(new SinReloj(), new Jugador("Jugador 1", Bando.BLANCO),
+                new Jugador(nombreDeLaIa(dificultad), Bando.NEGRO), true, modo, limiteDeJugadas);
+        return new PartidaContraLaIa(partida, crearRival(partida, Bando.NEGRO, dificultad));
+    }
+
+    /** Una partida y la IA que juega en ella. */
+    public record PartidaContraLaIa(Partida partida, RivalArtificial rival) {
+    }
+
+    /** La IA de esa dificultad, con azar real y el tiempo del sistema. */
+    public RivalArtificial crearRival(Partida partida, Bando bando, Dificultad dificultad) {
+        return new RivalArtificial(partida, bando, new JugadorArtificial(dificultad, new Random(), fuente));
+    }
+
+    private static String nombreDeLaIa(Dificultad dificultad) {
+        return "IA (" + switch (dificultad) {
+            case FACIL -> "fácil";
+            case MEDIO -> "medio";
+            case DIFICIL -> "difícil";
+        } + ")";
+    }
+
     /** Resuelve el sorteo una sola vez y construye el juego elegido en el menú. */
     public Partida crearConfigurada(ConfiguracionPartida configuracion) {
         return prepararConfigurada(configuracion).partida();
@@ -83,12 +113,17 @@ public final class EnsambladorPartida {
         RelojPartida reloj = configuracion.tiempo().duracion()
                 .<RelojPartida>map(duracion -> new RelojAjedrez(duracion, duracion, fuente))
                 .orElseGet(SinReloj::new);
-        Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : "Jugador 2", Bando.BLANCO),
-                new Jugador(jugador1Blancas ? "Jugador 2" : "Jugador 1", Bando.NEGRO),
+        // La IA es el Jugador 2: juega con su equipo y con el color que le tocó.
+        String jugador2 = configuracion.dificultad().map(EnsambladorPartida::nombreDeLaIa).orElse("Jugador 2");
+        Partida partida = crear(reloj, new Jugador(jugador1Blancas ? "Jugador 1" : jugador2, Bando.BLANCO),
+                new Jugador(jugador1Blancas ? jugador2 : "Jugador 1", Bando.NEGRO),
                 configuracion.permitirDeshacer(), configuracion.modo(), configuracion.limiteDeJugadas());
+        Bando bandoDelJugador2 = jugador1Blancas ? Bando.NEGRO : Bando.BLANCO;
+        Optional<RivalArtificial> rival = configuracion.dificultad()
+                .map(dificultad -> crearRival(partida, bandoDelJugador2, dificultad));
         return new PartidaConfigurada(partida,
                 jugador1Blancas ? configuracion.equipoJugador1() : configuracion.equipoJugador2(),
-                jugador1Blancas ? configuracion.equipoJugador2() : configuracion.equipoJugador1(), reloj);
+                jugador1Blancas ? configuracion.equipoJugador2() : configuracion.equipoJugador1(), reloj, rival);
     }
 
     private Partida crear(RelojPartida reloj) {
