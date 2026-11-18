@@ -35,6 +35,9 @@ public final class VistaPartida extends BorderPane {
     private final MensajesDeLaInterfaz mensajes;
     private NavegacionPartida navegacion;
     private Runnable alSeleccionarPieza = () -> { };
+    private final java.util.Map<Bando, PresentacionClub> clubes;
+    /** Celebración de gol sobre el tablero (modo fútbol). */
+    private final CartelDeGol cartelDeGol;
     private javafx.scene.control.Button deshacer;
     private javafx.scene.control.Button rehacer;
 
@@ -57,6 +60,8 @@ public final class VistaPartida extends BorderPane {
         Objects.requireNonNull(tema, "tema");
         this.tablero = new VistaTablero(controlador.tablero(), tema, representacion, this::pulsar);
         this.temaPanel = Objects.requireNonNull(temaPanel, "temaPanel");
+        this.clubes = java.util.Map.copyOf(Objects.requireNonNull(clubes, "clubes"));
+        this.cartelDeGol = new CartelDeGol(temaPanel);
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(tema.fondo(), CornerRadii.EMPTY, Insets.EMPTY)));
         BorderPane juego = new BorderPane();
@@ -76,7 +81,7 @@ public final class VistaPartida extends BorderPane {
         areaTablero.setMinSize(0, 0);
         this.tema = tema;
         this.representacion = representacion;
-        areaTablero.getChildren().add(tablero);
+        areaTablero.getChildren().addAll(tablero, cartelDeGol);
         juego.setCenter(areaTablero);
         setCenter(juego);
         panel = new PanelEstadoPartida(controlador, temaPanel, clubes, mensajes);
@@ -91,7 +96,13 @@ public final class VistaPartida extends BorderPane {
         BorderPane.setMargin(mensaje, new Insets(12, 0, 0, 0));
         juego.setBottom(mensaje);
         // Después del panel: el panel anota el evento y recién entonces se redibuja todo.
-        controlador.escuchar(evento -> redibujar());
+        controlador.escuchar(evento -> {
+            if (evento instanceof Nucleo.juego.EventoDePartida.JugadaHecha hecha
+                    && hecha.tiene(Nucleo.juego.EventoDePartida.Rasgo.GOL)) {
+                celebrarGol(hecha.bando());
+            }
+            redibujar();
+        });
         redibujar();
     }
 
@@ -102,6 +113,16 @@ public final class VistaPartida extends BorderPane {
         var ahora = controlador.seleccionada();
         if (ahora.isPresent() && !ahora.equals(antes)) alSeleccionarPieza.run();
         redibujar();
+    }
+
+    /** El cartel de gol con el escudo, el color y el nombre del equipo de ese bando (o del bando, sin clubes). */
+    private javafx.animation.Animation celebrarGol(Bando bando) {
+        PresentacionClub club = clubes.get(bando);
+        if (club == null) {
+            return cartelDeGol.celebrar(bando == Bando.BLANCO ? "Blancas" : "Negras", temaPanel.acento(),
+                    java.util.Optional.empty());
+        }
+        return cartelDeGol.celebrar(club.equipo().nombre(), club.tema().acento(), java.util.Optional.of(club.escudo()));
     }
 
     /** Qué hacer cuando la persona elige una pieza para mover (por ejemplo, un clic de sonido). */
