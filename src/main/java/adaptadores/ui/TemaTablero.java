@@ -1,5 +1,6 @@
 package adaptadores.ui;
 
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import java.util.Objects;
 
@@ -7,7 +8,15 @@ import java.util.Objects;
 public record TemaTablero(Color casillaClara, Color casillaOscura,
                           Color piezaBlanca, Color piezaNegra,
                           Color contornoPiezas, Color fondo,
-                          Color casillaSeleccionada, Color destinoLibre, Color destinoCaptura) {
+                          Color casillaSeleccionada, Color destinoLibre, Color destinoCaptura,
+                          Image textura) {
+    public TemaTablero(Color casillaClara, Color casillaOscura, Color piezaBlanca, Color piezaNegra,
+                       Color contornoPiezas, Color fondo, Color casillaSeleccionada,
+                       Color destinoLibre, Color destinoCaptura) {
+        this(casillaClara, casillaOscura, piezaBlanca, piezaNegra, contornoPiezas, fondo,
+                casillaSeleccionada, destinoLibre, destinoCaptura, null);
+    }
+
     /** Compatibilidad con los temas creados antes de incorporar interacción. */
     public TemaTablero(Color casillaClara, Color casillaOscura, Color piezaBlanca,
                        Color piezaNegra, Color contornoPiezas, Color fondo) {

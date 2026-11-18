@@ -276,7 +276,7 @@ public final class VistaMenuPartida extends GridPane {
         for (Equipo equipo : Equipo.values()) {
             ToggleButton boton = opcion(equipo.nombre(),
                     id + "-" + equipo.name().toLowerCase(java.util.Locale.ROOT), equipo, grupo);
-            var imagen = new javafx.scene.image.ImageView(PresentacionClub.de(equipo, tema).escudo());
+            var imagen = new javafx.scene.image.ImageView(PresentacionClub.escudoDe(equipo));
             imagen.setFitWidth(26);
             imagen.setFitHeight(30);
             imagen.setPreserveRatio(true);

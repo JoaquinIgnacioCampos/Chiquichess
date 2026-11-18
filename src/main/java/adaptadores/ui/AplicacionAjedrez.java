@@ -18,6 +18,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -87,10 +88,11 @@ public class AplicacionAjedrez extends Application {
         partidaActual = preparada;
         Partida partida = preparada.partida();
         TemaTablero tema = new TemaTablero(
-                Color.web("#F0D9B5"), Color.web("#B58863"),
+                Color.web("#9FBE70"), Color.web("#527B3D"),
                 Color.web("#FFFBEF"), Color.web("#202733"),
                 Color.web("#202733"), Color.web("#1B212B"),
-                Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23));
+                Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23),
+                new Image("/tablero/pasto.jpg", 1280, 1280, true, true));
         ControladorTablero controlador = new ControladorTablero(partida, preparada.rival());
         TemaPanel temaPanel = TemaPanel.marcador();
         var clubes = java.util.Map.of(
