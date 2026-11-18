@@ -34,8 +34,33 @@ class JugadorArtificialTest {
     /** Tiempo que no corre: la búsqueda nunca se corta por tiempo. */
     private static final FuenteDeTiempo QUIETO = new FuenteDeTiempoFalsa();
 
+    /** Sin distracciones: para probar lo que ve cada dificultad cuando presta atención. */
     private static JugadorArtificial ia(Dificultad dificultad) {
-        return new JugadorArtificial(dificultad, new Random(7), QUIETO);
+        return new JugadorArtificial(dificultad, new AzarSinDescuidos(7), QUIETO);
+    }
+
+    /** El azar de siempre, pero nunca "se distrae" (la probabilidad de descuido nunca se cumple). */
+    private static final class AzarSinDescuidos extends Random {
+        AzarSinDescuidos(long semilla) {
+            super(semilla);
+        }
+
+        @Override
+        public double nextDouble() {
+            return 0.99;
+        }
+    }
+
+    /** Se distrae siempre. */
+    private static final class AzarDistraido extends Random {
+        AzarDistraido(long semilla) {
+            super(semilla);
+        }
+
+        @Override
+        public double nextDouble() {
+            return 0.0;
+        }
     }
 
     private static Partida partida(ReglasDePartida reglas, String... filas) {
@@ -65,7 +90,7 @@ class JugadorArtificialTest {
                     "........",
                     "T.....R.");
             JugadorArtificial ia = dificultad == Dificultad.DIFICIL
-                    ? new JugadorArtificial(dificultad, new Random(7), new FuenteQueAvanza())
+                    ? new JugadorArtificial(dificultad, new AzarSinDescuidos(7), new FuenteQueAvanza())
                     : ia(dificultad);
 
             // Act
@@ -119,6 +144,52 @@ class JugadorArtificialTest {
         // Assert
         assertEquals(pos("e5"), jugada.destino());
         assertTrue(jugada.capturada().isPresent());
+    }
+
+    @Test
+    void elFacilMiraUnaSolaJugadaYPierdeLaDamaPorUnaTorreDefendidaElMedioNo() {
+        // Arrange: la torre negra de d6 está defendida por el peón de e7
+        Partida partida = partida(ReglasDePartida.clasicas(),
+                ".......r",
+                "....p...",
+                "...t....",
+                "........",
+                "........",
+                "........",
+                "........",
+                "R..D....");
+
+        // Act
+        Jugada facil = ia(Dificultad.FACIL).elegirJugada(partida.situacion());
+        Jugada medio = ia(Dificultad.MEDIO).elegirJugada(partida.situacion());
+
+        // Assert: el fácil ve la torre pero no que después le comen la dama
+        assertEquals(pos("d6"), facil.destino());
+        assertNotEquals(pos("d6"), medio.destino());
+    }
+
+    @Test
+    void distraidoJuegaCualquierCosaMenosUnaJugadaQueLeDaMateEnUno() {
+        for (long semilla = 0; semilla < 25; semilla++) {
+            // Arrange: si la torre blanca deja la primera fila, Ta1 es mate
+            Partida partida = partida(ReglasDePartida.clasicas(),
+                    "t......r",
+                    "........",
+                    "........",
+                    "........",
+                    "........",
+                    "........",
+                    ".....PPP",
+                    "....T.R.");
+            JugadorArtificial distraido = new JugadorArtificial(Dificultad.FACIL, new AzarDistraido(semilla), QUIETO);
+
+            // Act: juega el distraído y responde un rival que no se pierde un mate en 1
+            jugarLaIa(partida, distraido);
+            jugarLaIa(partida, ia(Dificultad.MEDIO));
+
+            // Assert
+            assertNotEquals(EstadoPartida.JAQUE_MATE, partida.estado(), "semilla " + semilla);
+        }
     }
 
     @Test

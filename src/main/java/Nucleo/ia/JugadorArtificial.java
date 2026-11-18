@@ -17,12 +17,18 @@ import java.util.Random;
  * poco peor, pero nunca una mucho peor que la mejor que vio. Entre jugadas iguales elige al azar, así
  * dos partidas no son idénticas.
  *
+ * Con la probabilidad de {@code dificultad.descuido()} se distrae: juega cualquiera de sus jugadas al
+ * azar, salvo las que le dan mate en 1 al rival. Es el error de un principiante: no regala la partida
+ * en una jugada, pero sí material.
+ *
  * El azar y el tiempo se reciben por constructor (como el sorteo y el reloj de la partida), así los
  * tests son repetibles.
  */
 public final class JugadorArtificial implements EstrategiaDeJuego {
     /** Acepta tablas solo si cree que va perdiendo por al menos esto (tres peones). */
     static final int DESVENTAJA_PARA_ACEPTAR_TABLAS = 300;
+    /** Margen que hace que la búsqueda dé el puntaje exacto de todas las jugadas. */
+    private static final int MARGEN_TOTAL = Integer.MAX_VALUE / 4;
 
     private final Dificultad dificultad;
     private final Random azar;
@@ -45,6 +51,10 @@ public final class JugadorArtificial implements EstrategiaDeJuego {
         Objects.requireNonNull(tiempoMaximo, "tiempoMaximo");
         Duration tiempo = tiempoMaximo.compareTo(dificultad.tiempoDeCalculo()) < 0
                 ? tiempoMaximo : dificultad.tiempoDeCalculo();
+        if (dificultad.descuido() > 0 && azar.nextDouble() < dificultad.descuido()) {
+            List<Jugada> distraidas = jugadasQueNoPierdenEnseguida(situacion, tiempo);
+            if (!distraidas.isEmpty()) return distraidas.get(azar.nextInt(distraidas.size()));
+        }
         int ruido = dificultad.ruido();
         List<BuscadorMinimax.JugadaEvaluada> evaluadas =
                 new BuscadorMinimax(situacion, reloj, dificultad.conQuietud())
@@ -56,6 +66,15 @@ public final class JugadorArtificial implements EstrategiaDeJuego {
                         + (ruido == 0 ? 0 : azar.nextInt(-ruido, ruido + 1)) + azar.nextDouble() * 0.5))
                 .orElseThrow()
                 .jugada();
+    }
+
+    /** Sus jugadas que no le dejan al rival un mate en 1 (mira dos jugadas con puntaje exacto). */
+    private List<Jugada> jugadasQueNoPierdenEnseguida(SituacionDePartida situacion, Duration tiempo) {
+        return new BuscadorMinimax(situacion, reloj, false)
+                .buscar(situacion.turno(), 2, tiempo, MARGEN_TOTAL, azar).stream()
+                .filter(evaluada -> evaluada.puntaje() > -BuscadorMinimax.UMBRAL_DE_MATE)
+                .map(BuscadorMinimax.JugadaEvaluada::jugada)
+                .toList();
     }
 
     /** Elige con todo el tiempo de su dificultad. */

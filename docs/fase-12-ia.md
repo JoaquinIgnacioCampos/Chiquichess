@@ -28,10 +28,15 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 
 | | Fácil | Medio | Difícil |
 |---|---|---|---|
-| Mira hasta | 2 jugadas | 3 jugadas + quietud | lo que entre en el tiempo (~4) + quietud |
+| Mira hasta | 1 jugada | 3 jugadas + quietud | lo que entre en el tiempo (~4) + quietud |
 | Tiempo de cálculo | ~10 ms | hasta 0,8 s | 1,5 s |
 | Error al elegir | hasta 1,5 peones | hasta 1/4 de peón | ninguno |
+| Descuidos | 1 de cada 5 jugadas | no | no |
 
+- **El fácil juega como un principiante.** Mira una sola jugada: ve lo que gana con su movimiento,
+  pero no la respuesta del rival (se come una torre defendida con la dama y la pierde). Y una de cada
+  cinco jugadas se distrae: juega cualquiera de sus jugadas, salvo las que le dan mate en 1 al rival.
+  Al principio miraba 2 jugadas y no se distraía, pero así nunca regalaba nada y resultaba difícil.
 - **El error no es azar puro.** A cada jugada se le suma un error al azar y se elige la de mayor
   puntaje resultante. El fácil puede elegir una jugada hasta un peón y medio peor que la mejor, pero
   nunca regala una pieza que vio.
@@ -94,6 +99,21 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 - **Un único buscador para las tres dificultades.** Un fácil totalmente al azar regala piezas sin
   sentido; con el mismo buscador, cada nivel juega "bien para su nivel".
 
+## Fuerza de cada nivel
+
+Partidas entre versiones (20 por enfrentamiento, alternando colores; sin terminar a las 160 jugadas,
+gana quien tenga 3 peones o más de material):
+
+| Enfrentamiento | Gana | Tablas | Pierde |
+|---|---|---|---|
+| Fácil anterior (2 jugadas) vs. jugador al azar | 19 | 1 | 0 |
+| Fácil actual vs. jugador al azar | 16 | 3 | 1 |
+| Fácil actual vs. fácil anterior | 0 | 1 | 19 |
+| Fácil actual vs. medio | 0 | 1 | 19 |
+
+El fácil actual quedó claramente por debajo del anterior, pero todavía le gana casi siempre a quien
+mueve al azar: juega con sentido, solo que comete errores de principiante.
+
 ## Rendimiento
 
 Medido haciendo jugar a la IA contra sí misma 40 jugadas:
@@ -121,6 +141,8 @@ Medido haciendo jugar a la IA contra sí misma 40 jugadas:
   - todas las dificultades ven el mate en 1;
   - el medio da mate en 2 aunque el rival se defienda lo mejor posible;
   - el fácil se come una dama sin defensa y el medio no deja su dama atacada;
+  - el fácil mira una sola jugada: pierde la dama por una torre defendida, el medio no;
+  - distraído, el fácil nunca juega una jugada que le dé mate en 1 al rival;
   - en fútbol mete el gol cuando puede;
   - con la misma semilla elige lo mismo, y el difícil corta a tiempo y juega algo legal;
   - pensar no toca la partida ni dispara eventos;
