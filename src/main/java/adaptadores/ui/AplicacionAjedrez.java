@@ -8,6 +8,7 @@ import adaptadores.audio.ControlDeVolumen;
 import adaptadores.audio.ReproductorDeAudio;
 import adaptadores.audio.ReproductorJavaSound;
 import adaptadores.audio.SonidosDePartida;
+import adaptadores.audio.SonidosDelMenu;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,16 +44,27 @@ public class AplicacionAjedrez extends Application {
     private final ControlDeVolumen volumen = new ControlDeVolumen();
     private final CatalogoDeSonidos catalogoDeSonidos = new CatalogoDeSonidos();
     private ReproductorDeAudio reproductor;
+    private SonidosDelMenu sonidosDelMenu;
 
     @Override
     public void start(Stage ventana) {
         reproductor = new ReproductorJavaSound();
-        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
+        sonidosDelMenu = new SonidosDelMenu(catalogoDeSonidos, reproductor, volumen);
+        VistaMenuPartida menu = nuevoMenu(ventana);
         ventana.setTitle("ChiquiChess");
         ventana.setScene(new Scene(menu));
         ajustarAPantalla(ventana, Screen.getPrimary().getVisualBounds());
         ventana.setOnHidden(evento -> cerrarPartidaActual());
         ventana.show();
+        // Al abrir el juego, y solo entonces: el personaje se ríe y se balancea.
+        sonidosDelMenu.abrirJuego();
+        menu.animarPersonaje();
+    }
+
+    private VistaMenuPartida nuevoMenu(Stage ventana) {
+        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
+        menu.configurarSonido(volumen);
+        return menu;
     }
 
     /** La ventana arranca entera dentro de la pantalla, centrada y con la barra de título visible. */
@@ -69,6 +81,7 @@ public class AplicacionAjedrez extends Application {
 
     private void iniciarPartida(Stage ventana, ConfiguracionPartida configuracion) {
         cerrarPartidaActual();
+        sonidosDelMenu.salirDelMenu();
         var preparada = new EnsambladorPartida().prepararConfigurada(configuracion);
         partidaActual = preparada;
         Partida partida = preparada.partida();
@@ -109,8 +122,8 @@ public class AplicacionAjedrez extends Application {
 
     private void volverAlMenu(Stage ventana) {
         cerrarPartidaActual();
-        ventana.getScene().setRoot(new VistaMenuPartida(TemaPanel.marcador(),
-                configuracion -> iniciarPartida(ventana, configuracion)));
+        ventana.getScene().setRoot(nuevoMenu(ventana));
+        sonidosDelMenu.entrarAlMenu();
     }
 
     private void iniciarRevancha(Stage ventana, ConfiguracionPartida anterior, PartidaConfigurada preparada) {
@@ -143,6 +156,7 @@ public class AplicacionAjedrez extends Application {
 
     @Override public void stop() {
         cerrarPartidaActual();
+        if (sonidosDelMenu != null) sonidosDelMenu.close();
         if (reproductor != null) reproductor.close();
         hilosDeLaIa.shutdownNow();
     }

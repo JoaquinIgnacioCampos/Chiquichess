@@ -197,4 +197,32 @@ class VistaMenuPartidaTest {
         ((Button) buscar("jugar")).fire();
         assertTrue(emitidas.getFirst().dificultad().isEmpty());
     }
+
+    // ---------------- Portada y sonido ----------------
+
+    @Test
+    void alAbrirElPersonajeSeBalanceaUnosSegundosYVuelveAQuedarQuieto() {
+        var risa = menu.animarPersonaje();
+        var personaje = buscar("personaje");
+
+        assertEquals(javafx.animation.Animation.Status.RUNNING, risa.getStatus());
+        double segundos = risa.getTotalDuration().toSeconds();
+        assertTrue(segundos > 2 && segundos < 4, "dura " + segundos + " s");
+        risa.stop();
+        risa.getOnFinished().handle(null);
+        assertEquals(0, personaje.getRotate());
+        assertEquals(1, personaje.getScaleX());
+    }
+
+    @Test
+    void elBotonDeSonidoDelMenuUsaElMismoControlQueLaPartida() {
+        var control = new adaptadores.audio.ControlDeVolumen();
+        menu.configurarSonido(control);
+        Button silencio = (Button) menu.lookup("#silencio-menu");
+
+        silencio.fire();
+
+        assertTrue(control.silenciado());
+        assertEquals("Sonido: no", silencio.getText());
+    }
 }

@@ -20,7 +20,11 @@ public enum Sonido {
     SILBATO_FINAL("silbato-final", false),
     REBOBINAR("rebobinar", false),
     /** Ambiente del modo fútbol: suena en bucle y su volumen sigue a la partida (ver {@link IntensidadDeHinchada}). */
-    HINCHADA("hinchada", true);
+    HINCHADA("hinchada", true),
+    /** Fuera de la partida: la risa del personaje al abrir el juego (ver {@link SonidosDelMenu}). */
+    RISA("risa", false),
+    /** Fuera de la partida: ambiente suave en bucle mientras se eligen las opciones. */
+    AMBIENTE_MENU("menu", false);
 
     private final String archivo;
     private final boolean propioDeCadaEquipo;

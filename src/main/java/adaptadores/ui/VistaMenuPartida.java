@@ -1,6 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.ia.Dificultad;
+import adaptadores.audio.ControlDeVolumen;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.*;
 import javafx.geometry.Insets;
@@ -41,6 +42,9 @@ public final class VistaMenuPartida extends GridPane {
             ConfiguracionPartida.LIMITE_MAXIMO, ConfiguracionPartida.LIMITE_POR_DEFECTO, 10);
     private final Label avisoLimite = new Label();
     private final Button jugar = new Button("Jugar");
+    /** La imagen del personaje de la portada (se balancea al abrir el juego). */
+    private ImageView figura;
+    private HBox pie;
     private final Label pendientes = new Label();
 
     public VistaMenuPartida(TemaPanel tema, Consumer<ConfiguracionPartida> iniciar) {
@@ -118,6 +122,8 @@ public final class VistaMenuPartida extends GridPane {
         pendientes.setFont(Font.font("System", 13));
         pendientes.setTextFill(tema.textoSecundario());
         pendientes.setWrapText(true);
+        // Puede necesitar varios renglones en ventanas angostas: crece en alto en vez de cortarse.
+        pendientes.setMinHeight(Region.USE_PREF_SIZE);
         pendientes.setMinWidth(0);
         pendientes.setMaxWidth(Double.MAX_VALUE);
         jugar.setId("jugar");
@@ -132,7 +138,7 @@ public final class VistaMenuPartida extends GridPane {
         jugar.focusedProperty().addListener((p, antes, foco) -> pintarJugar());
         pintarJugar();
         jugar.setOnAction(e -> emitirConfiguracion());
-        HBox pie = new HBox(16, pendientes, jugar);
+        pie = new HBox(16, pendientes, jugar);
         pie.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(pendientes, Priority.ALWAYS);
         pie.setBackground(fondo(tema.tarjeta()));
@@ -156,6 +162,60 @@ public final class VistaMenuPartida extends GridPane {
         actualizarSeleccion();
     }
 
+    /**
+     * El personaje se ríe: se balancea de un lado al otro, con un pequeño rebote, y vuelve a quedar
+     * quieto. Dura unos 3 segundos, lo que dura la risa. Devuelve la animación (ya iniciada).
+     */
+    public javafx.animation.Animation animarPersonaje() {
+        javafx.util.Duration vaivenDuracion = javafx.util.Duration.millis(260);
+        var aLaIzquierda = new javafx.animation.RotateTransition(javafx.util.Duration.millis(150), figura);
+        aLaIzquierda.setToAngle(-9);
+        var vaiven = new javafx.animation.RotateTransition(vaivenDuracion, figura);
+        vaiven.setFromAngle(-9);
+        vaiven.setToAngle(9);
+        vaiven.setCycleCount(10);
+        vaiven.setAutoReverse(true);
+        var rebote = new javafx.animation.ScaleTransition(vaivenDuracion, figura);
+        rebote.setFromX(1);
+        rebote.setFromY(1);
+        rebote.setToX(1.06);
+        rebote.setToY(1.06);
+        rebote.setCycleCount(10);
+        rebote.setAutoReverse(true);
+        var alCentro = new javafx.animation.RotateTransition(javafx.util.Duration.millis(200), figura);
+        alCentro.setToAngle(0);
+        var risa = new javafx.animation.SequentialTransition(aLaIzquierda,
+                new javafx.animation.ParallelTransition(vaiven, rebote), alCentro);
+        risa.setOnFinished(evento -> {
+            figura.setRotate(0);
+            figura.setScaleX(1);
+            figura.setScaleY(1);
+        });
+        risa.play();
+        return risa;
+    }
+
+    /**
+     * Agrega al pie el botón de silencio, con el mismo control de volumen que la partida: lo que se elige
+     * acá sigue valiendo al jugar.
+     */
+    public void configurarSonido(ControlDeVolumen control) {
+        Objects.requireNonNull(control, "control");
+        if (pie.lookup("#silencio-menu") != null) throw new IllegalStateException("Sonido ya configurado");
+        Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio-menu", tema.borde(), tema.texto());
+        // El texto de "Falta elegir" ocupa el resto: el botón nunca se achica hasta cortarse.
+        silencio.setMinWidth(Region.USE_PREF_SIZE);
+        silencio.setOnAction(e -> {
+            control.silenciar(!control.silenciado());
+            silencio.setText(textoSilencio(control));
+        });
+        pie.getChildren().addFirst(silencio);
+    }
+
+    private static String textoSilencio(ControlDeVolumen control) {
+        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
+    }
+
     /** En pantallas bajas junta las opciones para que entren sin desplazarlas. */
     private void ajustarDensidad(VBox opciones, HBox pie, double alto) {
         boolean compacto = alto < ALTO_COMODO;
@@ -175,7 +235,8 @@ public final class VistaMenuPartida extends GridPane {
     private VBox portada() {
         Text marca = texto("CHIQUICHESS", 32, tema.texto(), true);
         Text subtitulo = texto("AJEDREZ ARGENTINO", 13, tema.acento(), true);
-        ImageView figura = new ImageView(cargarPersonaje());
+        figura = new ImageView(cargarPersonaje());
+        figura.setId("personaje");
         figura.setPreserveRatio(true);
         figura.setSmooth(true);
         StackPane personaje = new StackPane(figura);
