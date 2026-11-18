@@ -13,7 +13,7 @@ Cada club tiene su propio juego de piezas, con una versión blanca y otra negra 
 
 ## Archivos
 
-Van en `src/main/resources/sprites/<club>/`, donde `<club>` es `boca`, `river` o `independiente`.
+Van en `src/main/resources/sprites/<club>/`, donde `<club>` es `boca`, `river`, `independiente` o `argentina`.
 Cada carpeta lleva estos 12 archivos:
 
 | Pieza | Versión blanca | Versión negra |

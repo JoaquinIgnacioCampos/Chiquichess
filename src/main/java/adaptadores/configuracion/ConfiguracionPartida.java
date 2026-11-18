@@ -70,7 +70,7 @@ public record ConfiguracionPartida(Modo modo, Tiempo tiempo, Rival rival,
     public enum Modo { CLASICO, FUTBOL }
     public enum Rival { AMIGO, IA }
     public enum Equipo {
-        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente");
+        BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente"), ARGENTINA("Argentina");
         private final String nombre;
         Equipo(String nombre) { this.nombre = nombre; }
         public String nombre() { return nombre; }
