@@ -7,6 +7,7 @@ import Nucleo.reglas.MotivoFinalizacion;
 import Nucleo.tiempo.RelojAjedrez;
 import Nucleo.tiempo.RelojPartida;
 import Nucleo.tablero.Tablero;
+import Nucleo.tiempo.SinReloj;
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ class PartidaConRelojTest {
     private Partida conReloj(RelojPartida reloj, CondicionDeFinalizacion... condiciones) {
         return new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                new DetectorDeJaque(), List.of(condiciones), reloj);
+                new ReglasDePartida(new DetectorDeJaque(), List.of(condiciones)), reloj);
     }
 
     private void avanzar(long segundos) {
@@ -120,7 +121,7 @@ class PartidaConRelojTest {
         };
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                detector, validacion, List.of(),
+                new ReglasDePartida(validacion, List.of()),
                 new RelojAjedrez(Duration.ofMinutes(5), Duration.ofMinutes(5), fuente));
         partida.ofrecerTablas(Bando.BLANCO);
         var tableroAntes = new HashMap<>(partida.tablero().piezas());
@@ -223,7 +224,7 @@ class PartidaConRelojTest {
     void constructorAnteriorSigueSinLimiteDeTiempo() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         avanzar(100000);
         partida.verificarTiempo();
         assertTrue(partida.tiempoRestante(Bando.BLANCO).isEmpty());

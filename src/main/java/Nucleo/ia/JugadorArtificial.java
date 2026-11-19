@@ -1,5 +1,6 @@
 package Nucleo.ia;
 
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.tiempo.FuenteDeTiempo;
 

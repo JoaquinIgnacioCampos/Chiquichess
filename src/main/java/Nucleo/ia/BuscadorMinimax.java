@@ -1,6 +1,7 @@
 package Nucleo.ia;
 
 import Nucleo.bando.Bando;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.CondicionConMemoria;
@@ -302,10 +303,10 @@ final class BuscadorMinimax {
     private static int interes(Jugada jugada) {
         int interes = 0;
         if (jugada.esGol()) interes += 20_000;
-        if (jugada.promocion().isPresent()) interes += 8_000 + EvaluadorDePosicion.valor(jugada.promocion().get());
+        if (jugada.promocion().isPresent()) interes += 8_000 + jugada.promocion().get().valor();
         if (jugada.capturada().isPresent()) {
-            interes += 1_000 + 10 * EvaluadorDePosicion.valor(jugada.capturada().get())
-                    - EvaluadorDePosicion.valor(jugada.piezaMovida());
+            interes += 1_000 + 10 * jugada.capturada().get().valor()
+                    - jugada.piezaMovida().valor();
         }
         return interes;
     }

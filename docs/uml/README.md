@@ -11,7 +11,7 @@ en el mismo commit.
 
 [![Diagrama de clases completo](uml-completo.svg)](uml-completo.svg)
 
-[`uml-completo.svg`](uml-completo.svg) tiene las 110 clases agrupadas por paquete y todas sus
+[`uml-completo.svg`](uml-completo.svg) tiene todas las clases agrupadas por paquete y todas sus
 relaciones, sin atributos ni métodos. Se puede ampliar sin perder calidad. También está
 [`uml-completo.png`](uml-completo.png) para la presentación.
 

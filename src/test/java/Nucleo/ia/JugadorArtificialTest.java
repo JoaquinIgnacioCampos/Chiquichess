@@ -5,6 +5,7 @@ import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Movimiento;
 import Nucleo.juego.Partida;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.reglas.EstadoPartida;
 import Nucleo.reglas.ReglaDeLaPelota;
@@ -232,7 +233,7 @@ class JugadorArtificialTest {
         jugarLaIa(partida, ia(Dificultad.FACIL));
 
         // Assert
-        assertEquals(1, partida.marcador().blancas());
+        assertEquals(1, partida.marcador().orElseThrow().blancas());
     }
 
     @Test

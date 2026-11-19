@@ -24,4 +24,9 @@ public class Torre extends Pieza {
     public char codigo() {
         return 'T';
     }
+
+    @Override
+    public int valor() {
+        return 500;
+    }
 }

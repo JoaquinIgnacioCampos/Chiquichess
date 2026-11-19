@@ -32,7 +32,7 @@ class PartidaTest {
     private final Jugador negro = new Jugador("Beto", Bando.NEGRO);
 
     private Partida partida(Tablero tablero, IDetectorDeJaque detector, CondicionDeFinalizacion... condiciones) {
-        return new Partida(tablero, blanco, negro, detector, List.of(condiciones));
+        return new Partida(tablero, blanco, negro, new ReglasDePartida(detector, List.of(condiciones)), new SinReloj());
     }
 
     /** Partida desde la posición inicial, sin jaques ni condiciones de fin. */
@@ -47,16 +47,21 @@ class PartidaTest {
         // Act + Assert
         assertThrows(IllegalArgumentException.class, () -> new Partida(
                 new DisposicionEstandar().crearTablero(), negro, blanco,
-                StubDetectorDeJaque.nuncaEnJaque(), List.of()));
+                new ReglasDePartida(StubDetectorDeJaque.nuncaEnJaque(), List.of()), new SinReloj()));
     }
 
     @Test
     void rechazaDependenciasNulas() {
+        // Arrange
+        ReglasDePartida reglas = new ReglasDePartida(StubDetectorDeJaque.nuncaEnJaque(), List.of());
+
         // Act + Assert
         assertThrows(NullPointerException.class, () -> new Partida(
-                null, blanco, negro, StubDetectorDeJaque.nuncaEnJaque(), List.of()));
+                null, blanco, negro, reglas, new SinReloj()));
         assertThrows(NullPointerException.class, () -> new Partida(
-                new DisposicionEstandar().crearTablero(), blanco, negro, null, List.of()));
+                new DisposicionEstandar().crearTablero(), blanco, negro, null, new SinReloj()));
+        assertThrows(NullPointerException.class, () -> new Partida(
+                new DisposicionEstandar().crearTablero(), blanco, negro, reglas, null));
     }
 
     @Test
@@ -398,8 +403,9 @@ class PartidaTest {
         IDetectorDeJaque detector = StubDetectorDeJaque.nuncaEnJaque();
 
         // Act
-        Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
+        Partida partida = new Partida(tablero, blanco, negro,
+                new ReglasDePartida(new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado())),
+                new SinReloj());
 
         // Assert
         assertEquals(EstadoPartida.TABLAS_AHOGADO, partida.estado());
@@ -412,23 +418,12 @@ class PartidaTest {
         IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
 
         // Act
-        Partida partida = new Partida(tablero, blanco, negro, detector,
-                new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado()));
+        Partida partida = new Partida(tablero, blanco, negro,
+                new ReglasDePartida(new StubMovimientosLegales(false, detector), List.of(new JaqueMate(), new Ahogado())),
+                new SinReloj());
 
         // Assert
         assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
-    }
-
-    @Test
-    void rechazaMovimientosLegalesQueUsanOtroDetector() {
-        // Arrange: el stub de movimientos legales trae su propio detector, distinto del recibido
-        Tablero tablero = new DisposicionEstandar().crearTablero();
-        IDetectorDeJaque detector = StubDetectorDeJaque.siempreEnJaque();
-        MovimientosLegales conOtroDetector = new StubMovimientosLegales(false);
-
-        // Act + Assert
-        assertThrows(IllegalArgumentException.class, () -> new Partida(tablero, blanco, negro,
-                detector, conOtroDetector, List.of(new JaqueMate())));
     }
 
     @Test

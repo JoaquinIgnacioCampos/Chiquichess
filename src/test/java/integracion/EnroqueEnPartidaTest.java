@@ -5,6 +5,7 @@ import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
@@ -23,7 +24,7 @@ class EnroqueEnPartidaTest {
                 new Jugador("Beto", Bando.NEGRO), ReglasDePartida.clasicas().conDeshacer(), new SinReloj());
     }
 
-    private void jugar(Partida partida, String... jugadas) {
+    private void jugar(PartidaEnJuego partida, String... jugadas) {
         for (String jugada : jugadas) {
             partida.mover(mov(jugada.substring(0, 2), jugada.substring(2, 4)));
         }
@@ -35,7 +36,7 @@ class EnroqueEnPartidaTest {
     @Test
     void elReyMuestraElEnroqueEntreSusDestinos() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         jugar(partida, FLANCOS_DE_REY_LIBRES);
 
         // Act + Assert
@@ -45,7 +46,7 @@ class EnroqueEnPartidaTest {
     @Test
     void ambosBandosEnrocanCorto() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         jugar(partida, FLANCOS_DE_REY_LIBRES);
         Pieza torreBlanca = partida.tablero().piezaEn(pos("h1")).orElseThrow();
 
@@ -64,7 +65,7 @@ class EnroqueEnPartidaTest {
     @Test
     void lasBlancasEnrocanLargo() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         jugar(partida, "d2d4", "d7d5", "b1c3", "b8c6", "c1f4", "c8f5", "d1d2", "d8d7");
 
         // Act
@@ -79,7 +80,7 @@ class EnroqueEnPartidaTest {
     @Test
     void deshacerElEnroqueDevuelveReyYTorreYElDerechoAEnrocar() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         jugar(partida, FLANCOS_DE_REY_LIBRES);
         jugar(partida, "e1g1");
 
@@ -95,7 +96,7 @@ class EnroqueEnPartidaTest {
     @Test
     void siElReyFueYVolvioPierdeElDerechoAEnrocar() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         jugar(partida, FLANCOS_DE_REY_LIBRES);
         jugar(partida, "e1e2", "f6g8", "e2e1", "g8f6");
 
@@ -111,7 +112,7 @@ class EnroqueEnPartidaTest {
     @Test
     void laPartidaArmadaPorElEnsambladorPermiteEnrocar() {
         // Arrange
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         jugar(partida, FLANCOS_DE_REY_LIBRES);
 
         // Act

@@ -1,7 +1,7 @@
 package dobles;
 
 import Nucleo.ia.EstrategiaDeJuego;
-import Nucleo.ia.SituacionDePartida;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.tablero.Posicion;
 

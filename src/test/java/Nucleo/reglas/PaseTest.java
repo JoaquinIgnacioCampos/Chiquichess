@@ -141,7 +141,7 @@ class PaseTest {
         partida.mover(mov("e2", "e8"));
 
         // Assert: gol y la pelota al saque; la torre no se movió
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
         assertEquals(Optional.of(pos("d5")), pelota(partida));
         assertEquals('T', codigoEn(partida, "e2"));
     }
@@ -163,7 +163,7 @@ class PaseTest {
         partida.mover(mov("e2", "e8"));
 
         // Assert
-        assertEquals(new Marcador(0, 0), partida.marcador());
+        assertEquals(new Marcador(0, 0), partida.marcador().orElseThrow());
         assertEquals(Optional.of(pos("e8")), pelota(partida));
     }
 
@@ -204,7 +204,7 @@ class PaseTest {
         // Assert
         assertEquals('P', codigoEn(partida, "c7"));
         assertEquals('C', codigoEn(partida, "d8"));
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
     }
 
     @Test

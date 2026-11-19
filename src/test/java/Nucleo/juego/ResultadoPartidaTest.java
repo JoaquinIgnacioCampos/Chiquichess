@@ -3,6 +3,7 @@ package Nucleo.juego;
 import Nucleo.bando.Bando;
 import Nucleo.reglas.*;
 import Nucleo.reglas.MotivoFinalizacion;
+import Nucleo.tiempo.SinReloj;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -14,7 +15,7 @@ class ResultadoPartidaTest {
     private Partida partida(CondicionDeFinalizacion... condiciones) {
         return new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                new DetectorDeJaque(), List.of(condiciones));
+                new ReglasDePartida(new DetectorDeJaque(), List.of(condiciones)), new SinReloj());
     }
 
     @Test

@@ -46,4 +46,9 @@ public class Peon extends Pieza {
     public char codigo() {
         return 'P';
     }
+
+    @Override
+    public int valor() {
+        return 100;
+    }
 }

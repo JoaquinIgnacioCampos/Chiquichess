@@ -14,15 +14,35 @@ Si un club no tiene el suyo, se usa el de comunes.
 
 Nombres
 -------
-movimiento, captura, enroque, promocion, jaque, pase, gol, victoria, tablas,
-silbato-inicial, silbato-final, rebobinar, hinchada
+Durante la partida:
+  movimiento        cada jugada
+  captura           al comer una pieza               (si falta, suena movimiento)
+  enroque           al enrocar                       (si falta, suena movimiento)
+  promocion         al coronar un peón               (si falta, suena movimiento)
+  pase              pase del modo fútbol             (si falta, suena movimiento)
+  jaque             al dar jaque
+  gol               gol del modo fútbol              (propio de cada club)
+  victoria          al ganar                         (propio de cada club)
+  tablas            final en tablas
+  silbato-inicial   al empezar la partida
+  silbato-final     al terminar la partida           (si falta, suena silbato-inicial)
+  rebobinar         al deshacer o rehacer
+  hinchada          ambiente en bucle del modo fútbol (propio de cada club)
+  seleccion         al tocar una pieza propia; también al elegir una opción del menú
 
-Si falta captura, enroque, promocion o pase, suena movimiento.
-Si falta silbato-final, suena silbato-inicial. Si falta otro, ese momento no suena.
+En el menú:
+  risa              la risa del personaje al abrir el juego
+  menu              ambiente en bucle mientras se eligen las opciones
 
-Cambiar un sonido sin recompilar
---------------------------------
+Si falta otro, ese momento no suena.
+
+Consejos: los que suenan en bucle (hinchada, menu) se cargan enteros en memoria; conviene que duren
+menos de un minuto. "seleccion" suena con cada clic: que sea muy corto.
+
+Probar un sonido sin recompilar
+-------------------------------
 Crear una carpeta "sonidos" (con la misma estructura) en la carpeta desde la que se ejecuta el juego.
-Lo que haya ahí tiene prioridad sobre lo de esta carpeta.
+Lo que haya ahí tiene prioridad sobre lo de esta carpeta. Esa carpeta no se sube a git (está en el
+.gitignore): cuando el sonido quede elegido, hay que moverlo acá y borrar la carpeta de prueba.
 
-La lista de sonidos elegidos y sus autores está en docs/fase-10-sonido.md.
+La lista de sonidos y sus autores está en docs/fase-10-sonido.md.

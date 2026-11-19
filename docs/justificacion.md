@@ -23,6 +23,8 @@ de clases está en [`docs/uml/`](uml/README.md).
 14. [Modo fútbol como otro juego de reglas](#14-modo-fútbol-como-otro-juego-de-reglas)
 15. [La IA en el núcleo, detrás de una interfaz](#15-la-ia-en-el-núcleo-detrás-de-una-interfaz)
 16. [Adaptadores reemplazables: representación de piezas y sonido](#16-adaptadores-reemplazables-representación-de-piezas-y-sonido)
+17. [Partida coordina; cada responsabilidad en su clase](#17-partida-coordina-cada-responsabilidad-en-su-clase)
+18. [Puertos de entrada: los adaptadores no conocen la clase Partida](#18-puertos-de-entrada-los-adaptadores-no-conocen-la-clase-partida)
 - [Cómo se extiende: pieza nueva y otro tamaño de tablero](#cómo-se-extiende)
 - [Concesiones conocidas](#concesiones-conocidas)
 
@@ -45,19 +47,21 @@ implementarlo en un adaptador. Leerlo directamente desde el núcleo rompería la
 
 ## 2. Inyección de dependencias manual con un único lugar de ensamblado
 
-**Qué.** `Partida` recibe todo por constructor: tablero, jugadores, `ReglasDePartida` y reloj.
+**Qué.** `Partida` recibe todo por un único constructor: tablero, jugadores, `ReglasDePartida` y reloj.
 `ReglasDePartida` agrupa los movimientos legales, el detector de jaque y las condiciones de fin.
 `EnsambladorPartida` (y `AplicacionAjedrez` para la ventana) es el único lugar que elige
 implementaciones concretas. No usamos un contenedor de inyección de dependencias. *(fase 2, javafx paso 1)*
 
 **Por qué.**
 - Agrupar las reglas evita que los constructores de `Partida` se multipliquen con cada dependencia
-  nueva, y garantiza un solo detector de jaque.
+  nueva. Tuvo cinco constructores (cuatro atajos para los tests); quedó uno solo, y los tests arman
+  sus reglas con `new ReglasDePartida(detector, condiciones)`.
+- Con un solo constructor, el detector de jaque sale siempre de los movimientos legales: no hay forma
+  de pasarle a la partida dos detectores distintos.
 - Con el azar y el reloj entrando por constructor, el ensamblado también se prueba.
 
-**Cuándo se rompería.** `Partida` conserva atajos de construcción que usan los tests. Si siguieran
-sumándose formas de construirla, convendría dejar solo el constructor principal. Si una variante
-necesitara dos detectores de jaque distintos, habría que separarlos y decidir cuál define el final.
+**Cuándo se rompería.** Si una variante necesitara dos detectores de jaque distintos, habría que
+separarlos y decidir cuál define el final.
 
 ## 3. Paquetes por concepto y dependencias en un solo sentido
 
@@ -68,6 +72,8 @@ más abajo. *(fase 1)*
 **Por qué.**
 - Con los tipos básicos en paquetes de alto nivel teníamos 7 ciclos de dependencia; los bajamos a 2.
 - Las dependencias van `adaptadores → juego → reglas → piezas/movimientos/tablero → bando`.
+- La IA es un cliente de la partida: `ia → juego`, nunca al revés. Por eso `SituacionDePartida`, lo
+  que la partida le entrega a la IA, vive en `juego`.
 - `Bando` también evita el choque de nombres con `javafx.scene.paint.Color`.
 
 **Cuándo se rompería.** Quedan dos ciclos propios del dominio, que aceptamos:
@@ -87,10 +93,15 @@ Cortarlos exigiría interfaces que solo existirían para eso. Si `Bando` dejara 
 `ReglasBase` ofrece las combinaciones comunes. La reina es `ortogonales + diagonales`; el peón
 combina avances y capturas restringidas.
 
+Cada subclase declara además su nombre, su código y su `valor()` material (peón 100, dama 900).
+
 **Por qué.**
 - **Composición sobre herencia:** una pieza nueva combina reglas existentes, sin reescribir cómo se
   mueve.
-- La herencia de `Pieza` es de un solo nivel y solo aporta el nombre y el código.
+- La herencia de `Pieza` es de un solo nivel y solo aporta nombre, código y valor.
+- **El valor es de la pieza, no de la IA.** Antes el evaluador lo decidía con un `switch` sobre la
+  letra, y una pieza nueva valía 0 sin que nadie lo notara. Como `valor()` es abstracto, una pieza
+  nueva no compila hasta declararlo.
 - Lo probamos: una pieza "arzobispo" (alfil + caballo) funcionó, dio jaque mate y la IA jugó con
   ella sin modificar ninguna clase del núcleo.
 
@@ -148,8 +159,9 @@ en orden. *(fases 6, 7, 7b y 9)*
 - `Partida` no sabe qué condiciones existen: las recorre en orden y gana la primera que se cumple.
 - Que la condición decida el ganador permitió el modo fútbol, donde al llegar al límite de jugadas
   puede ganar el que tiene el turno.
-- La condición también informa si hay un límite de jugadas, así la interfaz lo muestra sin saber
-  qué condición lo impone.
+- La condición también informa si hay un límite de jugadas y si se juega con goles (`marcador`).
+  Así la interfaz, la consola y el sonido muestran el límite y el marcador sin saber qué condición
+  los impone, y sin deducir el modo fútbol preguntando si hay pelota en el tablero.
 
 **Cuándo se rompería.** Si una condición necesitara datos que no están en el historial (por ejemplo,
 el tiempo usado en cada jugada), habría que sumarlos a `ContextoDeJugada`, no guardarlos dentro de la
@@ -177,8 +189,9 @@ actualiza jugada a jugada (técnica de Zobrist). *(fase 4b)*
 ## 9. Deshacer y rehacer validados en el núcleo
 
 **Qué.** `Partida` deshace coordinando el Command (decisión 5) y el Memento (decisión 8).
-`HistorialDeJugadas` guarda las pilas de hechas y deshechas. La regla de cuándo se puede deshacer
-está en `Partida`, no en la interfaz. *(fase 5)*
+`HistorialDeJugadas` guarda las pilas de hechas y deshechas, y `ArbitroDeFinales` restaura las
+condiciones con memoria. La regla de cuándo se puede deshacer está en `Partida`, no en la
+interfaz. *(fase 5)*
 
 **Por qué.**
 - La validación vale igual desde la ventana, la consola, los tests o la IA.
@@ -289,8 +302,8 @@ tablero. *(fase 12)*
 - La búsqueda no ve las condiciones con memoria (repetición, 50 movimientos): podría repetir
   posiciones sin darse cuenta.
 - Una regla especial con estado propio no sería segura para pensar en otro hilo.
-- El valor de cada pieza para la IA se decide por su código: una pieza nueva vale 0 hasta que se le
-  asigne un valor.
+- El evaluador premia centralizar a las "piezas menores", que reconoce por valor (hasta 400). Una
+  pieza nueva que valga poco pero no convenga en el centro necesitaría otro criterio.
 
 ## 16. Adaptadores reemplazables: representación de piezas y sonido
 
@@ -315,6 +328,60 @@ tablero. *(fase 12)*
   `ReproductorDeAudio`.
 - Un archivo con el nombre mal escrito no da error: la pieza se ve en Unicode.
 
+## 17. Partida coordina; cada responsabilidad en su clase
+
+**Qué.** `Partida` se ocupa de los turnos, de validar y aplicar las jugadas, y de deshacer y
+rehacer. Lo demás lo delega en clases privadas del paquete `juego`:
+- `ArbitroDeFinales` decide si la partida terminó y quién ganó, y coordina la memoria de las
+  condiciones;
+- `HistorialDeJugadas` guarda las jugadas hechas y deshechas;
+- `OfertaDeTablas` maneja la oferta pendiente y quién puede ofrecer o responder;
+- `AvisosDePartida` mantiene los observadores y les envía los eventos.
+
+**Por qué.**
+- **Responsabilidad única:** `Partida` había llegado a 508 líneas y cinco constructores. Cada
+  regla nueva de finales, de tablas o de avisos obligaba a abrirla. Ahora cada cambio tiene su
+  lugar.
+- Las clases nuevas son privadas del paquete, así que hacia afuera nada cambió: los adaptadores y
+  los tests siguen usando `Partida` igual.
+- `ArbitroDeFinales` no guarda el estado de la partida: recibe la posición y devuelve un veredicto,
+  así que es fácil de seguir y de probar.
+
+**Cuándo se rompería.**
+- Las ofertas de tablas son una clase simple con un oferente opcional, no un patrón State. Si
+  aparecieran más estados (por ejemplo, ofertas con vencimiento o contraofertas), convendría
+  modelar cada estado como una clase.
+- Si otra clase necesitara decidir finales sin una `Partida` (la IA ya lo hace a su manera, sobre su
+  copia), habría que hacer público el árbitro.
+
+## 18. Puertos de entrada: los adaptadores no conocen la clase Partida
+
+**Qué.** Los adaptadores reciben una de dos interfaces del núcleo:
+- `ConsultaDePartida`: tablero, turno, estado, marcador, movimientos legales y suscripción a los
+  eventos. Es de solo lectura.
+- `PartidaEnJuego`: la extiende con las órdenes de los jugadores (mover, deshacer, rehacer, rendirse,
+  tablas).
+
+`Partida` implementa `PartidaEnJuego`. El sonido recibe `ConsultaDePartida`; la consola, el
+controlador del tablero y la IA reciben `PartidaEnJuego`. Solo `EnsambladorPartida` construye y
+conoce la `Partida` concreta.
+
+**Por qué.**
+- **Inversión de dependencias (la D de SOLID), también del lado de entrada.** Los adaptadores
+  dependen de una abstracción del núcleo, no de su implementación. Una partida en red o un doble de
+  prueba podrían implementar la misma interfaz sin cambiar ningún adaptador.
+- **Segregación de interfaces (la I de SOLID).** Cada adaptador recibe solo lo que necesita. El
+  sonido no puede mover piezas ni rendir a nadie, y eso lo garantiza el compilador.
+- Es el mismo criterio que ya usábamos para los puertos de salida (`FuenteDeTiempo`,
+  `ObservadorDePartida`): el núcleo define las interfaces y los adaptadores se adaptan a ellas.
+
+**Cuándo se rompería.**
+- Un método público nuevo de `Partida` que un adaptador necesite hay que sumarlo también a la
+  interfaz que corresponda.
+- Las interfaces se partieron por rol (leer o jugar). Si apareciera un adaptador que solo necesita,
+  por ejemplo, los eventos, convendría una interfaz más chica todavía en vez de darle la de consulta
+  entera.
+
 ---
 
 ## Cómo se extiende
@@ -323,13 +390,13 @@ tablero. *(fase 12)*
 
 1. Crear una subclase de `Pieza` que combine reglas existentes. Por ejemplo, un arzobispo:
    `new ReglaCompuesta(ReglasBase.diagonales(SIN_LIMITE), ReglasBase.saltosDeCaballo())`, con su
-   `nombre()` y su `codigo()`.
+   `nombre()`, su `codigo()` y su `valor()` (el compilador los exige).
 2. Ponerla en el tablero con una `DisposicionInicial` nueva, o sumarla a las opciones de `Promocion`.
 3. **No hace falta modificar el núcleo.** Jaque, mate, tablas, deshacer y la IA la tratan como a
-   cualquier otra pieza.
+   cualquier otra pieza; la IA la valora con su `valor()`. Lo prueba `EvaluadorDePosicionTest`, con
+   una pieza inventada.
 
-Opcional: un sprite en `CatalogoSprites` (si no, se ve en Unicode) y un valor para la IA en
-`EvaluadorDePosicion`.
+Opcional: un sprite en `CatalogoSprites`. Si no tiene, se ve en Unicode.
 
 ### Otro tamaño de tablero
 
@@ -344,7 +411,4 @@ Son decisiones que tomamos sabiendo su costo. Las anotamos para poder revisarlas
 
 | Concesión | Por qué la aceptamos | Cuándo habría que cambiarla |
 |---|---|---|
-| `Partida.situacion()` devuelve un tipo del paquete `ia` (`juego → ia`) | Era la forma más directa de darle a la IA una copia de la partida | Si `juego` tuviera que compilarse sin la IA. Se arregla moviendo `SituacionDePartida` a `juego` |
 | `Pieza` tiene `esRey()`, `esPeon()` y `esTorre()` | El enroque, el jaque y la promoción necesitan reconocer esos roles | Si una regla nueva necesitara reconocer otra pieza: convendría preguntar por capacidades y no por tipo |
-| Los adaptadores usan la clase concreta `Partida` | Hay una sola implementación y es Java puro | Si hiciera falta otra (por ejemplo, una partida en red): habría que extraer una interfaz de entrada |
-| `Partida` concentra turnos, ofertas, deshacer y eventos | El historial ya se separó en `HistorialDeJugadas` | Si sigue creciendo: separar las ofertas de tablas (State) y la publicación de eventos |

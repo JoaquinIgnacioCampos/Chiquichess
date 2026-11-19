@@ -72,6 +72,7 @@ class RepresentacionConSpritesTest {
         Pieza nueva = new Pieza(Bando.BLANCO, new Nucleo.movimientos.ReglaCompuesta()) {
             @Override public String nombre() { return "Nueva"; }
             @Override public char codigo() { return 'X'; }
+            @Override public int valor() { return 0; }
         };
         assertEquals("X", assertInstanceOf(Text.class, representacion.crear(nueva, tema)).getText());
     }
