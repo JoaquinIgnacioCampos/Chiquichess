@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.StackPane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +64,15 @@ class VistaMenuPartidaTest {
     void jugarQuedaFueraDelDesplazamientoParaVerseSiempre() {
         assertNull(buscarEnOpciones("jugar"));
         assertNotNull(menu.lookup("#jugar"));
+    }
+
+    @Test
+    void elFondoQuedaDebajoDeLasOpcionesEnLaColumnaDerecha() {
+        var panel = (StackPane) menu.lookup("#panel-opciones-menu");
+        assertNotNull(panel);
+        assertEquals(1, javafx.scene.layout.GridPane.getColumnIndex(panel));
+        assertTrue(panel.getChildren().getFirst().isMouseTransparent());
+        assertSame(menu.lookup("#opciones-menu").getParent(), panel.getChildren().getLast());
     }
 
     @Test

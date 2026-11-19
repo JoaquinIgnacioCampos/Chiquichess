@@ -4,8 +4,10 @@ import Nucleo.ia.Dificultad;
 import adaptadores.audio.ControlDeVolumen;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.*;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -47,6 +49,7 @@ public final class VistaMenuPartida extends GridPane {
     private Runnable alElegirOpcion = () -> { };
     private HBox pie;
     private final Label pendientes = new Label();
+    private final FondoMenu fondoMenu = new FondoMenu();
 
     public VistaMenuPartida(TemaPanel tema, Consumer<ConfiguracionPartida> iniciar) {
         this.tema = Objects.requireNonNull(tema, "tema");
@@ -137,6 +140,7 @@ public final class VistaMenuPartida extends GridPane {
         jugar.setMaxWidth(150);
         jugar.setCursor(Cursor.HAND);
         jugar.focusedProperty().addListener((p, antes, foco) -> pintarJugar());
+        jugar.hoverProperty().addListener((p, antes, encima) -> pintarJugar());
         pintarJugar();
         jugar.setOnAction(e -> emitirConfiguracion());
         pie = new HBox(16, pendientes, jugar);
@@ -149,12 +153,15 @@ public final class VistaMenuPartida extends GridPane {
         desplazamiento.setFitToWidth(true);
         desplazamiento.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         desplazamiento.setMinSize(0, 0);
-        desplazamiento.setStyle("-fx-background: " + css(tema.fondo()) + "; -fx-background-color: " + css(tema.fondo()) + ";");
+        desplazamiento.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
         // "Jugar" queda fijo debajo de las opciones: se ve siempre, aunque haya que desplazarlas.
         VBox columnaOpciones = new VBox(desplazamiento, pie);
         columnaOpciones.setMinSize(0, 0);
         VBox.setVgrow(desplazamiento, Priority.ALWAYS);
-        add(columnaOpciones, 1, 0);
+        StackPane panel = new StackPane(fondoMenu, columnaOpciones);
+        panel.setId("panel-opciones-menu");
+        panel.setMinSize(0, 0);
+        add(panel, 1, 0);
         heightProperty().addListener((p, antes, alto) -> ajustarDensidad(opciones, pie, alto.doubleValue()));
         ajustarDensidad(opciones, pie, getHeight());
         for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores, dificultad}) {
@@ -238,8 +245,23 @@ public final class VistaMenuPartida extends GridPane {
         return imagen;
     }
 
+    void reproducirFondo(double volumen) {
+        fondoMenu.reproducir(volumen);
+    }
+
+    void detenerFondo() {
+        fondoMenu.detener();
+    }
+
     private VBox portada() {
-        Text marca = texto("CHIQUICHESS", 32, tema.texto(), true);
+        ImageView logo = new ImageView("/menu/chiquichess.png");
+        logo.setAccessibleText("ChiquiChess");
+        logo.setPreserveRatio(true);
+        // Excluye el margen transparente del PNG para que el dibujo ocupe el ancho disponible.
+        logo.setViewport(new Rectangle2D(48, 199, 1585, 579));
+        logo.fitWidthProperty().bind(Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
+        logo.fitHeightProperty().bind(Bindings.max(1, heightProperty().multiply(.28)));
+
         Text subtitulo = texto("AJEDREZ ARGENTINO", 13, tema.acento(), true);
         figura = new ImageView(cargarPersonaje());
         figura.setId("personaje");
@@ -257,10 +279,8 @@ public final class VistaMenuPartida extends GridPane {
                 new CornerRadii(12), new BorderWidths(1))));
         personaje.setAccessibleText("Personaje de ChiquiChess");
         Text leyenda = texto("Elegí tu equipo.\nJugá tu clásico.", 23, tema.texto(), true);
-        leyenda.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
-        marca.fontProperty().bind(javafx.beans.binding.Bindings.createObjectBinding(() ->
-                Font.font("System", FontWeight.BOLD, Math.max(21, Math.min(34, getWidth() * .027))), widthProperty()));
-        VBox portada = new VBox(14, marca, subtitulo, personaje, leyenda);
+        leyenda.wrappingWidthProperty().bind(Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
+        VBox portada = new VBox(14, logo, subtitulo, personaje, leyenda);
         portada.setId("portada-menu");
         portada.setPadding(new Insets(32));
         portada.setMinWidth(0);
@@ -276,7 +296,7 @@ public final class VistaMenuPartida extends GridPane {
         for (Equipo equipo : Equipo.values()) {
             ToggleButton boton = opcion(equipo.nombre(),
                     id + "-" + equipo.name().toLowerCase(java.util.Locale.ROOT), equipo, grupo);
-            var imagen = new javafx.scene.image.ImageView(PresentacionClub.escudoDe(equipo));
+            var imagen = new ImageView(PresentacionClub.escudoDe(equipo));
             imagen.setFitWidth(26);
             imagen.setFitHeight(30);
             imagen.setPreserveRatio(true);
@@ -301,20 +321,24 @@ public final class VistaMenuPartida extends GridPane {
         boton.setOnAction(evento -> alElegirOpcion.run());
         boton.selectedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         boton.focusedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
+        boton.hoverProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         pintarOpcion(boton);
         return boton;
     }
 
     private void pintarOpcion(ToggleButton boton) {
-        boton.setStyle("-fx-background-color: " + css(boton.isSelected() ? tema.acento() : tema.tarjeta())
+        var acento = boton.isHover() ? tema.acento().brighter() : tema.acento();
+        var tarjeta = boton.isHover() ? tema.tarjeta().interpolate(tema.acento(), 0.12) : tema.tarjeta();
+        boton.setStyle("-fx-background-color: " + css(boton.isSelected() ? acento : tarjeta)
                 + "; -fx-text-fill: " + css(boton.isSelected() ? tema.fondo() : tema.texto())
                 + "; -fx-border-color: " + css(boton.isFocused() ? tema.texto() :
-                boton.isSelected() ? tema.acento() : tema.borde())
+                boton.isSelected() || boton.isHover() ? acento : tema.borde().interpolate(tema.acento(), 0.21))
                 + "; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-width: 1;");
     }
 
     private void pintarJugar() {
-        jugar.setStyle("-fx-background-color: " + css(tema.acento()) + "; -fx-text-fill: " + css(tema.fondo())
+        var acento = jugar.isHover() ? tema.acento().brighter() : tema.acento();
+        jugar.setStyle("-fx-background-color: " + css(acento) + "; -fx-text-fill: " + css(tema.fondo())
                 + "; -fx-border-color: " + css(jugar.isFocused() ? tema.texto() : tema.acento())
                 + "; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-width: 2;");
     }
