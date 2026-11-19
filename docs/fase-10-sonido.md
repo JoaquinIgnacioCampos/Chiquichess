@@ -136,7 +136,13 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 
 ## Los sonidos (todos CC0)
 
-Todos son de [Freesound](https://freesound.org) con licencia **CC0**: se pueden usar, cambiar y
+> **Los sonidos actuales ya no son estos.** Los 16 archivos de `src/main/resources/sonidos/comunes/`
+> se reemplazaron por los definitivos (incluidos `seleccion`, `risa` y `menu`, que no están en esta
+> lista). **Falta completar su origen y licencia.** Las tablas de abajo quedan como referencia de los
+> sonidos de prueba con los que se armó el sistema. Los clubes todavía no tienen sonidos propios:
+> todos usan los comunes.
+
+Los sonidos de prueba eran todos de [Freesound](https://freesound.org) con licencia **CC0**: se pueden usar, cambiar y
 recortar sin pedir permiso ni citar al autor. Igual se lo cita, por cortesía. La licencia de cada uno
 se verificó en su página. Para bajar los originales de Freesound hace falta una cuenta (gratis).
 
