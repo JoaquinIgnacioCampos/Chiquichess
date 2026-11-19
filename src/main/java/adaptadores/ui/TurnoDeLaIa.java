@@ -1,6 +1,6 @@
 package adaptadores.ui;
 
-import Nucleo.ia.SituacionDePartida;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.ObservadorDePartida;
 import Nucleo.juego.Movimiento;

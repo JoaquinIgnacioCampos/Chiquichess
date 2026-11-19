@@ -8,7 +8,6 @@ digraph UML {
   }
   subgraph cluster_Nucleo_ia {
     label=<<B>Nucleo.ia</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
-    SituacionDePartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>SituacionDePartida</B>>];
     EstrategiaDeJuego [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>EstrategiaDeJuego</B>>];
     JugadorArtificial [label=<<B>JugadorArtificial</B>>];
     Dificultad [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>Dificultad</B>>];
@@ -25,6 +24,7 @@ digraph UML {
     Movimiento [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Movimiento</B>>];
     ResultadoMovimiento [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ResultadoMovimiento</B>>];
     ResultadoPartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ResultadoPartida</B>>];
+    SituacionDePartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>SituacionDePartida</B>>];
     AccionInvalidaException [label=<<B>AccionInvalidaException</B>>];
     MovimientoInvalidoException [label=<<B>MovimientoInvalidoException</B>>];
     ObservadorDePartida [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ObservadorDePartida</B>>];
@@ -217,7 +217,8 @@ digraph UML {
   Partida -> Movimiento [arrowhead=vee style=dashed xlabel=<recibe>];
   Partida -> ResultadoMovimiento [arrowhead=vee style=dashed xlabel=<devuelve>];
   Partida -> ResultadoPartida [arrowhead=vee style=dashed];
-  Partida -> SituacionDePartida [arrowhead=vee style=dashed xlabel=<arma para la IA>];
+  Partida -> SituacionDePartida [arrowhead=vee style=dashed xlabel=<arma una copia para la IA>];
+  Partida -> CondicionDeFinalizacion [arrowhead=vee style=dashed xlabel=<pregunta límite y marcador>];
   Partida -> AccionInvalidaException [arrowhead=vee style=dashed xlabel=<lanza>];
   Partida -> MovimientoInvalidoException [arrowhead=vee style=dashed xlabel=<lanza>];
   HistorialDeJugadas -> Jugada [dir=back arrowtail=odiamond];
@@ -246,6 +247,7 @@ digraph UML {
   BuscadorMinimax -> MovimientosLegales [arrowhead=vee style=dashed xlabel=<genera jugadas>];
   BuscadorMinimax -> CondicionDeFinalizacion [arrowhead=vee style=dashed xlabel=<detecta finales>];
   BuscadorMinimax -> Jugada [arrowhead=vee style=dashed xlabel=<aplica y revierte>];
+  EvaluadorDePosicion -> Pieza [arrowhead=vee style=dashed xlabel=<valor()>];
   EnsambladorPartida -> ConfiguracionPartida [arrowhead=vee style=dashed xlabel=<lee>];
   EnsambladorPartida -> PartidaConfigurada [arrowhead=vee style=dashed xlabel=<crea>];
   EnsambladorPartida -> Sorteo [dir=back arrowtail=odiamond];

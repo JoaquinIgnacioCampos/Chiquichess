@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Catálogo visual: escudo y colores de cada equipo, fuera del núcleo.
@@ -34,7 +35,8 @@ public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
     private static Estilo estiloDe(Equipo equipo) {
         return switch (equipo) {
             case BOCA -> new Estilo("boca.png", "#102B50", "#F9B923", "#315783");
-            case RIVER -> new Estilo("river.png", "#E8E5DF", "#A51D2D", "#FFFFFF");
+            // Tarjeta clara: necesita texto oscuro para que se lea.
+            case RIVER -> new Estilo("river.png", "#E8E5DF", "#A51D2D", "#FFFFFF", "#242424", "#505050");
             case INDEPENDIENTE -> new Estilo("independiente.png", "#321719", "#FF777D", "#7E3A41");
             case SAN_LORENZO -> new Estilo("san-lorenzo.png", "#182941", "#FF6573", "#704354");
             case RACING -> new Estilo("racing.png", "#103342", "#66D8FA", "#3486A1");
@@ -46,9 +48,8 @@ public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
         Objects.requireNonNull(equipo, "equipo");
         Objects.requireNonNull(base, "base");
         Estilo estilo = ESTILOS.get(equipo);
-        // River usa una tarjeta clara: necesita texto oscuro para que se lea.
-        Color texto = equipo == Equipo.RIVER ? Color.web("#242424") : base.texto();
-        Color textoSecundario = equipo == Equipo.RIVER ? Color.web("#505050") : base.textoSecundario();
+        Color texto = estilo.texto().orElse(base.texto());
+        Color textoSecundario = estilo.textoSecundario().orElse(base.textoSecundario());
         TemaPanel tema = new TemaPanel(base.fondo(), estilo.tarjeta(), texto, textoSecundario,
                 estilo.acento(), base.activo(), base.alerta(), estilo.borde(), base.puntoApagado(),
                 base.insigniaBlanca(), base.insigniaNegra());
@@ -65,9 +66,17 @@ public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
         return ESTILOS.get(Objects.requireNonNull(equipo, "equipo")).archivo();
     }
 
-    private record Estilo(String archivo, Image escudo, Color tarjeta, Color acento, Color borde) {
+    /** Si no trae colores de texto, la tarjeta usa los del tema base (pensados para fondos oscuros). */
+    private record Estilo(String archivo, Image escudo, Color tarjeta, Color acento, Color borde,
+                          Optional<Color> texto, Optional<Color> textoSecundario) {
         Estilo(String archivo, String tarjeta, String acento, String borde) {
-            this(archivo, cargar(archivo), Color.web(tarjeta), Color.web(acento), Color.web(borde));
+            this(archivo, cargar(archivo), Color.web(tarjeta), Color.web(acento), Color.web(borde),
+                    Optional.empty(), Optional.empty());
+        }
+
+        Estilo(String archivo, String tarjeta, String acento, String borde, String texto, String textoSecundario) {
+            this(archivo, cargar(archivo), Color.web(tarjeta), Color.web(acento), Color.web(borde),
+                    Optional.of(Color.web(texto)), Optional.of(Color.web(textoSecundario)));
         }
     }
 

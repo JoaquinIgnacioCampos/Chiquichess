@@ -5,7 +5,9 @@ extensión, y los dos son el patrón Strategy:
 
 - **`ReglaEspecial`** suma jugadas (enroque, captura al paso, pase) o transforma las que ya existen
   (promoción, gol).
-- **`CondicionDeFinalizacion`** decide si la partida terminó y quién ganó.
+- **`CondicionDeFinalizacion`** decide si la partida terminó y quién ganó. También informa si la
+  partida tiene un límite de jugadas y un marcador de goles. Así `Partida` y los adaptadores no
+  necesitan saber qué condiciones existen ni preguntar si hay pelota.
 
 Las condiciones que necesitan memoria (repetición, 50 movimientos) implementan `CondicionConMemoria`
 y devuelven un `Recuerdo` en cada jugada (Memento), para poder deshacer.
@@ -62,6 +64,7 @@ classDiagram
         +evaluar(ContextoDeJugada) Optional~EstadoPartida~
         +ganador(EstadoPartida, ContextoDeJugada) Optional~Bando~
         +limiteDeJugadas() Optional~Integer~
+        +marcador(List~Jugada~) Optional~Marcador~
     }
     class CondicionConMemoria {
         <<interface>>

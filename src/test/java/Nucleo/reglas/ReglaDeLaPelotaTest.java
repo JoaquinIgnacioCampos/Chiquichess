@@ -158,7 +158,7 @@ class ReglaDeLaPelotaTest {
         // Assert: la torre queda en el arco y la pelota va a d5, el campo del que recibió el gol
         assertTrue(partida.tablero().piezaEn(pos("d8")).orElseThrow().esTorre());
         assertEquals(Optional.of(pos("d5")), pelota(partida));
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
         assertFalse(partida.estado().estaFinalizada());
     }
 
@@ -181,7 +181,7 @@ class ReglaDeLaPelotaTest {
 
         // Assert
         assertEquals(Optional.of(pos("d4")), pelota(partida));
-        assertEquals(new Marcador(0, 1), partida.marcador());
+        assertEquals(new Marcador(0, 1), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -202,7 +202,7 @@ class ReglaDeLaPelotaTest {
 
         // Assert
         assertEquals(Optional.of(pos("d8")), pelota(partida));
-        assertEquals(new Marcador(0, 0), partida.marcador());
+        assertEquals(new Marcador(0, 0), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -224,7 +224,7 @@ class ReglaDeLaPelotaTest {
         // Assert
         assertTrue(partida.tablero().piezaEn(pos("e8")).orElseThrow().codigo() == 'D');
         assertEquals(Optional.of(pos("d5")), pelota(partida));
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -267,14 +267,14 @@ class ReglaDeLaPelotaTest {
 
         // Assert
         assertEquals(Optional.of(pos("d2")), pelota(partida));
-        assertEquals(new Marcador(0, 0), partida.marcador());
+        assertEquals(new Marcador(0, 0), partida.marcador().orElseThrow());
 
         // Act: rehacer vuelve a meter el gol
         partida.rehacer();
 
         // Assert
         assertEquals(Optional.of(pos("d5")), pelota(partida));
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -298,6 +298,6 @@ class ReglaDeLaPelotaTest {
 
         // Assert: la torre se llevó la pelota a d8, pero no fue gol
         assertEquals(Optional.of(pos("d8")), pelota(partida));
-        assertEquals(new Marcador(0, 0), partida.marcador());
+        assertEquals(new Marcador(0, 0), partida.marcador().orElseThrow());
     }
 }

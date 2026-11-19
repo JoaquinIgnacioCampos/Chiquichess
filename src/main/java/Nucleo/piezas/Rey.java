@@ -30,4 +30,10 @@ public class Rey extends Pieza {
     public char codigo() {
         return 'R';
     }
+
+    /** No se cuenta: nunca sale del tablero (el jaque mate termina la partida antes). */
+    @Override
+    public int valor() {
+        return 0;
+    }
 }

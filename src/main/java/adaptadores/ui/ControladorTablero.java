@@ -81,9 +81,9 @@ public final class ControladorTablero {
         return partida.resultado();
     }
 
-    /** Goles de cada bando si se juega al fútbol (el tablero tiene pelota); vacío en el ajedrez clásico. */
+    /** Goles de cada bando si las reglas se juegan con goles (el modo fútbol); vacío en el ajedrez clásico. */
     public Optional<Marcador> marcador() {
-        return partida.tablero().pelota().isPresent() ? Optional.of(partida.marcador()) : Optional.empty();
+        return partida.marcador();
     }
 
     /** Jugadas a las que termina la partida (modo fútbol); vacío si no hay límite. */

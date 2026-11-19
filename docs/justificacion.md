@@ -68,6 +68,8 @@ más abajo. *(fase 1)*
 **Por qué.**
 - Con los tipos básicos en paquetes de alto nivel teníamos 7 ciclos de dependencia; los bajamos a 2.
 - Las dependencias van `adaptadores → juego → reglas → piezas/movimientos/tablero → bando`.
+- La IA es un cliente de la partida: `ia → juego`, nunca al revés. Por eso `SituacionDePartida`, lo
+  que la partida le entrega a la IA, vive en `juego`.
 - `Bando` también evita el choque de nombres con `javafx.scene.paint.Color`.
 
 **Cuándo se rompería.** Quedan dos ciclos propios del dominio, que aceptamos:
@@ -87,10 +89,15 @@ Cortarlos exigiría interfaces que solo existirían para eso. Si `Bando` dejara 
 `ReglasBase` ofrece las combinaciones comunes. La reina es `ortogonales + diagonales`; el peón
 combina avances y capturas restringidas.
 
+Cada subclase declara además su nombre, su código y su `valor()` material (peón 100, dama 900).
+
 **Por qué.**
 - **Composición sobre herencia:** una pieza nueva combina reglas existentes, sin reescribir cómo se
   mueve.
-- La herencia de `Pieza` es de un solo nivel y solo aporta el nombre y el código.
+- La herencia de `Pieza` es de un solo nivel y solo aporta nombre, código y valor.
+- **El valor es de la pieza, no de la IA.** Antes el evaluador lo decidía con un `switch` sobre la
+  letra, y una pieza nueva valía 0 sin que nadie lo notara. Como `valor()` es abstracto, una pieza
+  nueva no compila hasta declararlo.
 - Lo probamos: una pieza "arzobispo" (alfil + caballo) funcionó, dio jaque mate y la IA jugó con
   ella sin modificar ninguna clase del núcleo.
 
@@ -148,8 +155,9 @@ en orden. *(fases 6, 7, 7b y 9)*
 - `Partida` no sabe qué condiciones existen: las recorre en orden y gana la primera que se cumple.
 - Que la condición decida el ganador permitió el modo fútbol, donde al llegar al límite de jugadas
   puede ganar el que tiene el turno.
-- La condición también informa si hay un límite de jugadas, así la interfaz lo muestra sin saber
-  qué condición lo impone.
+- La condición también informa si hay un límite de jugadas y si se juega con goles (`marcador`).
+  Así la interfaz, la consola y el sonido muestran el límite y el marcador sin saber qué condición
+  los impone, y sin deducir el modo fútbol preguntando si hay pelota en el tablero.
 
 **Cuándo se rompería.** Si una condición necesitara datos que no están en el historial (por ejemplo,
 el tiempo usado en cada jugada), habría que sumarlos a `ContextoDeJugada`, no guardarlos dentro de la
@@ -289,8 +297,8 @@ tablero. *(fase 12)*
 - La búsqueda no ve las condiciones con memoria (repetición, 50 movimientos): podría repetir
   posiciones sin darse cuenta.
 - Una regla especial con estado propio no sería segura para pensar en otro hilo.
-- El valor de cada pieza para la IA se decide por su código: una pieza nueva vale 0 hasta que se le
-  asigne un valor.
+- El evaluador premia centralizar a las "piezas menores", que reconoce por valor (hasta 400). Una
+  pieza nueva que valga poco pero no convenga en el centro necesitaría otro criterio.
 
 ## 16. Adaptadores reemplazables: representación de piezas y sonido
 
@@ -323,13 +331,13 @@ tablero. *(fase 12)*
 
 1. Crear una subclase de `Pieza` que combine reglas existentes. Por ejemplo, un arzobispo:
    `new ReglaCompuesta(ReglasBase.diagonales(SIN_LIMITE), ReglasBase.saltosDeCaballo())`, con su
-   `nombre()` y su `codigo()`.
+   `nombre()`, su `codigo()` y su `valor()` (el compilador los exige).
 2. Ponerla en el tablero con una `DisposicionInicial` nueva, o sumarla a las opciones de `Promocion`.
 3. **No hace falta modificar el núcleo.** Jaque, mate, tablas, deshacer y la IA la tratan como a
-   cualquier otra pieza.
+   cualquier otra pieza; la IA la valora con su `valor()`. Lo prueba `EvaluadorDePosicionTest`, con
+   una pieza inventada.
 
-Opcional: un sprite en `CatalogoSprites` (si no, se ve en Unicode) y un valor para la IA en
-`EvaluadorDePosicion`.
+Opcional: un sprite en `CatalogoSprites`. Si no tiene, se ve en Unicode.
 
 ### Otro tamaño de tablero
 
@@ -344,7 +352,6 @@ Son decisiones que tomamos sabiendo su costo. Las anotamos para poder revisarlas
 
 | Concesión | Por qué la aceptamos | Cuándo habría que cambiarla |
 |---|---|---|
-| `Partida.situacion()` devuelve un tipo del paquete `ia` (`juego → ia`) | Era la forma más directa de darle a la IA una copia de la partida | Si `juego` tuviera que compilarse sin la IA. Se arregla moviendo `SituacionDePartida` a `juego` |
 | `Pieza` tiene `esRey()`, `esPeon()` y `esTorre()` | El enroque, el jaque y la promoción necesitan reconocer esos roles | Si una regla nueva necesitara reconocer otra pieza: convendría preguntar por capacidades y no por tipo |
 | Los adaptadores usan la clase concreta `Partida` | Hay una sola implementación y es Java puro | Si hiciera falta otra (por ejemplo, una partida en red): habría que extraer una interfaz de entrada |
 | `Partida` concentra turnos, ofertas, deshacer y eventos | El historial ya se separó en `HistorialDeJugadas` | Si sigue creciendo: separar las ofertas de tablas (State) y la publicación de eventos |

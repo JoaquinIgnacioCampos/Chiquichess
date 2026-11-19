@@ -40,7 +40,7 @@ flowchart TB
     consola ==> ia
     configuracion ==> juego
 
-    juego --> ia
+    ia --> juego
     juego --> reglas
     ia --> reglas
     reglas --> jugadas
@@ -75,8 +75,8 @@ Los adaptadores también tienen sus propios puertos, para no atarse a una tecnol
 
 La justificación está en [la decisión 3 del documento de justificación](../justificacion.md#3-paquetes-por-concepto-y-dependencias-en-un-solo-sentido).
 
-> **Puntos a revisar:**
-> - `juego → ia` existe porque `Partida.situacion()` devuelve `ia.SituacionDePartida`. Es la única
->   flecha del núcleo que apunta "hacia un cliente".
-> - `adaptadores ↔ configuracion`: el ensamblado lee la configuración, y `PartidaConfigurada`
->   guarda un `RivalArtificial` (del paquete `adaptadores`).
+La IA depende de la partida y no al revés: `ia → juego` porque recibe una
+`juego.SituacionDePartida`. El paquete `juego` no conoce a la IA, que es un cliente más.
+
+> **Punto a revisar:** `adaptadores ↔ configuracion`. El ensamblado lee la configuración, y
+> `PartidaConfigurada` guarda un `RivalArtificial` (del paquete `adaptadores`).

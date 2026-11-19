@@ -1,7 +1,6 @@
 package Nucleo.juego;
 
 import Nucleo.bando.Bando;
-import Nucleo.ia.SituacionDePartida;
 import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.*;
@@ -177,9 +176,16 @@ public class Partida {
                 .min(Integer::compare);
     }
 
-    /** Goles de cada bando (modo fútbol), contados en las jugadas ejecutadas. 0 a 0 si no hay pelota. */
-    public Marcador marcador() {
-        return Marcador.de(historialDeJugadas.jugadas());
+    /**
+     * Goles de cada bando, contados en las jugadas ejecutadas, si alguna condición de fin se juega con
+     * goles (el modo fútbol); vacío si no. Igual que el límite de jugadas, lo informa la condición.
+     */
+    public Optional<Marcador> marcador() {
+        List<Jugada> jugadas = historialDeJugadas.jugadas();
+        return reglas.condiciones().stream()
+                .map(condicion -> condicion.marcador(jugadas))
+                .flatMap(Optional::stream)
+                .findFirst();
     }
 
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */

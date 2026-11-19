@@ -57,4 +57,10 @@ public abstract class Pieza {
 
     /** Letra que identifica a la pieza (P, T, C, A, D, R). */
     public abstract char codigo();
+
+    /**
+     * Valor material en centésimos de peón (peón 100, dama 900). Es conocimiento del ajedrez, no de la
+     * IA: lo declara cada pieza para que una pieza nueva no valga 0 sin que nadie lo note.
+     */
+    public abstract int valor();
 }

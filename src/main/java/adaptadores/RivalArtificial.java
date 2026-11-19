@@ -3,7 +3,7 @@ package adaptadores;
 import Nucleo.bando.Bando;
 import Nucleo.ia.DecisionDeJuego;
 import Nucleo.ia.EstrategiaDeJuego;
-import Nucleo.ia.SituacionDePartida;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.juego.Movimiento;
 import Nucleo.juego.Partida;
 

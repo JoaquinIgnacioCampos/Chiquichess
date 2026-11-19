@@ -23,4 +23,9 @@ public class Reina extends Pieza {
     public char codigo() {
         return 'D';
     }
+
+    @Override
+    public int valor() {
+        return 900;
+    }
 }

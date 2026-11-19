@@ -1,7 +1,9 @@
 package Nucleo.reglas;
 
 import Nucleo.bando.Bando;
+import Nucleo.jugadas.Jugada;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,6 +52,11 @@ public class VictoriaPorGoles implements CondicionDeFinalizacion {
     @Override
     public Optional<Integer> limiteDeJugadas() {
         return Optional.of(jugadasMaximas);
+    }
+
+    @Override
+    public Optional<Marcador> marcador(List<Jugada> jugadas) {
+        return Optional.of(Marcador.de(jugadas));
     }
 
     /** Gana quien tiene más goles, haya movido o no. */

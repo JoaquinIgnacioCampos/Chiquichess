@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.EventoDePartida;
 import Nucleo.juego.ObservadorDePartida;
 import Nucleo.juego.Partida;
+import Nucleo.reglas.Marcador;
 import adaptadores.audio.GuionDeSonidos.Toque;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 
@@ -123,7 +124,8 @@ public final class SonidosDePartida implements ObservadorDePartida, AutoCloseabl
     }
 
     private double intensidad(Bando bando) {
-        return IntensidadDeHinchada.de(bando, partida.historial().size(), partida.limiteDeJugadas(), partida.marcador());
+        return IntensidadDeHinchada.de(bando, partida.historial().size(), partida.limiteDeJugadas(),
+                partida.marcador().orElse(new Marcador(0, 0)));
     }
 
     private void detenerHinchadas() {

@@ -35,7 +35,8 @@ classDiagram
         +turno() Bando
         +estado() EstadoPartida
         +resultado() Optional~ResultadoPartida~
-        +marcador() Marcador
+        +marcador() Optional~Marcador~
+        +limiteDeJugadas() Optional~Integer~
         +historial() List~Movimiento~
         +situacion() SituacionDePartida
     }
@@ -67,6 +68,13 @@ classDiagram
         +ganador Optional~Bando~
         +motivo MotivoFinalizacion
     }
+    class SituacionDePartida {
+        <<record>>
+        +tablero Tablero
+        +turno Bando
+        +jugadas List~Jugada~
+        +reglas ReglasDePartida
+    }
     class AccionInvalidaException
     class MovimientoInvalidoException
 
@@ -79,7 +87,8 @@ classDiagram
     Partida ..> Movimiento : recibe
     Partida ..> ResultadoMovimiento : devuelve
     Partida ..> ResultadoPartida
-    Partida ..> SituacionDePartida : arma para la IA
+    Partida ..> SituacionDePartida : arma una copia para la IA
+    Partida ..> CondicionDeFinalizacion : pregunta límite y marcador
     Partida ..> AccionInvalidaException : lanza
     Partida ..> MovimientoInvalidoException : lanza
     HistorialDeJugadas o-- "0..*" Jugada

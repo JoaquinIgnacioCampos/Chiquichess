@@ -123,7 +123,7 @@ public class JuegoConsola {
             Movimiento movimiento = conPromocion
                     ? Movimiento.conPromocion(origen, destino, Character.toUpperCase(partes[2].charAt(0)))
                     : new Movimiento(origen, destino);
-            Marcador antes = partida.marcador();
+            Optional<Marcador> antes = partida.marcador();
             boolean pase = partida.tablero().piezaEn(destino)
                     .filter(pieza -> pieza.color() == partida.turno()).isPresent();
             ResultadoMovimiento resultado = partida.mover(movimiento);
@@ -144,7 +144,7 @@ public class JuegoConsola {
     /** La IA piensa (la consola espera) y juega; se muestra la jugada como la escribiría una persona. */
     private void jugarLaIa(RivalArtificial ia) {
         salida.println(partida.jugadorActual().nombre() + " esta pensando...");
-        Marcador antes = partida.marcador();
+        Optional<Marcador> antes = partida.marcador();
         long inicio = System.nanoTime();
         RivalArtificial.Respuesta respuesta = ia.pensar();
         // Mueve recién cuando pasó lo que tardaría una persona de su nivel.
@@ -169,11 +169,11 @@ public class JuegoConsola {
     }
 
     private boolean conPelota() {
-        return partida.tablero().pelota().isPresent();
+        return partida.marcador().isPresent();
     }
 
     private String marcador() {
-        Marcador marcador = partida.marcador();
+        Marcador marcador = partida.marcador().orElseThrow();
         return "Marcador: " + partida.jugador(Bando.BLANCO).nombre() + " " + marcador.blancas()
                 + " - " + marcador.negras() + " " + partida.jugador(Bando.NEGRO).nombre()
                 + "   (jugada " + partida.historial().size()
