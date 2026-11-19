@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.*;
 import Nucleo.tablero.Posicion;
+import Nucleo.tiempo.SinReloj;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -57,7 +58,7 @@ class PanelEstadoPartidaTest {
     void muestraNombresDelNucleoYElTurnoInicial() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         VistaPartida vista = vista(partida);
         assertEquals("Lucía Fernández", texto(vista, "nombre-blanco"));
         assertEquals("Tomás Rodríguez", texto(vista, "nombre-negro"));
@@ -145,7 +146,7 @@ class PanelEstadoPartidaTest {
         casos.forEach((estado, motivo) -> {
             Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                     new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
-                    new DetectorDeJaque(), List.of(c -> Optional.of(estado)));
+                    new ReglasDePartida(new DetectorDeJaque(), List.of(c -> Optional.of(estado))), new SinReloj());
             VistaPartida vista = vista(partida);
             assertEquals("TABLAS", texto(vista, "marcador-principal"));
             assertEquals(motivo, texto(vista, "motivo-final"));
@@ -187,7 +188,7 @@ class PanelEstadoPartidaTest {
     void losNombresSeMantienenDentroDelPanelEnLaVentanaMinima() {
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         VistaPartida vista = vista(partida);
         vista.resize(900, 620);
         vista.layout();

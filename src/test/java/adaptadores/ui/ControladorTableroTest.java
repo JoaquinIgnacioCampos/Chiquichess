@@ -4,7 +4,9 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.DetectorDeJaque;
 import Nucleo.reglas.MotivoFinalizacion;
+import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.RelojAjedrez;
+import Nucleo.tiempo.SinReloj;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import dobles.TableroFake;
@@ -100,7 +102,7 @@ class ControladorTableroTest {
                 "r...t...", "........", "........", "........",
                 "........", "........", "....T...", "....R..."),
                 new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         ControladorTablero interaccion = new ControladorTablero(clavada);
         interaccion.pulsar(pos("e2"));
         assertTrue(interaccion.destinosLegales().contains(pos("e3")));
@@ -116,7 +118,7 @@ class ControladorTableroTest {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
         Partida cronometrada = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
-                new DetectorDeJaque(), List.of(),
+                new ReglasDePartida(new DetectorDeJaque(), List.of()),
                 new RelojAjedrez(Duration.ofSeconds(10), Duration.ofSeconds(10), fuente));
         ControladorTablero interaccion = new ControladorTablero(cronometrada);
         interaccion.pulsar(pos("e2"));

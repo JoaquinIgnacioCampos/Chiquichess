@@ -3,20 +3,34 @@ package Nucleo.juego;
 import Nucleo.bando.Bando;
 import Nucleo.jugadas.Jugada;
 import Nucleo.piezas.Pieza;
-import Nucleo.reglas.*;
+import Nucleo.reglas.EstadoPartida;
+import Nucleo.reglas.Marcador;
+import Nucleo.reglas.Recuerdo;
+import Nucleo.reglas.MovimientosLegales;
+import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tablero.ITablero;
 import Nucleo.tablero.Posicion;
 import Nucleo.tablero.Tablero;
 import Nucleo.tiempo.RelojPartida;
-import Nucleo.tiempo.SinReloj;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * Orquesta una partida: turnos, validación, captura y estado.
- * Recibe sus colaboradores por constructor (inyección de dependencias), por lo que
- * se puede testear con cualquier tablero armado a mano.
+ * Orquesta una partida: turnos, validación y ejecución de jugadas, deshacer y rehacer, y los
+ * finales decididos por los jugadores (rendición, acuerdo) o por el reloj.
+ *
+ * Recibe sus colaboradores por constructor (inyección de dependencias), por lo que se puede testear
+ * con cualquier tablero armado a mano. Delega en clases propias lo que no es coordinar:
+ * <ul>
+ *   <li>{@link ArbitroDeFinales}: si la partida terminó después de una jugada, y la memoria de las condiciones;</li>
+ *   <li>{@link HistorialDeJugadas}: las jugadas hechas y deshechas;</li>
+ *   <li>{@link OfertaDeTablas}: la oferta pendiente y sus reglas;</li>
+ *   <li>{@link AvisosDePartida}: los observadores.</li>
+ * </ul>
  */
 public class Partida {
 
@@ -25,23 +39,22 @@ public class Partida {
     private final Jugador jugadorNegro;
     private final ReglasDePartida reglas;
     private final RelojPartida reloj;
-    /** Condiciones de las reglas que guardan estado, en el orden en que registran (Memento). */
-    private final List<CondicionConMemoria> condicionesConMemoria;
+    private final ArbitroDeFinales arbitro;
     /** Jugadas hechas y deshechas, con los recuerdos de cada una: Partida es el cuidador del Memento. */
     private final HistorialDeJugadas historialDeJugadas = new HistorialDeJugadas();
+    private final OfertaDeTablas ofertaDeTablas = new OfertaDeTablas();
+    private final AvisosDePartida avisos = new AvisosDePartida();
 
     private Bando turno = Bando.BLANCO;
     private EstadoPartida estado;
     private Optional<ResultadoPartida> resultado = Optional.empty();
     /** true si el final lo decidió una jugada (mate o tablas automáticas): ese final se puede deshacer. */
     private boolean terminoPorUnaJugada = false;
-    private Optional<Bando> ofertaTablas = Optional.empty();
-    /** Adaptadores que se enteran de lo que pasa (Observer), en el orden en que se agregaron. */
-    private final List<ObservadorDePartida> observadores = new ArrayList<>();
 
     /**
-     * Constructor principal: las reglas (movimientos legales, detector y condiciones de fin) llegan
-     * agrupadas en {@link ReglasDePartida}; el reloj pertenece a esta única partida.
+     * Las reglas (movimientos legales, detector y condiciones de fin) llegan agrupadas en
+     * {@link ReglasDePartida}; el reloj pertenece a esta única partida. Para jugar sin reloj se
+     * pasa {@link Nucleo.tiempo.SinReloj}.
      */
     public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
                    ReglasDePartida reglas, RelojPartida reloj) {
@@ -53,62 +66,10 @@ public class Partida {
         if (jugadorBlanco.color() != Bando.BLANCO || jugadorNegro.color() != Bando.NEGRO) {
             throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
-        this.condicionesConMemoria = reglas.condiciones().stream()
-                .filter(CondicionConMemoria.class::isInstance)
-                .map(CondicionConMemoria.class::cast)
-                .toList();
+        this.arbitro = new ArbitroDeFinales(reglas);
         this.reloj.iniciar(turno);
         // La posición inicial no se deshace: sus recuerdos no hace falta guardarlos.
-        registrarYEvaluar(historialDeJugadas.jugadas());
-    }
-
-    /**
-     * Atajo sin reloj que arma los MovimientosLegales con el detector recibido.
-     *
-     * @param condiciones condiciones de fin de partida, evaluadas en orden (la primera que se cumple gana).
-     *                    Conviene poner primero jaque mate y ahogado.
-     */
-    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
-                   IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones) {
-        this(tablero, jugadorBlanco, jugadorNegro, new ReglasDePartida(detector, condiciones), new SinReloj());
-    }
-
-    /**
-     * Atajo sin reloj con MovimientosLegales inyectado (lo usan los tests para reemplazarlo por un doble).
-     *
-     * @throws IllegalArgumentException si movimientosLegales no usa ese mismo detector
-     */
-    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
-                   IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
-                   List<CondicionDeFinalizacion> condiciones) {
-        this(tablero, jugadorBlanco, jugadorNegro, detector, movimientosLegales, condiciones, new SinReloj());
-    }
-
-    /** Atajo con reloj que arma los MovimientosLegales con el detector recibido. */
-    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
-                   IDetectorDeJaque detector, List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
-        this(tablero, jugadorBlanco, jugadorNegro, new ReglasDePartida(detector, condiciones), reloj);
-    }
-
-    /**
-     * Atajo con reloj y MovimientosLegales inyectado.
-     *
-     * @throws IllegalArgumentException si movimientosLegales no usa ese mismo detector
-     */
-    public Partida(Tablero tablero, Jugador jugadorBlanco, Jugador jugadorNegro,
-                   IDetectorDeJaque detector, MovimientosLegales movimientosLegales,
-                   List<CondicionDeFinalizacion> condiciones, RelojPartida reloj) {
-        this(tablero, jugadorBlanco, jugadorNegro,
-                new ReglasDePartida(conMismoDetector(movimientosLegales, detector), condiciones), reloj);
-    }
-
-    private static MovimientosLegales conMismoDetector(MovimientosLegales movimientosLegales,
-                                                        IDetectorDeJaque detector) {
-        Objects.requireNonNull(detector, "detector");
-        if (Objects.requireNonNull(movimientosLegales, "movimientosLegales").detector() != detector) {
-            throw new IllegalArgumentException("MovimientosLegales debe usar el mismo detector de jaque");
-        }
-        return movimientosLegales;
+        registrar(historialDeJugadas.jugadas());
     }
 
     public ITablero tablero() {
@@ -117,24 +78,17 @@ public class Partida {
 
     /** Suscribe un adaptador a los eventos de esta partida (ver {@link EventoDePartida}). */
     public void agregarObservador(ObservadorDePartida observador) {
-        observadores.add(Objects.requireNonNull(observador, "observador"));
+        avisos.agregar(observador);
     }
 
     public void quitarObservador(ObservadorDePartida observador) {
-        observadores.remove(observador);
-    }
-
-    private void avisar(EventoDePartida evento) {
-        // Copia: un observador puede desuscribirse mientras recibe el aviso.
-        for (ObservadorDePartida observador : List.copyOf(observadores)) {
-            observador.notificar(evento);
-        }
+        avisos.quitar(observador);
     }
 
     /** Avisa el final si la partida está terminada. Se llama después del aviso de la jugada que la terminó. */
     private void avisarSiTermino() {
         resultado.filter(r -> estado.estaFinalizada())
-                .ifPresent(r -> avisar(new EventoDePartida.PartidaFinalizada(r)));
+                .ifPresent(r -> avisos.avisar(new EventoDePartida.PartidaFinalizada(r)));
     }
 
     public Bando turno() {
@@ -142,7 +96,7 @@ public class Partida {
     }
 
     public Jugador jugadorActual() {
-        return turno == Bando.BLANCO ? jugadorBlanco : jugadorNegro;
+        return jugador(turno);
     }
 
     /** Identidad inmutable de un bando, independiente del turno actual. */
@@ -157,8 +111,7 @@ public class Partida {
 
     /** Quién ganó; vacío si la partida sigue o terminó en tablas. */
     public Optional<Jugador> ganador() {
-        return resultado.flatMap(ResultadoPartida::ganador)
-                .map(color -> color == Bando.BLANCO ? jugadorBlanco : jugadorNegro);
+        return resultado.flatMap(ResultadoPartida::ganador).map(this::jugador);
     }
 
     public Optional<ResultadoPartida> resultado() {
@@ -170,10 +123,7 @@ public class Partida {
      * límite (el modo fútbol); vacío si no hay límite.
      */
     public Optional<Integer> limiteDeJugadas() {
-        return reglas.condiciones().stream()
-                .map(CondicionDeFinalizacion::limiteDeJugadas)
-                .flatMap(Optional::stream)
-                .min(Integer::compare);
+        return arbitro.limiteDeJugadas();
     }
 
     /**
@@ -181,11 +131,7 @@ public class Partida {
      * goles (el modo fútbol); vacío si no. Igual que el límite de jugadas, lo informa la condición.
      */
     public Optional<Marcador> marcador() {
-        List<Jugada> jugadas = historialDeJugadas.jugadas();
-        return reglas.condiciones().stream()
-                .map(condicion -> condicion.marcador(jugadas))
-                .flatMap(Optional::stream)
-                .findFirst();
+        return arbitro.marcador(historialDeJugadas.jugadas());
     }
 
     /** Foto inmutable de las jugadas ejecutadas, en orden; no incluye intentos ni otras órdenes. */
@@ -221,16 +167,13 @@ public class Partida {
         }
         HistorialDeJugadas.Entrada entrada = historialDeJugadas.deshacer();
         entrada.jugada().revertir(tablero);
-        // Memento: cada condición recupera su propio recuerdo, en orden inverso al registro.
-        for (int i = condicionesConMemoria.size() - 1; i >= 0; i--) {
-            condicionesConMemoria.get(i).restaurar(entrada.recuerdos().get(i));
-        }
+        arbitro.restaurar(entrada.recuerdos());
         turno = turno.opuesto();
-        ofertaTablas = Optional.empty();
+        ofertaDeTablas.descartar();
         resultado = Optional.empty();
         terminoPorUnaJugada = false;
-        actualizarEstado(evaluar(contexto(historialDeJugadas.jugadas())));
-        avisar(new EventoDePartida.JugadaDeshecha(estado));
+        aplicar(arbitro.evaluar(tablero, turno, historialDeJugadas.jugadas()));
+        avisos.avisar(new EventoDePartida.JugadaDeshecha(estado));
     }
 
     /**
@@ -251,22 +194,22 @@ public class Partida {
         Jugada jugada = historialDeJugadas.siguienteParaRehacer();
         jugada.aplicar(tablero);
         turno = turno.opuesto();
-        ofertaTablas = Optional.empty();
-        historialDeJugadas.confirmarRehecha(registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
-        avisar(new EventoDePartida.JugadaRehecha(jugada.piezaMovida().color(),
+        ofertaDeTablas.descartar();
+        historialDeJugadas.confirmarRehecha(registrar(historialDeJugadas.jugadasCon(jugada)));
+        avisos.avisar(new EventoDePartida.JugadaRehecha(jugada.piezaMovida().color(),
                 EventoDePartida.Rasgo.de(jugada), estado));
         avisarSiTermino();
     }
 
     /** true si en este momento {@link #deshacer()} se aceptaría. Lo usa la UI para habilitar el botón. */
     public boolean puedeDeshacer() {
-        return deshacerHabilitado() && historialDeJugadas.hayParaDeshacer()
+        return permiteDeshacer() && historialDeJugadas.hayParaDeshacer()
                 && (resultado.isEmpty() || terminoPorUnaJugada);
     }
 
     /** true si en este momento {@link #rehacer()} se aceptaría. */
     public boolean puedeRehacer() {
-        return deshacerHabilitado() && historialDeJugadas.hayParaRehacer() && !estado.estaFinalizada();
+        return permiteDeshacer() && historialDeJugadas.hayParaRehacer() && !estado.estaFinalizada();
     }
 
     /**
@@ -277,12 +220,8 @@ public class Partida {
         return reglas.permiteDeshacer() && reloj.tiempoRestante(Bando.BLANCO).isEmpty();
     }
 
-    private boolean deshacerHabilitado() {
-        return permiteDeshacer();
-    }
-
     private void asegurarDeshacerPermitido() {
-        if (!deshacerHabilitado()) {
+        if (!permiteDeshacer()) {
             throw new AccionInvalidaException(AccionInvalidaException.Motivo.DESHACER_NO_PERMITIDO);
         }
     }
@@ -299,41 +238,28 @@ public class Partida {
     }
 
     public Optional<Bando> ofertaTablasPendiente() {
-        return ofertaTablas;
+        return ofertaDeTablas.pendiente();
     }
 
     public void ofrecerTablas(Bando color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
-        if (color != turno) {
-            throw new AccionInvalidaException(AccionInvalidaException.Motivo.NO_ES_SU_TURNO);
-        }
-        if (ofertaTablas.isPresent()) {
-            throw new AccionInvalidaException(AccionInvalidaException.Motivo.OFERTA_PENDIENTE);
-        }
-        ofertaTablas = Optional.of(color);
+        ofertaDeTablas.ofrecer(color, turno);
     }
 
     public void aceptarTablas(Bando color) {
-        validarRespuestaTablas(color);
+        Objects.requireNonNull(color, "color");
+        asegurarEnCurso();
+        ofertaDeTablas.validarRespuesta(color);
         finalizar(EstadoPartida.TABLAS_ACUERDO, Optional.empty());
         avisarSiTermino();
     }
 
     public void rechazarTablas(Bando color) {
-        validarRespuestaTablas(color);
-        ofertaTablas = Optional.empty();
-    }
-
-    private void validarRespuestaTablas(Bando color) {
         Objects.requireNonNull(color, "color");
         asegurarEnCurso();
-        if (ofertaTablas.isEmpty()) {
-            throw new AccionInvalidaException(AccionInvalidaException.Motivo.SIN_OFERTA);
-        }
-        if (ofertaTablas.get() == color) {
-            throw new AccionInvalidaException(AccionInvalidaException.Motivo.ES_SU_PROPIA_OFERTA);
-        }
+        ofertaDeTablas.validarRespuesta(color);
+        ofertaDeTablas.descartar();
     }
 
     private void asegurarEnCurso() {
@@ -341,23 +267,6 @@ public class Partida {
         if (estado.estaFinalizada()) {
             throw new AccionInvalidaException(AccionInvalidaException.Motivo.PARTIDA_FINALIZADA);
         }
-    }
-
-    /** Aplica el estado (y el ganador) que decidieron las condiciones de fin después de una jugada. */
-    private void actualizarEstado(Veredicto veredicto) {
-        if (veredicto.estado().estaFinalizada()) {
-            finalizar(veredicto.estado(), veredicto.ganador());
-            terminoPorUnaJugada = true;
-        } else {
-            estado = veredicto.estado();
-        }
-    }
-
-    private void finalizar(EstadoPartida estadoFinal, Optional<Bando> ganador) {
-        resultado = Optional.of(new ResultadoPartida(ganador, estadoFinal.motivo().orElseThrow()));
-        estado = estadoFinal;
-        ofertaTablas = Optional.empty();
-        reloj.detener();
     }
 
     /** Consulta pura: vacío significa que la partida no tiene límite de tiempo. */
@@ -432,17 +341,13 @@ public class Partida {
             throw new MovimientoInvalidoException(MovimientoInvalidoException.Motivo.PARTIDA_FINALIZADA);
         }
         jugada.aplicar(tablero);
-        Optional<Pieza> capturada = jugada.capturada();
-
-        if (ofertaTablas.filter(oferente -> oferente != pieza.color()).isPresent()) {
-            ofertaTablas = Optional.empty();
-        }
+        ofertaDeTablas.alMover(pieza.color());
         turno = turno.opuesto();
         reloj.cambiarTurno();
-        historialDeJugadas.agregar(jugada, registrarYEvaluar(historialDeJugadas.jugadasCon(jugada)));
-        avisar(new EventoDePartida.JugadaHecha(pieza.color(), EventoDePartida.Rasgo.de(jugada), estado));
+        historialDeJugadas.agregar(jugada, registrar(historialDeJugadas.jugadasCon(jugada)));
+        avisos.avisar(new EventoDePartida.JugadaHecha(pieza.color(), EventoDePartida.Rasgo.de(jugada), estado));
         avisarSiTermino();
-        return new ResultadoMovimiento(capturada, estado);
+        return new ResultadoMovimiento(jugada.capturada(), estado);
     }
 
     /**
@@ -465,44 +370,27 @@ public class Partida {
                 .findFirst();
     }
 
-    /** Foto de la posición actual que reciben las condiciones de fin. */
-    private ContextoDeJugada contexto(List<Jugada> jugadas) {
-        boolean enJaque = reglas.detector().estaEnJaque(tablero, turno);
-        boolean hayJugadasLegales = reglas.movimientosLegales().existeAlguno(tablero, turno, jugadas);
-        return new ContextoDeJugada(tablero, turno, jugadas, enJaque, hayJugadasLegales);
+    /** El árbitro registra la posición actual y decide el estado; devuelve los recuerdos para el historial. */
+    private List<Recuerdo> registrar(List<Jugada> jugadas) {
+        ArbitroDeFinales.Registro registro = arbitro.registrarYEvaluar(tablero, turno, jugadas);
+        aplicar(registro.veredicto());
+        return registro.recuerdos();
     }
 
-    /**
-     * Arma el contexto de la posición actual, hace que todas las condiciones con memoria la registren
-     * y recién después decide el estado. Registrar primero garantiza que todas anoten cada jugada,
-     * aunque una condición anterior termine la partida. Devuelve los recuerdos de ese registro,
-     * en el mismo orden que {@link #condicionesConMemoria}.
-     */
-    private List<Recuerdo> registrarYEvaluar(List<Jugada> jugadas) {
-        ContextoDeJugada contexto = contexto(jugadas);
-        List<Recuerdo> recuerdos = new ArrayList<>();
-        for (CondicionConMemoria condicion : condicionesConMemoria) {
-            recuerdos.add(condicion.registrar(contexto));
+    /** Aplica el estado (y el ganador) que decidió el árbitro después de una jugada. */
+    private void aplicar(ArbitroDeFinales.Veredicto veredicto) {
+        if (veredicto.estado().estaFinalizada()) {
+            finalizar(veredicto.estado(), veredicto.ganador());
+            terminoPorUnaJugada = true;
+        } else {
+            estado = veredicto.estado();
         }
-        actualizarEstado(evaluar(contexto));
-        return recuerdos;
     }
 
-    /** Estado que decidieron las condiciones de fin y, si alguna terminó la partida con victoria, quién ganó. */
-    private record Veredicto(EstadoPartida estado, Optional<Bando> ganador) {
-    }
-
-    /**
-     * Consulta las condiciones de fin en orden; si ninguna se cumple, la partida sigue (con o sin jaque).
-     * La condición que termina la partida es la que dice quién ganó.
-     */
-    private Veredicto evaluar(ContextoDeJugada contexto) {
-        for (CondicionDeFinalizacion condicion : reglas.condiciones()) {
-            Optional<EstadoPartida> resultado = condicion.evaluar(contexto);
-            if (resultado.isPresent()) {
-                return new Veredicto(resultado.get(), condicion.ganador(resultado.get(), contexto));
-            }
-        }
-        return new Veredicto(contexto.enJaque() ? EstadoPartida.JAQUE : EstadoPartida.EN_CURSO, Optional.empty());
+    private void finalizar(EstadoPartida estadoFinal, Optional<Bando> ganador) {
+        resultado = Optional.of(new ResultadoPartida(ganador, estadoFinal.motivo().orElseThrow()));
+        estado = estadoFinal;
+        ofertaDeTablas.descartar();
+        reloj.detener();
     }
 }

@@ -2,7 +2,16 @@
 
 `Partida` es la fachada del núcleo: recibe las órdenes de los jugadores (mover, deshacer, rendirse,
 ofrecer tablas), las valida con las reglas y avisa lo que pasó a sus observadores. Todas sus
-dependencias llegan por constructor: el tablero, los jugadores, las reglas y el reloj.
+dependencias llegan por constructor (uno solo): el tablero, los jugadores, las reglas y el reloj.
+
+`Partida` coordina, y delega lo demás en cuatro clases privadas del paquete:
+
+| Clase | Responsabilidad |
+|---|---|
+| `ArbitroDeFinales` | Decide si la partida terminó después de cada jugada y quién ganó; coordina la memoria de las condiciones (Memento) |
+| `HistorialDeJugadas` | Las jugadas hechas y deshechas, con los recuerdos de cada una |
+| `OfertaDeTablas` | La oferta pendiente y sus reglas: quién puede ofrecer y quién responder |
+| `AvisosDePartida` | Los observadores y el envío de cada evento |
 
 ## 5a. Partida y sus colaboradores
 
@@ -14,11 +23,12 @@ classDiagram
         -tablero Tablero
         -reglas ReglasDePartida
         -reloj RelojPartida
+        -arbitro ArbitroDeFinales
         -historialDeJugadas HistorialDeJugadas
-        -observadores List~ObservadorDePartida~
+        -ofertaDeTablas OfertaDeTablas
+        -avisos AvisosDePartida
         -turno Bando
         -estado EstadoPartida
-        -ofertaTablas Optional~Bando~
         +Partida(Tablero, Jugador, Jugador, ReglasDePartida, RelojPartida)
         +mover(Movimiento) ResultadoMovimiento
         +movimientosLegales(Posicion) Set~Posicion~
@@ -41,9 +51,31 @@ classDiagram
         +situacion() SituacionDePartida
     }
 
+    class ArbitroDeFinales {
+        -reglas ReglasDePartida
+        -condicionesConMemoria List~CondicionConMemoria~
+        ~registrarYEvaluar(Tablero, Bando, List~Jugada~) Registro
+        ~evaluar(Tablero, Bando, List~Jugada~) Veredicto
+        ~restaurar(List~Recuerdo~)
+        ~limiteDeJugadas() Optional~Integer~
+        ~marcador(List~Jugada~) Optional~Marcador~
+    }
     class HistorialDeJugadas {
         -hechas List~Entrada~
         -deshechas List~Jugada~
+    }
+    class OfertaDeTablas {
+        -oferente Optional~Bando~
+        ~ofrecer(Bando, Bando turno)
+        ~validarRespuesta(Bando)
+        ~alMover(Bando)
+        ~descartar()
+    }
+    class AvisosDePartida {
+        -observadores List~ObservadorDePartida~
+        ~agregar(ObservadorDePartida)
+        ~quitar(ObservadorDePartida)
+        ~avisar(EventoDePartida)
     }
 
     class Jugador {
@@ -78,20 +110,26 @@ classDiagram
     class AccionInvalidaException
     class MovimientoInvalidoException
 
+    Partida *-- ArbitroDeFinales
     Partida *-- HistorialDeJugadas
+    Partida *-- OfertaDeTablas
+    Partida *-- AvisosDePartida
     Partida o-- Tablero
     Partida o-- ReglasDePartida
     Partida o-- RelojPartida
     Partida o-- "2" Jugador
-    Partida o-- "0..*" ObservadorDePartida
     Partida ..> Movimiento : recibe
     Partida ..> ResultadoMovimiento : devuelve
     Partida ..> ResultadoPartida
     Partida ..> SituacionDePartida : arma una copia para la IA
-    Partida ..> CondicionDeFinalizacion : pregunta límite y marcador
     Partida ..> AccionInvalidaException : lanza
     Partida ..> MovimientoInvalidoException : lanza
+    ArbitroDeFinales o-- ReglasDePartida
+    ArbitroDeFinales ..> CondicionDeFinalizacion : consulta en orden
+    ArbitroDeFinales ..> Recuerdo : guarda y restaura
     HistorialDeJugadas o-- "0..*" Jugada
+    OfertaDeTablas ..> AccionInvalidaException : lanza
+    AvisosDePartida o-- "0..*" ObservadorDePartida
 ```
 
 ## 5b. Eventos (Observer)
@@ -104,6 +142,7 @@ classDiagram
         +agregarObservador(ObservadorDePartida)
         +quitarObservador(ObservadorDePartida)
     }
+    class AvisosDePartida
     class ObservadorDePartida {
         <<interface>>
         +notificar(EventoDePartida)
@@ -141,8 +180,9 @@ classDiagram
         +de(Jugada)$ Set~Rasgo~
     }
 
-    Partida o-- "0..*" ObservadorDePartida : avisa
-    Partida ..> EventoDePartida : publica
+    Partida *-- AvisosDePartida
+    AvisosDePartida o-- "0..*" ObservadorDePartida : avisa
+    Partida ..> EventoDePartida : crea
     ObservadorDePartida ..> EventoDePartida
     EventoDePartida <|.. JugadaHecha
     EventoDePartida <|.. JugadaDeshecha
@@ -204,7 +244,8 @@ classDiagram
 - **Observer:** `Partida` publica `EventoDePartida` y no sabe quién escucha (el sonido, el panel, la
   IA). El evento dice qué pasó, no cómo se muestra.
 - **Command + Memento** para deshacer: el historial guarda cada `Jugada` (que sabe revertirse)
-  junto con los `Recuerdo` de las condiciones con memoria.
+  junto con los `Recuerdo` que devuelve el árbitro. `Partida` es el cuidador: los guarda y los
+  devuelve sin saber qué contienen.
 - **Null Object:** `SinReloj` evita preguntar "¿hay reloj?" en cada jugada.
 - **Decorator:** `DisposicionDeFutbol` envuelve cualquier disposición y le agrega la cancha.
 - **Puerto de salida:** `FuenteDeTiempo` es la única forma en que el núcleo conoce la hora.

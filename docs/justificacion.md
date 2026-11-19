@@ -23,6 +23,7 @@ de clases está en [`docs/uml/`](uml/README.md).
 14. [Modo fútbol como otro juego de reglas](#14-modo-fútbol-como-otro-juego-de-reglas)
 15. [La IA en el núcleo, detrás de una interfaz](#15-la-ia-en-el-núcleo-detrás-de-una-interfaz)
 16. [Adaptadores reemplazables: representación de piezas y sonido](#16-adaptadores-reemplazables-representación-de-piezas-y-sonido)
+17. [Partida coordina; cada responsabilidad en su clase](#17-partida-coordina-cada-responsabilidad-en-su-clase)
 - [Cómo se extiende: pieza nueva y otro tamaño de tablero](#cómo-se-extiende)
 - [Concesiones conocidas](#concesiones-conocidas)
 
@@ -45,19 +46,21 @@ implementarlo en un adaptador. Leerlo directamente desde el núcleo rompería la
 
 ## 2. Inyección de dependencias manual con un único lugar de ensamblado
 
-**Qué.** `Partida` recibe todo por constructor: tablero, jugadores, `ReglasDePartida` y reloj.
+**Qué.** `Partida` recibe todo por un único constructor: tablero, jugadores, `ReglasDePartida` y reloj.
 `ReglasDePartida` agrupa los movimientos legales, el detector de jaque y las condiciones de fin.
 `EnsambladorPartida` (y `AplicacionAjedrez` para la ventana) es el único lugar que elige
 implementaciones concretas. No usamos un contenedor de inyección de dependencias. *(fase 2, javafx paso 1)*
 
 **Por qué.**
 - Agrupar las reglas evita que los constructores de `Partida` se multipliquen con cada dependencia
-  nueva, y garantiza un solo detector de jaque.
+  nueva. Tuvo cinco constructores (cuatro atajos para los tests); quedó uno solo, y los tests arman
+  sus reglas con `new ReglasDePartida(detector, condiciones)`.
+- Con un solo constructor, el detector de jaque sale siempre de los movimientos legales: no hay forma
+  de pasarle a la partida dos detectores distintos.
 - Con el azar y el reloj entrando por constructor, el ensamblado también se prueba.
 
-**Cuándo se rompería.** `Partida` conserva atajos de construcción que usan los tests. Si siguieran
-sumándose formas de construirla, convendría dejar solo el constructor principal. Si una variante
-necesitara dos detectores de jaque distintos, habría que separarlos y decidir cuál define el final.
+**Cuándo se rompería.** Si una variante necesitara dos detectores de jaque distintos, habría que
+separarlos y decidir cuál define el final.
 
 ## 3. Paquetes por concepto y dependencias en un solo sentido
 
@@ -185,8 +188,9 @@ actualiza jugada a jugada (técnica de Zobrist). *(fase 4b)*
 ## 9. Deshacer y rehacer validados en el núcleo
 
 **Qué.** `Partida` deshace coordinando el Command (decisión 5) y el Memento (decisión 8).
-`HistorialDeJugadas` guarda las pilas de hechas y deshechas. La regla de cuándo se puede deshacer
-está en `Partida`, no en la interfaz. *(fase 5)*
+`HistorialDeJugadas` guarda las pilas de hechas y deshechas, y `ArbitroDeFinales` restaura las
+condiciones con memoria. La regla de cuándo se puede deshacer está en `Partida`, no en la
+interfaz. *(fase 5)*
 
 **Por qué.**
 - La validación vale igual desde la ventana, la consola, los tests o la IA.
@@ -323,6 +327,32 @@ tablero. *(fase 12)*
   `ReproductorDeAudio`.
 - Un archivo con el nombre mal escrito no da error: la pieza se ve en Unicode.
 
+## 17. Partida coordina; cada responsabilidad en su clase
+
+**Qué.** `Partida` se ocupa de los turnos, de validar y aplicar las jugadas, y de deshacer y
+rehacer. Lo demás lo delega en clases privadas del paquete `juego`:
+- `ArbitroDeFinales` decide si la partida terminó y quién ganó, y coordina la memoria de las
+  condiciones;
+- `HistorialDeJugadas` guarda las jugadas hechas y deshechas;
+- `OfertaDeTablas` maneja la oferta pendiente y quién puede ofrecer o responder;
+- `AvisosDePartida` mantiene los observadores y les envía los eventos.
+
+**Por qué.**
+- **Responsabilidad única:** `Partida` había llegado a 508 líneas y cinco constructores. Cada
+  regla nueva de finales, de tablas o de avisos obligaba a abrirla. Ahora cada cambio tiene su
+  lugar.
+- Las clases nuevas son privadas del paquete, así que hacia afuera nada cambió: los adaptadores y
+  los tests siguen usando `Partida` igual.
+- `ArbitroDeFinales` no guarda el estado de la partida: recibe la posición y devuelve un veredicto,
+  así que es fácil de seguir y de probar.
+
+**Cuándo se rompería.**
+- Las ofertas de tablas son una clase simple con un oferente opcional, no un patrón State. Si
+  aparecieran más estados (por ejemplo, ofertas con vencimiento o contraofertas), convendría
+  modelar cada estado como una clase.
+- Si otra clase necesitara decidir finales sin una `Partida` (la IA ya lo hace a su manera, sobre su
+  copia), habría que hacer público el árbitro.
+
 ---
 
 ## Cómo se extiende
@@ -354,4 +384,3 @@ Son decisiones que tomamos sabiendo su costo. Las anotamos para poder revisarlas
 |---|---|---|
 | `Pieza` tiene `esRey()`, `esPeon()` y `esTorre()` | El enroque, el jaque y la promoción necesitan reconocer esos roles | Si una regla nueva necesitara reconocer otra pieza: convendría preguntar por capacidades y no por tipo |
 | Los adaptadores usan la clase concreta `Partida` | Hay una sola implementación y es Java puro | Si hiciera falta otra (por ejemplo, una partida en red): habría que extraer una interfaz de entrada |
-| `Partida` concentra turnos, ofertas, deshacer y eventos | El historial ya se separó en `HistorialDeJugadas` | Si sigue creciendo: separar las ofertas de tablas (State) y la publicación de eventos |

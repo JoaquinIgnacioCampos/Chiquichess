@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.reglas.*;
 import Nucleo.reglas.MotivoFinalizacion;
 import Nucleo.tiempo.RelojAjedrez;
+import Nucleo.tiempo.SinReloj;
 import dobles.FuenteDeTiempoFalsa;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class HistorialTest {
     private Partida partida() {
         return new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                new DetectorDeJaque(), List.of(new JaqueMate(), new Ahogado()));
+                new ReglasDePartida(new DetectorDeJaque(), List.of(new JaqueMate(), new Ahogado())), new SinReloj());
     }
 
     @Test
@@ -81,7 +82,7 @@ class HistorialTest {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
         Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
-                new DetectorDeJaque(), List.of(),
+                new ReglasDePartida(new DetectorDeJaque(), List.of()),
                 new RelojAjedrez(Duration.ofSeconds(1), Duration.ofSeconds(1), fuente));
         fuente.avanzar(Duration.ofSeconds(1));
         assertThrows(MovimientoInvalidoException.class, () -> partida.mover(mov("e2", "e4")));
