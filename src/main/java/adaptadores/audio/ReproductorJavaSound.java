@@ -34,6 +34,13 @@ public final class ReproductorJavaSound implements ReproductorDeAudio {
     private record Cargado(AudioFormat formato, byte[] datos) {
     }
 
+    /**
+     * Por debajo de esto no se oye. Para callar una pista se corta su línea en vez de bajarle la ganancia:
+     * la ganancia se aplica al audio que todavía no se mandó, y la línea guarda cerca de un segundo ya
+     * mandado, que seguiría sonando.
+     */
+    private static final double SILENCIO = 0.0001;
+
     private final ExecutorService hilo = Executors.newSingleThreadExecutor(tarea -> {
         Thread t = new Thread(tarea, "sonido");
         t.setDaemon(true);
@@ -46,6 +53,7 @@ public final class ReproductorJavaSound implements ReproductorDeAudio {
     @Override
     public void reproducir(URL archivo, double volumen) {
         Objects.requireNonNull(archivo, "archivo");
+        if (volumen <= SILENCIO) return;
         ejecutar(() -> abrir(archivo, volumen).ifPresent(clip -> {
             clip.addLineListener(evento -> {
                 if (evento.getType() == LineEvent.Type.STOP) cerrar(clip);
@@ -62,7 +70,11 @@ public final class ReproductorJavaSound implements ReproductorDeAudio {
             if (pista.detenida) return;
             abrir(archivo, volumen).ifPresent(clip -> {
                 pista.clip = clip;
-                clip.loop(Clip.LOOP_CONTINUOUSLY);
+                if (volumen > SILENCIO) {
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                } else {
+                    pista.pausada = true;
+                }
             });
         });
         return pista;
@@ -77,12 +89,26 @@ public final class ReproductorJavaSound implements ReproductorDeAudio {
     private final class PistaEnBucle implements Pista {
         /** Solo se toca desde el hilo de sonido. */
         private Clip clip;
+        /** Cortada por estar en silencio; vuelve a sonar desde donde quedó. Solo se toca desde el hilo de sonido. */
+        private boolean pausada = false;
         private volatile boolean detenida = false;
 
         @Override
         public void volumen(double volumen) {
             ejecutar(() -> {
-                if (clip != null) fijarVolumen(clip, volumen);
+                if (clip == null) return;
+                if (volumen <= SILENCIO) {
+                    if (pausada) return;
+                    clip.stop();
+                    clip.flush();
+                    pausada = true;
+                } else {
+                    fijarVolumen(clip, volumen);
+                    if (pausada) {
+                        clip.loop(Clip.LOOP_CONTINUOUSLY);
+                        pausada = false;
+                    }
+                }
             });
         }
 
@@ -151,7 +177,7 @@ public final class ReproductorJavaSound implements ReproductorDeAudio {
     private static void fijarVolumen(Clip clip, double volumen) {
         if (!clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) return;
         FloatControl ganancia = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        float decibeles = volumen <= 0.0001 ? ganancia.getMinimum() : (float) (20 * Math.log10(volumen));
+        float decibeles = volumen <= SILENCIO ? ganancia.getMinimum() : (float) (20 * Math.log10(volumen));
         ganancia.setValue(Math.max(ganancia.getMinimum(), Math.min(ganancia.getMaximum(), decibeles)));
     }
 

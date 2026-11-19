@@ -192,22 +192,8 @@ public final class VistaPartida extends BorderPane {
     public void configurarSonido(ControlDeVolumen control) {
         Objects.requireNonNull(control, "control");
         if (titulo.lookup("#silencio") != null) throw new IllegalStateException("Sonido ya configurado");
-        javafx.scene.control.Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio",
-                temaPanel.tarjeta(), temaPanel.texto());
-        silencio.setOnAction(e -> {
-            control.silenciar(!control.silenciado());
-            silencio.setText(textoSilencio(control));
-        });
-        javafx.scene.control.Slider volumen = new javafx.scene.control.Slider(0, 1, control.volumen());
-        volumen.setId("volumen");
-        volumen.setPrefWidth(90);
-        volumen.setFocusTraversable(false);
-        volumen.valueProperty().addListener((p, antes, ahora) -> control.cambiarVolumen(ahora.doubleValue()));
-        titulo.getChildren().addAll(silencio, volumen);
-    }
-
-    private static String textoSilencio(ControlDeVolumen control) {
-        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
+        titulo.getChildren().addAll(ControlesDeSonido.crear(control, "silencio", "volumen",
+                temaPanel.tarjeta(), temaPanel.texto()));
     }
 
     public void actualizarRelojes() {

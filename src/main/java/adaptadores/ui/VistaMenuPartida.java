@@ -209,21 +209,8 @@ public final class VistaMenuPartida extends GridPane {
     public void configurarSonido(ControlDeVolumen control) {
         Objects.requireNonNull(control, "control");
         if (pie.lookup("#silencio-menu") != null) throw new IllegalStateException("Sonido ya configurado");
-        Button silencio = BotonDeCabecera.crear(textoSilencio(control), "silencio-menu", tema.borde(), tema.texto());
-        // El texto de "Falta elegir" ocupa el resto: el botón nunca se achica hasta cortarse.
-        silencio.setMinWidth(Region.USE_PREF_SIZE);
-        silencio.setOnAction(e -> {
-            control.silenciar(!control.silenciado());
-            silencio.setText(textoSilencio(control));
-        });
-        Slider volumen = new Slider(0, 1, control.volumen());
-        volumen.setId("volumen-menu");
-        volumen.setAccessibleText("Volumen");
-        volumen.setPrefWidth(90);
-        volumen.setMinWidth(Region.USE_PREF_SIZE);
-        volumen.setFocusTraversable(false);
-        volumen.valueProperty().addListener((p, antes, ahora) -> control.cambiarVolumen(ahora.doubleValue()));
-        pie.getChildren().addAll(0, java.util.List.of(silencio, volumen));
+        pie.getChildren().addAll(0, ControlesDeSonido.crear(control, "silencio-menu", "volumen-menu",
+                tema.borde(), tema.texto()));
     }
 
     /** Deja elegidas esas opciones, como si la persona las hubiera tocado (pero sin el clic de sonido). */
@@ -246,10 +233,6 @@ public final class VistaMenuPartida extends GridPane {
         grupo.selectToggle(grupo.getToggles().stream()
                 .filter(opcion -> valor.isPresent() && valor.get().equals(opcion.getUserData()))
                 .findFirst().orElse(null));
-    }
-
-    private static String textoSilencio(ControlDeVolumen control) {
-        return control.silenciado() ? "Sonido: no" : "Sonido: sí";
     }
 
     /** En pantallas bajas junta las opciones para que entren sin desplazarlas. */

@@ -7,6 +7,9 @@ import java.util.Objects;
 /**
  * Volumen general y silencio que eligió el usuario. Vive mientras el programa está abierto, así se
  * conserva de una partida a la siguiente. Avisa a quien lo escuche cuando cambia.
+ *
+ * Silenciar y llevar el volumen a cero son lo mismo: subirlo desde cero reactiva el sonido, y reactivarlo
+ * con el silencio recupera el último volumen que se usó.
  */
 public final class ControlDeVolumen {
     /** Moderado: la risa del personaje suena apenas se abre el juego, antes de que se pueda bajar. */
@@ -16,7 +19,7 @@ public final class ControlDeVolumen {
     private boolean silenciado = false;
     private final List<Runnable> oyentes = new ArrayList<>();
 
-    /** Volumen elegido, de 0 a 1, aunque esté silenciado. */
+    /** Último volumen audible elegido, de 0 a 1: se conserva mientras está silenciado. */
     public double volumen() {
         return volumen;
     }
@@ -30,13 +33,22 @@ public final class ControlDeVolumen {
         return silenciado ? 0 : volumen;
     }
 
+    /** Cero silencia; un valor mayor fija el volumen y reactiva el sonido si estaba silenciado. */
     public void cambiarVolumen(double nuevo) {
         if (Double.isNaN(nuevo)) throw new IllegalArgumentException("Volumen inválido");
-        volumen = Math.max(0, Math.min(1, nuevo));
+        double ajustado = Math.max(0, Math.min(1, nuevo));
+        if (ajustado == 0) {
+            silenciar(true);
+            return;
+        }
+        if (!silenciado && ajustado == volumen) return;
+        volumen = ajustado;
+        silenciado = false;
         avisar();
     }
 
     public void silenciar(boolean silenciar) {
+        if (silenciar == silenciado) return;
         silenciado = silenciar;
         avisar();
     }

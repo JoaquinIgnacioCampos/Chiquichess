@@ -274,4 +274,25 @@ class VistaMenuPartidaTest {
         ((javafx.scene.control.Slider) menu.lookup("#volumen-menu")).setValue(0.2);
         assertEquals(0.2, control.volumen(), 1e-9);
     }
+    @Test
+    void elSilencioLlevaElVolumenACeroYSubirloLoReactiva() {
+        var control = new adaptadores.audio.ControlDeVolumen();
+        menu.configurarSonido(control);
+        Button silencio = (Button) menu.lookup("#silencio-menu");
+        var volumen = (javafx.scene.control.Slider) menu.lookup("#volumen-menu");
+        double antes = volumen.getValue();
+
+        silencio.fire();
+        assertEquals(0, volumen.getValue());
+        assertEquals("Sonido: no", silencio.getText());
+
+        volumen.setValue(0.4);
+        assertFalse(control.silenciado());
+        assertEquals("Sonido: sí", silencio.getText());
+
+        silencio.fire();
+        silencio.fire();
+        assertEquals(0.4, volumen.getValue(), 1e-9);
+        assertNotEquals(antes, volumen.getValue());
+    }
 }
