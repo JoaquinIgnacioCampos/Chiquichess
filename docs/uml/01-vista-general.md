@@ -1,0 +1,82 @@
+# 1. Vista general: paquetes y sentido de las dependencias
+
+Cada flecha significa "usa". Todas las flechas que cruzan el borde van **desde los adaptadores hacia
+el núcleo**: el núcleo no importa nada de afuera (ni JavaFX, ni Java Sound, ni archivos, ni hilos).
+Lo que el núcleo necesita del exterior lo pide por interfaces propias, los **puertos**, que
+implementa un adaptador.
+
+```mermaid
+flowchart TB
+    subgraph ADAPTADORES["adaptadores (infraestructura)"]
+        direction LR
+        ui["ui<br/>JavaFX"]
+        audio["audio<br/>Java Sound"]
+        consola["adaptadores<br/>ensamblado, consola, IA"]
+        configuracion["configuracion<br/>menú → partida"]
+    end
+
+    subgraph NUCLEO["Nucleo (reglas del juego, Java puro)"]
+        direction TB
+        ia["ia<br/>Minimax"]
+        juego["juego<br/>Partida, eventos"]
+        reglas["reglas<br/>especiales y finales"]
+        jugadas["jugadas<br/>Command"]
+        piezas["piezas"]
+        movimientos["movimientos"]
+        tablero["tablero"]
+        tiempo["tiempo"]
+        bando["bando"]
+    end
+
+    ui --> audio
+    ui --> configuracion
+    ui --> consola
+    audio --> configuracion
+    consola <--> configuracion
+
+    ui ==> juego
+    audio ==> juego
+    consola ==> juego
+    consola ==> ia
+    configuracion ==> juego
+
+    juego --> ia
+    juego --> reglas
+    ia --> reglas
+    reglas --> jugadas
+    reglas --> piezas
+    jugadas --> piezas
+    piezas <--> movimientos
+    piezas <--> tablero
+    juego --> tiempo
+    ia --> tiempo
+    tablero --> bando
+    tiempo --> bando
+```
+
+## Puertos del núcleo
+
+| Puerto (interfaz del núcleo) | Sentido | Lo implementa |
+|---|---|---|
+| `FuenteDeTiempo` | el núcleo pide la hora | `FuenteDeTiempoSistema` (real), relojes falsos en los tests |
+| `ObservadorDePartida` | el núcleo avisa qué pasó | `SonidosDePartida`, `TurnoDeLaIa`; `VistaPartida` y `PanelEstadoPartida` (vía `ControladorTablero.escuchar`) |
+| `EstrategiaDeJuego` | el adaptador pide una jugada | `JugadorArtificial` (núcleo); la usa `RivalArtificial` |
+| `RelojPartida` | la partida controla el tiempo | `RelojAjedrez`, `SinReloj` (Null Object) |
+| `java.util.Random` (inyectado) | azar de la IA | el ensamblado pasa uno real; los tests, uno con semilla |
+
+Los adaptadores también tienen sus propios puertos, para no atarse a una tecnología:
+`ReproductorDeAudio` (Java Sound), `RepresentacionPiezas` (sprites o Unicode) y `Sorteo` (azar del menú).
+
+## Dependencias de ida y vuelta (aceptadas)
+
+- `piezas ↔ tablero`: el tablero guarda piezas y cada pieza consulta el tablero para moverse.
+- `piezas ↔ movimientos`: una pieza se define por sus reglas de movimiento, y las reglas miran qué
+  pieza ocupa cada casilla para frenar o capturar.
+
+La justificación está en [la decisión 3 del documento de justificación](../justificacion.md#3-paquetes-por-concepto-y-dependencias-en-un-solo-sentido).
+
+> **Puntos a revisar:**
+> - `juego → ia` existe porque `Partida.situacion()` devuelve `ia.SituacionDePartida`. Es la única
+>   flecha del núcleo que apunta "hacia un cliente".
+> - `adaptadores ↔ configuracion`: el ensamblado lee la configuración, y `PartidaConfigurada`
+>   guarda un `RivalArtificial` (del paquete `adaptadores`).

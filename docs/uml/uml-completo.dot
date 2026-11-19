@@ -1,0 +1,301 @@
+digraph UML {
+  graph [rankdir=TB newrank=true nodesep=0.25 ranksep=0.7 fontname="Helvetica" label=<<B>ChiquiChess: diagrama de clases completo</B><BR/><FONT POINT-SIZE="12">Generado a partir de docs/uml (sin atributos ni métodos: ver cada diagrama por tema)</FONT>> labelloc=t fontsize=22];
+  node [shape=box style="rounded,filled" fillcolor=white fontname="Helvetica" fontsize=11 margin="0.12,0.05"];
+  edge [fontname="Helvetica" fontsize=9 color="#555555" arrowsize=0.8];
+  subgraph cluster_Nucleo_bando {
+    label=<<B>Nucleo.bando</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    Bando [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>Bando</B>>];
+  }
+  subgraph cluster_Nucleo_ia {
+    label=<<B>Nucleo.ia</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    SituacionDePartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>SituacionDePartida</B>>];
+    EstrategiaDeJuego [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>EstrategiaDeJuego</B>>];
+    JugadorArtificial [label=<<B>JugadorArtificial</B>>];
+    Dificultad [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>Dificultad</B>>];
+    BuscadorMinimax [label=<<B>BuscadorMinimax</B>>];
+    EvaluadorDePosicion [label=<<B>EvaluadorDePosicion</B>>];
+    RitmoHumano [label=<<FONT POINT-SIZE="8"><I>«utility»</I></FONT><BR/><B>RitmoHumano</B>>];
+    DecisionDeJuego [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>DecisionDeJuego</B>>];
+  }
+  subgraph cluster_Nucleo_juego {
+    label=<<B>Nucleo.juego</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    Partida [label=<<B>Partida</B>>];
+    HistorialDeJugadas [label=<<B>HistorialDeJugadas</B>>];
+    Jugador [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Jugador</B>>];
+    Movimiento [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Movimiento</B>>];
+    ResultadoMovimiento [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ResultadoMovimiento</B>>];
+    ResultadoPartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ResultadoPartida</B>>];
+    AccionInvalidaException [label=<<B>AccionInvalidaException</B>>];
+    MovimientoInvalidoException [label=<<B>MovimientoInvalidoException</B>>];
+    ObservadorDePartida [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ObservadorDePartida</B>>];
+    EventoDePartida [label=<<FONT POINT-SIZE="8"><I>«sealed interface»</I></FONT><BR/><B>EventoDePartida</B>>];
+    JugadaHecha [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>JugadaHecha</B>>];
+    JugadaDeshecha [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>JugadaDeshecha</B>>];
+    JugadaRehecha [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>JugadaRehecha</B>>];
+    PartidaFinalizada [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>PartidaFinalizada</B>>];
+    Rasgo [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>Rasgo</B>>];
+    DisposicionEstandar [label=<<B>DisposicionEstandar</B>>];
+    DisposicionDeFutbol [label=<<B>DisposicionDeFutbol</B>>];
+  }
+  subgraph cluster_Nucleo_jugadas {
+    label=<<B>Nucleo.jugadas</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    Jugada [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Jugada</B>>];
+    Efecto [label=<<FONT POINT-SIZE="8"><I>«sealed interface»</I></FONT><BR/><B>Efecto</B>>];
+    Traslado [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Traslado</B>>];
+    Retiro [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Retiro</B>>];
+    Reemplazo [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Reemplazo</B>>];
+    MoverPelota [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>MoverPelota</B>>];
+    Pase [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Pase</B>>];
+    HuellaDePosicion [label=<<FONT POINT-SIZE="8"><I>«utility»</I></FONT><BR/><B>HuellaDePosicion</B>>];
+  }
+  subgraph cluster_Nucleo_movimientos {
+    label=<<B>Nucleo.movimientos</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    ReglaMovimiento [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ReglaMovimiento</B>>];
+    Deslizamiento [label=<<B>Deslizamiento</B>>];
+    SaltoFijo [label=<<B>SaltoFijo</B>>];
+    ReglaCompuesta [label=<<B>ReglaCompuesta</B>>];
+    ReglasBase [label=<<FONT POINT-SIZE="8"><I>«utility»</I></FONT><BR/><B>ReglasBase</B>>];
+  }
+  subgraph cluster_Nucleo_movimientos_peon {
+    label=<<B>Nucleo.movimientos.peon</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    SoloSiVacio [label=<<B>SoloSiVacio</B>>];
+    SoloSiCaptura [label=<<B>SoloSiCaptura</B>>];
+    SoloSi [label=<<B>SoloSi</B>>];
+  }
+  subgraph cluster_Nucleo_piezas {
+    label=<<B>Nucleo.piezas</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    Pieza [label=<<FONT POINT-SIZE="8"><I>«abstract»</I></FONT><BR/><B>Pieza</B>>];
+    Rey [label=<<B>Rey</B>>];
+    Reina [label=<<B>Reina</B>>];
+    Torre [label=<<B>Torre</B>>];
+    Alfil [label=<<B>Alfil</B>>];
+    Caballo [label=<<B>Caballo</B>>];
+    Peon [label=<<B>Peon</B>>];
+  }
+  subgraph cluster_Nucleo_reglas {
+    label=<<B>Nucleo.reglas</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    ReglasDePartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ReglasDePartida</B>>];
+    MovimientosLegales [label=<<B>MovimientosLegales</B>>];
+    IDetectorDeJaque [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>IDetectorDeJaque</B>>];
+    DetectorDeJaque [label=<<B>DetectorDeJaque</B>>];
+    ReglaEspecial [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ReglaEspecial</B>>];
+    Enroque [label=<<B>Enroque</B>>];
+    CapturaAlPaso [label=<<B>CapturaAlPaso</B>>];
+    Promocion [label=<<B>Promocion</B>>];
+    ReglaDeLaPelota [label=<<B>ReglaDeLaPelota</B>>];
+    CondicionDeFinalizacion [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>CondicionDeFinalizacion</B>>];
+    CondicionConMemoria [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>CondicionConMemoria</B>>];
+    Recuerdo [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>Recuerdo</B>>];
+    JaqueMate [label=<<B>JaqueMate</B>>];
+    Ahogado [label=<<B>Ahogado</B>>];
+    VictoriaPorGoles [label=<<B>VictoriaPorGoles</B>>];
+    TablasPorRepeticion [label=<<B>TablasPorRepeticion</B>>];
+    TablasPorReglaDeLos50Movimientos [label=<<B>TablasPorReglaDeLos50Movimientos</B>>];
+    ContextoDeJugada [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ContextoDeJugada</B>>];
+    Marcador [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Marcador</B>>];
+    EstadoPartida [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>EstadoPartida</B>>];
+    MotivoFinalizacion [label=<<FONT POINT-SIZE="8"><I>«enumeration»</I></FONT><BR/><B>MotivoFinalizacion</B>>];
+  }
+  subgraph cluster_Nucleo_tablero {
+    label=<<B>Nucleo.tablero</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    Posicion [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>Posicion</B>>];
+    ITablero [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ITablero</B>>];
+    Tablero [label=<<B>Tablero</B>>];
+    DisposicionInicial [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>DisposicionInicial</B>>];
+  }
+  subgraph cluster_Nucleo_tiempo {
+    label=<<B>Nucleo.tiempo</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#E8F0FB"; color="#4A78B5"; penwidth=1.5;
+    RelojPartida [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>RelojPartida</B>>];
+    RelojAjedrez [label=<<B>RelojAjedrez</B>>];
+    SinReloj [label=<<B>SinReloj</B>>];
+    FuenteDeTiempo [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>FuenteDeTiempo</B>>];
+  }
+  subgraph cluster_adaptadores {
+    label=<<B>adaptadores</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#FFF4E0"; color="#D99A2B"; penwidth=1.5;
+    EnsambladorPartida [label=<<B>EnsambladorPartida</B>>];
+    SorteoAleatorio [label=<<B>SorteoAleatorio</B>>];
+    FuenteDeTiempoSistema [label=<<B>FuenteDeTiempoSistema</B>>];
+    RivalArtificial [label=<<B>RivalArtificial</B>>];
+    Main [label=<<B>Main</B>>];
+    JuegoConsola [label=<<B>JuegoConsola</B>>];
+    RenderizadorConsola [label=<<B>RenderizadorConsola</B>>];
+    MensajesDeConsola [label=<<B>MensajesDeConsola</B>>];
+    NotacionAlgebraica [label=<<B>NotacionAlgebraica</B>>];
+  }
+  subgraph cluster_adaptadores_audio {
+    label=<<B>adaptadores.audio</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#FFF4E0"; color="#D99A2B"; penwidth=1.5;
+    SonidosDePartida [label=<<B>SonidosDePartida</B>>];
+    GuionDeSonidos [label=<<B>GuionDeSonidos</B>>];
+    CatalogoDeSonidos [label=<<B>CatalogoDeSonidos</B>>];
+    ReproductorDeAudio [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>ReproductorDeAudio</B>>];
+    ReproductorJavaSound [label=<<B>ReproductorJavaSound</B>>];
+    SonidosDelMenu [label=<<B>SonidosDelMenu</B>>];
+    ControlDeVolumen [label=<<B>ControlDeVolumen</B>>];
+  }
+  subgraph cluster_adaptadores_configuracion {
+    label=<<B>adaptadores.configuracion</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#FFF4E0"; color="#D99A2B"; penwidth=1.5;
+    ConfiguracionPartida [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>ConfiguracionPartida</B>>];
+    PartidaConfigurada [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>PartidaConfigurada</B>>];
+    Sorteo [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>Sorteo</B>>];
+  }
+  subgraph cluster_adaptadores_ui {
+    label=<<B>adaptadores.ui</B>>; labeljust=l; fontsize=14; style="rounded,filled"; fillcolor="#FFF4E0"; color="#D99A2B"; penwidth=1.5;
+    AplicacionAjedrez [label=<<FONT POINT-SIZE="8"><I>«JavaFX Application»</I></FONT><BR/><B>AplicacionAjedrez</B>>];
+    VistaMenuPartida [label=<<B>VistaMenuPartida</B>>];
+    VistaPartida [label=<<B>VistaPartida</B>>];
+    ControladorTablero [label=<<B>ControladorTablero</B>>];
+    VistaTablero [label=<<B>VistaTablero</B>>];
+    PanelEstadoPartida [label=<<B>PanelEstadoPartida</B>>];
+    CartelDeGol [label=<<B>CartelDeGol</B>>];
+    MensajesDeLaInterfaz [label=<<B>MensajesDeLaInterfaz</B>>];
+    TurnoDeLaIa [label=<<B>TurnoDeLaIa</B>>];
+    RepresentacionPiezas [label=<<FONT POINT-SIZE="8"><I>«interface»</I></FONT><BR/><B>RepresentacionPiezas</B>>];
+    RepresentacionConSprites [label=<<B>RepresentacionConSprites</B>>];
+    RepresentacionUnicode [label=<<B>RepresentacionUnicode</B>>];
+    PresentacionClub [label=<<FONT POINT-SIZE="8"><I>«record»</I></FONT><BR/><B>PresentacionClub</B>>];
+  }
+  ITablero -> Tablero [dir=back arrowtail=empty style=dashed];
+  Tablero -> Pieza [dir=back arrowtail=odiamond xlabel=<contiene>];
+  Tablero -> Posicion [arrowhead=vee style=dashed];
+  DisposicionInicial -> Tablero [arrowhead=vee style=dashed xlabel=<crea>];
+  Pieza -> Rey [dir=back arrowtail=empty];
+  Pieza -> Reina [dir=back arrowtail=empty];
+  Pieza -> Torre [dir=back arrowtail=empty];
+  Pieza -> Alfil [dir=back arrowtail=empty];
+  Pieza -> Caballo [dir=back arrowtail=empty];
+  Pieza -> Peon [dir=back arrowtail=empty];
+  Pieza -> Bando [arrowhead=vee];
+  Pieza -> ReglaMovimiento [dir=back arrowtail=diamond xlabel=<se mueve con>];
+  Pieza -> ITablero [arrowhead=vee style=dashed xlabel=<consulta>];
+  ReglaMovimiento -> Deslizamiento [dir=back arrowtail=empty style=dashed];
+  ReglaMovimiento -> SaltoFijo [dir=back arrowtail=empty style=dashed];
+  ReglaMovimiento -> ReglaCompuesta [dir=back arrowtail=empty style=dashed];
+  ReglaMovimiento -> SoloSiVacio [dir=back arrowtail=empty style=dashed];
+  ReglaMovimiento -> SoloSiCaptura [dir=back arrowtail=empty style=dashed];
+  ReglaMovimiento -> SoloSi [dir=back arrowtail=empty style=dashed];
+  ReglaCompuesta -> ReglaMovimiento [dir=back arrowtail=odiamond];
+  SoloSiVacio -> ReglaMovimiento [dir=back arrowtail=odiamond xlabel=<decora>];
+  SoloSiCaptura -> ReglaMovimiento [dir=back arrowtail=odiamond xlabel=<decora>];
+  SoloSi -> ReglaMovimiento [dir=back arrowtail=odiamond xlabel=<decora>];
+  ReglasBase -> Deslizamiento [arrowhead=vee style=dashed xlabel=<arma>];
+  ReglasBase -> SaltoFijo [arrowhead=vee style=dashed xlabel=<arma>];
+  ReglasBase -> ReglaCompuesta [arrowhead=vee style=dashed xlabel=<arma>];
+  Jugada -> Efecto [dir=back arrowtail=diamond];
+  Efecto -> Traslado [dir=back arrowtail=empty style=dashed];
+  Efecto -> Retiro [dir=back arrowtail=empty style=dashed];
+  Efecto -> Reemplazo [dir=back arrowtail=empty style=dashed];
+  Efecto -> MoverPelota [dir=back arrowtail=empty style=dashed];
+  Efecto -> Pase [dir=back arrowtail=empty style=dashed];
+  Efecto -> Tablero [arrowhead=vee style=dashed xlabel=<modifica>];
+  HuellaDePosicion -> Jugada [arrowhead=vee style=dashed xlabel=<recorre sus efectos>];
+  ReglasDePartida -> MovimientosLegales [dir=back arrowtail=diamond];
+  ReglasDePartida -> CondicionDeFinalizacion [dir=back arrowtail=diamond];
+  MovimientosLegales -> IDetectorDeJaque [dir=back arrowtail=odiamond];
+  MovimientosLegales -> ReglaEspecial [dir=back arrowtail=odiamond];
+  IDetectorDeJaque -> DetectorDeJaque [dir=back arrowtail=empty style=dashed];
+  ReglaEspecial -> Enroque [dir=back arrowtail=empty style=dashed];
+  ReglaEspecial -> CapturaAlPaso [dir=back arrowtail=empty style=dashed];
+  ReglaEspecial -> Promocion [dir=back arrowtail=empty style=dashed];
+  ReglaEspecial -> ReglaDeLaPelota [dir=back arrowtail=empty style=dashed];
+  CondicionDeFinalizacion -> JaqueMate [dir=back arrowtail=empty style=dashed];
+  CondicionDeFinalizacion -> Ahogado [dir=back arrowtail=empty style=dashed];
+  CondicionDeFinalizacion -> VictoriaPorGoles [dir=back arrowtail=empty style=dashed];
+  CondicionDeFinalizacion -> CondicionConMemoria [dir=back arrowtail=empty];
+  CondicionConMemoria -> TablasPorRepeticion [dir=back arrowtail=empty style=dashed];
+  CondicionConMemoria -> TablasPorReglaDeLos50Movimientos [dir=back arrowtail=empty style=dashed];
+  CondicionConMemoria -> Recuerdo [arrowhead=vee style=dashed xlabel=<crea y restaura>];
+  CondicionDeFinalizacion -> ContextoDeJugada [arrowhead=vee style=dashed xlabel=<evalúa>];
+  CondicionDeFinalizacion -> EstadoPartida [arrowhead=vee style=dashed];
+  EstadoPartida -> MotivoFinalizacion [arrowhead=vee];
+  VictoriaPorGoles -> Marcador [arrowhead=vee style=dashed];
+  Partida -> HistorialDeJugadas [dir=back arrowtail=diamond];
+  Partida -> Tablero [dir=back arrowtail=odiamond];
+  Partida -> ReglasDePartida [dir=back arrowtail=odiamond];
+  Partida -> RelojPartida [dir=back arrowtail=odiamond];
+  Partida -> Jugador [dir=back arrowtail=odiamond];
+  Partida -> ObservadorDePartida [dir=back arrowtail=odiamond];
+  Partida -> Movimiento [arrowhead=vee style=dashed xlabel=<recibe>];
+  Partida -> ResultadoMovimiento [arrowhead=vee style=dashed xlabel=<devuelve>];
+  Partida -> ResultadoPartida [arrowhead=vee style=dashed];
+  Partida -> SituacionDePartida [arrowhead=vee style=dashed xlabel=<arma para la IA>];
+  Partida -> AccionInvalidaException [arrowhead=vee style=dashed xlabel=<lanza>];
+  Partida -> MovimientoInvalidoException [arrowhead=vee style=dashed xlabel=<lanza>];
+  HistorialDeJugadas -> Jugada [dir=back arrowtail=odiamond];
+  Partida -> EventoDePartida [arrowhead=vee style=dashed xlabel=<publica>];
+  ObservadorDePartida -> EventoDePartida [arrowhead=vee style=dashed];
+  EventoDePartida -> JugadaHecha [dir=back arrowtail=empty style=dashed];
+  EventoDePartida -> JugadaDeshecha [dir=back arrowtail=empty style=dashed];
+  EventoDePartida -> JugadaRehecha [dir=back arrowtail=empty style=dashed];
+  EventoDePartida -> PartidaFinalizada [dir=back arrowtail=empty style=dashed];
+  JugadaHecha -> Rasgo [arrowhead=vee];
+  JugadaRehecha -> Rasgo [arrowhead=vee];
+  RelojPartida -> RelojAjedrez [dir=back arrowtail=empty style=dashed];
+  RelojPartida -> SinReloj [dir=back arrowtail=empty style=dashed];
+  RelojAjedrez -> FuenteDeTiempo [dir=back arrowtail=odiamond];
+  DisposicionInicial -> DisposicionEstandar [dir=back arrowtail=empty style=dashed];
+  DisposicionInicial -> DisposicionDeFutbol [dir=back arrowtail=empty style=dashed];
+  DisposicionDeFutbol -> DisposicionInicial [dir=back arrowtail=odiamond xlabel=<decora>];
+  EstrategiaDeJuego -> JugadorArtificial [dir=back arrowtail=empty style=dashed];
+  EstrategiaDeJuego -> SituacionDePartida [arrowhead=vee style=dashed];
+  EstrategiaDeJuego -> DecisionDeJuego [arrowhead=vee style=dashed];
+  JugadorArtificial -> Dificultad [arrowhead=vee];
+  JugadorArtificial -> BuscadorMinimax [arrowhead=vee style=dashed xlabel=<crea por jugada>];
+  JugadorArtificial -> RitmoHumano [arrowhead=vee style=dashed xlabel=<cuánto tarda>];
+  JugadorArtificial -> FuenteDeTiempo [dir=back arrowtail=odiamond];
+  BuscadorMinimax -> EvaluadorDePosicion [dir=back arrowtail=diamond];
+  BuscadorMinimax -> MovimientosLegales [arrowhead=vee style=dashed xlabel=<genera jugadas>];
+  BuscadorMinimax -> CondicionDeFinalizacion [arrowhead=vee style=dashed xlabel=<detecta finales>];
+  BuscadorMinimax -> Jugada [arrowhead=vee style=dashed xlabel=<aplica y revierte>];
+  EnsambladorPartida -> ConfiguracionPartida [arrowhead=vee style=dashed xlabel=<lee>];
+  EnsambladorPartida -> PartidaConfigurada [arrowhead=vee style=dashed xlabel=<crea>];
+  EnsambladorPartida -> Sorteo [dir=back arrowtail=odiamond];
+  EnsambladorPartida -> FuenteDeTiempo [dir=back arrowtail=odiamond];
+  EnsambladorPartida -> Partida [arrowhead=vee style=dashed xlabel=<crea>];
+  EnsambladorPartida -> RivalArtificial [arrowhead=vee style=dashed xlabel=<crea>];
+  Sorteo -> SorteoAleatorio [dir=back arrowtail=empty style=dashed];
+  FuenteDeTiempo -> FuenteDeTiempoSistema [dir=back arrowtail=empty style=dashed];
+  PartidaConfigurada -> Partida [dir=back arrowtail=odiamond];
+  PartidaConfigurada -> RivalArtificial [dir=back arrowtail=odiamond];
+  RivalArtificial -> EstrategiaDeJuego [dir=back arrowtail=odiamond];
+  RivalArtificial -> Partida [arrowhead=vee];
+  Main -> EnsambladorPartida [arrowhead=vee style=dashed];
+  Main -> JuegoConsola [arrowhead=vee style=dashed];
+  JuegoConsola -> Partida [arrowhead=vee];
+  JuegoConsola -> RivalArtificial [dir=back arrowtail=odiamond];
+  JuegoConsola -> RenderizadorConsola [dir=back arrowtail=odiamond];
+  JuegoConsola -> MensajesDeConsola [dir=back arrowtail=odiamond];
+  JuegoConsola -> NotacionAlgebraica [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> EnsambladorPartida [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> VistaMenuPartida [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> VistaPartida [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> ControladorTablero [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> TurnoDeLaIa [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> SonidosDePartida [arrowhead=vee style=dashed];
+  AplicacionAjedrez -> SonidosDelMenu [arrowhead=vee style=dashed];
+  VistaPartida -> ControladorTablero [dir=back arrowtail=odiamond];
+  VistaPartida -> VistaTablero [dir=back arrowtail=diamond];
+  VistaPartida -> PanelEstadoPartida [dir=back arrowtail=diamond];
+  VistaPartida -> CartelDeGol [dir=back arrowtail=diamond];
+  VistaPartida -> RepresentacionPiezas [dir=back arrowtail=odiamond];
+  VistaPartida -> MensajesDeLaInterfaz [dir=back arrowtail=odiamond];
+  VistaPartida -> PresentacionClub [arrowhead=vee style=dashed];
+  PanelEstadoPartida -> ControladorTablero [dir=back arrowtail=odiamond];
+  ControladorTablero -> Partida [arrowhead=vee];
+  ControladorTablero -> RivalArtificial [dir=back arrowtail=odiamond];
+  TurnoDeLaIa -> Partida [arrowhead=vee];
+  TurnoDeLaIa -> RivalArtificial [dir=back arrowtail=odiamond];
+  TurnoDeLaIa -> ObservadorDePartida [arrowhead=vee style=dashed xlabel=<escucha con una lambda>];
+  RepresentacionPiezas -> RepresentacionConSprites [dir=back arrowtail=empty style=dashed];
+  RepresentacionPiezas -> RepresentacionUnicode [dir=back arrowtail=empty style=dashed];
+  RepresentacionConSprites -> RepresentacionPiezas [dir=back arrowtail=odiamond xlabel=<respaldo>];
+  ObservadorDePartida -> SonidosDePartida [dir=back arrowtail=empty style=dashed];
+  SonidosDePartida -> Partida [arrowhead=vee xlabel=<se suscribe>];
+  SonidosDePartida -> GuionDeSonidos [dir=back arrowtail=diamond];
+  SonidosDePartida -> CatalogoDeSonidos [dir=back arrowtail=odiamond];
+  SonidosDePartida -> ReproductorDeAudio [dir=back arrowtail=odiamond];
+  SonidosDePartida -> ControlDeVolumen [dir=back arrowtail=odiamond];
+  SonidosDelMenu -> CatalogoDeSonidos [dir=back arrowtail=odiamond];
+  SonidosDelMenu -> ReproductorDeAudio [dir=back arrowtail=odiamond];
+  SonidosDelMenu -> ControlDeVolumen [dir=back arrowtail=odiamond];
+  ReproductorDeAudio -> ReproductorJavaSound [dir=back arrowtail=empty style=dashed];
+}
