@@ -139,8 +139,20 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 > **Los sonidos actuales ya no son estos.** Los 16 archivos de `src/main/resources/sonidos/comunes/`
 > se reemplazaron por los definitivos (incluidos `seleccion`, `risa` y `menu`, que no están en esta
 > lista). **Falta completar su origen y licencia.** Las tablas de abajo quedan como referencia de los
-> sonidos de prueba con los que se armó el sistema. Los clubes todavía no tienen sonidos propios:
-> todos usan los comunes.
+> sonidos de prueba con los que se armó el sistema.
+>
+> **Sonidos propios de cada club (definitivos).** Son de bancos de sonido libres; falta anotar de
+> cuál salió cada uno. Todos están normalizados para que suenen parejos entre clubes: las hinchadas a
+> unos -11 LUFS (el nivel de la común) y los goles y victorias a entre -9 y -12 LUFS, por encima de
+> las hinchadas.
+>
+> | Club | Gol | Victoria | Hinchada |
+> |---|---|---|---|
+> | Boca | propio | propio | propia |
+> | River | propio | propio | propia |
+> | Independiente | propio | el común | propia |
+> | Argentina | propio | propio | propia |
+> | San Lorenzo y Racing | el común | el común | la común |
 
 Los sonidos de prueba eran todos de [Freesound](https://freesound.org) con licencia **CC0**: se pueden usar, cambiar y
 recortar sin pedir permiso ni citar al autor. Igual se lo cita, por cortesía. La licencia de cada uno
