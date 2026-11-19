@@ -21,7 +21,7 @@ import static dobles.Casillas.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControladorTableroTest {
-    private final Partida partida = new EnsambladorPartida().crearSinReloj();
+    private final PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
     private final ControladorTablero controlador = new ControladorTablero(partida);
 
     @Test
@@ -98,7 +98,7 @@ class ControladorTableroTest {
 
     @Test
     void losDestinosExcluyenJugadasQueDejanAlReyEnJaque() {
-        Partida clavada = new Partida(TableroFake.desde(
+        PartidaEnJuego clavada = new Partida(TableroFake.desde(
                 "r...t...", "........", "........", "........",
                 "........", "........", "....T...", "....R..."),
                 new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
@@ -116,7 +116,7 @@ class ControladorTableroTest {
     @Test
     void elNucleoPuedeRechazarUnaJugadaResaltadaPorTiempoAgotado() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida cronometrada = new Partida(new DisposicionEstandar().crearTablero(),
+        PartidaEnJuego cronometrada = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
                 new ReglasDePartida(new DetectorDeJaque(), List.of()),
                 new RelojAjedrez(Duration.ofSeconds(10), Duration.ofSeconds(10), fuente));

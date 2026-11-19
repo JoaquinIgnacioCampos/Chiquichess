@@ -32,7 +32,7 @@ import java.util.Set;
  *   <li>{@link AvisosDePartida}: los observadores.</li>
  * </ul>
  */
-public class Partida {
+public class Partida implements PartidaEnJuego {
 
     private final Tablero tablero;
     private final Jugador jugadorBlanco;

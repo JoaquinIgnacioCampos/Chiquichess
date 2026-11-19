@@ -1,7 +1,7 @@
 package adaptadores;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.EstadoPartida;
 import Nucleo.reglas.MotivoFinalizacion;
 import adaptadores.configuracion.ConfiguracionPartida;
@@ -28,7 +28,7 @@ class EnsambladorPartidaTest {
     @Test
     void ensamblaPosicionEstandarYRelojConLaFuenteInyectada() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = ensamblador.crearConReloj(Duration.ofMinutes(5), fuente);
+        PartidaEnJuego partida = ensamblador.crearConReloj(Duration.ofMinutes(5), fuente);
         assertEquals(8, partida.tablero().ancho());
         assertEquals(8, partida.tablero().alto());
         assertEquals(32, partida.tablero().piezas().size());
@@ -42,7 +42,7 @@ class EnsambladorPartidaTest {
     @Test
     void elRelojEnsambladoFinalizaLaPartidaRealPorTiempo() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = ensamblador.crearConReloj(Duration.ofSeconds(10), fuente);
+        PartidaEnJuego partida = ensamblador.crearConReloj(Duration.ofSeconds(10), fuente);
         fuente.avanzar(Duration.ofSeconds(10));
         partida.verificarTiempo();
         assertEquals(MotivoFinalizacion.TIEMPO_AGOTADO, partida.resultado().orElseThrow().motivo());
@@ -51,7 +51,7 @@ class EnsambladorPartidaTest {
 
     @Test
     void consolaConservaLasReglasRealesYSigueSinReloj() {
-        Partida partida = ensamblador.crearSinReloj();
+        PartidaEnJuego partida = ensamblador.crearSinReloj();
         assertTrue(partida.tiempoRestante(Bando.BLANCO).isEmpty());
         assertTrue(partida.tiempoRestante(Bando.NEGRO).isEmpty());
         partida.mover(mov("f2", "f3"));
@@ -64,9 +64,9 @@ class EnsambladorPartidaTest {
 
     @Test
     void partidasNuevasNoCompartenLaMemoriaDeRepeticion() {
-        Partida primera = ensamblador.crearSinReloj();
+        PartidaEnJuego primera = ensamblador.crearSinReloj();
         cicloDeCaballos(primera);
-        Partida segunda = ensamblador.crearSinReloj();
+        PartidaEnJuego segunda = ensamblador.crearSinReloj();
         cicloDeCaballos(segunda);
         assertEquals(EstadoPartida.EN_CURSO, segunda.estado());
         cicloDeCaballos(primera);
@@ -76,11 +76,11 @@ class EnsambladorPartidaTest {
 
     @Test
     void seUsanRendicionYAcuerdoReales() {
-        Partida rendicion = ensamblador.crearSinReloj();
+        PartidaEnJuego rendicion = ensamblador.crearSinReloj();
         rendicion.rendirse(Bando.BLANCO);
         assertEquals(MotivoFinalizacion.RENDICION, rendicion.resultado().orElseThrow().motivo());
         assertEquals(Bando.NEGRO, rendicion.ganador().orElseThrow().color());
-        Partida acuerdo = ensamblador.crearSinReloj();
+        PartidaEnJuego acuerdo = ensamblador.crearSinReloj();
         acuerdo.ofrecerTablas(Bando.BLANCO);
         acuerdo.aceptarTablas(Bando.NEGRO);
         assertEquals(MotivoFinalizacion.ACUERDO, acuerdo.resultado().orElseThrow().motivo());
@@ -114,7 +114,7 @@ class EnsambladorPartidaTest {
     void elRelojDelMenuUsaLaFuenteInyectada() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
         EnsambladorPartida conFuente = new EnsambladorPartida(SorteoFijo.jugador1ConBlancas(), fuente);
-        Partida partida = conFuente.prepararConfigurada(
+        PartidaEnJuego partida = conFuente.prepararConfigurada(
                 configuracion(Tiempo.TRES_MINUTOS, Colores.JUGADOR_1_BLANCAS)).partida();
         fuente.avanzar(Duration.ofSeconds(30));
         assertEquals(Optional.of(Duration.ofSeconds(150)), partida.tiempoRestante(Bando.BLANCO));
@@ -124,7 +124,7 @@ class EnsambladorPartidaTest {
     @Test
     void crearConRelojSinFuenteExplicitaUsaLaInyectada() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = new EnsambladorPartida(SorteoFijo.jugador1ConBlancas(), fuente)
+        PartidaEnJuego partida = new EnsambladorPartida(SorteoFijo.jugador1ConBlancas(), fuente)
                 .crearConReloj(Duration.ofMinutes(5));
         fuente.avanzar(Duration.ofSeconds(30));
         assertEquals(Optional.of(Duration.ofSeconds(270)), partida.tiempoRestante(Bando.BLANCO));
@@ -140,7 +140,7 @@ class EnsambladorPartidaTest {
     void conLaOpcionDelMenuLaPartidaPermiteDeshacer() {
         ConfiguracionPartida conDeshacer = new ConfiguracionPartida(Modo.CLASICO, Tiempo.SIN_TIEMPO, Rival.AMIGO,
                 Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_1_BLANCAS, true);
-        Partida partida = ensamblador.crearConfigurada(conDeshacer);
+        PartidaEnJuego partida = ensamblador.crearConfigurada(conDeshacer);
         partida.mover(mov("e2", "e4"));
         assertTrue(partida.puedeDeshacer());
         partida.deshacer();
@@ -149,7 +149,7 @@ class EnsambladorPartidaTest {
 
     @Test
     void sinLaOpcionDelMenuNoSePuedeDeshacer() {
-        Partida partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
+        PartidaEnJuego partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
         partida.mover(mov("e2", "e4"));
         assertFalse(partida.puedeDeshacer());
     }
@@ -162,7 +162,7 @@ class EnsambladorPartidaTest {
 
     @Test
     void laPartidaDeConsolaPermiteDeshacer() {
-        Partida partida = ensamblador.crearSinRelojConDeshacer();
+        PartidaEnJuego partida = ensamblador.crearSinRelojConDeshacer();
         partida.mover(mov("e2", "e4"));
         assertTrue(partida.puedeDeshacer());
     }
@@ -171,7 +171,7 @@ class EnsambladorPartidaTest {
         return new ConfiguracionPartida(Modo.CLASICO, tiempo, Rival.AMIGO, Equipo.BOCA, Equipo.RIVER, colores);
     }
 
-    private void cicloDeCaballos(Partida partida) {
+    private void cicloDeCaballos(PartidaEnJuego partida) {
         partida.mover(mov("g1", "f3"));
         partida.mover(mov("g8", "f6"));
         partida.mover(mov("f3", "g1"));
@@ -182,20 +182,20 @@ class EnsambladorPartidaTest {
     void elModoFutbolPoneLaPelotaEnD5YJuegaConGoles() {
         ConfiguracionPartida futbol = new ConfiguracionPartida(Modo.FUTBOL, Tiempo.SIN_TIEMPO, Rival.AMIGO,
                 Equipo.BOCA, Equipo.RIVER, Colores.JUGADOR_1_BLANCAS, true);
-        Partida partida = ensamblador.crearConfigurada(futbol);
+        PartidaEnJuego partida = ensamblador.crearConfigurada(futbol);
         assertEquals(Optional.of(pos("d5")), partida.tablero().pelota());
         assertTrue(partida.permiteDeshacer());
     }
 
     @Test
     void elModoClasicoNoTienePelota() {
-        Partida partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
+        PartidaEnJuego partida = ensamblador.crearConfigurada(configuracion(Tiempo.SIN_TIEMPO, Colores.JUGADOR_1_BLANCAS));
         assertTrue(partida.tablero().pelota().isEmpty());
     }
 
     @Test
     void laConsolaPuedeJugarAlFutbol() {
-        Partida partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
+        PartidaEnJuego partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
         assertEquals(Optional.of(pos("d5")), partida.tablero().pelota());
         assertTrue(partida.permiteDeshacer());
     }
@@ -221,7 +221,7 @@ class EnsambladorPartidaTest {
 
     @Test
     void elModoFutbolMarcaLosArcos() {
-        Partida partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
+        PartidaEnJuego partida = ensamblador.crearSinRelojConDeshacer(Modo.FUTBOL);
         assertEquals(Optional.of(Bando.NEGRO), partida.tablero().arcoEn(pos("e8")));
         assertEquals(Optional.of(Bando.BLANCO), partida.tablero().arcoEn(pos("d1")));
     }

@@ -24,6 +24,7 @@ de clases está en [`docs/uml/`](uml/README.md).
 15. [La IA en el núcleo, detrás de una interfaz](#15-la-ia-en-el-núcleo-detrás-de-una-interfaz)
 16. [Adaptadores reemplazables: representación de piezas y sonido](#16-adaptadores-reemplazables-representación-de-piezas-y-sonido)
 17. [Partida coordina; cada responsabilidad en su clase](#17-partida-coordina-cada-responsabilidad-en-su-clase)
+18. [Puertos de entrada: los adaptadores no conocen la clase Partida](#18-puertos-de-entrada-los-adaptadores-no-conocen-la-clase-partida)
 - [Cómo se extiende: pieza nueva y otro tamaño de tablero](#cómo-se-extiende)
 - [Concesiones conocidas](#concesiones-conocidas)
 
@@ -353,6 +354,34 @@ rehacer. Lo demás lo delega en clases privadas del paquete `juego`:
 - Si otra clase necesitara decidir finales sin una `Partida` (la IA ya lo hace a su manera, sobre su
   copia), habría que hacer público el árbitro.
 
+## 18. Puertos de entrada: los adaptadores no conocen la clase Partida
+
+**Qué.** Los adaptadores reciben una de dos interfaces del núcleo:
+- `ConsultaDePartida`: tablero, turno, estado, marcador, movimientos legales y suscripción a los
+  eventos. Es de solo lectura.
+- `PartidaEnJuego`: la extiende con las órdenes de los jugadores (mover, deshacer, rehacer, rendirse,
+  tablas).
+
+`Partida` implementa `PartidaEnJuego`. El sonido recibe `ConsultaDePartida`; la consola, el
+controlador del tablero y la IA reciben `PartidaEnJuego`. Solo `EnsambladorPartida` construye y
+conoce la `Partida` concreta.
+
+**Por qué.**
+- **Inversión de dependencias (la D de SOLID), también del lado de entrada.** Los adaptadores
+  dependen de una abstracción del núcleo, no de su implementación. Una partida en red o un doble de
+  prueba podrían implementar la misma interfaz sin cambiar ningún adaptador.
+- **Segregación de interfaces (la I de SOLID).** Cada adaptador recibe solo lo que necesita. El
+  sonido no puede mover piezas ni rendir a nadie, y eso lo garantiza el compilador.
+- Es el mismo criterio que ya usábamos para los puertos de salida (`FuenteDeTiempo`,
+  `ObservadorDePartida`): el núcleo define las interfaces y los adaptadores se adaptan a ellas.
+
+**Cuándo se rompería.**
+- Un método público nuevo de `Partida` que un adaptador necesite hay que sumarlo también a la
+  interfaz que corresponda.
+- Las interfaces se partieron por rol (leer o jugar). Si apareciera un adaptador que solo necesita,
+  por ejemplo, los eventos, convendría una interfaz más chica todavía en vez de darle la de consulta
+  entera.
+
 ---
 
 ## Cómo se extiende
@@ -383,4 +412,3 @@ Son decisiones que tomamos sabiendo su costo. Las anotamos para poder revisarlas
 | Concesión | Por qué la aceptamos | Cuándo habría que cambiarla |
 |---|---|---|
 | `Pieza` tiene `esRey()`, `esPeon()` y `esTorre()` | El enroque, el jaque y la promoción necesitan reconocer esos roles | Si una regla nueva necesitara reconocer otra pieza: convendría preguntar por capacidades y no por tipo |
-| Los adaptadores usan la clase concreta `Partida` | Hay una sola implementación y es Java puro | Si hiciera falta otra (por ejemplo, una partida en red): habría que extraer una interfaz de entrada |

@@ -58,6 +58,8 @@ flowchart TB
 
 | Puerto (interfaz del núcleo) | Sentido | Lo implementa |
 |---|---|---|
+| `PartidaEnJuego` | los adaptadores juegan (mover, deshacer, rendirse, tablas) | `Partida`; lo usan la consola, el controlador del tablero y la IA |
+| `ConsultaDePartida` | los adaptadores leen la partida y escuchan sus eventos | `Partida`; lo usa el sonido |
 | `FuenteDeTiempo` | el núcleo pide la hora | `FuenteDeTiempoSistema` (real), relojes falsos en los tests |
 | `ObservadorDePartida` | el núcleo avisa qué pasó | `SonidosDePartida`, `TurnoDeLaIa`; `VistaPartida` y `PanelEstadoPartida` (vía `ControladorTablero.escuchar`) |
 | `EstrategiaDeJuego` | el adaptador pide una jugada | `JugadorArtificial` (núcleo); la usa `RivalArtificial` |

@@ -5,7 +5,7 @@ import Nucleo.ia.DecisionDeJuego;
 import Nucleo.ia.EstrategiaDeJuego;
 import Nucleo.juego.SituacionDePartida;
 import Nucleo.juego.Movimiento;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -28,11 +28,11 @@ public final class RivalArtificial {
     public record Respuesta(Movimiento movimiento, Duration demora) {
     }
 
-    private final Partida partida;
+    private final PartidaEnJuego partida;
     private final Bando bando;
     private final EstrategiaDeJuego estrategia;
 
-    public RivalArtificial(Partida partida, Bando bando, EstrategiaDeJuego estrategia) {
+    public RivalArtificial(PartidaEnJuego partida, Bando bando, EstrategiaDeJuego estrategia) {
         this.partida = Objects.requireNonNull(partida, "partida");
         this.bando = Objects.requireNonNull(bando, "bando");
         this.estrategia = Objects.requireNonNull(estrategia, "estrategia");

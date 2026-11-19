@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
 import adaptadores.RivalArtificial;
@@ -31,7 +32,7 @@ class TurnoDeLaIaTest {
                 new Jugador("IA", Bando.NEGRO), ReglasDePartida.clasicas().conDeshacer(), new SinReloj());
     }
 
-    private TurnoDeLaIa turno(Partida partida, Bando bandoDeLaIa) {
+    private TurnoDeLaIa turno(PartidaEnJuego partida, Bando bandoDeLaIa) {
         RivalArtificial rival = new RivalArtificial(partida, bandoDeLaIa, new EstrategiaFalsa(false));
         return new TurnoDeLaIa(partida, rival, enCola, Runnable::run);
     }
@@ -43,7 +44,7 @@ class TurnoDeLaIaTest {
     @Test
     void siLaIaJuegaConBlancasEmpiezaApenasArranca() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         TurnoDeLaIa turno = turno(partida, Bando.BLANCO);
 
         // Act
@@ -60,7 +61,7 @@ class TurnoDeLaIaTest {
     @Test
     void respondeDespuesDeCadaJugadaDeLaPersona() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         turno(partida, Bando.NEGRO).iniciar();
 
         // Act
@@ -77,7 +78,7 @@ class TurnoDeLaIaTest {
     @Test
     void siLaPartidaCambiaMientrasPiensaLoPensadoSeDescarta() {
         // Arrange: la IA empieza a pensar su respuesta a e4
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         turno(partida, Bando.NEGRO).iniciar();
         partida.mover(mov("e2", "e4"));
 
@@ -93,7 +94,7 @@ class TurnoDeLaIaTest {
     @Test
     void despuesDeCerrarNoJuegaMas() {
         // Arrange
-        Partida partida = partida();
+        PartidaEnJuego partida = partida();
         TurnoDeLaIa turno = turno(partida, Bando.NEGRO);
         turno.iniciar();
         partida.mover(mov("e2", "e4"));

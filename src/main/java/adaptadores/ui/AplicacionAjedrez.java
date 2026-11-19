@@ -1,7 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.EnsambladorPartida;
 import adaptadores.audio.CatalogoDeSonidos;
 import adaptadores.audio.ControlDeVolumen;
@@ -86,7 +86,7 @@ public class AplicacionAjedrez extends Application {
         sonidosDelMenu.salirDelMenu();
         var preparada = new EnsambladorPartida().prepararConfigurada(configuracion);
         partidaActual = preparada;
-        Partida partida = preparada.partida();
+        PartidaEnJuego partida = preparada.partida();
         TemaTablero tema = new TemaTablero(
                 Color.web("#9FBE70"), Color.web("#527B3D"),
                 Color.web("#FFFBEF"), Color.web("#202733"),

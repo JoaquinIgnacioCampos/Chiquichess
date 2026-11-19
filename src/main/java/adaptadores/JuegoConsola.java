@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 /** Adaptador de entrada/salida por consola: lee jugadas como "e2 e4" y las envía a la Partida. */
 public class JuegoConsola {
 
-    private final Partida partida;
+    private final PartidaEnJuego partida;
     private final RenderizadorConsola renderizador;
     private final MensajesDeConsola mensajes;
     private final BufferedReader entrada;
@@ -25,21 +25,21 @@ public class JuegoConsola {
     /** Cómo espera mientras la IA "piensa" como una persona; en los tests, no espera. */
     private final Consumer<Duration> esperar;
 
-    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, InputStream entrada, PrintStream salida) {
+    public JuegoConsola(PartidaEnJuego partida, RenderizadorConsola renderizador, InputStream entrada, PrintStream salida) {
         this(partida, renderizador, new MensajesDeConsola(), entrada, salida);
     }
 
-    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+    public JuegoConsola(PartidaEnJuego partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
                         InputStream entrada, PrintStream salida) {
         this(partida, renderizador, mensajes, entrada, salida, Optional.empty());
     }
 
-    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+    public JuegoConsola(PartidaEnJuego partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
                         InputStream entrada, PrintStream salida, Optional<RivalArtificial> rival) {
         this(partida, renderizador, mensajes, entrada, salida, rival, JuegoConsola::dormir);
     }
 
-    public JuegoConsola(Partida partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
+    public JuegoConsola(PartidaEnJuego partida, RenderizadorConsola renderizador, MensajesDeConsola mensajes,
                         InputStream entrada, PrintStream salida, Optional<RivalArtificial> rival,
                         Consumer<Duration> esperar) {
         this.rival = Objects.requireNonNull(rival, "rival");

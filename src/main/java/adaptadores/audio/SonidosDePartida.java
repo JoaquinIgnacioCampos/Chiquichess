@@ -3,7 +3,7 @@ package adaptadores.audio;
 import Nucleo.bando.Bando;
 import Nucleo.juego.EventoDePartida;
 import Nucleo.juego.ObservadorDePartida;
-import Nucleo.juego.Partida;
+import Nucleo.juego.ConsultaDePartida;
 import Nucleo.reglas.Marcador;
 import adaptadores.audio.GuionDeSonidos.Toque;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
@@ -29,7 +29,7 @@ public final class SonidosDePartida implements ObservadorDePartida, AutoCloseabl
     /** Las hinchadas suenan más bajo que los efectos, para que no los tapen. */
     static final double VOLUMEN_HINCHADA = 0.6;
 
-    private final Partida partida;
+    private final ConsultaDePartida partida;
     private final CatalogoDeSonidos catalogo;
     private final ReproductorDeAudio reproductor;
     private final Map<Bando, Equipo> equipos;
@@ -40,7 +40,7 @@ public final class SonidosDePartida implements ObservadorDePartida, AutoCloseabl
     private final Runnable alCambiarVolumen = this::actualizarHinchadas;
     private boolean cerrado = false;
 
-    private SonidosDePartida(Partida partida, CatalogoDeSonidos catalogo, ReproductorDeAudio reproductor,
+    private SonidosDePartida(ConsultaDePartida partida, CatalogoDeSonidos catalogo, ReproductorDeAudio reproductor,
                              Map<Bando, Equipo> equipos, ControlDeVolumen control, boolean futbol) {
         this.partida = Objects.requireNonNull(partida, "partida");
         this.catalogo = Objects.requireNonNull(catalogo, "catalogo");
@@ -57,7 +57,7 @@ public final class SonidosDePartida implements ObservadorDePartida, AutoCloseabl
      *
      * @param equipos el club de cada bando, para los sonidos propios de cada uno
      */
-    public static SonidosDePartida conectar(Partida partida, CatalogoDeSonidos catalogo, ReproductorDeAudio reproductor,
+    public static SonidosDePartida conectar(ConsultaDePartida partida, CatalogoDeSonidos catalogo, ReproductorDeAudio reproductor,
                                             Map<Bando, Equipo> equipos, ControlDeVolumen control, boolean futbol) {
         SonidosDePartida sonidos = new SonidosDePartida(partida, catalogo, reproductor, equipos, control, futbol);
         partida.agregarObservador(sonidos);

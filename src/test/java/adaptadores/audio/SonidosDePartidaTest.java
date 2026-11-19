@@ -1,7 +1,7 @@
 package adaptadores.audio;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.EnsambladorPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 import adaptadores.configuracion.ConfiguracionPartida.Modo;
@@ -42,20 +42,20 @@ class SonidosDePartidaTest {
         Files.write(archivo, new byte[]{0});
     }
 
-    private SonidosDePartida conectar(Partida partida, boolean futbol) {
+    private SonidosDePartida conectar(PartidaEnJuego partida, boolean futbol) {
         return SonidosDePartida.conectar(partida, new CatalogoDeSonidos(Optional.of(carpeta.resolve("sonidos")), false), reproductor,
                 EQUIPOS, control, futbol);
     }
 
-    private static Partida clasica() {
+    private static PartidaEnJuego clasica() {
         return new EnsambladorPartida().crearSinRelojConDeshacer(Modo.CLASICO);
     }
 
-    private static Partida futbol() {
+    private static PartidaEnJuego futbol() {
         return new EnsambladorPartida().crearSinRelojConDeshacer(Modo.FUTBOL, 10);
     }
 
-    private static void jugar(Partida partida, String... jugadas) {
+    private static void jugar(PartidaEnJuego partida, String... jugadas) {
         for (String jugada : jugadas) {
             partida.mover(mov(jugada.substring(0, 2), jugada.substring(2, 4)));
         }
@@ -64,7 +64,7 @@ class SonidosDePartidaTest {
     @Test
     void cadaJugadaTocaSuSonido() {
         // Arrange
-        Partida partida = clasica();
+        PartidaEnJuego partida = clasica();
         conectar(partida, false);
 
         // Act: mate del loco
@@ -80,7 +80,7 @@ class SonidosDePartidaTest {
         // Arrange
         crear("clubes/river/victoria.wav");
         crear("clubes/boca/victoria.wav");
-        Partida partida = clasica();
+        PartidaEnJuego partida = clasica();
         conectar(partida, false);
 
         // Act: ganan las negras, que son River
@@ -127,7 +127,7 @@ class SonidosDePartidaTest {
     @Test
     void laHinchadaSubeConLasJugadasYBajaAlDeshacer() {
         // Arrange
-        Partida partida = futbol();
+        PartidaEnJuego partida = futbol();
         conectar(partida, true);
         ReproductorFalso.PistaFalsa hinchada = reproductor.sonando().getFirst();
         double alEmpezar = hinchada.volumen;
@@ -143,7 +143,7 @@ class SonidosDePartidaTest {
     @Test
     void alTerminarSeCallaLaHinchadaYAlCerrarSeDesengancha() {
         // Arrange
-        Partida partida = futbol();
+        PartidaEnJuego partida = futbol();
         SonidosDePartida sonidos = conectar(partida, true);
 
         // Act
@@ -162,7 +162,7 @@ class SonidosDePartidaTest {
     @Test
     void elSilencioLlevaTodoACeroYSeRecuperaConElVolumenElegido() {
         // Arrange
-        Partida partida = futbol();
+        PartidaEnJuego partida = futbol();
         conectar(partida, true);
         ReproductorFalso.PistaFalsa hinchada = reproductor.sonando().getFirst();
         control.cambiarVolumen(0.5);

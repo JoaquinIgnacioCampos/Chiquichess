@@ -132,7 +132,58 @@ classDiagram
     AvisosDePartida o-- "0..*" ObservadorDePartida
 ```
 
-## 5b. Eventos (Observer)
+## 5b. Puertos de entrada: lo que ven los adaptadores
+
+Los adaptadores no conocen la clase `Partida`: reciben una de estas dos interfaces del núcleo. Solo
+`EnsambladorPartida` construye la `Partida` concreta.
+
+```mermaid
+classDiagram
+    direction TB
+
+    class ConsultaDePartida {
+        <<interface>>
+        +tablero() ITablero
+        +turno() Bando
+        +jugador(Bando) Jugador
+        +estado() EstadoPartida
+        +resultado() Optional~ResultadoPartida~
+        +marcador() Optional~Marcador~
+        +limiteDeJugadas() Optional~Integer~
+        +historial() List~Movimiento~
+        +situacion() SituacionDePartida
+        +tiempoRestante(Bando) Optional~Duration~
+        +movimientosLegales(Posicion) Set~Posicion~
+        +opcionesDePromocion(Posicion, Posicion) List~Pieza~
+        +puedeDeshacer() boolean
+        +agregarObservador(ObservadorDePartida)
+    }
+    class PartidaEnJuego {
+        <<interface>>
+        +mover(Movimiento) ResultadoMovimiento
+        +deshacer()
+        +rehacer()
+        +rendirse(Bando)
+        +ofrecerTablas(Bando)
+        +aceptarTablas(Bando)
+        +rechazarTablas(Bando)
+        +verificarTiempo()
+    }
+    class Partida
+
+    ConsultaDePartida <|-- PartidaEnJuego
+    PartidaEnJuego <|.. Partida
+```
+
+- **`ConsultaDePartida`** es de solo lectura, más la suscripción a los eventos. La recibe el sonido:
+  por tipo, no puede mover piezas ni terminar la partida.
+- **`PartidaEnJuego`** suma las órdenes de los jugadores. La reciben la consola, el controlador del
+  tablero, el rival artificial y el turno de la IA.
+
+(En la interfaz de consulta se muestran los métodos principales; también tiene `jugadorActual`,
+`ganador`, `ofertaTablasPendiente`, `permiteDeshacer`, `puedeRehacer` y `quitarObservador`.)
+
+## 5c. Eventos (Observer)
 
 ```mermaid
 classDiagram
@@ -195,7 +246,7 @@ classDiagram
 Los observadores son adaptadores (`SonidosDePartida`, `TurnoDeLaIa`, `VistaPartida`,
 `PanelEstadoPartida`): ver [diagrama 7](07-adaptadores.md).
 
-## 5c. Reloj y disposición inicial
+## 5d. Reloj y disposición inicial
 
 ```mermaid
 classDiagram
@@ -249,3 +300,6 @@ classDiagram
 - **Null Object:** `SinReloj` evita preguntar "¿hay reloj?" en cada jugada.
 - **Decorator:** `DisposicionDeFutbol` envuelve cualquier disposición y le agrega la cancha.
 - **Puerto de salida:** `FuenteDeTiempo` es la única forma en que el núcleo conoce la hora.
+- **Puertos de entrada con segregación de interfaces:** `ConsultaDePartida` y `PartidaEnJuego`.
+  Cada adaptador recibe solo lo que necesita (la I de SOLID) y depende de una abstracción del núcleo,
+  no de la clase concreta (la D de SOLID).

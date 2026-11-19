@@ -4,6 +4,10 @@ Los adaptadores traducen entre el mundo exterior (teclado, mouse, pantalla, parl
 sistema) y el núcleo. **Ninguna clase del núcleo aparece acá con una flecha que salga de ella hacia
 un adaptador.** Las clases del núcleo están marcadas con `<<núcleo>>`.
 
+Los adaptadores hablan con la partida a través de los puertos de entrada del núcleo
+(`PartidaEnJuego` y `ConsultaDePartida`, ver [diagrama 5](05-partida.md)). La clase concreta
+`Partida` solo la conoce `EnsambladorPartida`, que la construye.
+
 `EnsambladorPartida` y `AplicacionAjedrez` son las raíces de composición: el único lugar donde se
 eligen las implementaciones concretas y se arman las partes de la partida (inyección de
 dependencias manual, sin contenedor).
@@ -17,6 +21,9 @@ classDiagram
     class Partida {
         <<núcleo>>
     }
+    class PartidaEnJuego {
+        <<núcleo interface>>
+    }
     class EstrategiaDeJuego {
         <<núcleo interface>>
     }
@@ -28,7 +35,8 @@ classDiagram
         -sorteo Sorteo
         -fuente FuenteDeTiempo
         +prepararConfigurada(ConfiguracionPartida) PartidaConfigurada
-        +crearRival(Partida, Bando, Dificultad) RivalArtificial
+        +crearConfigurada(ConfiguracionPartida) PartidaEnJuego
+        +crearRival(PartidaEnJuego, Bando, Dificultad) RivalArtificial
     }
     class ConfiguracionPartida {
         <<record>>
@@ -44,7 +52,7 @@ classDiagram
     }
     class PartidaConfigurada {
         <<record>>
-        +partida Partida
+        +partida PartidaEnJuego
         +equipoBlancas Equipo
         +equipoNegras Equipo
         +rival Optional~RivalArtificial~
@@ -56,7 +64,7 @@ classDiagram
     class SorteoAleatorio
     class FuenteDeTiempoSistema
     class RivalArtificial {
-        -partida Partida
+        -partida PartidaEnJuego
         -bando Bando
         -estrategia EstrategiaDeJuego
         +pensar() Respuesta
@@ -67,7 +75,7 @@ classDiagram
 
     class Main
     class JuegoConsola {
-        -partida Partida
+        -partida PartidaEnJuego
         -rival Optional~RivalArtificial~
     }
     class RenderizadorConsola
@@ -78,18 +86,19 @@ classDiagram
     EnsambladorPartida ..> PartidaConfigurada : crea
     EnsambladorPartida o-- Sorteo
     EnsambladorPartida o-- FuenteDeTiempo
-    EnsambladorPartida ..> Partida : crea
+    EnsambladorPartida ..> Partida : crea (único que la conoce)
+    PartidaEnJuego <|.. Partida
     EnsambladorPartida ..> RivalArtificial : crea
     Sorteo <|.. SorteoAleatorio
     FuenteDeTiempo <|.. FuenteDeTiempoSistema
-    PartidaConfigurada o-- Partida
+    PartidaConfigurada o-- PartidaEnJuego
     PartidaConfigurada o-- RivalArtificial
     RivalArtificial o-- EstrategiaDeJuego
-    RivalArtificial --> Partida
+    RivalArtificial --> PartidaEnJuego
 
     Main ..> EnsambladorPartida
     Main ..> JuegoConsola
-    JuegoConsola --> Partida
+    JuegoConsola --> PartidaEnJuego
     JuegoConsola o-- RivalArtificial
     JuegoConsola o-- RenderizadorConsola
     JuegoConsola o-- MensajesDeConsola
@@ -102,8 +111,11 @@ classDiagram
 classDiagram
     direction TB
 
-    class Partida {
-        <<núcleo>>
+    class PartidaEnJuego {
+        <<núcleo interface>>
+    }
+    class ConsultaDePartida {
+        <<núcleo interface>>
     }
     class ObservadorDePartida {
         <<núcleo interface>>
@@ -117,7 +129,7 @@ classDiagram
     class VistaMenuPartida
     class VistaPartida
     class ControladorTablero {
-        -partida Partida
+        -partida PartidaEnJuego
         -rival Optional~RivalArtificial~
         +pulsar(Posicion)
         +escuchar(ObservadorDePartida)
@@ -127,7 +139,7 @@ classDiagram
     class CartelDeGol
     class MensajesDeLaInterfaz
     class TurnoDeLaIa {
-        -partida Partida
+        -partida PartidaEnJuego
         -rival RivalArtificial
         -hiloDePensar Executor
     }
@@ -142,6 +154,7 @@ classDiagram
     }
 
     class SonidosDePartida {
+        -partida ConsultaDePartida
         -catalogo CatalogoDeSonidos
         -reproductor ReproductorDeAudio
         -guion GuionDeSonidos
@@ -173,9 +186,9 @@ classDiagram
     VistaPartida o-- MensajesDeLaInterfaz
     VistaPartida ..> PresentacionClub
     PanelEstadoPartida o-- ControladorTablero
-    ControladorTablero --> Partida
+    ControladorTablero --> PartidaEnJuego
     ControladorTablero o-- RivalArtificial
-    TurnoDeLaIa --> Partida
+    TurnoDeLaIa --> PartidaEnJuego
     TurnoDeLaIa o-- RivalArtificial
     TurnoDeLaIa ..> ObservadorDePartida : escucha con una lambda
     RepresentacionPiezas <|.. RepresentacionConSprites
@@ -183,7 +196,8 @@ classDiagram
     RepresentacionConSprites o-- RepresentacionPiezas : respaldo
 
     ObservadorDePartida <|.. SonidosDePartida
-    SonidosDePartida --> Partida : se suscribe
+    SonidosDePartida --> ConsultaDePartida : solo consulta y se suscribe
+    ConsultaDePartida <|-- PartidaEnJuego
     SonidosDePartida *-- GuionDeSonidos
     SonidosDePartida o-- CatalogoDeSonidos
     SonidosDePartida o-- ReproductorDeAudio
@@ -198,7 +212,7 @@ classDiagram
 
 | Grupo | Responsabilidad | Tecnología que encierra |
 |---|---|---|
-| Ensamblado (`EnsambladorPartida`, `configuracion`) | Traduce lo elegido en el menú a una `Partida` armada | ninguna (Java puro) |
+| Ensamblado (`EnsambladorPartida`, `configuracion`) | Traduce lo elegido en el menú a una partida armada; es el único que construye `Partida` | ninguna (Java puro) |
 | Consola (`Main`, `JuegoConsola`, `RenderizadorConsola`, `NotacionAlgebraica`) | Juego por texto con notación algebraica | `System.in` / `System.out` |
 | Interfaz gráfica (`ui`) | Menú, tablero, panel, relojes, cartel de gol | JavaFX |
 | Sonido (`audio`) | Traduce eventos de la partida a sonidos | Java Sound (`javax.sound`) |

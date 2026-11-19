@@ -7,6 +7,7 @@ import Nucleo.juego.DisposicionDeFutbol;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.ReglaDeLaPelota;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tablero.DisposicionInicial;
@@ -43,31 +44,31 @@ public final class EnsambladorPartida {
         this.fuente = Objects.requireNonNull(fuente, "fuente");
     }
 
-    public Partida crearConReloj(Duration tiempoPorJugador) {
+    public PartidaEnJuego crearConReloj(Duration tiempoPorJugador) {
         return crearConReloj(tiempoPorJugador, fuente);
     }
 
     /** Permite sustituir únicamente la fuente externa, conservando el ensamblado real. */
-    public Partida crearConReloj(Duration tiempoPorJugador, FuenteDeTiempo fuente) {
+    public PartidaEnJuego crearConReloj(Duration tiempoPorJugador, FuenteDeTiempo fuente) {
         return crear(new RelojAjedrez(tiempoPorJugador, tiempoPorJugador, fuente));
     }
 
-    public Partida crearSinReloj() {
+    public PartidaEnJuego crearSinReloj() {
         return crear(new SinReloj());
     }
 
     /** Partida sin tiempo en la que se puede deshacer y rehacer (la usa la consola). */
-    public Partida crearSinRelojConDeshacer() {
+    public PartidaEnJuego crearSinRelojConDeshacer() {
         return crearSinRelojConDeshacer(Modo.CLASICO);
     }
 
     /** Partida sin tiempo, con deshacer, del modo elegido y el límite de jugadas por defecto. */
-    public Partida crearSinRelojConDeshacer(Modo modo) {
+    public PartidaEnJuego crearSinRelojConDeshacer(Modo modo) {
         return crearSinRelojConDeshacer(modo, ConfiguracionPartida.LIMITE_POR_DEFECTO);
     }
 
     /** Partida sin tiempo, con deshacer, del modo elegido (la consola puede jugar al fútbol). */
-    public Partida crearSinRelojConDeshacer(Modo modo, int limiteDeJugadas) {
+    public PartidaEnJuego crearSinRelojConDeshacer(Modo modo, int limiteDeJugadas) {
         return crear(new SinReloj(), new Jugador("Jugador 1", Bando.BLANCO), new Jugador("Jugador 2", Bando.NEGRO),
                 true, modo, limiteDeJugadas);
     }
@@ -82,11 +83,11 @@ public final class EnsambladorPartida {
     }
 
     /** Una partida y la IA que juega en ella. */
-    public record PartidaContraLaIa(Partida partida, RivalArtificial rival) {
+    public record PartidaContraLaIa(PartidaEnJuego partida, RivalArtificial rival) {
     }
 
     /** La IA de esa dificultad, con azar real y el tiempo del sistema. */
-    public RivalArtificial crearRival(Partida partida, Bando bando, Dificultad dificultad) {
+    public RivalArtificial crearRival(PartidaEnJuego partida, Bando bando, Dificultad dificultad) {
         return new RivalArtificial(partida, bando, new JugadorArtificial(dificultad, new Random(), fuente));
     }
 
@@ -99,7 +100,7 @@ public final class EnsambladorPartida {
     }
 
     /** Resuelve el sorteo una sola vez y construye el juego elegido en el menú. */
-    public Partida crearConfigurada(ConfiguracionPartida configuracion) {
+    public PartidaEnJuego crearConfigurada(ConfiguracionPartida configuracion) {
         return prepararConfigurada(configuracion).partida();
     }
 

@@ -3,6 +3,7 @@ package adaptadores;
 import Nucleo.bando.Bando;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** La consola completa con una entrada simulada: muestra los rechazos y el final con los textos del catálogo. */
 class JuegoConsolaTest {
 
-    private String jugar(Partida partida, String entrada) throws IOException {
+    private String jugar(PartidaEnJuego partida, String entrada) throws IOException {
         ByteArrayOutputStream salida = new ByteArrayOutputStream();
         new JuegoConsola(partida, new RenderizadorConsola(), new MensajesDeConsola(),
                 new ByteArrayInputStream(entrada.getBytes(StandardCharsets.UTF_8)),
@@ -70,7 +71,7 @@ class JuegoConsolaTest {
     @Test
     void laTerceraLetraEligeLaPiezaDeLaPromocion() throws IOException {
         // Arrange
-        Partida partida = conPeonEnA7();
+        PartidaEnJuego partida = conPeonEnA7();
 
         // Act
         jugar(partida, "a7 a8 c\nsalir\n");
@@ -82,7 +83,7 @@ class JuegoConsolaTest {
     @Test
     void sinTerceraLetraPromueveADama() throws IOException {
         // Arrange
-        Partida partida = conPeonEnA7();
+        PartidaEnJuego partida = conPeonEnA7();
 
         // Act
         jugar(partida, "a7 a8\nsalir\n");
@@ -94,7 +95,7 @@ class JuegoConsolaTest {
     @Test
     void unaPiezaDePromocionInvalidaSeRechaza() throws IOException {
         // Arrange
-        Partida partida = conPeonEnA7();
+        PartidaEnJuego partida = conPeonEnA7();
 
         // Act
         String salida = jugar(partida, "a7 a8 R\na7 a8 dama\nsalir\n");
@@ -119,7 +120,7 @@ class JuegoConsolaTest {
     @Test
     void deshacerYRehacerDesdeLaConsola() throws IOException {
         // Arrange
-        Partida partida = new EnsambladorPartida().crearSinRelojConDeshacer();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinRelojConDeshacer();
 
         // Act: jugar, deshacer, rehacer y deshacer otra vez
         String salida = jugar(partida, "e2 e4\ndeshacer\nrehacer\ndeshacer\nsalir\n");
@@ -151,7 +152,7 @@ class JuegoConsolaTest {
     @Test
     void despuesDelMateOfreceDeshacerYLaPartidaSigue() throws IOException {
         // Arrange
-        Partida partida = new EnsambladorPartida().crearSinRelojConDeshacer();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinRelojConDeshacer();
 
         // Act: mate del loco, deshacer el mate y jugar otra cosa
         String salida = jugar(partida, "f2 f3\ne7 e5\ng2 g4\nd8 h4\ndeshacer\nd8 g5\nsalir\n");
@@ -179,7 +180,7 @@ class JuegoConsolaTest {
                 "....R...");
         new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("d2"));
-        Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+        PartidaEnJuego partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 ReglasDePartida.futbol(), new SinReloj());
 
         // Act
@@ -231,7 +232,7 @@ class JuegoConsolaTest {
                 "........");
         new Nucleo.reglas.ReglaDeLaPelota().prepararCancha(tablero);
         tablero.colocarPelota(pos("e2"));
-        Partida partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+        PartidaEnJuego partida = new Partida(tablero, new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
                 ReglasDePartida.futbol(), new SinReloj());
 
         // Act

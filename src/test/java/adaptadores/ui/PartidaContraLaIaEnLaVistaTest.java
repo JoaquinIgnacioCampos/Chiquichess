@@ -6,6 +6,7 @@ import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
 import adaptadores.RivalArtificial;
@@ -37,7 +38,7 @@ class PartidaContraLaIaEnLaVistaTest {
         }
     }
 
-    private final Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
+    private final PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(),
             new Jugador("Ana", Bando.BLANCO), new Jugador("IA (medio)", Bando.NEGRO),
             ReglasDePartida.clasicas().conDeshacer(), new SinReloj());
     private final RivalArtificial rival = new RivalArtificial(partida, Bando.NEGRO, new EstrategiaFalsa(false));

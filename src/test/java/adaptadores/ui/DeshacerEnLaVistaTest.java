@@ -1,6 +1,6 @@
 package adaptadores.ui;
 
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.EnsambladorPartida;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -25,7 +25,7 @@ class DeshacerEnLaVistaTest {
         }
     }
 
-    private VistaPartida vista(Partida partida) {
+    private VistaPartida vista(PartidaEnJuego partida) {
         TemaTablero tema = new TemaTablero(
                 javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
                 javafx.scene.paint.Color.WHITE, javafx.scene.paint.Color.BLACK,
@@ -65,7 +65,7 @@ class DeshacerEnLaVistaTest {
 
     @Test
     void deshacerYRehacerUnaJugadaDesdeLosBotones() {
-        Partida partida = new EnsambladorPartida().crearSinRelojConDeshacer();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinRelojConDeshacer();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "e4");
@@ -84,7 +84,7 @@ class DeshacerEnLaVistaTest {
 
     @Test
     void deshacerDescartaLaSeleccion() {
-        Partida partida = new EnsambladorPartida().crearSinRelojConDeshacer();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinRelojConDeshacer();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "e4");
