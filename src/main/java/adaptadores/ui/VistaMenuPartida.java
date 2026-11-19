@@ -4,6 +4,7 @@ import Nucleo.ia.Dificultad;
 import adaptadores.audio.ControlDeVolumen;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.*;
+import adaptadores.configuracion.SeleccionDelMenu;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -202,7 +203,7 @@ public final class VistaMenuPartida extends GridPane {
     }
 
     /**
-     * Agrega al pie el botón de silencio, con el mismo control de volumen que la partida: lo que se elige
+     * Agrega al pie el botón de silencio y el volumen, con el mismo control que la partida: lo que se elige
      * acá sigue valiendo al jugar.
      */
     public void configurarSonido(ControlDeVolumen control) {
@@ -215,7 +216,36 @@ public final class VistaMenuPartida extends GridPane {
             control.silenciar(!control.silenciado());
             silencio.setText(textoSilencio(control));
         });
-        pie.getChildren().addFirst(silencio);
+        Slider volumen = new Slider(0, 1, control.volumen());
+        volumen.setId("volumen-menu");
+        volumen.setAccessibleText("Volumen");
+        volumen.setPrefWidth(90);
+        volumen.setMinWidth(Region.USE_PREF_SIZE);
+        volumen.setFocusTraversable(false);
+        volumen.valueProperty().addListener((p, antes, ahora) -> control.cambiarVolumen(ahora.doubleValue()));
+        pie.getChildren().addAll(0, java.util.List.of(silencio, volumen));
+    }
+
+    /** Deja elegidas esas opciones, como si la persona las hubiera tocado (pero sin el clic de sonido). */
+    public void preseleccionar(SeleccionDelMenu seleccion) {
+        Objects.requireNonNull(seleccion, "seleccion");
+        elegir(modo, seleccion.modo());
+        // El tiempo y el rival van antes que deshacer y dificultad, que dependen de ellos.
+        elegir(tiempo, seleccion.tiempo());
+        elegir(rival, seleccion.rival());
+        elegir(dificultad, seleccion.dificultad());
+        elegir(equipo1, seleccion.equipoJugador1());
+        elegir(equipo2, seleccion.equipoJugador2());
+        elegir(colores, seleccion.colores());
+        limiteDeJugadas.getValueFactory().setValue(seleccion.limiteDeJugadas());
+        actualizarSeleccion();
+        permitirDeshacer.setSelected(seleccion.permitirDeshacer() && !permitirDeshacer.isDisable());
+    }
+
+    private static void elegir(ToggleGroup grupo, java.util.Optional<?> valor) {
+        grupo.selectToggle(grupo.getToggles().stream()
+                .filter(opcion -> valor.isPresent() && valor.get().equals(opcion.getUserData()))
+                .findFirst().orElse(null));
     }
 
     private static String textoSilencio(ControlDeVolumen control) {
