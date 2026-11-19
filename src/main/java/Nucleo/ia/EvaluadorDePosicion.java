@@ -19,15 +19,17 @@ import java.util.Optional;
  * dicen las condiciones de fin de las reglas.
  *
  * <ul>
- *   <li><b>Material:</b> peón 100, caballo 320, alfil 330, torre 500, dama 900.</li>
- *   <li><b>Posición:</b> caballos, alfiles y peones valen un poco más cerca del centro; los peones,
- *       también a medida que avanzan.</li>
+ *   <li><b>Material:</b> el {@link Pieza#valor()} que declara cada pieza (peón 100 … dama 900).</li>
+ *   <li><b>Posición:</b> las piezas menores (las que valen hasta {@link #PIEZA_MENOR}, como caballos y
+ *       alfiles) y los peones valen un poco más cerca del centro; los peones, también a medida que avanzan.</li>
  *   <li><b>Fútbol</b> (si hay pelota): cada gol de diferencia vale {@link #VALOR_GOL}, más que una
  *       dama; tener la pelota suma, y más cuanto más cerca está del arco rival.</li>
  * </ul>
  */
 public final class EvaluadorDePosicion {
     static final int VALOR_GOL = 1200;
+    /** Hasta este valor una pieza conviene centralizarla; las más valiosas (torre, dama) no. */
+    static final int PIEZA_MENOR = 400;
     static final int POSESION = 40;
     static final int POR_CERCANIA_AL_ARCO = 12;
 
@@ -50,32 +52,20 @@ public final class EvaluadorDePosicion {
         int blancas = 0;
         for (Map.Entry<Posicion, Pieza> entrada : tablero.piezas().entrySet()) {
             Pieza pieza = entrada.getValue();
-            int valor = valor(pieza) + posicional(pieza, entrada.getKey(), tablero);
+            int valor = pieza.valor() + posicional(pieza, entrada.getKey(), tablero);
             blancas += pieza.color() == Bando.BLANCO ? valor : -valor;
         }
         if (tablero.pelota().isPresent()) blancas += futbol(tablero, jugadas);
         return bando == Bando.BLANCO ? blancas : -blancas;
     }
 
-    /** Valor material; el rey no se cuenta porque nunca sale del tablero. */
-    public static int valor(Pieza pieza) {
-        return switch (Character.toUpperCase(pieza.codigo())) {
-            case 'P' -> 100;
-            case 'C' -> 320;
-            case 'A' -> 330;
-            case 'T' -> 500;
-            case 'D' -> 900;
-            default -> 0;
-        };
-    }
-
     private static int posicional(Pieza pieza, Posicion casilla, ITablero tablero) {
-        char codigo = Character.toUpperCase(pieza.codigo());
-        if (codigo != 'P' && codigo != 'C' && codigo != 'A') return 0;
+        boolean menor = !pieza.esRey() && pieza.valor() <= PIEZA_MENOR;
+        if (!pieza.esPeon() && !menor) return 0;
         int haciaElCentroColumnas = Math.min(casilla.columna(), tablero.ancho() - 1 - casilla.columna());
         int haciaElCentroFilas = Math.min(casilla.fila(), tablero.alto() - 1 - casilla.fila());
         int centro = 5 * (Math.min(haciaElCentroColumnas, 3) + Math.min(haciaElCentroFilas, 3));
-        if (codigo != 'P') return centro;
+        if (!pieza.esPeon()) return centro;
         int avance = pieza.color() == Bando.BLANCO ? casilla.fila() - 1 : tablero.alto() - 2 - casilla.fila();
         return centro / 2 + 8 * Math.max(0, avance);
     }

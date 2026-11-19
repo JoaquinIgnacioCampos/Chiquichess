@@ -77,9 +77,9 @@ No hay una opción para que la IA juegue al instante: para eso está jugar sin t
 
 | Clase | Qué hace |
 |---|---|
-| `SituacionDePartida` | Lo que la IA necesita: copia del tablero, turno, jugadas hechas y reglas. La da `Partida.situacion()`. |
+| `SituacionDePartida` | Lo que la IA necesita: copia del tablero, turno, jugadas hechas y reglas. La da `Partida.situacion()`. Vive en `Nucleo.juego` (se movió después) para que la partida no dependa del paquete de la IA. |
 | `BuscadorMinimax` | Negamax con alfa-beta, profundización iterativa y quietud. |
-| `EvaluadorDePosicion` | El puntaje de una posición. |
+| `EvaluadorDePosicion` | El puntaje de una posición. El material lo da `Pieza.valor()` (se movió después desde el evaluador, que lo decidía por la letra de la pieza). |
 | `Dificultad` | Profundidad, tiempo, error y quietud de cada nivel. |
 | `EstrategiaDeJuego` | Interfaz (Strategy): elegir jugada y responder tablas. |
 | `JugadorArtificial` | La implementación: busca según la dificultad, elige con el error y dice cuánto tardar (`decidir`). El azar y el tiempo se inyectan. |

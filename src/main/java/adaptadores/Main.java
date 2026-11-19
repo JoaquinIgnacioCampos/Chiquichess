@@ -1,7 +1,7 @@
 package adaptadores;
 
 import Nucleo.ia.Dificultad;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Modo;
 
@@ -43,7 +43,7 @@ public class Main {
                     System.out, Optional.of(contraLaIa.rival())).jugar();
             return;
         }
-        Partida partida = ensamblador.crearSinRelojConDeshacer(modo, limite);
+        PartidaEnJuego partida = ensamblador.crearSinRelojConDeshacer(modo, limite);
         new JuegoConsola(partida, new RenderizadorConsola(), new MensajesDeConsola(), System.in, System.out).jugar();
     }
 }

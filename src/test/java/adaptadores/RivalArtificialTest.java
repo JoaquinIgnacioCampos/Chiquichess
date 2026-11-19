@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.DisposicionEstandar;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
 import dobles.EstrategiaFalsa;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** La IA como jugador de la partida: juega, responde tablas y deshace de a dos. */
 class RivalArtificialTest {
 
-    private final Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
+    private final PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(),
             new Jugador("Ana", Bando.BLANCO), new Jugador("IA", Bando.NEGRO),
             ReglasDePartida.clasicas().conDeshacer(), new SinReloj());
 
@@ -106,7 +107,7 @@ class RivalArtificialTest {
     @Test
     void respondeLasTablasSegunSuEstrategia() {
         // Arrange
-        Partida otra = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
+        PartidaEnJuego otra = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
                 new Jugador("IA", Bando.NEGRO), ReglasDePartida.clasicas(), new SinReloj());
         RivalArtificial acepta = new RivalArtificial(otra, Bando.NEGRO, new EstrategiaFalsa(true));
         RivalArtificial rechaza = rival(false);

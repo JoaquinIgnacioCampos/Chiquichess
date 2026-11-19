@@ -2,6 +2,8 @@ package Nucleo.juego;
 
 import Nucleo.bando.Bando;
 import Nucleo.reglas.DetectorDeJaque;
+import Nucleo.reglas.ReglasDePartida;
+import Nucleo.tiempo.SinReloj;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import static dobles.Casillas.mov;
@@ -11,7 +13,7 @@ class JugadorDePartidaTest {
     private final Jugador blancas = new Jugador("Lucía", Bando.BLANCO);
     private final Jugador negras = new Jugador("Tomás", Bando.NEGRO);
     private final Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
-            blancas, negras, new DetectorDeJaque(), List.of());
+            blancas, negras, new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
 
     @Test
     void consultaAmbosBandosSinDependerDelTurno() {

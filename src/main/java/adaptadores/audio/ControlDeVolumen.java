@@ -9,7 +9,8 @@ import java.util.Objects;
  * conserva de una partida a la siguiente. Avisa a quien lo escuche cuando cambia.
  */
 public final class ControlDeVolumen {
-    public static final double VOLUMEN_POR_DEFECTO = 0.8;
+    /** Moderado: la risa del personaje suena apenas se abre el juego, antes de que se pueda bajar. */
+    public static final double VOLUMEN_POR_DEFECTO = 0.5;
 
     private double volumen = VOLUMEN_POR_DEFECTO;
     private boolean silenciado = false;

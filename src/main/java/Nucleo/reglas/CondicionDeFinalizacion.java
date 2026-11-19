@@ -1,7 +1,9 @@
 package Nucleo.reglas;
 
 import Nucleo.bando.Bando;
+import Nucleo.jugadas.Jugada;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,6 +35,14 @@ public interface CondicionDeFinalizacion {
      * límite así; vacío si no. Sirve para que la interfaz muestre cuántas jugadas quedan.
      */
     default Optional<Integer> limiteDeJugadas() {
+        return Optional.empty();
+    }
+
+    /**
+     * Marcador de goles tras esas jugadas, si esta condición se juega con goles; vacío si no. Así los
+     * adaptadores saben si mostrar un marcador sin preguntar si hay pelota en el tablero.
+     */
+    default Optional<Marcador> marcador(List<Jugada> jugadas) {
         return Optional.empty();
     }
 }

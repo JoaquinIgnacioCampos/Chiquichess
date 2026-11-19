@@ -19,4 +19,9 @@ public class Alfil extends Pieza {
     public char codigo() {
         return 'A';
     }
+
+    @Override
+    public int valor() {
+        return 330;
+    }
 }

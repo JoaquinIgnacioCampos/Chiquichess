@@ -5,6 +5,7 @@ import Nucleo.juego.*;
 import Nucleo.juego.MovimientoInvalidoException.Motivo;
 import Nucleo.reglas.*;
 import Nucleo.tablero.Tablero;
+import Nucleo.tiempo.SinReloj;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,7 +29,8 @@ class PartidaCompletaTest {
     }
 
     private Partida nuevaPartida(Tablero tablero, List<CondicionDeFinalizacion> condiciones) {
-        return new Partida(tablero, blanco, negro, new DetectorDeJaque(), condiciones);
+        return new Partida(tablero, blanco, negro,
+                new ReglasDePartida(new DetectorDeJaque(), condiciones), new SinReloj());
     }
 
     private List<CondicionDeFinalizacion> condicionesEstandar() {

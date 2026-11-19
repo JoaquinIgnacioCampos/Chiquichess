@@ -18,4 +18,9 @@ public class Caballo extends Pieza {
     public char codigo() {
         return 'C';
     }
+
+    @Override
+    public int valor() {
+        return 320;
+    }
 }

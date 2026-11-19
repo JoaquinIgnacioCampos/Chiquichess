@@ -1,4 +1,4 @@
-package Nucleo.ia;
+package Nucleo.juego;
 
 import Nucleo.bando.Bando;
 import Nucleo.jugadas.Jugada;

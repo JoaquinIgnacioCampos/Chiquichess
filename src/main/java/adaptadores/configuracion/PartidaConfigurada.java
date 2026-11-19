@@ -1,7 +1,7 @@
 package adaptadores.configuracion;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.RivalArtificial;
 import Nucleo.tiempo.RelojPartida;
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
@@ -14,7 +14,7 @@ import java.util.Optional;
  *
  * @param rival la IA, si se eligió jugar contra ella (juega con el equipo del Jugador 2)
  */
-public record PartidaConfigurada(Partida partida, Equipo equipoBlancas, Equipo equipoNegras,
+public record PartidaConfigurada(PartidaEnJuego partida, Equipo equipoBlancas, Equipo equipoNegras,
                                  RelojPartida reloj, Optional<RivalArtificial> rival) implements AutoCloseable {
     public PartidaConfigurada {
         Objects.requireNonNull(partida, "partida");

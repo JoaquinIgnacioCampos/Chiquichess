@@ -1,7 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.EnsambladorPartida;
 import adaptadores.audio.CatalogoDeSonidos;
 import adaptadores.audio.ControlDeVolumen;
@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import adaptadores.configuracion.ConfiguracionPartida;
 import adaptadores.configuracion.PartidaConfigurada;
+import adaptadores.configuracion.SeleccionDelMenu;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -47,6 +48,8 @@ public class AplicacionAjedrez extends Application {
     private ReproductorDeAudio reproductor;
     private SonidosDelMenu sonidosDelMenu;
     private VistaMenuPartida menuActual;
+    /** Lo que muestra elegido el menú: la partida habitual al abrir, y después lo último que se jugó. */
+    private SeleccionDelMenu seleccionDelMenu = SeleccionDelMenu.habitual();
 
     @Override
     public void start(Stage ventana) {
@@ -68,7 +71,11 @@ public class AplicacionAjedrez extends Application {
     }
 
     private VistaMenuPartida nuevoMenu(Stage ventana) {
-        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> iniciarPartida(ventana, configuracion));
+        VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> {
+            seleccionDelMenu = SeleccionDelMenu.de(configuracion);
+            iniciarPartida(ventana, configuracion);
+        });
+        menu.preseleccionar(seleccionDelMenu);
         menu.configurarSonido(volumen);
         menu.alElegirOpcion(sonidosDelMenu::opcionElegida);
         menuActual = menu;
@@ -92,7 +99,7 @@ public class AplicacionAjedrez extends Application {
         sonidosDelMenu.salirDelMenu();
         var preparada = new EnsambladorPartida().prepararConfigurada(configuracion);
         partidaActual = preparada;
-        Partida partida = preparada.partida();
+        PartidaEnJuego partida = preparada.partida();
         TemaTablero tema = new TemaTablero(
                 Color.web("#9FBE70"), Color.web("#527B3D"),
                 Color.web("#FFFBEF"), Color.web("#202733"),

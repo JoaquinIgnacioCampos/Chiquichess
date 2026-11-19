@@ -120,7 +120,7 @@ class VictoriaPorGolesTest {
 
         // Assert
         assertEquals(EstadoPartida.JAQUE_MATE, partida.estado());
-        assertEquals(new Marcador(1, 0), partida.marcador());
+        assertEquals(new Marcador(1, 0), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -135,7 +135,7 @@ class VictoriaPorGolesTest {
         // Assert
         assertFalse(partida.estado().estaFinalizada());
         assertTrue(partida.resultado().isEmpty());
-        assertEquals(new Marcador(0, 0), partida.marcador());
+        assertEquals(new Marcador(0, 0), partida.marcador().orElseThrow());
     }
 
     @Test
@@ -165,5 +165,21 @@ class VictoriaPorGolesTest {
         assertEquals(Optional.of(30), futbol.limiteDeJugadas());
         assertEquals(Optional.of(90), ReglasDePartida.futbol().condiciones().get(1).limiteDeJugadas());
         assertEquals(Optional.empty(), clasica.limiteDeJugadas());
+    }
+
+    @Test
+    void soloHayMarcadorSiLasReglasSeJueganConGoles() {
+        // Arrange: el mismo tablero con pelota, con y sin la condición de los goles
+        Partida futbol = new Partida(new Nucleo.juego.DisposicionDeFutbol(new Nucleo.juego.DisposicionEstandar(),
+                new ReglaDeLaPelota()).crearTablero(), new Jugador("Ana", Bando.BLANCO),
+                new Jugador("Beto", Bando.NEGRO), ReglasDePartida.futbol(), new SinReloj());
+        Partida conPelotaSinGoles = new Partida(new Nucleo.juego.DisposicionDeFutbol(
+                new Nucleo.juego.DisposicionEstandar(), new ReglaDeLaPelota()).crearTablero(),
+                new Jugador("Ana", Bando.BLANCO), new Jugador("Beto", Bando.NEGRO),
+                ReglasDePartida.clasicas(), new SinReloj());
+
+        // Act + Assert: lo decide la condición de fin, no la pelota del tablero
+        assertEquals(Optional.of(new Marcador(0, 0)), futbol.marcador());
+        assertEquals(Optional.empty(), conPelotaSinGoles.marcador());
     }
 }

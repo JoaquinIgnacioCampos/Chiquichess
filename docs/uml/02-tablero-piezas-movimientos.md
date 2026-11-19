@@ -67,6 +67,7 @@ classDiagram
         +esTorre() boolean
         +nombre()* String
         +codigo()* char
+        +valor()* int
     }
 
     class Rey
@@ -142,14 +143,17 @@ classDiagram
 
 ## Qué arma cada pieza
 
-| Pieza | Regla |
-|---|---|
-| Torre | `ortogonales(SIN_LIMITE)` |
-| Alfil | `diagonales(SIN_LIMITE)` |
-| Reina | `ReglaCompuesta(ortogonales, diagonales)` |
-| Rey | `ReglaCompuesta(ortogonales(1), diagonales(1))`; el enroque es una `ReglaEspecial` |
-| Caballo | `saltosDeCaballo()` |
-| Peón | avance (`SoloSiVacio`) + avance doble (`SoloSi` fila inicial) + capturas (`SoloSiCaptura`) |
+| Pieza | Regla | `valor()` |
+|---|---|---|
+| Torre | `ortogonales(SIN_LIMITE)` | 500 |
+| Alfil | `diagonales(SIN_LIMITE)` | 330 |
+| Reina | `ReglaCompuesta(ortogonales, diagonales)` | 900 |
+| Rey | `ReglaCompuesta(ortogonales(1), diagonales(1))`; el enroque es una `ReglaEspecial` | 0 (nunca sale del tablero) |
+| Caballo | `saltosDeCaballo()` | 320 |
+| Peón | avance (`SoloSiVacio`) + avance doble (`SoloSi` fila inicial) + capturas (`SoloSiCaptura`) | 100 |
+
+`valor()` es abstracto: una pieza nueva no compila hasta declarar cuánto vale. Así la IA no la
+regala por creer que vale 0.
 
 `DisposicionInicial` la implementan `DisposicionEstandar` y `DisposicionDeFutbol` (paquete `juego`,
 ver [diagrama 5](05-partida.md)). Un tablero de otro tamaño es otra `DisposicionInicial`.

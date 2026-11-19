@@ -3,6 +3,7 @@ package adaptadores.ui;
 import Nucleo.bando.Bando;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.piezas.Pieza;
 import Nucleo.reglas.ReglasDePartida;
 import Nucleo.tiempo.SinReloj;
@@ -34,7 +35,7 @@ class PromocionEnLaVistaTest {
     }
 
     /** Peón blanco en a7 a punto de promover. */
-    private final Partida partida = new Partida(TableroFake.desde(
+    private final PartidaEnJuego partida = new Partida(TableroFake.desde(
             "....r...",
             "P.......",
             "........",

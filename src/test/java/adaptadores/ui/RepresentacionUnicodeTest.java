@@ -46,6 +46,7 @@ class RepresentacionUnicodeTest {
         Pieza nueva = new Pieza(Bando.BLANCO, new ReglaCompuesta()) {
             @Override public String nombre() { return "Nueva"; }
             @Override public char codigo() { return 'X'; }
+            @Override public int valor() { return 0; }
         };
         assertEquals("X", ((Text) representacion.crear(nueva, tema)).getText());
     }

@@ -1,10 +1,10 @@
 package adaptadores.ui;
 
-import Nucleo.ia.SituacionDePartida;
+import Nucleo.juego.SituacionDePartida;
 import Nucleo.juego.MovimientoInvalidoException;
 import Nucleo.juego.ObservadorDePartida;
 import Nucleo.juego.Movimiento;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.RivalArtificial;
 
 import java.time.Duration;
@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  * Los hilos se reciben por constructor: en los tests, los dos son "ejecutar ya", y todo pasa en orden.
  */
 public final class TurnoDeLaIa implements AutoCloseable {
-    private final Partida partida;
+    private final PartidaEnJuego partida;
     private final RivalArtificial rival;
     private final Executor hiloDePensar;
     private final Consumer<Runnable> hiloDeLaInterfaz;
@@ -39,7 +39,7 @@ public final class TurnoDeLaIa implements AutoCloseable {
         programar();
     };
 
-    public TurnoDeLaIa(Partida partida, RivalArtificial rival, Executor hiloDePensar,
+    public TurnoDeLaIa(PartidaEnJuego partida, RivalArtificial rival, Executor hiloDePensar,
                        Consumer<Runnable> hiloDeLaInterfaz) {
         this.partida = Objects.requireNonNull(partida, "partida");
         this.rival = Objects.requireNonNull(rival, "rival");

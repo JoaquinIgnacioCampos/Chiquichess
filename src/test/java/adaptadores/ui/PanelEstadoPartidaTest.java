@@ -4,6 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.*;
 import Nucleo.reglas.*;
 import Nucleo.tablero.Posicion;
+import Nucleo.tiempo.SinReloj;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -28,7 +29,7 @@ class PanelEstadoPartidaTest {
             javafx.scene.paint.Color.WHITE, javafx.scene.paint.Color.BLACK,
             javafx.scene.paint.Color.BLACK, javafx.scene.paint.Color.GRAY);
 
-    private VistaPartida vista(Partida partida) {
+    private VistaPartida vista(PartidaEnJuego partida) {
         return new VistaPartida(new ControladorTablero(partida), temaTablero,
                 new RepresentacionUnicode(), temaPanel);
     }
@@ -55,9 +56,9 @@ class PanelEstadoPartidaTest {
 
     @Test
     void muestraNombresDelNucleoYElTurnoInicial() {
-        Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
+        PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         VistaPartida vista = vista(partida);
         assertEquals("Lucía Fernández", texto(vista, "nombre-blanco"));
         assertEquals("Tomás Rodríguez", texto(vista, "nombre-negro"));
@@ -112,7 +113,7 @@ class PanelEstadoPartidaTest {
 
     @Test
     void rendicionUsaElGanadorExplicitoDelResultado() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         partida.mover(mov("e2", "e4"));
         partida.rendirse(Bando.NEGRO);
@@ -125,7 +126,7 @@ class PanelEstadoPartidaTest {
 
     @Test
     void tablasPorAcuerdoMuestraEmpateYSuMotivo() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         partida.ofrecerTablas(Bando.BLANCO);
         partida.aceptarTablas(Bando.NEGRO);
@@ -143,9 +144,9 @@ class PanelEstadoPartidaTest {
                 EstadoPartida.TABLAS_REPETICION, "Por repetición",
                 EstadoPartida.TABLAS_REGLA_50_MOVIMIENTOS, "Regla de los 50 movimientos");
         casos.forEach((estado, motivo) -> {
-            Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
+            PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(),
                     new Jugador("B", Bando.BLANCO), new Jugador("N", Bando.NEGRO),
-                    new DetectorDeJaque(), List.of(c -> Optional.of(estado)));
+                    new ReglasDePartida(new DetectorDeJaque(), List.of(c -> Optional.of(estado))), new SinReloj());
             VistaPartida vista = vista(partida);
             assertEquals("TABLAS", texto(vista, "marcador-principal"));
             assertEquals(motivo, texto(vista, "motivo-final"));
@@ -156,7 +157,7 @@ class PanelEstadoPartidaTest {
     @Test
     void rechazoPorTiempoTambienActualizaElResultadoEnElPanel() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = new EnsambladorPartida().crearConReloj(Duration.ofSeconds(1), fuente);
+        PartidaEnJuego partida = new EnsambladorPartida().crearConReloj(Duration.ofSeconds(1), fuente);
         VistaPartida vista = vista(partida);
         clic(vista, "e2");
         fuente.avanzar(Duration.ofSeconds(1));
@@ -185,9 +186,9 @@ class PanelEstadoPartidaTest {
 
     @Test
     void losNombresSeMantienenDentroDelPanelEnLaVentanaMinima() {
-        Partida partida = new Partida(new DisposicionEstandar().crearTablero(),
+        PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(),
                 new Jugador("Lucía Fernández", Bando.BLANCO), new Jugador("Tomás Rodríguez", Bando.NEGRO),
-                new DetectorDeJaque(), List.of());
+                new ReglasDePartida(new DetectorDeJaque(), List.of()), new SinReloj());
         VistaPartida vista = vista(partida);
         vista.resize(900, 620);
         vista.layout();
@@ -248,7 +249,7 @@ class PanelEstadoPartidaTest {
     @Test
     void deshacerElGolDejaDeAnunciarloYRehacerloLoVuelveAAnunciar() {
         // Arrange
-        Partida partida = futbolConTorreEnD2(ReglasDePartida.futbol().conDeshacer());
+        PartidaEnJuego partida = futbolConTorreEnD2(ReglasDePartida.futbol().conDeshacer());
         VistaPartida vista = vista(partida);
         jugar(vista, "d2d8");
 
@@ -265,7 +266,7 @@ class PanelEstadoPartidaTest {
     void elFinalPorTiempoSeMuestraPorElEventoSinRedibujarAMano() {
         // Arrange
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
+        PartidaEnJuego partida = new Partida(new DisposicionEstandar().crearTablero(), new Jugador("Ana", Bando.BLANCO),
                 new Jugador("Beto", Bando.NEGRO), ReglasDePartida.clasicas(),
                 new Nucleo.tiempo.RelojAjedrez(Duration.ofMinutes(1), Duration.ofMinutes(1), fuente));
         VistaPartida vista = vista(partida);

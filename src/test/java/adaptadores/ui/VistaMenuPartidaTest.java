@@ -247,4 +247,41 @@ class VistaMenuPartidaTest {
 
         assertEquals(2, avisos[0]);
     }
+    @Test
+    void laSeleccionHabitualSoloDejaPendientesLosEquipos() {
+        menu.preseleccionar(adaptadores.configuracion.SeleccionDelMenu.habitual());
+        assertTrue(boton("modo-clasico").isSelected());
+        assertTrue(boton("tiempo-diez_minutos").isSelected());
+        assertTrue(boton("rival-amigo").isSelected());
+        assertTrue(boton("color-aleatorio").isSelected());
+        assertFalse(boton("permitir-deshacer").isSelected());
+        assertTrue(buscar("jugar").isDisable());
+        assertEquals("Falta elegir: equipo de Jugador 1, equipo de Jugador 2.",
+                ((javafx.scene.control.Label) buscar("selecciones-pendientes")).getText());
+
+        boton("jugador-1-boca").setSelected(true);
+        boton("jugador-2-river").setSelected(true);
+        ((Button) buscar("jugar")).fire();
+        assertEquals(ConfiguracionPartida.Colores.ALEATORIO, emitidas.getFirst().colores());
+        assertEquals(ConfiguracionPartida.Tiempo.DIEZ_MINUTOS, emitidas.getFirst().tiempo());
+    }
+
+    @Test
+    void unMenuNuevoRecuperaLaUltimaSeleccionCompleta() {
+        var anterior = new ConfiguracionPartida(ConfiguracionPartida.Modo.FUTBOL, ConfiguracionPartida.Tiempo.SIN_TIEMPO,
+                ConfiguracionPartida.Rival.IA, ConfiguracionPartida.Equipo.RIVER, ConfiguracionPartida.Equipo.BOCA,
+                ConfiguracionPartida.Colores.JUGADOR_2_BLANCAS, true, 120,
+                java.util.Optional.of(Nucleo.ia.Dificultad.DIFICIL));
+        menu.preseleccionar(adaptadores.configuracion.SeleccionDelMenu.de(anterior));
+        ((Button) buscar("jugar")).fire();
+        assertEquals(List.of(anterior), emitidas);
+    }
+
+    @Test
+    void elVolumenDelMenuCambiaElControlCompartido() {
+        var control = new adaptadores.audio.ControlDeVolumen();
+        menu.configurarSonido(control);
+        ((javafx.scene.control.Slider) menu.lookup("#volumen-menu")).setValue(0.2);
+        assertEquals(0.2, control.volumen(), 1e-9);
+    }
 }

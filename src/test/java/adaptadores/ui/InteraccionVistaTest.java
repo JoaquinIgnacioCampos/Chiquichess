@@ -1,7 +1,7 @@
 package adaptadores.ui;
 
 import Nucleo.bando.Bando;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import adaptadores.EnsambladorPartida;
 import dobles.FuenteDeTiempoFalsa;
 import javafx.scene.Node;
@@ -25,7 +25,7 @@ class InteraccionVistaTest {
             javafx.scene.paint.Color.YELLOW, javafx.scene.paint.Color.PURPLE,
             javafx.scene.paint.Color.BLUE);
 
-    private VistaPartida vista(Partida partida) {
+    private VistaPartida vista(PartidaEnJuego partida) {
         return new VistaPartida(new ControladorTablero(partida), tema,
                 new RepresentacionUnicode(), TemaPanel.marcador());
     }
@@ -46,7 +46,7 @@ class InteraccionVistaTest {
 
     @Test
     void clicSeleccionaYMarcaSoloLosDestinosQueDaElNucleo() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         assertEquals(2, vista.lookupAll(".indicador-movimiento").size());
@@ -73,7 +73,7 @@ class InteraccionVistaTest {
 
     @Test
     void casillaVaciaNoValidaCancelaTodosLosResaltados() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "e6");
@@ -84,7 +84,7 @@ class InteraccionVistaTest {
 
     @Test
     void enemigaNoCapturableTambienCancelaLaSeleccion() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "a7");
@@ -95,7 +95,7 @@ class InteraccionVistaTest {
 
     @Test
     void anilloSuperpuestoMarcaLaPiezaCapturableSinOcultarla() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         partida.mover(mov("e2", "e4"));
         partida.mover(mov("d7", "d5"));
         VistaPartida vista = vista(partida);
@@ -118,7 +118,7 @@ class InteraccionVistaTest {
 
     @Test
     void clicEnLaEnemigaMarcadaEjecutaLaCapturaYRedibujaDesdeElNucleo() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         partida.mover(mov("e2", "e4"));
         partida.mover(mov("d7", "d5"));
         VistaPartida vista = vista(partida);
@@ -136,7 +136,7 @@ class InteraccionVistaTest {
 
     @Test
     void movimientoVacioPasaElTurnoYSoloSeleccionaAhoraPiezasNegras() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         pulsar(vista, "e4");
@@ -151,7 +151,7 @@ class InteraccionVistaTest {
     @Test
     void muestraElRechazoDelNucleoSiElTiempoVenceEntreClics() {
         FuenteDeTiempoFalsa fuente = new FuenteDeTiempoFalsa();
-        Partida partida = new EnsambladorPartida().crearConReloj(Duration.ofSeconds(1), fuente);
+        PartidaEnJuego partida = new EnsambladorPartida().crearConReloj(Duration.ofSeconds(1), fuente);
         VistaPartida vista = vista(partida);
         pulsar(vista, "e2");
         fuente.avanzar(Duration.ofSeconds(1));
@@ -166,7 +166,7 @@ class InteraccionVistaTest {
 
     @Test
     void clicSecundarioNoEnviaOrdenesNiSelecciona() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         clic(casilla(vista, "e2"), MouseButton.SECONDARY);
         assertTrue(vista.lookupAll(".indicador-movimiento").isEmpty());
@@ -176,7 +176,7 @@ class InteraccionVistaTest {
 
     @Test
     void avisaSoloCuandoSeEligeUnaPiezaParaMover() {
-        Partida partida = new EnsambladorPartida().crearSinReloj();
+        PartidaEnJuego partida = new EnsambladorPartida().crearSinReloj();
         VistaPartida vista = vista(partida);
         int[] avisos = {0};
         vista.alSeleccionarPieza(() -> avisos[0]++);

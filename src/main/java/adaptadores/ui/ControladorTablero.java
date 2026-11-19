@@ -4,7 +4,7 @@ import Nucleo.bando.Bando;
 import Nucleo.juego.Movimiento;
 import Nucleo.juego.AccionInvalidaException;
 import Nucleo.juego.MovimientoInvalidoException;
-import Nucleo.juego.Partida;
+import Nucleo.juego.PartidaEnJuego;
 import Nucleo.juego.Jugador;
 import Nucleo.juego.ObservadorDePartida;
 import Nucleo.juego.ResultadoPartida;
@@ -28,17 +28,17 @@ import java.util.Set;
  * rendirse u ofrecer tablas en su nombre. Deshacer y rehacer van de a dos jugadas (ver {@link RivalArtificial}).
  */
 public final class ControladorTablero {
-    private final Partida partida;
+    private final PartidaEnJuego partida;
     private final Optional<RivalArtificial> rival;
     private Optional<Posicion> seleccion = Optional.empty();
     /** Movimiento de un peón a la última fila que espera la elección de la pieza. */
     private Optional<Movimiento> promocion = Optional.empty();
 
-    public ControladorTablero(Partida partida) {
+    public ControladorTablero(PartidaEnJuego partida) {
         this(partida, Optional.empty());
     }
 
-    public ControladorTablero(Partida partida, Optional<RivalArtificial> rival) {
+    public ControladorTablero(PartidaEnJuego partida, Optional<RivalArtificial> rival) {
         this.partida = Objects.requireNonNull(partida, "partida");
         this.rival = Objects.requireNonNull(rival, "rival");
     }
@@ -81,9 +81,9 @@ public final class ControladorTablero {
         return partida.resultado();
     }
 
-    /** Goles de cada bando si se juega al fútbol (el tablero tiene pelota); vacío en el ajedrez clásico. */
+    /** Goles de cada bando si las reglas se juegan con goles (el modo fútbol); vacío en el ajedrez clásico. */
     public Optional<Marcador> marcador() {
-        return partida.tablero().pelota().isPresent() ? Optional.of(partida.marcador()) : Optional.empty();
+        return partida.marcador();
     }
 
     /** Jugadas a las que termina la partida (modo fútbol); vacío si no hay límite. */
