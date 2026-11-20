@@ -101,6 +101,20 @@ class SpriteRepresentationTest {
     }
 
     @Test
+    void everyClubHasItsTwelveSpritesInTheSameSize() {
+        for (Team team : Team.values()) {
+            for (char code : new char[]{'R', 'D', 'T', 'A', 'C', 'P'}) {
+                for (Side side : Side.values()) {
+                    var sprite = SpriteCatalog.de(team).sprite(code, side);
+                    assertTrue(sprite.isPresent(), team + " " + code + " " + side);
+                    assertEquals(256, sprite.get().getWidth(), team + " " + code + " " + side);
+                    assertEquals(384, sprite.get().getHeight(), team + " " + code + " " + side);
+                }
+            }
+        }
+    }
+
+    @Test
     void spriteKeepsDescriptionAndNotCoversClicksOfSquare() {
         Board board = new Board(2, 2);
         board.place(new Position(0, 0), new King(Side.WHITE));
