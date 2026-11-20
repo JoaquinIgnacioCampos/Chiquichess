@@ -5,7 +5,6 @@ import core.side.Side;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.time.Duration;

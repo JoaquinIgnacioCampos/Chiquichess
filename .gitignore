@@ -24,7 +24,6 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -36,8 +35,15 @@ build/
 
 ### Mac OS ###
 .DS_Store
-# Sonidos locales de prueba (ver src/main/resources/sonidos/LEEME.txt)
+# Sonidos locales de prueba (ver docs/fase-10-sonido.md)
 /sonidos/
+
+# Script que genera el diagrama UML: se usa en local, no se entrega
+/docs/uml/generar/
 
 ### Opciones locales del juego ###
 configuracion.txt
+
+### IntelliJ: solo se versiona la configuracion de ejecucion (.run) ###
+.idea/
+/dist/
