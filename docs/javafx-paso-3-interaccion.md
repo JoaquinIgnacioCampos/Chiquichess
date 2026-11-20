@@ -12,14 +12,14 @@ y la paleta provisional del paso anterior.
 
 ## Diseño y secuencia
 
-1. ControladorTablero, en el adaptador UI, conserva únicamente la posición
-   seleccionada. Consulta Partida.movimientosLegales en lugar de calcular reglas
-   o cachear un tablero. Los movimientos se envían a Partida.mover y sus rechazos
+1. BoardController, en el adaptador UI, conserva únicamente la posición
+   seleccionada. Consulta Game.movementsLegal en lugar de calcular reglas
+   o cachear un tablero. Los movimientos se envían a Game.move y sus rechazos
    se devuelven a la vista con el motivo tipado del núcleo.
-2. La vista recibe ese controlador desde AplicacionAjedrez. VistaTablero traduce
+2. La vista recibe ese controlador desde ChessApplication. BoardView traduce
    clics primarios a posiciones y dibuja selección, puntos y anillos recibidos
    como datos de presentación, sin decidir legalidad. Los círculos no interceptan clics.
-3. TemaTablero contiene también los colores de selección y destinos. Se conserva
+3. BoardTheme contiene también los colores de selección y destinos. Se conserva
    su constructor previo para los consumidores del paso 2.
 4. Tests primero del controlador; después tests de eventos y representación de
    JavaFX, implementación mínima y suite completa. Captura de escena para QA visual.
@@ -31,7 +31,7 @@ estado propio, y métodos de redibujado explícitos.
 
 **Por qué:** se prueba la conexión con turnos, capturas, jaque y tiempo usando la
 partida real. Un destino resaltado no garantiza que una jugada se acepte después:
-Partida.mover conserva la última palabra. El reloj puede vencer entre los clics.
+Game.move conserva la última palabra. El reloj puede vencer entre los clics.
 
 **Cuándo cambiaría:** un bot o una conexión remota debe disparar un redibujado tras
 actualizar la partida. El controlador limpia selecciones que ya no correspondan

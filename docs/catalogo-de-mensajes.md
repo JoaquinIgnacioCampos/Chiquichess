@@ -5,12 +5,12 @@
 Los textos que se muestran para los códigos del núcleo (rechazos de movimientos, rechazos de
 acciones y motivos de final) salieron de las vistas y quedaron en un catálogo por adaptador:
 
-- `adaptadores.ui.MensajesDeLaInterfaz`: textos de la interfaz gráfica. Admite textos que dependen
+- `adapters.ui.InterfaceMessages`: textos de la interfaz gráfica. Admite textos que dependen
   de la acción intentada (por ejemplo, "fuera de turno" al rendirse o al ofrecer tablas) y, si no hay
   uno específico, usa el general del motivo.
-- `adaptadores.MensajesDeConsola`: textos de la consola, con el nombre del ganador en los finales.
+- `adapters.ConsoleMessages`: textos de la consola, con el nombre del ganador en los finales.
 
-`VistaPartida`, `PanelEstadoPartida` y `JuegoConsola` reciben su catálogo por constructor (los
+`GameView`, `GameStatePanel` y `ConsoleGame` reciben su catálogo por constructor (los
 constructores anteriores usan el catálogo por defecto) y ya no tienen `switch` sobre códigos del
 núcleo. Los textos no cambiaron.
 
@@ -23,7 +23,7 @@ núcleo. Los textos no cambiaron.
   (la interfaz usa tildes y voseo, la consola no). Poner los textos en el núcleo mezclaría reglas con
   presentación.
 - **Se conserva la alarma del compilador.** El `switch` exhaustivo no compilaba si faltaba un caso.
-  Ahora `MensajesDeLaInterfazTest` y `MensajesDeConsolaTest` recorren todos los códigos del núcleo y
+  Ahora `InterfaceMessagesTest` y `ConsoleMessagesTest` recorren todos los códigos del núcleo y
   fallan indicando cuál no tiene texto. Si igual faltara uno en ejecución, se muestra un texto
   genérico en lugar de romper la ventana.
 
@@ -36,7 +36,7 @@ núcleo. Los textos no cambiaron.
 
 ## Verificación
 
-- 368 tests sin fallos, 10 nuevos: los de los dos catálogos y `JuegoConsolaTest`, el primer test de la
+- 368 tests sin fallos, 10 nuevos: los de los dos catálogos y `ConsoleGameTest`, el primer test de la
   consola completa con entrada simulada.
 - La salida de la consola en una partida con rechazos y jaque mate quedó idéntica byte por byte.
 - Los tests de la interfaz que verifican los textos de final siguen pasando sin cambios.

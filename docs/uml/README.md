@@ -42,9 +42,9 @@ Se generó a partir de los diagramas de abajo, así que no puede contradecirlos.
 | 2 | [Tablero, piezas y movimientos](02-tablero-piezas-movimientos.md) | Composición de las piezas con reglas de movimiento |
 | 3 | [Jugadas](03-jugadas.md) | La jugada como lista de efectos (Command) |
 | 4 | [Reglas](04-reglas.md) | Movimientos legales, reglas especiales y condiciones de fin (Strategy, Memento) |
-| 5 | [Partida](05-partida.md) | La fachada del núcleo, eventos (Observer) y reloj |
+| 5 | [Partida (Game)](05-partida.md) | La fachada del núcleo, eventos (Observer) y reloj |
 | 6 | [IA](06-ia.md) | Minimax detrás de `EstrategiaDeJuego` |
-| 7 | [Adaptadores](07-adaptadores.md) | Ensamblado, consola, interfaz gráfica y sonido |
+| 7 | [Adaptadores](07-adaptadores.md) | Ensamblado, configuración, consola, interfaz gráfica y sonido |
 
 ## Cómo leerlos
 

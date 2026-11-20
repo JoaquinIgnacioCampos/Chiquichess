@@ -10,9 +10,9 @@ No hay selecciones iniciales. Para habilitar «Jugar» se deben elegir:
 - Boca, River o Independiente para cada jugador. El equipo seleccionado se deshabilita en la selección del otro jugador; cambiarlo o quitar la selección libera la opción anterior.
 - Jugador 1 con blancas, Jugador 2 con blancas o Aleatorio.
 
-`VistaMenuPartida` recibe tema y callback; no construye partidas. Cuando la selección está completa emite `ConfiguracionPartida`, un record independiente de JavaFX que también rechaza equipos repetidos y la IA no disponible.
+`GameMenuView` recibe tema y callback; no construye partidas. Cuando la selección está completa emite `GameConfiguration`, un record independiente de JavaFX que también rechaza equipos repetidos y la IA no disponible.
 
-`AplicacionAjedrez` ensambla la partida y el actualizador solamente después de «Jugar», y cambia la raíz de la misma escena. `EnsambladorPartida.crearConfigurada` respeta el tiempo y asigna los nombres fijos Jugador 1/Jugador 2 a los colores elegidos. El sorteo se realiza una sola vez al crear la partida. Se conservan las vías de ensamblado anteriores, incluida la consola. No se modificó el núcleo.
+`ChessApplication` ensambla la partida y el actualizador solamente después de «Jugar», y cambia la raíz de la misma escena. `GameAssembler.createConfigured` respeta el tiempo y asigna los nombres fijos Jugador 1/Jugador 2 a los colores elegidos. El sorteo se realiza una sola vez al crear la partida. Se conservan las vías de ensamblado anteriores, incluida la consola. No se modificó el núcleo.
 
 En esta primera iteración los equipos se eligen y validan en el menú. Su presentación y los escudos se incorporaron después en el paso 9; la revancha y volver al menú, en el paso 10. La imagen real del personaje sigue pendiente. El tablero conserva el diseño existente.
 

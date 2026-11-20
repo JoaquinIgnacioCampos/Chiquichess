@@ -20,9 +20,9 @@ UML = os.path.dirname(AQUI)
 REPO = os.path.dirname(os.path.dirname(UML))
 FUENTES = os.path.join(REPO, 'src', 'main', 'java')
 
-# Tipos declarados dentro de otro archivo (EventoDePartida.java).
-ANIDADAS = {n: 'Nucleo.juego' for n in
-            ['JugadaHecha', 'JugadaDeshecha', 'JugadaRehecha', 'PartidaFinalizada', 'Rasgo']}
+# Tipos declarados dentro de otro archivo (GameEvent.java).
+ANIDADAS = {n: 'core.game' for n in
+            ['MoveMade', 'MoveUndone', 'MoveRedone', 'FinishedGame', 'Trait']}
 
 FLECHA = r'(<\|--|<\|\.\.|\*--|o--|-->|\.\.>|\.\.\|>|<-->)'
 RELACION = re.compile(r'^\s*(\w+)\s*(?:"[^"]*"\s*)?' + FLECHA + r'\s*(?:"[^"]*"\s*)?(\w+)\s*(?::\s*(.*))?$')
@@ -40,7 +40,7 @@ ESTILO = {
     '..|>': 'arrowhead=empty style=dashed',
     '<-->': 'dir=both arrowhead=vee arrowtail=vee',
 }
-COLORES = {'adaptadores': ('#FFF4E0', '#D99A2B'), 'Nucleo': ('#E8F0FB', '#4A78B5')}
+COLORES = {'adapters': ('#FFF4E0', '#D99A2B'), 'core': ('#E8F0FB', '#4A78B5')}
 
 
 def paquetes_del_codigo():
@@ -101,7 +101,7 @@ def armar_dot(clases, estereotipos, relaciones, paquete):
         '  edge [fontname="Helvetica" fontsize=9 color="#555555" arrowsize=0.8];',
     ]
     for nombre in sorted(grupos):
-        fondo, borde = COLORES['adaptadores' if nombre.startswith('adaptadores') else 'Nucleo']
+        fondo, borde = COLORES['adapters' if nombre.startswith('adapters') else 'core']
         salida.append(f'  subgraph cluster_{nombre.replace(".", "_")} {{')
         salida.append(f'    label=<<B>{escapar(nombre)}</B>>; labeljust=l; fontsize=14; style="rounded,filled"; '
                       f'fillcolor="{fondo}"; color="{borde}"; penwidth=1.5;')

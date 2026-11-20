@@ -1,8 +1,8 @@
 package adapters;
 
 import core.side.Side;
-import core.ia.GameDecision;
-import core.ia.GameStrategy;
+import core.ai.GameDecision;
+import core.ai.GameStrategy;
 import core.game.GameSituation;
 import core.game.MoveRequest;
 import core.game.GameInProgress;

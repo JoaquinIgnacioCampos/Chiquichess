@@ -180,7 +180,7 @@ class GameMenuViewTest {
         ((Button) search("jugar")).fire();
 
         assertEquals(GameConfiguration.Rival.IA, emitted.getFirst().rival());
-        assertEquals(java.util.Optional.of(core.ia.Difficulty.DIFICIL), emitted.getFirst().difficulty());
+        assertEquals(java.util.Optional.of(core.ai.Difficulty.DIFICIL), emitted.getFirst().difficulty());
     }
 
     @Test
@@ -260,7 +260,7 @@ class GameMenuViewTest {
         var previous = new GameConfiguration(GameConfiguration.Mode.FUTBOL, GameConfiguration.Time.SIN_TIEMPO,
                 GameConfiguration.Rival.IA, GameConfiguration.Team.RIVER, GameConfiguration.Team.BOCA,
                 GameConfiguration.Colors.JUGADOR_2_BLANCAS, true, 120,
-                java.util.Optional.of(core.ia.Difficulty.DIFICIL));
+                java.util.Optional.of(core.ai.Difficulty.DIFICIL));
         menu.preselect(adapters.configuration.MenuSelection.de(previous));
         ((Button) search("jugar")).fire();
         assertEquals(List.of(previous), emitted);

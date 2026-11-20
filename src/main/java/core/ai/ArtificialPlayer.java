@@ -1,4 +1,4 @@
-package core.ia;
+package core.ai;
 
 import core.game.GameSituation;
 import core.moves.Move;

@@ -28,50 +28,50 @@ modo fútbol, y gol y victoria propios de cada club. El sonido es un adaptador m
 
 ### 1. Núcleo: eventos (Observer)
 
-- `EventoDePartida` (sellado) en `Nucleo.juego`:
-  - `JugadaHecha(bando, rasgos, estado)`
-  - `JugadaDeshecha(estado)`
-  - `JugadaRehecha(bando, rasgos, estado)`
-  - `PartidaFinalizada(resultado)`
-- `Rasgo` = `CAPTURA`, `ENROQUE`, `PROMOCION`, `PASE`, `GOL`, deducidos de los efectos de la
-  `Jugada`. El enroque se reconoce porque es la única jugada que traslada dos piezas.
-- `ObservadorDePartida`: puerto de salida con un solo método, `notificar(evento)`.
-- `Partida.agregarObservador` / `quitarObservador`. Partida avisa **después** de cambiar, en:
+- `GameEvent` (sellado) en `core.game`:
+  - `MoveMade(side, traits, state)`
+  - `MoveUndone(state)`
+  - `MoveRedone(side, traits, state)`
+  - `FinishedGame(result)`
+- `Trait` = `CAPTURE`, `CASTLING`, `PROMOTION`, `PASS`, `GOAL`, deducidos de los efectos de la
+  `Move`. El enroque se reconoce porque es la única jugada que traslada dos piezas.
+- `GameObserver`: puerto de salida con un solo método, `notify(event)`.
+- `Game.addObserver` / `removeObserver`. Game avisa **después** de cambiar, en:
   - mover: la jugada y, si la terminó, el final;
   - deshacer y rehacer;
   - rendirse, aceptar tablas y tiempo agotado: el final.
 - Una jugada rechazada no avisa nada. El tiempo agotado se avisa una sola vez.
 
-### 2. Adaptador de sonido (`adaptadores.audio`)
+### 2. Adaptador de sonido (`adapters.audio`)
 
 | Clase | Qué hace |
 |---|---|
-| `Sonido` | Cada cosa que suena, con su nombre de archivo, si cada club puede tener el suyo y cuál usar si falta. |
-| `GuionDeSonidos` | Evento → qué suena. No sabe de archivos ni de parlantes. |
-| `CatalogoDeSonidos` | Sonido + club → archivo. Busca primero el del club y después el común, en la carpeta externa `sonidos/` y en los recursos. |
-| `IntensidadDeHinchada` | Función pura: jugadas, límite y marcador → volumen de cada hinchada. |
-| `SonidosDePartida` | El observador: une todo lo anterior y mantiene las hinchadas. |
-| `ReproductorDeAudio` | Interfaz con lo único que se necesita: tocar una vez, tocar en bucle, cambiar volumen. |
-| `ReproductorJavaSound` | La implementación real, con `javax.sound.sampled` (viene con el JDK). |
-| `ControlDeVolumen` | Volumen y silencio del usuario, compartido entre partidas. |
+| `Sound` | Cada cosa que suena, con su nombre de archivo, si cada club puede tener el suyo y cuál usar si falta. |
+| `SoundScript` | Evento → qué suena. No sabe de archivos ni de parlantes. |
+| `SoundCatalog` | Sonido + club → archivo. Busca primero el del club y después el común, en la carpeta externa `sonidos/` y en los recursos. |
+| `CrowdIntensity` | Función pura: jugadas, límite y marcador → volumen de cada hinchada. |
+| `GameSounds` | El observador: une todo lo anterior y mantiene las hinchadas. |
+| `AudioPlayer` | Interfaz con lo único que se necesita: tocar una vez, tocar en bucle, cambiar volumen. |
+| `JavaSoundPlayer` | La implementación real, con `javax.sound.sampled` (viene con el JDK). |
+| `VolumeControl` | Volumen y silencio del usuario, compartido entre partidas. |
 
 ### 3. Interfaz
 
-- **La vista también escucha los eventos.** `ControladorTablero.escuchar` suscribe a la vista y al
+- **La vista también escucha los eventos.** `BoardController.listen` suscribe a la vista y al
   panel a la partida:
-  - `PanelEstadoPartida` anuncia "¡GOL!" porque el evento de la última jugada dice que fue gol. Antes
+  - `GameStatePanel` anuncia "¡GOL!" porque el evento de la última jugada dice que fue gol. Antes
     lo deducía comparando el total de goles con el del refresco anterior. Deshacer saca el anuncio y
     rehacer un gol lo vuelve a mostrar.
-  - `VistaPartida` se redibuja con cada evento, así sigue a la partida aunque el cambio no lo haya
+  - `GameView` se redibuja con cada evento, así sigue a la partida aunque el cambio no lo haya
     provocado ella. El caso de hoy es el final por tiempo: lo detecta el pulso del reloj, la partida
     avisa y la vista muestra el resultado.
-  - `ActualizadorRelojJavaFx` ya no se encarga de mostrar el final: solo hace latir los relojes y se
+  - `JavaFxClockUpdater` ya no se encarga de mostrar el final: solo hace latir los relojes y se
     detiene cuando la partida terminó.
   - La vista sigue redibujándose sola después de sus propias acciones, porque hay cosas que no son
     eventos de la partida: la casilla seleccionada, el selector de promoción y las ofertas de tablas.
-- `AplicacionAjedrez` crea un reproductor y un control de volumen para todo el programa. En cada
-  partida conecta un `SonidosDePartida` con los clubes de cada bando, y lo cierra al salir de ella.
-- `VistaPartida.configurarSonido` agrega el botón de silencio y la barra de volumen.
+- `ChessApplication` crea un reproductor y un control de volumen para todo el programa. En cada
+  partida conecta un `GameSounds` con los clubes de cada bando, y lo cierra al salir de ella.
+- `GameView.configureSound` agrega el botón de silencio y la barra de volumen.
 
 ## Por qué
 
@@ -80,10 +80,10 @@ modo fútbol, y gol y victoria propios de cada club. El sonido es un adaptador m
   hacía el panel con los goles), esa lógica quedaría repetida en cada adaptador. Ahora la usan el
   sonido y la vista. El evento dice
   *qué pasó* y nada de *cómo se muestra*, así que el núcleo sigue sin saber que hay sonido.
-- **Observer como puerto de salida.** Es el mismo patrón de `FuenteDeTiempo` al revés: allá el núcleo
+- **Observer como puerto de salida.** Es el mismo patrón de `TimeSource` al revés: allá el núcleo
   pide algo al exterior por una interfaz suya; acá le avisa por una interfaz suya. Las dependencias
   siguen apuntando hacia el núcleo.
-- **Evento sellado.** `GuionDeSonidos` hace un `switch` sobre los eventos: si mañana aparece uno nuevo,
+- **Evento sellado.** `SoundScript` hace un `switch` sobre los eventos: si mañana aparece uno nuevo,
   no compila hasta decidir cómo suena.
 - **El guion separado del catálogo y del reproductor.** Cada pieza se cambia sola: otros sonidos (el
   catálogo), otra tecnología (el reproductor) u otras reglas de qué suena (el guion). Y cada una se
@@ -101,31 +101,31 @@ modo fútbol, y gol y victoria propios de cada club. El sonido es un adaptador m
 
 ## Cuándo se rompería
 
-- **Un observador que lanza una excepción** cortaría la orden que la provocó. Partida no la ataja a
+- **Un observador que lanza una excepción** cortaría la orden que la provocó. Game no la ataja a
   propósito (no debe esconder errores); el reproductor real ataja los suyos.
 - **Avisos fuera del hilo de JavaFX.** Hoy todas las órdenes llegan desde la interfaz o desde el
   `Timeline` del reloj, que corren en ese hilo. Si alguna vez una IA jugara desde otro hilo, el
-  observador recibiría avisos ahí. `SonidosDePartida` no toca la interfaz, pero un observador visual sí.
+  observador recibiría avisos ahí. `GameSounds` no toca la interfaz, pero un observador visual sí.
 - **Una jugada nueva que traslade dos piezas** se reconocería como enroque.
 - **Archivos muy largos** ocupan memoria: cada uno queda cargado entero. Conviene recortar las
   hinchadas a 30 o 40 segundos.
 
 ## Pruebas
 
-- `EventosDePartidaTest` (núcleo): cada orden avisa lo que corresponde y en orden (jugada antes que
+- `EventsOfGameTest` (núcleo): cada orden avisa lo que corresponde y en orden (jugada antes que
   final). Las jugadas rechazadas no avisan, el tiempo agotado avisa una vez y un observador quitado no
   recibe más avisos.
-- `GuionDeSonidosTest`: qué suena con cada evento y la prioridad entre rasgos. Comprueba también que
+- `SoundScriptTest`: qué suena con cada evento y la prioridad entre rasgos. Comprueba también que
   todos los sonidos salen de algún evento.
-- `CatalogoDeSonidosTest`: el del club gana al común, los comunes no miran la carpeta del club, los
+- `SoundCatalogTest`: el del club gana al común, los comunes no miran la carpeta del club, los
   alternativos, y qué pasa si no hay archivos.
-- `IntensidadDeHinchadaTest`: crece con el avance, el final parejo suena más, el que gana canta más,
+- `CrowdIntensityTest`: crece con el avance, el final parejo suena más, el que gana canta más,
   siempre entre 0 y 1, y depende solo del estado.
-- `PanelEstadoPartidaTest`:
+- `GameStatePanelTest`:
   - deshacer un gol saca el anuncio y rehacerlo lo vuelve a mostrar, aunque se haga desde la partida
     y no desde la vista;
   - el final por tiempo se muestra solo por el evento, sin redibujar a mano.
-- `SonidosDePartidaTest`: partidas reales con un `ReproductorFalso` y archivos de prueba. Cubre:
+- `GameSoundsTest`: partidas reales con un `PlayerFalse` y archivos de prueba. Cubre:
   - el club ganador;
   - una o dos hinchadas;
   - subir al jugar y bajar al deshacer;
@@ -165,7 +165,7 @@ el nombre de la columna "Archivo".
 
 | Archivo | Sonido | Autor | Duración | Notas |
 |---|---|---|---|---|
-| `comunes/movimiento.wav` | [chess_move_on_alabaster](https://freesound.org/people/mh2o/sounds/351518/) | mh2o | 0,07 s | |
+| `comunes/request.wav` | [chess_move_on_alabaster](https://freesound.org/people/mh2o/sounds/351518/) | mh2o | 0,07 s | |
 | `comunes/captura.wav` | [Wooden Click](https://freesound.org/people/BenjaminNelan/sounds/321083/) | BenjaminNelan | 0,09 s | |
 | `comunes/enroque.wav` | [chess pieces](https://freesound.org/people/simone_ds/sounds/366065/) | simone_ds | 23 s | Opcional: recortar dos toques seguidos. Si no está, suena el movimiento. |
 | `comunes/promocion.wav` | [WinFantasia](https://freesound.org/people/Fupicat/sounds/521645/) | Fupicat | 3,8 s | |

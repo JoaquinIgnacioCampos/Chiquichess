@@ -1,8 +1,8 @@
 package adapters;
 
 import core.side.Side;
-import core.ia.Difficulty;
-import core.ia.ArtificialPlayer;
+import core.ai.Difficulty;
+import core.ai.ArtificialPlayer;
 import core.game.FootballLayout;
 import core.game.StandardLayout;
 import core.game.Player;

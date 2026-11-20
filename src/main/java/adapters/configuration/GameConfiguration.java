@@ -1,6 +1,6 @@
 package adapters.configuration;
 
-import core.ia.Difficulty;
+import core.ai.Difficulty;
 
 import java.time.Duration;
 import java.util.Objects;

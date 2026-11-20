@@ -1,6 +1,6 @@
 package adapters.configuration;
 
-import core.ia.Difficulty;
+import core.ai.Difficulty;
 import adapters.configuration.GameConfiguration.Colors;
 import adapters.configuration.GameConfiguration.Team;
 import adapters.configuration.GameConfiguration.Mode;

@@ -1,13 +1,13 @@
 # 3. Jugadas y efectos (Command)
 
-Toda jugada es una lista de **efectos**, y cada efecto sabe aplicarse y revertirse. Así, todas las
-jugadas tienen la misma forma:
+Toda jugada (`Move`) es una lista de **efectos** (`Effect`), y cada efecto sabe aplicarse y
+revertirse. Así, todas las jugadas tienen la misma forma:
 
-- una captura común es `[Retiro, Traslado]`;
-- un enroque son dos `Traslado`;
-- la captura al paso es un `Retiro` en otra casilla que el destino;
-- la promoción agrega un `Reemplazo`;
-- en el modo fútbol se suman `MoverPelota` y `Pase`.
+- una captura común es `[Removal, Transfer]`;
+- un enroque son dos `Transfer`;
+- la captura al paso es un `Removal` en otra casilla que el destino;
+- la promoción agrega un `Replacement`;
+- en el modo fútbol se suman `MoveBall` y `Pass`.
 
 Por eso deshacer, la validación de jaque y la IA (que aplica y deshace jugadas imaginadas) funcionan
 igual para todas.
@@ -16,78 +16,78 @@ igual para todas.
 classDiagram
     direction LR
 
-    class Jugada {
+    class Move {
         <<record>>
-        +origen Posicion
-        +destino Posicion
-        +efectos List~Efecto~
-        +normal(ITablero, Posicion, Posicion)$ Jugada
-        +piezaMovida() Pieza
-        +capturada() Optional~Pieza~
-        +promocion() Optional~Pieza~
-        +esPase() boolean
-        +esGol() boolean
-        +con(Efecto) Jugada
-        +aplicar(Tablero)
-        +revertir(Tablero)
+        +origin Position
+        +destination Position
+        +effects List~Effect~
+        +normal(IBoard, Position, Position)$ Move
+        +pieceMoved() Piece
+        +captured() Optional~Piece~
+        +promotion() Optional~Piece~
+        +isPass() boolean
+        +isGoal() boolean
+        +con(Effect) Move
+        +apply(Board)
+        +revert(Board)
     }
 
-    class Efecto {
+    class Effect {
         <<sealed interface>>
-        +aplicar(Tablero)
-        +revertir(Tablero)
+        +apply(Board)
+        +revert(Board)
     }
 
-    class Traslado {
+    class Transfer {
         <<record>>
-        +pieza Pieza
-        +origen Posicion
-        +destino Posicion
+        +piece Piece
+        +origin Position
+        +destination Position
     }
-    class Retiro {
+    class Removal {
         <<record>>
-        +pieza Pieza
-        +posicion Posicion
+        +piece Piece
+        +position Position
     }
-    class Reemplazo {
+    class Replacement {
         <<record>>
-        +anterior Pieza
-        +nueva Pieza
-        +posicion Posicion
+        +previous Piece
+        +newValue Piece
+        +position Position
     }
-    class MoverPelota {
+    class MoveBall {
         <<record>>
-        +desde Posicion
-        +hacia Posicion
-        +gol boolean
+        +from Position
+        +toward Position
+        +goal boolean
     }
-    class Pase {
+    class Pass {
         <<record>>
-        +pasador Pieza
-        +desde Posicion
-        +receptor Pieza
-        +hacia Posicion
+        +passer Piece
+        +from Position
+        +receiver Piece
+        +toward Position
     }
 
-    class HuellaDePosicion {
+    class PositionFingerprint {
         <<utility>>
-        +de(ITablero, Bando)$ long
-        +tras(long, Jugada)$ long
+        +de(IBoard, Side)$ long
+        +tras(long, Move)$ long
     }
 
-    Jugada *-- "1..*" Efecto
-    Efecto <|.. Traslado
-    Efecto <|.. Retiro
-    Efecto <|.. Reemplazo
-    Efecto <|.. MoverPelota
-    Efecto <|.. Pase
-    Efecto ..> Tablero : modifica
-    HuellaDePosicion ..> Jugada : recorre sus efectos
+    Move *-- "1..*" Effect
+    Effect <|.. Transfer
+    Effect <|.. Removal
+    Effect <|.. Replacement
+    Effect <|.. MoveBall
+    Effect <|.. Pass
+    Effect ..> Board : modifica
+    PositionFingerprint ..> Move : recorre sus efectos
 ```
 
-`HuellaDePosicion` calcula un número que identifica una posición (técnica de Zobrist) y lo actualiza
-jugada a jugada. La usan las tablas por repetición y la IA.
+`PositionFingerprint` calcula un número que identifica una posición (técnica de Zobrist) y lo
+actualiza jugada a jugada. La usan las tablas por repetición y la IA.
 
-`Efecto` es **sellada** a propósito: si se agrega un efecto nuevo, el compilador obliga a decidir cómo
+`Effect` es **sellada** a propósito: si se agrega un efecto nuevo, el compilador obliga a decidir cómo
 lo tratan la huella y los rasgos de los eventos. Esa es la excepción consciente a "agregar sin
 modificar" (ver [la decisión 5 del documento de justificación](../justificacion.md#5-la-jugada-como-lista-de-efectos-command)).

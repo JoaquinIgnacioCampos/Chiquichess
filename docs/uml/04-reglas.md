@@ -1,149 +1,153 @@
 # 4. Reglas: movimientos legales, reglas especiales y finales (Strategy)
 
-Las reglas se agrupan en `ReglasDePartida`, que es lo que recibe `Partida`. Hay dos puntos de
-extensión, y los dos son el patrón Strategy:
+Las reglas se agrupan en `GameRules`, que es lo que recibe `Game`. Hay dos puntos de extensión, y
+los dos son el patrón Strategy:
 
-- **`ReglaEspecial`** suma jugadas (enroque, captura al paso, pase) o transforma las que ya existen
+- **`SpecialRule`** suma jugadas (enroque, captura al paso, pase) o transforma las que ya existen
   (promoción, gol).
-- **`CondicionDeFinalizacion`** decide si la partida terminó y quién ganó. También informa si la
-  partida tiene un límite de jugadas y un marcador de goles. Así `Partida` y los adaptadores no
-  necesitan saber qué condiciones existen ni preguntar si hay pelota.
+- **`EndCondition`** decide si la partida terminó y quién ganó. También informa si la partida tiene
+  un límite de jugadas y un marcador de goles. Así `Game` y los adaptadores no necesitan saber qué
+  condiciones existen ni preguntar si hay pelota.
 
-Las condiciones que necesitan memoria (repetición, 50 movimientos) implementan `CondicionConMemoria`
-y devuelven un `Recuerdo` en cada jugada (Memento), para poder deshacer.
+Las condiciones que necesitan memoria (repetición, 50 movimientos) implementan `StatefulCondition`
+y devuelven un `Memento` en cada jugada, para poder deshacer.
 
 ```mermaid
 classDiagram
     direction TB
 
-    class ReglasDePartida {
+    class GameRules {
         <<record>>
-        +movimientosLegales MovimientosLegales
-        +condiciones List~CondicionDeFinalizacion~
-        +permiteDeshacer boolean
-        +clasicas()$ ReglasDePartida
-        +futbol(limiteDeJugadas)$ ReglasDePartida
-        +conDeshacer() ReglasDePartida
-        +detector() IDetectorDeJaque
+        +movementsLegal LegalMoves
+        +conditions List~EndCondition~
+        +allowsUndo boolean
+        +classic()$ GameRules
+        +football(moveLimit)$ GameRules
+        +withUndo() GameRules
+        +detector() ICheckDetector
     }
 
-    class MovimientosLegales {
-        -detector IDetectorDeJaque
-        -especiales List~ReglaEspecial~
-        +jugadasPosibles(Tablero, Posicion, historial) List~Jugada~
-        +jugadaPosible(Tablero, origen, destino, historial) Optional~Jugada~
-        +destinos(Tablero, Posicion, historial) Set~Posicion~
-        +existeAlguno(Tablero, Bando, historial) boolean
-        +dejaAlReyEnJaque(Tablero, Jugada) boolean
+    class LegalMoves {
+        -detector ICheckDetector
+        -special List~SpecialRule~
+        +movesPossible(Board, Position, history) List~Move~
+        +movePossible(Board, origin, destination, history) Optional~Move~
+        +destinations(Board, Position, history) Set~Position~
+        +existsSome(Board, Side, history) boolean
+        +leavesKingInCheck(Board, Move) boolean
     }
 
-    class IDetectorDeJaque {
+    class ICheckDetector {
         <<interface>>
-        +estaEnJaque(ITablero, Bando) boolean
+        +isInCheck(IBoard, Side) boolean
     }
-    class DetectorDeJaque
+    class CheckDetector
 
-    class ReglaEspecial {
+    class SpecialRule {
         <<interface>>
-        +jugadas(Tablero, Posicion, historial, IDetectorDeJaque) List~Jugada~
-        +transformar(Tablero, Jugada) List~Jugada~
+        +moves(Board, Position, history, ICheckDetector) List~Move~
+        +transform(Board, Move) List~Move~
     }
-    class Enroque
-    class CapturaAlPaso
-    class Promocion {
-        -opciones List~Function~
+    class Castling
+    class EnPassant
+    class Promotion {
+        -options List~Function~
     }
-    class ReglaDeLaPelota {
-        -columnasDelArco Set~Integer~
-        -saqueInicial Posicion
-        +prepararCancha(Tablero)
+    class BallRule {
+        -netColumns Set~Integer~
+        -kickoffInitial Position
+        +preparePitch(Board)
     }
 
-    class CondicionDeFinalizacion {
+    class EndCondition {
         <<interface>>
-        +evaluar(ContextoDeJugada) Optional~EstadoPartida~
-        +ganador(EstadoPartida, ContextoDeJugada) Optional~Bando~
-        +limiteDeJugadas() Optional~Integer~
-        +marcador(List~Jugada~) Optional~Marcador~
+        +evaluate(MoveContext) Optional~GameState~
+        +winner(GameState, MoveContext) Optional~Side~
+        +moveLimit() Optional~Integer~
+        +scoreboard(List~Move~) Optional~Scoreboard~
     }
-    class CondicionConMemoria {
+    class StatefulCondition {
         <<interface>>
-        +registrar(ContextoDeJugada) Recuerdo
-        +restaurar(Recuerdo)
+        +register(MoveContext) Memento
+        +restore(Memento)
     }
-    class Recuerdo {
+    class Memento {
         <<interface>>
     }
-    class JaqueMate
-    class Ahogado
-    class VictoriaPorGoles
-    class TablasPorRepeticion
-    class TablasPorReglaDeLos50Movimientos
+    class Checkmate
+    class Stalemate
+    class GoalsVictory {
+        -goalsToWin int
+        -movesMaximum int
+    }
+    class RepetitionDraw
+    class FiftyMoveRuleDraw
 
-    class ContextoDeJugada {
+    class MoveContext {
         <<record>>
-        +tablero ITablero
-        +turno Bando
-        +jugadas List~Jugada~
-        +enJaque boolean
-        +tieneMovimientosLegales boolean
+        +board IBoard
+        +turn Side
+        +moves List~Move~
+        +inCheck boolean
+        +hasMovementsLegal boolean
     }
 
-    class Marcador {
+    class Scoreboard {
         <<record>>
-        +blancas int
-        +negras int
-        +de(List~Jugada~)$ Marcador
+        +white int
+        +black int
+        +de(List~Move~)$ Scoreboard
+        +leader() Optional~Side~
     }
 
-    class EstadoPartida {
+    class GameState {
         <<enumeration>>
-        EN_CURSO
-        JAQUE
-        JAQUE_MATE
-        TABLAS_AHOGADO
-        TABLAS_REPETICION
-        TABLAS_REGLA_50_MOVIMIENTOS
-        RENDICION
-        TIEMPO_AGOTADO
-        TABLAS_ACUERDO
-        VICTORIA_POR_GOLES
-        TABLAS_EMPATE_EN_GOLES
+        IN_PROGRESS
+        CHECK
+        CHECK_MATE
+        DRAW_STALEMATE
+        DRAW_REPETITION
+        DRAW_RULE_50_MOVEMENTS
+        RESIGNATION
+        TIME_EXHAUSTED
+        DRAW_AGREEMENT
+        VICTORY_BY_GOALS
+        DRAW_TIED_ON_GOALS
     }
-    class MotivoFinalizacion {
+    class FinishReason {
         <<enumeration>>
     }
 
-    ReglasDePartida *-- MovimientosLegales
-    ReglasDePartida *-- "1..*" CondicionDeFinalizacion
-    MovimientosLegales o-- IDetectorDeJaque
-    MovimientosLegales o-- "0..*" ReglaEspecial
-    IDetectorDeJaque <|.. DetectorDeJaque
+    GameRules *-- LegalMoves
+    GameRules *-- "1..*" EndCondition
+    LegalMoves o-- ICheckDetector
+    LegalMoves o-- "0..*" SpecialRule
+    ICheckDetector <|.. CheckDetector
 
-    ReglaEspecial <|.. Enroque
-    ReglaEspecial <|.. CapturaAlPaso
-    ReglaEspecial <|.. Promocion
-    ReglaEspecial <|.. ReglaDeLaPelota
+    SpecialRule <|.. Castling
+    SpecialRule <|.. EnPassant
+    SpecialRule <|.. Promotion
+    SpecialRule <|.. BallRule
 
-    CondicionDeFinalizacion <|.. JaqueMate
-    CondicionDeFinalizacion <|.. Ahogado
-    CondicionDeFinalizacion <|.. VictoriaPorGoles
-    CondicionDeFinalizacion <|-- CondicionConMemoria
-    CondicionConMemoria <|.. TablasPorRepeticion
-    CondicionConMemoria <|.. TablasPorReglaDeLos50Movimientos
-    CondicionConMemoria ..> Recuerdo : crea y restaura
-    CondicionDeFinalizacion ..> ContextoDeJugada : evalúa
-    CondicionDeFinalizacion ..> EstadoPartida
-    EstadoPartida --> MotivoFinalizacion
-    VictoriaPorGoles ..> Marcador
+    EndCondition <|.. Checkmate
+    EndCondition <|.. Stalemate
+    EndCondition <|.. GoalsVictory
+    EndCondition <|-- StatefulCondition
+    StatefulCondition <|.. RepetitionDraw
+    StatefulCondition <|.. FiftyMoveRuleDraw
+    StatefulCondition ..> Memento : crea y restaura
+    EndCondition ..> MoveContext : evalúa
+    EndCondition ..> GameState
+    GameState --> FinishReason
+    GoalsVictory ..> Scoreboard
 ```
 
 ## Las dos combinaciones que existen hoy
 
 | Fábrica | Reglas especiales (en orden) | Condiciones de fin |
 |---|---|---|
-| `ReglasDePartida.clasicas()` | `Enroque`, `CapturaAlPaso`, `Promocion` | `JaqueMate`, `Ahogado`, `TablasPorRepeticion`, `TablasPorReglaDeLos50Movimientos` |
-| `ReglasDePartida.futbol(n)` | las clásicas + `ReglaDeLaPelota` (después de `Promocion`) | `JaqueMate`, `VictoriaPorGoles(3, n)`, `Ahogado`, `TablasPorRepeticion`, `TablasPorReglaDeLos50Movimientos` |
+| `GameRules.classic()` | `Castling`, `EnPassant`, `Promotion` | `Checkmate`, `Stalemate`, `RepetitionDraw`, `FiftyMoveRuleDraw` |
+| `GameRules.football(n)` | las clásicas + `BallRule` (después de `Promotion`) | `Checkmate`, `GoalsVictory(3, n)`, `Stalemate`, `RepetitionDraw`, `FiftyMoveRuleDraw` |
 
-Una regla nueva es una clase nueva que se agrega a una de estas listas. No hace falta tocar
-`Partida` ni `MovimientosLegales`.
+Una regla nueva es una clase nueva que se agrega a una de estas listas. No hace falta tocar `Game`
+ni `LegalMoves`.

@@ -1,6 +1,6 @@
 package adapters.ui;
 
-import core.ia.Difficulty;
+import core.ai.Difficulty;
 import adapters.audio.VolumeControl;
 import adapters.configuration.GameConfiguration;
 import adapters.configuration.GameConfiguration.*;

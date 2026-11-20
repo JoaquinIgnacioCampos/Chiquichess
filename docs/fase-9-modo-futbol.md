@@ -39,57 +39,57 @@ los pases.
 
 ### 1. Núcleo
 
-- `Tablero` guarda la **cancha**: la casilla de la pelota (`pelota()`, `colocarPelota()`) y las
-  casillas de los arcos con el bando que defiende cada una (`arcoEn()`, `marcarArco()`). Las dos
-  consultas están en `ITablero`. En el ajedrez clásico están vacías. `copiar()` las copia.
-- `MoverPelota(desde, hacia, gol)` es el cuarto `Efecto`, junto a `Traslado`, `Retiro` y `Reemplazo`.
+- `Board` guarda la **cancha**: la casilla de la pelota (`ball()`, `placeBall()`) y las
+  casillas de los arcos con el bando que defiende cada una (`netIn()`, `markNet()`). Las dos
+  consultas están en `IBoard`. En el ajedrez clásico están vacías. `copy()` las copia.
+- `MoveBall(from, toward, goal)` es el cuarto `Effect`, junto a `Transfer`, `Removal` y `Replacement`.
   En un gol la pelota va directo al saque y el efecto queda marcado con `gol = true`.
-  `Jugada.esGol()` lo consulta.
-- `ReglaDeLaPelota` es una `ReglaEspecial` (Strategy):
-  - No suma jugadas: en `transformar` le agrega un `MoverPelota` a cada jugada que toca la pelota,
-    igual que `Promocion` le agrega un `Reemplazo`.
-  - `prepararCancha(tablero)` marca los arcos (columnas d y e de cada fila de fondo) y pone la pelota
+  `Move.isGoal()` lo consulta.
+- `BallRule` es una `SpecialRule` (Strategy):
+  - No suma jugadas: en `transform` le agrega un `MoveBall` a cada jugada que toca la pelota,
+    igual que `Promotion` le agrega un `Replacement`.
+  - `preparePitch(board)` marca los arcos (columnas d y e de cada fila de fondo) y pone la pelota
     en el saque inicial. Después, para saber si hubo gol, la regla lee los arcos del tablero.
-  - Conoce los saques. Va después de `Promocion` para ver la pieza promovida.
-- `VictoriaPorGoles` es una `CondicionDeFinalizacion` sin estado: 3 goles, o más goles al llegar al
+  - Conoce los saques. Va después de `Promotion` para ver la pieza promovida.
+- `GoalsVictory` es una `EndCondition` sin estado: 3 goles, o más goles al llegar al
   límite de jugadas.
-- **El límite de jugadas.** `CondicionDeFinalizacion` suma `limiteDeJugadas()`, vacío por defecto.
-  `VictoriaPorGoles` devuelve el suyo y `Partida.limiteDeJugadas()` lo expone, para que la interfaz
-  muestre "Jugada 12 de 40". `ReglasDePartida.futbol(limite)` arma las reglas con ese límite;
-  `futbol()` usa 90.
-- `Marcador` cuenta los goles de cada bando en las jugadas ejecutadas. `Partida.marcador()` lo expone.
-- **Quién gana.** `CondicionDeFinalizacion` suma `ganador(estado, contexto)`.
+- **El límite de jugadas.** `EndCondition` suma `moveLimit()`, vacío por defecto.
+  `GoalsVictory` devuelve el suyo y `Game.moveLimit()` lo expone, para que la interfaz
+  muestre "Jugada 12 de 40". `GameRules.football(moveLimit)` arma las reglas con ese límite;
+  `football()` usa 90.
+- `Scoreboard` cuenta los goles de cada bando en las jugadas ejecutadas. `Game.scoreboard()` lo expone.
+- **Quién gana.** `EndCondition` suma `winner(state, context)`.
   - Por defecto gana el que acaba de mover, como en el jaque mate, así que las condiciones que ya
     existían no cambian.
-  - `VictoriaPorGoles` lo redefine: gana el que tiene más goles.
-  - `Partida` le pide el ganador a la condición que terminó la partida.
-- `EstadoPartida` suma `VICTORIA_POR_GOLES` y `TABLAS_EMPATE_EN_GOLES`, con los motivos `GOLES` y
-  `EMPATE_EN_GOLES`.
-- `HuellaDePosicion` incluye la casilla de la pelota.
-- `ReglasDePartida.futbol()` arma las reglas: las especiales clásicas más la pelota. Las condiciones
+  - `GoalsVictory` lo redefine: gana el que tiene más goles.
+  - `Game` le pide el ganador a la condición que terminó la partida.
+- `GameState` suma `VICTORY_BY_GOALS` y `DRAW_TIED_ON_GOALS`, con los motivos `GOALS` y
+  `TIED_ON_GOALS`.
+- `PositionFingerprint` incluye la casilla de la pelota.
+- `GameRules.football()` arma las reglas: las especiales clásicas más la pelota. Las condiciones
   son, en orden: mate, goles, ahogado, repetición y 50 movimientos.
-- `DisposicionDeFutbol` (Decorator) marca la cancha sobre otra disposición inicial.
+- `FootballLayout` (Decorator) marca la cancha sobre otra disposición inicial.
 - **El pase.**
-  - `Pase(pasador, desde, receptor, hacia)` es un `Efecto` nuevo: verifica que las dos piezas sigan en
-    su lugar y mueve la pelota. Si es gol, la jugada le suma un `MoverPelota` al saque, como un gol
+  - `Pass(passer, from, receiver, toward)` es un `Effect` nuevo: verifica que las dos piezas sigan en
+    su lugar y mueve la pelota. Si es gol, la jugada le suma un `MoveBall` al saque, como un gol
     llevando la pelota.
-  - `Jugada` ahora acepta jugadas que mueven la pieza de origen **o** son un pase desde ahí.
-    `piezaMovida()` devuelve al que pasa y `esPase()` las distingue.
-  - `ReglaDeLaPelota.jugadas()` genera los pases de quien tiene la pelota. Para saber a quién llega,
+  - `Move` ahora acepta jugadas que mueven la pieza de origen **o** son un pase desde ahí.
+    `pieceMoved()` devuelve al que pasa y `isPass()` las distingue.
+  - `BallRule.moves()` genera los pases de quien tiene la pelota. Para saber a quién llega,
     pone un rival de mentira en la casilla del compañero, en una copia del tablero, y pregunta si la
     pieza lo podría capturar. Así cada pieza pasa con su propio movimiento de captura, sin repetir
     las reglas de movimiento.
-  - `Promocion` ignora los pases (el peón no se mueve) y la regla de los 50 movimientos no cuenta el
+  - `Promotion` ignora los pases (el peón no se mueve) y la regla de los 50 movimientos no cuenta el
     pase de un peón como un avance de peón.
 
 ### 2. Menú, ensamblado y consola
 
-- `ConfiguracionPartida.Modo` suma `FUTBOL`. El menú ofrece "Fútbol · Posesión y gol".
-- `ConfiguracionPartida` suma `limiteDeJugadas` (de 10 a 400, por defecto 90). En el menú, la sección
+- `GameConfiguration.Mode` suma `FUTBOL`. El menú ofrece "Fútbol · Posesión y gol".
+- `GameConfiguration` suma `moveLimit` (de 10 a 400, por defecto 90). En el menú, la sección
   "LÍMITE DE JUGADAS (FÚTBOL)" tiene un campo numérico con flechas que solo se habilita en el modo
   fútbol. Un número fuera de rango se ajusta al extremo y un texto que no es número se descarta. La
   revancha conserva el límite.
-- `EnsambladorPartida` elige las reglas y la disposición según el modo, con el límite elegido.
+- `GameAssembler` elige las reglas y la disposición según el modo, con el límite elegido.
 - **Consola:**
   - `Main futbol` juega el modo fútbol; `Main futbol 60`, con límite de 60. Sin argumentos, el clásico.
   - El tablero dibuja la pelota suelta con `o`, marca con `*` a la pieza que la lleva (`T*`) y dibuja
@@ -99,16 +99,16 @@ los pases.
 
 ### 3. Interfaz
 
-- `VistaTablero` dibuja la pelota como un círculo blanco: grande en el centro si está suelta, chica
+- `BoardView` dibuja la pelota como un círculo blanco: grande en el centro si está suelta, chica
   en una esquina si una pieza la lleva.
-- `VistaTablero` dibuja el arco como una red: un velo claro con líneas cruzadas y una línea de gol
+- `BoardView` dibuja el arco como una red: un velo claro con líneas cruzadas y una línea de gol
   blanca y gruesa del lado del borde del tablero. Va debajo de la pieza, así no la tapa.
 - Para pasar se hace clic en la pieza con la pelota y después en el compañero. Los compañeros que
   pueden recibir se marcan con un anillo blanco punteado, distinto del anillo de captura.
 - El panel muestra "BLANCAS 1 - 0 NEGRAS" y "Jugada 12 de 90" (con el límite elegido), y anuncia
   "¡GOL!" en el estado.
   La modalidad dice "Partida local · Fútbol: posesión y gol".
-- `ControladorTablero.marcador()` está vacío en el ajedrez clásico; así el panel sabe si mostrar los
+- `BoardController.scoreboard()` está vacío en el ajedrez clásico; así el panel sabe si mostrar los
   goles.
 
 ## Por qué
@@ -116,11 +116,11 @@ los pases.
 - **La pelota vive en el tablero.** "Llevar la pelota" significa estar parado en su casilla. Con eso
   salen solas tres reglas: tomarla al terminar ahí, quitársela al capturar y no tomarla al pasar por
   encima. No hace falta guardar quién la tiene.
-- **El gol es un efecto de la jugada (Command).** Como `MoverPelota` es un efecto más, deshacer y
+- **El gol es un efecto de la jugada (Command).** Como `MoveBall` es un efecto más, deshacer y
   rehacer un gol no necesitó código nuevo.
 - **El marcador se cuenta en el historial, sin Memento.** Cada gol ya está guardado en su jugada.
   Contarlo de nuevo es simple y siempre coincide con el historial, también al deshacer.
-  `VictoriaPorGoles` no necesita memoria propia.
+  `GoalsVictory` no necesita memoria propia.
 - **Los arcos viven en el tablero, como la pelota.** La regla los marca una vez y después los lee;
   la vista y la consola dibujan lo que tiene el tablero. Así la regla y el dibujo no pueden mostrar
   arcos distintos, y la vista no necesita conocer las reglas.
@@ -130,34 +130,34 @@ los pases.
   reglas: en jaque no se puede pasar (el pase no saca al rey del jaque), un pase cuenta como jugada
   legal para el ahogado, y pasarse la pelota de ida y vuelta lleva a tablas por repetición.
 - **El límite lo informa la condición.** La interfaz no sabe qué condición termina la partida: le
-  pregunta a `Partida` si hay un límite de jugadas. Si mañana otra condición tiene un límite, se
+  pregunta a `Game` si hay un límite de jugadas. Si mañana otra condición tiene un límite, se
   muestra igual.
-- **La condición dice quién gana.** Antes `Partida` asumía que ganaba el que acababa de mover. Al llegar al
+- **La condición dice quién gana.** Antes `Game` asumía que ganaba el que acababa de mover. Al llegar al
   límite de jugadas puede ganar el que tiene el turno, así que esa decisión pasó a la condición. El valor por
   defecto conserva el comportamiento anterior.
-- **El modo es otro juego de reglas, no un `if` en `Partida`.** Todo lo del fútbol entra por las
+- **El modo es otro juego de reglas, no un `if` en `Game`.** Todo lo del fútbol entra por las
   extensiones que ya existían: una regla especial, una condición de fin, un efecto y una disposición.
-  `Partida` solo cambió para que la condición elija al ganador.
+  `Game` solo cambió para que la condición elija al ganador.
 - **La huella incluye la pelota.** Sin eso, dos posiciones con la pelota en lugares distintos
   contarían como repetidas.
 
 ## Cuándo se rompería
 
-- **`ReglaDeLaPelota` tiene que ir después de `Promocion`.** Si va antes, un peón que promueve en el
+- **`BallRule` tiene que ir después de `Promotion`.** Si va antes, un peón que promueve en el
   arco no tiene todavía la pieza nueva y el gol no se detecta bien.
 - **Un tablero con pelota pero sin arcos marcados nunca tiene gol.** Hay que armarlo con
-  `DisposicionDeFutbol` o llamar a `prepararCancha`; poner solo la pelota no alcanza.
-- **Los arcos y los saques son de 8x8.** `new ReglaDeLaPelota()` usa d/e y d4/d5. Para otro tablero
+  `FootballLayout` o llamar a `preparePitch`; poner solo la pelota no alcanza.
+- **Los arcos y los saques son de 8x8.** `new BallRule()` usa d/e y d4/d5. Para otro tablero
   hay que pasarlos por el constructor.
 - **Los goles para ganar (3) no se eligen.** Solo el límite de jugadas es configurable.
 - **El pase depende de que el movimiento de captura de cada pieza no mire qué pieza captura.** El
   rival de mentira es un peón. Si una pieza nueva solo pudiera capturar ciertas piezas, habría que
-  revisar `ReglaDeLaPelota.alcanza`.
+  revisar `BallRule.reaches`.
 - **Un pase desde la casilla inicial del rey no le quita el enroque**, porque el rey no se movió.
 
 ## Pruebas
 
-- **Núcleo:** `ReglaDeLaPelotaTest`, `VictoriaPorGolesTest` y `MoverPelotaTest`. Cubren:
+- **Núcleo:** `BallRuleTest`, `GoalsVictoryTest` y `MoveBallTest`. Cubren:
   - Tomar, arrastrar y pasar por encima de la pelota.
   - El robo, también en la captura al paso.
   - Los goles de cada bando, el rey que no hace gol, la promoción con gol y el saque ocupado.
@@ -166,11 +166,11 @@ los pases.
   - La huella y el marcador.
   - La cancha: los arcos marcados, que sin ellos no hay gol, y el límite que eligió quien armó las
     reglas.
-  - `PaseTest`: el rey que se libra de la pelota, la torre con camino libre o tapado, el caballo
+  - `PassTest`: el rey que se libra de la pelota, la torre con camino libre o tapado, el caballo
     por arriba, el peón solo en diagonal hacia adelante, el pase al arco (gol, salvo al rey), sin
     pase en jaque, el peón que pasa desde la séptima sin promover, deshacer un pase y que solo pasa
     quien tiene la pelota.
-  - El efecto `Pase`, la huella y la regla de los 50 con un pase de peón.
+  - El efecto `Pass`, la huella y la regla de los 50 con un pase de peón.
 - **Adaptadores:**
   - El ensamblado según el modo y el límite.
   - El modo y el límite en el menú: se habilita solo en fútbol, viaja en la configuración, se ajusta

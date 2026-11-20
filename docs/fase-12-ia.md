@@ -46,7 +46,7 @@ Las tres usan el mismo buscador. Cambian en cuánto piensan y en cuánto se equi
 
 ## El tiempo de respuesta
 
-La IA tarda en mover lo que tardaría una persona de su nivel (`RitmoHumano`), en la ventana y en la
+La IA tarda en mover lo que tardaría una persona de su nivel (`HumanRhythm`), en la ventana y en la
 consola. El fácil y el medio calculan lo de siempre y esperan el resto; **el difícil calcula todo ese
 tiempo**, y por eso mira más hondo que antes (cuando calculaba 1,5 s).
 
@@ -73,37 +73,37 @@ No hay una opción para que la IA juegue al instante: para eso está jugar sin t
 
 ## Qué
 
-### 1. Núcleo (`Nucleo.ia`)
+### 1. Núcleo (`core.ai`)
 
 | Clase | Qué hace |
 |---|---|
-| `SituacionDePartida` | Lo que la IA necesita: copia del tablero, turno, jugadas hechas y reglas. La da `Partida.situacion()`. Vive en `Nucleo.juego` (se movió después) para que la partida no dependa del paquete de la IA. |
-| `BuscadorMinimax` | Negamax con alfa-beta, profundización iterativa y quietud. |
-| `EvaluadorDePosicion` | El puntaje de una posición. El material lo da `Pieza.valor()` (se movió después desde el evaluador, que lo decidía por la letra de la pieza). |
-| `Dificultad` | Profundidad, tiempo, error y quietud de cada nivel. |
-| `EstrategiaDeJuego` | Interfaz (Strategy): elegir jugada y responder tablas. |
-| `JugadorArtificial` | La implementación: busca según la dificultad, elige con el error y dice cuánto tardar (`decidir`). El azar y el tiempo se inyectan. |
-| `RitmoHumano` | Función pura: cuánto tardaría una persona de ese nivel en responder. |
-| `DecisionDeJuego` | La jugada elegida y su tiempo de respuesta. |
+| `GameSituation` | Lo que la IA necesita: copia del tablero, turno, jugadas hechas y reglas. La da `Game.situation()`. Vive en `core.game` (se movió después) para que la partida no dependa del paquete de la IA. |
+| `MinimaxSearcher` | Negamax con alfa-beta, profundización iterativa y quietud. |
+| `PositionEvaluator` | El puntaje de una posición. El material lo da `Piece.value()` (se movió después desde el evaluador, que lo decidía por la letra de la pieza). |
+| `Difficulty` | Profundidad, tiempo, error y quietud de cada nivel. |
+| `GameStrategy` | Interfaz (Strategy): elegir jugada y responder tablas. |
+| `ArtificialPlayer` | La implementación: busca según la dificultad, elige con el error y dice cuánto tardar (`decide`). El azar y el tiempo se inyectan. |
+| `HumanRhythm` | Función pura: cuánto tardaría una persona de ese nivel en responder. |
+| `GameDecision` | La jugada elegida y su tiempo de respuesta. |
 
-- `Movimiento.de(jugada)` convierte la jugada elegida en el movimiento que se le pide a la partida.
+- `MoveRequest.de(move)` convierte la jugada elegida en el movimiento que se le pide a la partida.
 - **Los finales los deciden las reglas.** El buscador usa las mismas condiciones de fin que la
   partida (jaque mate, ahogado, victoria por goles): por eso sirve igual para el clásico y el fútbol,
   sin casos especiales. Las que guardan memoria (repetición, 50 movimientos) no se miran al buscar.
 
 ### 2. Adaptadores
 
-- **`RivalArtificial`** (sin JavaFX): la IA sentada a la mesa. Juega con `Partida.mover` como una
+- **`ArtificialRival`** (sin JavaFX): la IA sentada a la mesa. Juega con `Game.move` como una
   persona, responde las ofertas de tablas y deshace y rehace de a dos jugadas.
 - **Ventana:**
-  - `TurnoDeLaIa` hace pensar a la IA en otro hilo, espera su tiempo de respuesta y juega en el de la
+  - `AiTurn` hace pensar a la IA en otro hilo, espera su tiempo de respuesta y juega en el de la
     interfaz. Si la partida cambia
     mientras piensa (deshacer, tiempo, volver al menú), lo pensado se descarta.
-  - `ControladorTablero` no deja tocar las piezas mientras le toca a la IA, ni rendirse u ofrecer
+  - `BoardController` no deja tocar las piezas mientras le toca a la IA, ni rendirse u ofrecer
     tablas en su nombre.
   - El panel muestra "IA PENSANDO…" y la tarjeta de la IA no tiene botones activos.
   - Menú: "IA · la computadora" y la dificultad, que es obligatoria contra la IA.
-- **Consola:** `ia` como argumento, con `facil`, `medio` o `dificil` (por defecto, medio). Por
+- **Consola:** `ai` como argumento, con `facil`, `medio` o `dificil` (por defecto, medio). Por
   ejemplo: `futbol 60 ia dificil`. La IA juega con negras, la consola espera su tiempo de respuesta
   ("pensando...") y muestra su jugada.
 - La IA es el Jugador 2: usa su equipo y se llama "IA (medio)", según la dificultad.
@@ -119,12 +119,12 @@ No hay una opción para que la IA juegue al instante: para eso está jugar sin t
 ## Por qué
 
 - **La búsqueda va en el núcleo** porque es lógica del juego: sabe de reglas, no de pantallas. Los
-  adaptadores solo conocen la interfaz `EstrategiaDeJuego`.
-- **Busca sobre una copia y nunca sobre `Partida`.** Si imaginara jugadas en la partida real,
+  adaptadores solo conocen la interfaz `GameStrategy`.
+- **Busca sobre una copia y nunca sobre `Game`.** Si imaginara jugadas en la partida real,
   cada una dispararía eventos: sonaría la hinchada y se movería la pantalla. Además, la copia permite
   pensar en otro hilo sin que la interfaz vea estados a medias.
 - **Aplicar y deshacer en vez de copiar.** Cada jugada imaginada se aplica y se deshace con sus
-  `Efecto` (el Command de la fase 3) sobre el mismo tablero copiado, sin copiarlo de nuevo.
+  `Effect` (el Command de la fase 3) sobre el mismo tablero copiado, sin copiarlo de nuevo.
 - **El azar y el tiempo inyectados**, como el sorteo y el reloj: los tests son repetibles.
 - **Un único buscador para las tres dificultades.** Un fácil totalmente al azar regala piezas sin
   sentido; con el mismo buscador, cada nivel juega "bien para su nivel".
@@ -151,7 +151,7 @@ Medido haciendo jugar a la IA contra sí misma 40 jugadas:
 - La primera versión miraba ~17.000 posiciones por segundo: verificaba que todas las jugadas fueran
   legales antes de probarlas, incluso las que la poda después descarta.
 - Verificar la legalidad recién al probar cada jugada, y cambiar streams por ciclos en las consultas
-  de `Jugada` y en el detector de jaque, la llevó a ~80.000 por segundo.
+  de `Move` y en el detector de jaque, la llevó a ~80.000 por segundo.
 - Lo que más cuesta ahora es el modelo del tablero (un mapa de posiciones) y que cada pieza calcule
   sus casillas atacadas en un conjunto nuevo. Si hiciera falta un difícil más fuerte, ese es el
   próximo paso: representar el tablero con un arreglo.
@@ -167,7 +167,7 @@ Medido haciendo jugar a la IA contra sí misma 40 jugadas:
 
 ## Pruebas
 
-- `JugadorArtificialTest` (núcleo):
+- `ArtificialPlayerTest` (núcleo):
   - todas las dificultades ven el mate en 1;
   - el medio da mate en 2 aunque el rival se defienda lo mejor posible;
   - el fácil se come una dama sin defensa y el medio no deja su dama atacada;
@@ -178,15 +178,15 @@ Medido haciendo jugar a la IA contra sí misma 40 jugadas:
   - pensar no toca la partida ni dispara eventos;
   - tablas solo si va claramente perdiendo; sin jugadas no elige; la promoción lleva la pieza.
   - El tiempo es falso: los resultados no dependen de la velocidad de la máquina.
-- `RitmoHumanoTest`: el rango de cada dificultad, el principiante más rápido que el fuerte, la jugada
+- `HumanRhythmTest`: el rango de cada dificultad, el principiante más rápido que el fuerte, la jugada
   forzada, el jaque con pocas salidas, la apertura, el límite del reloj y la duda.
-- `JugadorArtificialTest` también: con una sola jugada responde en ~1 s, y el difícil tarda lo de su
+- `ArtificialPlayerTest` también: con una sola jugada responde en ~1 s, y el difícil tarda lo de su
   rango.
-- `RivalArtificialTest`: juega solo en su turno, la fracción del reloj, deshacer y rehacer de a dos,
+- `ArtificialRivalTest`: juega solo en su turno, la fracción del reloj, deshacer y rehacer de a dos,
   respuesta a las tablas.
-- `TurnoDeLaIaTest` (sin hilos de verdad): empieza si juega con blancas, responde a cada jugada,
+- `AiTurnTest` (sin hilos de verdad): empieza si juega con blancas, responde a cada jugada,
   descarta lo pensado si la partida cambió y no juega después de cerrarse.
-- `PartidaContraLaIaEnLaVistaTest`: el tablero no responde en el turno de la IA, nadie se rinde ni
+- `GameAgainstAiInViewTest`: el tablero no responde en el turno de la IA, nadie se rinde ni
   ofrece tablas en su nombre, deshacer vuelve al turno de la persona, el panel dice "IA PENSANDO…".
 - Menú, ensamblado y consola: la dificultad es obligatoria contra la IA y viaja en la configuración;
   la IA es el Jugador 2 con su color y su nombre; en la consola juega sola y deshacer vuelve al turno

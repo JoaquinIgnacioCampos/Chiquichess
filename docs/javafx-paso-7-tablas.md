@@ -10,9 +10,9 @@ Aceptar termina por acuerdo, sin ganador. Rechazar elimina la oferta y permite s
 
 ## Conexión
 
-`ControladorTablero` delega `ofrecerTablas`, `aceptarTablas`, `rechazarTablas` y `ofertaTablasPendiente` a `Partida`; los rechazos conservan sus motivos tipados. No se modificaron reglas ni clases del núcleo en este paso.
+`BoardController` delega `offerDraw`, `acceptDraw`, `rejectDraw` y `offerDrawPending` a `Game`; los rechazos conservan sus motivos tipados. No se modificaron reglas ni clases del núcleo en este paso.
 
-`PanelEstadoPartida` presenta la oferta vigente del núcleo. `TarjetaJugador` conserva únicamente qué confirmación se está mostrando. `ConfirmacionAccionJavaFx` reemplaza el componente específico de rendición para reutilizar el estilo en los tres paneles. Las conexiones se hacen desde `AplicacionAjedrez`, mediante `VistaPartida.configurarRendicion()` y `configurarTablas()`.
+`GameStatePanel` presenta la oferta vigente del núcleo. `PlayerCard` conserva únicamente qué confirmación se está mostrando. `JavaFxActionConfirmation` reemplaza el componente específico de rendición para reutilizar el estilo en los tres paneles. Las conexiones se hacen desde `ChessApplication`, mediante `GameView.configureResignation()` y `configureDraw()`.
 
 ## Verificación
 

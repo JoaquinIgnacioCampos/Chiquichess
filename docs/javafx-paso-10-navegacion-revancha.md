@@ -12,9 +12,9 @@ La partida nueva empieza con tablero inicial, turno de blancas, historial vacío
 
 ## Responsabilidades
 
-`NavegacionPartida` presenta botones y confirmación y consulta el estado del núcleo para habilitar la revancha. `VistaPartida` integra la cabecera, el cuadro y el manejo de Escape. `PanelEstadoPartida` aloja el botón de revancha.
+`GameNavigation` presenta botones y confirmación y consulta el estado del núcleo para habilitar la revancha. `GameView` integra la cabecera, el cuadro y el manejo de Escape. `GameStatePanel` aloja el botón de revancha.
 
-`AplicacionAjedrez` recibe las solicitudes, crea pantallas y partidas y centraliza `cerrarPartidaActual`. `PartidaConfigurada` conserva el puerto `RelojPartida` usado durante el ensamblado e implementa `AutoCloseable`: su cierre detiene ese reloj sin inventar un resultado de ajedrez. Cerrar la ventana o detener la aplicación también libera ambos relojes/actualizadores de forma idempotente. No se modificó el núcleo.
+`ChessApplication` recibe las solicitudes, crea pantallas y partidas y centraliza `closeCurrentGame`. `ConfiguredGame` conserva el puerto `GameClock` usado durante el ensamblado e implementa `AutoCloseable`: su cierre detiene ese reloj sin inventar un resultado de ajedrez. Cerrar la ventana o detener la aplicación también libera ambos relojes/actualizadores de forma idempotente. No se modificó el núcleo.
 
 ## Verificación
 

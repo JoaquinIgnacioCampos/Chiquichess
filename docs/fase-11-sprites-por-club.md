@@ -4,17 +4,17 @@
 
 Cada club tiene su propio juego de piezas, con una versión blanca y otra negra de cada una.
 
-- `RepresentacionPiezas` pasó a ser una interfaz. El dibujo con símbolos siguió como `RepresentacionUnicode`.
-- `CatalogoSprites` busca las imágenes de un club y las carga una sola vez.
-- `RepresentacionConSprites` usa el catálogo del club de cada bando. Si no encuentra el archivo, delega en
-  `RepresentacionUnicode`.
-- `AplicacionAjedrez` arma esa representación con los equipos ya asignados por color, así que la revancha
+- `PieceRepresentation` pasó a ser una interfaz. El dibujo con símbolos siguió como `UnicodeRepresentation`.
+- `SpriteCatalog` busca las imágenes de un club y las carga una sola vez.
+- `SpriteRepresentation` usa el catálogo del club de cada bando. Si no encuentra el archivo, delega en
+  `UnicodeRepresentation`.
+- `ChessApplication` arma esa representación con los equipos ya asignados por color, así que la revancha
   cambia los sprites junto con los colores.
 
 ## Archivos
 
 Van en `src/main/resources/sprites/<club>/`, donde `<club>` es `boca`, `river`, `independiente` o `argentina` (el nombre de
-su constante de `Equipo` en minúsculas).
+su constante de `Team` en minúsculas).
 Cada carpeta lleva estos 12 archivos:
 
 | Pieza | Versión blanca | Versión negra |
@@ -37,16 +37,16 @@ Recomendaciones para las imágenes:
 
 ## Por qué
 
-- **El núcleo no cambia.** Una `Pieza` no sabe de clubes: el equipo por color se conoce en el ensamblado.
+- **El núcleo no cambia.** Una `Piece` no sabe de clubes: el equipo por color se conoce en el ensamblado.
 - **Dos versiones por pieza.** Un club puede jugar con cualquier color, y el color tiene que seguir siendo
   evidente aunque los dos clubes compartan colores.
 - **Respaldo Unicode.** Permite sumar los sprites de a poco, y una pieza sin imagen sigue siendo jugable.
-- **Las imágenes se reutilizan.** `VistaTablero` reconstruye sus casillas en cada redibujado; cada una crea
+- **Las imágenes se reutilizan.** `BoardView` reconstruye sus casillas en cada redibujado; cada una crea
   un `ImageView` nuevo sobre la misma `Image`.
 
 ## Cuándo se rompería
 
 - Un archivo con el nombre mal escrito no da error: la pieza aparece con su símbolo Unicode.
-- Una pieza nueva necesita su entrada en `CatalogoSprites`. Hasta entonces usa el respaldo.
-- Un club nuevo necesita su carpeta, con el nombre de su constante de `Equipo` en minúsculas.
+- Una pieza nueva necesita su entrada en `SpriteCatalog`. Hasta entonces usa el respaldo.
+- Un club nuevo necesita su carpeta, con el nombre de su constante de `Team` en minúsculas.
 - Para elegir entre piezas clásicas y de club haría falta una opción en el menú.

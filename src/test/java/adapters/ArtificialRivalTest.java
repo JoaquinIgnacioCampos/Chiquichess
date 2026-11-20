@@ -53,7 +53,7 @@ class ArtificialRivalTest {
         ia.think(game.situation(), Optional.of(Duration.ofSeconds(60)));
 
         // Assert
-        assertEquals(Duration.ofSeconds(60).dividedBy(core.ia.HumanRhythm.REMAINING_TIME_FRACTION),
+        assertEquals(Duration.ofSeconds(60).dividedBy(core.ai.HumanRhythm.REMAINING_TIME_FRACTION),
                 strategy.timesReceived.getFirst());
     }
 
