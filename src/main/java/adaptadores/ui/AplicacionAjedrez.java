@@ -49,6 +49,7 @@ public class AplicacionAjedrez extends Application {
     private final CatalogoDeSonidos catalogoDeSonidos = new CatalogoDeSonidos();
     private ReproductorDeAudio reproductor;
     private SonidosDelMenu sonidosDelMenu;
+    private PantallaDeIntro intro;
     /** Lo que muestra elegido el menú: la partida habitual al abrir, y después lo último que se jugó. */
     private SeleccionDelMenu seleccionDelMenu = SeleccionDelMenu.habitual();
     /** Opciones y sonido guardados entre una vez y la otra, en la carpeta desde la que se abre el juego. */
@@ -63,19 +64,26 @@ public class AplicacionAjedrez extends Application {
         volumen.silenciar(guardadas.silenciado());
         reproductor = new ReproductorJavaSound();
         sonidosDelMenu = new SonidosDelMenu(catalogoDeSonidos, reproductor, volumen);
-        VistaMenuPartida menu = nuevoMenu(ventana);
         ventana.setTitle("ChiquiChess");
         // El personaje de la portada también es el ícono de la ventana y de la barra de tareas.
         ventana.getIcons().add(new Image("/personaje/chiquichess.png"));
-        ventana.setScene(new Scene(menu));
-        ventana.getScene().getRoot().setStyle(ventana.getScene().getRoot().getStyle() + EstiloPixel.familiaCss());
+        // Arranca con la intro: video, logo y un botón para comenzar, que lleva al menú.
+        intro = new PantallaDeIntro(TemaPanel.marcador(), volumen, () -> entrarAlMenu(ventana));
+        ventana.setScene(new Scene(intro));
         ajustarAPantalla(ventana, Screen.getPrimary().getVisualBounds());
         ventana.setOnHidden(evento -> cerrarPartidaActual());
         // Arranca maximizada; el tamaño calculado queda para cuando se restaura.
         ventana.setMaximized(true);
         ventana.show();
         BarraDeTituloWindows.pintar(ventana, TemaPanel.marcador().fondo(), TemaPanel.marcador().texto());
-        // Al abrir el juego, y solo entonces: el personaje se ríe y se balancea.
+        intro.reproducir();
+    }
+
+    /** Al tocar "Comenzar": el menú, con la risa y el balanceo del personaje que se dan al abrir el juego. */
+    private void entrarAlMenu(Stage ventana) {
+        VistaMenuPartida menu = nuevoMenu(ventana);
+        menu.setStyle(menu.getStyle() + EstiloPixel.familiaCss());
+        ventana.getScene().setRoot(menu);
         sonidosDelMenu.abrirJuego();
         menu.animarPersonaje();
     }
@@ -190,6 +198,7 @@ public class AplicacionAjedrez extends Application {
 
     @Override public void stop() {
         guardarPreferencias();
+        if (intro != null) intro.detener();
         cerrarPartidaActual();
         if (sonidosDelMenu != null) sonidosDelMenu.close();
         if (reproductor != null) reproductor.close();
