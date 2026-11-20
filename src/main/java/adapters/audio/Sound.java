@@ -15,6 +15,8 @@ public enum Sound {
     PASS("pase", false),
     GOAL("gol", true),
     VICTORIA("victoria", true),
+    /** Marca el fin de la partida, sea como sea (gane quien gane o empaten): suena siempre, junto con lo propio del final. */
+    GAME_END("fin-de-partida", false),
     DRAW("tablas", false),
     WHISTLE_INITIAL("silbato-inicial", false),
     WHISTLE_FINAL("silbato-final", false),

@@ -69,9 +69,31 @@ class SoundScriptTest {
                 new GameResult(Optional.of(Side.BLACK), FinishReason.CHECK_MATE));
 
         // Act + Assert
-        assertEquals(List.of(new Cue(Sound.VICTORIA, Optional.of(Side.BLACK))), classic.para(mate));
+        assertEquals(List.of(new Cue(Sound.VICTORIA, Optional.of(Side.BLACK)), new Cue(Sound.GAME_END, Optional.empty())),
+                classic.para(mate));
         assertEquals(List.of(new Cue(Sound.WHISTLE_FINAL, Optional.empty()),
-                new Cue(Sound.VICTORIA, Optional.of(Side.BLACK))), football.para(mate));
+                new Cue(Sound.VICTORIA, Optional.of(Side.BLACK)), new Cue(Sound.GAME_END, Optional.empty())),
+                football.para(mate));
+    }
+
+    @Test
+    void theGameEndSoundPlaysWhoeverWinsInEveryMode() {
+        // Gane quien gane, en el clásico y en el fútbol: la victoria del que ganó (propia de su club) y, además, el fin
+        for (Side winner : Side.values()) {
+            FinishedGame finished = new FinishedGame(new GameResult(Optional.of(winner), FinishReason.CHECK_MATE));
+            for (SoundScript script : List.of(classic, football)) {
+                List<Cue> cues = script.para(finished);
+                assertTrue(cues.contains(new Cue(Sound.VICTORIA, Optional.of(winner))), cues.toString());
+                assertTrue(cues.contains(new Cue(Sound.GAME_END, Optional.empty())), cues.toString());
+            }
+        }
+    }
+
+    @Test
+    void aDrawAlsoEndsWithTheGameEndSound() {
+        FinishedGame draw = new FinishedGame(new GameResult(Optional.empty(), FinishReason.AGREEMENT));
+        assertEquals(List.of(Sound.DRAW, Sound.GAME_END), sounds(classic.para(draw)));
+        assertEquals(List.of(Sound.WHISTLE_FINAL, Sound.DRAW, Sound.GAME_END), sounds(football.para(draw)));
     }
 
     @Test
@@ -80,7 +102,8 @@ class SoundScriptTest {
         FinishedGame draw = new FinishedGame(new GameResult(Optional.empty(), FinishReason.AGREEMENT));
 
         // Act + Assert
-        assertEquals(List.of(new Cue(Sound.DRAW, Optional.empty())), classic.para(draw));
+        assertEquals(List.of(new Cue(Sound.DRAW, Optional.empty()), new Cue(Sound.GAME_END, Optional.empty())),
+                classic.para(draw));
     }
 
     @Test

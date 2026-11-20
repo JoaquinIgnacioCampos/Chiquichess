@@ -33,6 +33,12 @@ class SoundCatalogTest {
     }
 
     @Test
+    void theGameEndSoundThatComesWithTheGameIsFound() {
+        // El catálogo real busca en los recursos del programa
+        assertTrue(new SoundCatalog().search(Sound.GAME_END, Optional.empty()).isPresent());
+    }
+
+    @Test
     void goalOfClubHasPriorityOnCommon() throws IOException {
         // Arrange
         create("comunes/gol.wav");
