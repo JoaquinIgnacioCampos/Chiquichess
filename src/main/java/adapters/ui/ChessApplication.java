@@ -28,6 +28,8 @@ import javafx.stage.Stage;
 
 /** Arranque gráfico: ensambla el juego e inyecta la partida en la vista. */
 public class ChessApplication extends Application {
+    /** Qué tanto del volumen del juego usa el audio de fondo: bajito, para que no tape los sonidos de la partida. */
+    private static final double BACKGROUND_AUDIO_LEVEL = 0.25;
     /** Tamaños de la ventana con sus bordes; en una pantalla más chica manda la pantalla. */
     private static final double WIDTH_PREFERRED = 1296;
     private static final double HEIGHT_PREFERRED = 858;
@@ -37,6 +39,8 @@ public class ChessApplication extends Application {
     private JavaFxClockUpdater updaterClock;
     private ConfiguredGame currentGame;
     private GameSounds soundsCurrent;
+    /** Audio bajito que se repite de fondo mientras dura la partida. */
+    private CrossfadedLoop backgroundAudio;
     private AiTurn turnOfAi;
     /** Hilos donde piensa la IA; son daemon para no impedir que el programa se cierre. */
     private final ExecutorService aiThreads = Executors.newCachedThreadPool(task -> {
@@ -138,6 +142,7 @@ public class ChessApplication extends Application {
         view.configureDraw();
         view.configureUndo();
         view.configureSound(volume);
+        backgroundAudio = new CrossfadedLoop("/ambiente/partida.m4a", volume, BACKGROUND_AUDIO_LEVEL, "Audio de fondo");
         view.configureNavigation(() -> {
             if (currentGame == prepared) returnToMenu(ventana);
         }, () -> startRematch(ventana, configuration, prepared));
@@ -145,6 +150,7 @@ public class ChessApplication extends Application {
         // Contra la IA, el tablero se ve siempre desde el lado de la persona, aunque juegue con negras.
         prepared.rival().ifPresent(rival -> view.lookFrom(rival.side().opposite()));
         ventana.getScene().setRoot(view);
+        backgroundAudio.play();
         GameSounds sounds = GameSounds.connect(game, soundCatalog, player,
                 Map.of(Side.WHITE, prepared.whiteTeam(), Side.BLACK, prepared.blackTeam()),
                 volume, configuration.mode() == GameConfiguration.Mode.FUTBOL);
@@ -174,6 +180,10 @@ public class ChessApplication extends Application {
     }
 
     private void closeCurrentGame() {
+        if (backgroundAudio != null) {
+            backgroundAudio.stop();
+            backgroundAudio = null;
+        }
         if (turnOfAi != null) {
             turnOfAi.close();
             turnOfAi = null;

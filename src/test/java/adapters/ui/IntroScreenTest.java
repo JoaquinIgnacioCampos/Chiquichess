@@ -48,30 +48,6 @@ class IntroScreenTest {
     }
 
     @Test
-    void firstRunOfAudioStartsWholeAndAllEndInSilence() {
-        assertEquals(1, IntroScreen.gain(0, 10, false), 1e-9);
-        assertEquals(1, IntroScreen.gain(5, 10, false), 1e-9);
-        assertEquals(0, IntroScreen.gain(10, 10, false), 1e-9);
-    }
-
-    @Test
-    void runsNextEnterWithAFade() {
-        assertEquals(0, IntroScreen.gain(0, 10, true), 1e-9);
-        assertEquals(1, IntroScreen.gain(IntroScreen.FADE, 10, true), 1e-9);
-        double half = IntroScreen.gain(IntroScreen.FADE / 2, 10, true);
-        assertTrue(half > 0 && half < 1);
-    }
-
-    @Test
-    void onOverlapEndOfARunWithStartOfNextPowerKeeps() {
-        for (double t = 0; t <= IntroScreen.FADE; t += 0.1) {
-            double leaves = IntroScreen.gain(10 - IntroScreen.FADE + t, 10, false);
-            double enters = IntroScreen.gain(t, 10, true);
-            assertEquals(1, leaves * leaves + enters * enters, 1e-9, "t=" + t);
-        }
-    }
-
-    @Test
     void withoutPlayNotHasVideoAndStopNotFails() {
         assertNull(((javafx.scene.media.MediaView) screen.lookup("#video-intro")).getMediaPlayer());
         assertDoesNotThrow(screen::stop);

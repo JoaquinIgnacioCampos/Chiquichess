@@ -43,39 +43,6 @@ import java.util.Objects;
  */
 final class IntroScreen extends StackPane {
     private static final double PROPORTION_VIDEO = 16.0 / 9.0;
-    /** Segundos que dura el fundido entre una vuelta del audio y la siguiente. */
-    static final double FADE = 1.5;
-    /** Cuánto antes del fundido se prepara la voz siguiente, para que arranque justo a tiempo. */
-    private static final double LEAD = 1.0;
-
-    /** Una pasada del audio: su reproductor y la voz que le sigue, cuando ya se preparó. */
-    private static final class Voice {
-        final MediaPlayer player;
-        final boolean withInput;
-        Voice next;
-        boolean nextStarted;
-
-        Voice(MediaPlayer player, boolean withInput) {
-            this.player = player;
-            this.withInput = withInput;
-        }
-    }
-
-    /**
-     * Qué parte del volumen suena en el segundo {@code t} de una pasada de {@code duration} segundos: sube al
-     * empezar (salvo la primera pasada, que arranca entera) y baja al terminar, con curvas de potencia
-     * constante: al sumarse la que termina con la que empieza, el volumen no se hunde ni se dispara.
-     */
-    static double gain(double t, double duration, boolean withInput) {
-        double input = withInput ? Math.sin(Math.PI / 2 * clamp(t / FADE)) : 1;
-        double output = Math.cos(Math.PI / 2 * clamp((t - (duration - FADE)) / FADE));
-        return input * output;
-    }
-
-    private static double clamp(double x) {
-        return Math.max(0, Math.min(1, x));
-    }
-
     private final PanelTheme theme;
     private final VolumeControl volume;
     private final Runnable onStart;
@@ -84,11 +51,9 @@ final class IntroScreen extends StackPane {
     private final MediaView video = new MediaView();
     /** Relación ancho/alto del video, para cubrir la ventana sin deformarlo. */
     private final DoubleProperty videoAspectRatio = new SimpleDoubleProperty(PROPORTION_VIDEO);
-    private final Runnable applyVolume = this::applyVolume;
     private MediaPlayer videoPlayer;
-    /** Voces del audio sonando a la vez: una sola, salvo en el fundido de una vuelta a la siguiente. */
-    private final List<Voice> voices = new ArrayList<>();
-    private boolean sounding;
+    /** El audio del video, aparte: se repite en bucle con un fundido entre vuelta y vuelta. */
+    private final CrossfadedLoop audio;
     private Animation input;
     private boolean started;
 
@@ -96,6 +61,7 @@ final class IntroScreen extends StackPane {
         this.theme = Objects.requireNonNull(theme, "tema");
         this.volume = Objects.requireNonNull(volume, "volumen");
         this.onStart = Objects.requireNonNull(onStart, "alComenzar");
+        this.audio = new CrossfadedLoop("/intro/intro.m4a", volume, 1.0, "Intro");
         setId("pantalla-intro");
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(theme.background(), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -160,9 +126,7 @@ final class IntroScreen extends StackPane {
     void play() {
         animateInput();
         startVideo();
-        sounding = true;
-        startAudio();
-        volume.onChange(applyVolume);
+        audio.play();
     }
 
     private void startVideo() {
@@ -191,64 +155,11 @@ final class IntroScreen extends StackPane {
         }
     }
 
-    private void startAudio() {
-        Voice first = createVoice(false);
-        if (first != null) first.player.play();
-    }
-
-    /** Prepara una pasada del audio (sin arrancarla). Cada una avisa cuándo toca preparar y soltar la siguiente. */
-    private Voice createVoice(boolean withInput) {
-        try {
-            var resource = IntroScreen.class.getResource("/intro/intro.m4a");
-            if (resource == null) return null;
-            Media media = new Media(resource.toExternalForm());
-            MediaPlayer player = new MediaPlayer(media);
-            Voice voice = new Voice(player, withInput);
-            voices.add(voice);
-            player.setOnError(() -> {
-                System.err.println("Intro sin audio: no se pudo reproducir: " + player.getError());
-                releaseVoice(voice);
-            });
-            player.setOnEndOfMedia(() -> Platform.runLater(() -> releaseVoice(voice)));
-            player.currentTimeProperty().addListener((p, before, now) -> onAdvance(voice, media, now.toSeconds()));
-            applyVolume(voice, 0, media.getDuration().toSeconds());
-            return voice;
-        } catch (RuntimeException | LinkageError failure) {
-            System.err.println("Intro sin audio: " + failure);
-            return null;
-        }
-    }
-
-    private void onAdvance(Voice voice, Media media, double t) {
-        double duration = media.getDuration().toSeconds();
-        if (!sounding || Double.isNaN(duration) || Double.isInfinite(duration)) return;
-        applyVolume(voice, t, duration);
-        if (voice.next == null && t >= duration - FADE - LEAD) voice.next = createVoice(true);
-        if (voice.next != null && !voice.nextStarted && t >= duration - FADE) {
-            voice.nextStarted = true;
-            voice.next.player.play();
-        }
-    }
-
-    private void applyVolume(Voice voice, double t, double duration) {
-        double base = Double.isNaN(duration) || Double.isInfinite(duration) ? (voice.withInput ? 0 : 1)
-                : gain(t, duration, voice.withInput);
-        voice.player.setVolume(volume.effective() * base);
-    }
-
-    private void releaseVoice(Voice voice) {
-        if (!voices.remove(voice)) return;
-        voice.player.stop();
-        voice.player.dispose();
-    }
-
     /** Detiene el video y el audio y deja de escuchar el volumen: la pantalla ya no se usa. */
     void stop() {
         if (input != null) input.stop();
-        volume.stopListening(applyVolume);
-        sounding = false;
+        audio.stop();
         releaseVideo();
-        new ArrayList<>(voices).forEach(this::releaseVoice);
     }
 
     private void start() {
@@ -256,13 +167,6 @@ final class IntroScreen extends StackPane {
         started = true;
         stop();
         onStart.run();
-    }
-
-    /** Cambió el volumen del juego: cada voz lo aplica sobre su fundido. */
-    private void applyVolume() {
-        for (Voice voice : new ArrayList<>(voices)) {
-            applyVolume(voice, voice.player.getCurrentTime().toSeconds(), voice.player.getTotalDuration().toSeconds());
-        }
     }
 
     /** Sin video la pantalla sigue andando: queda el fondo liso. */
