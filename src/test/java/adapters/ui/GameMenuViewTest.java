@@ -294,4 +294,20 @@ class GameMenuViewTest {
         assertEquals(0.4, volume.getValue(), 1e-9);
         assertNotEquals(before, volume.getValue());
     }
+
+    @Test
+    void theFooterHasAnExitButtonThatDoesNothingUntilItIsConnected() {
+        Button exit = (Button) menu.lookup("#salir");
+        assertNotNull(exit);
+        assertEquals("SALIR", exit.getText());
+        assertDoesNotThrow(exit::fire);
+    }
+
+    @Test
+    void touchingExitCallsWhatWasConnected() {
+        int[] calls = {0};
+        menu.onExit(() -> calls[0]++);
+        ((Button) menu.lookup("#salir")).fire();
+        assertEquals(1, calls[0]);
+    }
 }
