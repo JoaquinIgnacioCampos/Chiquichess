@@ -91,8 +91,8 @@ class GuionDeSonidosTest {
     }
 
     @Test
-    void soloElFutbolArrancaConSilbato() {
-        assertEquals(List.of(), clasico.alEmpezar());
+    void todasLasPartidasArrancanConSilbato() {
+        assertEquals(List.of(Sonido.SILBATO_INICIAL), sonidos(clasico.alEmpezar()));
         assertEquals(List.of(Sonido.SILBATO_INICIAL), sonidos(futbol.alEmpezar()));
     }
 

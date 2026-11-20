@@ -39,14 +39,14 @@ public final class GuionDeSonidos {
 
     private final boolean futbol;
 
-    /** @param futbol si la partida es del modo fútbol (silbatos y hinchada) */
+    /** @param futbol si la partida es del modo fútbol (silbato final y hinchada) */
     public GuionDeSonidos(boolean futbol) {
         this.futbol = futbol;
     }
 
-    /** Lo que suena cuando arranca la partida. */
+    /** Lo que suena cuando arranca la partida (al tocar "Jugar" o la revancha): el silbato, en todos los modos. */
     public List<Toque> alEmpezar() {
-        return futbol ? List.of(Toque.comun(Sonido.SILBATO_INICIAL)) : List.of();
+        return List.of(Toque.comun(Sonido.SILBATO_INICIAL));
     }
 
     public List<Toque> para(EventoDePartida evento) {
