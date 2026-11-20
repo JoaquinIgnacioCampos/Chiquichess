@@ -2,24 +2,24 @@
 
 > **Reemplazado en parte por la fase 4b** (`fase-4b-memento-y-huella.md`): las dos condiciones de
 > tablas volvieron a llevar estado, ahora con Memento y huella de posición, para preparar la IA.
-> Sigue vigente que `ContextoDeJugada` incluya el historial. Se conserva este documento como
+> Sigue vigente que `MoveContext` incluya el historial. Se conserva este documento como
 > registro de la decisión anterior y de por qué se cambió.
 
 ## Qué
 
-`ContextoDeJugada` ahora incluye la lista de jugadas ejecutadas en la partida. La pieza movida y si
-hubo captura ya no se guardan aparte: `piezaMovida()`, `huboCaptura()` y `ultimaJugada()` se deducen
+`MoveContext` ahora incluye la lista de jugadas ejecutadas en la partida. La pieza movida y si
+hubo captura ya no se guardan aparte: `pieceMoved()`, `wasCapture()` y `lastMove()` se deducen
 de la última jugada, así no pueden contradecir al historial.
 
-- **TablasPorReglaDeLos50Movimientos** cuenta, desde la última jugada hacia atrás, cuántas jugadas
+- **FiftyMoveRuleDraw** cuenta, desde la última jugada hacia atrás, cuántas jugadas
   seguidas hubo sin captura ni movimiento de peón. Ya no tiene un contador.
-- **TablasPorRepeticion** toma una copia del tablero actual y la revierte jugada por jugada (cada
-  `Jugada` sabe deshacerse) para reconstruir las posiciones anteriores y contar cuántas veces aparece
+- **RepetitionDraw** toma una copia del tablero actual y la revierte jugada por jugada (cada
+  `Move` sabe deshacerse) para reconstruir las posiciones anteriores y contar cuántas veces aparece
   la actual. Ya no tiene un mapa de apariciones. Solo retrocede hasta la última captura o movimiento
   de peón: las piezas capturadas no vuelven y los peones no retroceden, así que ninguna posición
   anterior a esa jugada puede repetirse.
 
-`CondicionDeFinalizacion` documenta el nuevo contrato: el resultado depende solo del contexto.
+`EndCondition` documenta el nuevo contrato: el resultado depende solo del contexto.
 
 ## Por qué
 

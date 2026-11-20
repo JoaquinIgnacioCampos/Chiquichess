@@ -6,9 +6,9 @@ Los botones de selección de equipo del menú también incluyen los escudos. Las
 
 ## Ensamblado y presentación
 
-`EnsambladorPartida.prepararConfigurada` resuelve la elección o sorteo una sola vez y devuelve `PartidaConfigurada`, que contiene partida y equipos por color. Esa asignación usa el mismo resultado que determina los nombres de los jugadores: el club sigue a Jugador 1/Jugador 2 aunque intercambien blancas/negras. `crearConfigurada` conserva su firma y devuelve la partida de ese resultado.
+`GameAssembler.prepareConfigured` resuelve la elección o sorteo una sola vez y devuelve `ConfiguredGame`, que contiene partida y equipos por color. Esa asignación usa el mismo resultado que determina los nombres de los jugadores: el club sigue a Jugador 1/Jugador 2 aunque intercambien blancas/negras. `createConfigured` conserva su firma y devuelve la partida de ese resultado.
 
-`PresentacionClub` contiene el catálogo de escudos y temas. `AplicacionAjedrez` construye las identidades e inyecta el mapa por color en `VistaPartida`, `PanelEstadoPartida` y `TarjetaJugador`. Las vistas no sortean ni deducen equipos a partir de nombres. Los constructores anteriores siguen disponibles para vistas sin identidad de club.
+`ClubPresentation` contiene el catálogo de escudos y temas. `ChessApplication` construye las identidades e inyecta el mapa por color en `GameView`, `GameStatePanel` y `PlayerCard`. Las vistas no sortean ni deducen equipos a partir de nombres. Los constructores anteriores siguen disponibles para vistas sin identidad de club.
 
 En tarjetas compactas se reducen el escudo y los textos para conservar el espacio de nombres, club, color, relojes y botones. Las confirmaciones existentes reutilizan el tema de la tarjeta.
 

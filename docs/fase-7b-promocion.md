@@ -2,23 +2,23 @@
 
 ## Qué
 
-- `Reemplazo(anterior, nueva, posicion)`: tercer efecto de la interfaz sellada `Efecto`. Cambia la
-  pieza de una casilla por otra y, al revertir, vuelve la anterior. `HuellaDePosicion` lo incluye (el
+- `Replacement(previous, newValue, position)`: tercer efecto de la interfaz sellada `Effect`. Cambia la
+  pieza de una casilla por otra y, al revertir, vuelve la anterior. `PositionFingerprint` lo incluye (el
   compilador lo exigió por ser una interfaz sellada).
-- `Promocion` (`ReglaEspecial`): no suma jugadas; **transforma** cada jugada de un peón que termina en
+- `Promotion` (`SpecialRule`): no suma jugadas; **transforma** cada jugada de un peón que termina en
   la última fila (avance o captura) en una variante por cada pieza posible: dama, torre, alfil y caballo.
-  Para eso `ReglaEspecial` suma el método `transformar`, que por defecto deja la jugada igual, y
-  `MovimientosLegales` lo aplica a todas las jugadas.
-- `Jugada.promocion()` dice en qué pieza se convirtió; `Jugada.con(efecto)` agrega un efecto.
-- `Movimiento` suma `promocion`: el código de la pieza elegida (`D`, `T`, `A`, `C`). El constructor de
-  dos parámetros sigue existiendo. `Movimiento.conPromocion(origen, destino, codigo)` lo arma.
-- `Partida` elige la jugada según la promoción pedida; sin elección, promueve a dama. El historial
+  Para eso `SpecialRule` suma el método `transform`, que por defecto deja la jugada igual, y
+  `LegalMoves` lo aplica a todas las jugadas.
+- `Move.promotion()` dice en qué pieza se convirtió; `Move.con(effect)` agrega un efecto.
+- `MoveRequest` suma `promotion`: el código de la pieza elegida (`D`, `T`, `A`, `C`). El constructor de
+  dos parámetros sigue existiendo. `MoveRequest.withPromotion(origin, destination, code)` lo arma.
+- `Game` elige la jugada según la promoción pedida; sin elección, promueve a dama. El historial
   incluye el código de promoción, así una partida se puede reproducir exactamente.
-- `ReglasDePartida.clasicas()` incluye la promoción.
+- `GameRules.classic()` incluye la promoción.
 
 ## Por qué
 
-- **Una jugada más.** La promoción es `[Retiro?, Traslado del peón, Reemplazo]`: deshacerla, la huella,
+- **Una jugada más.** La promoción es `[Removal?, Transfer del peón, Replacement]`: deshacerla, la huella,
   el control de jaque y las tablas funcionan sin cambios. La pieza movida sigue siendo el peón, así que
   la regla de 50 movimientos y el corte de la repetición la tratan como un avance de peón.
 - **Transformar en lugar de sumar.** Si la promoción sumara jugadas, el avance común del peón a la
@@ -30,14 +30,14 @@
 
 ## Cuándo se rompería
 
-- La elección se identifica por el código de la pieza (`Pieza.codigo()`). Dos opciones con el mismo
+- La elección se identifica por el código de la pieza (`Piece.code()`). Dos opciones con el mismo
   código serían indistinguibles.
 - Si una variante permitiera que el peón se quede como peón en la última fila, habría que incluir esa
   opción explícitamente.
 
 ## Verificación
 
-- 419 tests: 16 nuevos (3 de `Reemplazo`, 6 de `Promocion`, 7 en partidas reales: dama por defecto,
+- 419 tests: 16 nuevos (3 de `Replacement`, 6 de `Promotion`, 7 en partidas reales: dama por defecto,
   elegir otra pieza, promover capturando, opción inválida, promoción pedida sin promover, jaque de la
   pieza nueva y deshacer). Se renombró el test del peón en la última fila, que ya no describe una
   ausencia de la regla.

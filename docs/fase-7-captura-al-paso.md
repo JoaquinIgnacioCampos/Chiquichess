@@ -2,20 +2,20 @@
 
 ## Qué
 
-`CapturaAlPaso` (`Nucleo.reglas`) es una segunda `ReglaEspecial`. Si la última jugada fue un peón rival
+`EnPassant` (`core.rules`) es una segunda `SpecialRule`. Si la última jugada fue un peón rival
 que avanzó dos casillas y quedó al lado de un peón propio, ese peón puede ir en diagonal a la casilla
-que el rival "saltó" y capturarlo. La jugada es `[Retiro del peón rival en su casilla, Traslado del
-peón propio]`: la pieza capturada no está en el destino. `ReglasDePartida.clasicas()` la incluye.
+que el rival "saltó" y capturarlo. La jugada es `[Removal del peón rival en su casilla, Transfer del
+peón propio]`: la pieza capturada no está en el destino. `GameRules.classic()` la incluye.
 
 ## Por qué
 
 - **Sin cambios en el resto del núcleo.** Es una clase nueva que se suma a la lista de reglas
-  especiales: no se tocó `Partida`, `Jugada`, `MovimientosLegales` ni la huella. Es el caso que
+  especiales: no se tocó `Game`, `Move`, `LegalMoves` ni la huella. Es el caso que
   justificó la fase 3: una captura en otra casilla que el destino es solo otra combinación de efectos.
 - **"Solo en la jugada siguiente" sale del historial.** La regla mira únicamente la última jugada, así
   no hay un derecho de captura al paso que guardar ni que restaurar al deshacer.
 - **La clavada horizontal se resuelve sola.** Si al sacar los dos peones de la fila el rey queda en
-  jaque, la jugada se rechaza con `DEJA_AL_REY_EN_JAQUE`, porque `MovimientosLegales` simula la jugada
+  jaque, la jugada se rechaza con `DEJA_AL_REY_EN_JAQUE`, porque `LegalMoves` simula la jugada
   completa, con el retiro incluido.
 
 ## Cuándo se rompería
@@ -23,8 +23,8 @@ peón propio]`: la pieza capturada no está en el destino. `ReglasDePartida.clas
 - La regla reconoce el avance doble como "un peón que avanzó dos filas en la misma columna". Una
   variante con peones que avanzaran tres casillas necesitaría otra definición.
 - La repetición no distingue el derecho de captura al paso (simplificación documentada en la fase 4b).
-- Los atajos de Partida con detector y condiciones no incluyen reglas especiales; el juego real usa
-  `ReglasDePartida.clasicas()`.
+- Los atajos de Game con detector y condiciones no incluyen reglas especiales; el juego real usa
+  `GameRules.classic()`.
 
 ## Verificación
 

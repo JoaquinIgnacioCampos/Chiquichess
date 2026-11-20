@@ -12,7 +12,7 @@ Desde la raíz del proyecto:
 mvn javafx:run
 ```
 
-El punto de entrada es adaptadores.ui.MainGrafico. En el paso 0 abría una ventana
+El punto de entrada es adapters.ui.GraphicalMain. En el paso 0 abría una ventana
 vacía; en los pasos posteriores muestra el tablero. También puede ejecutarse desde la ventana Maven
 de IntelliJ: Plugins → javafx → javafx:run. El plugin configura la ruta de módulos
 y las bibliotecas nativas correspondientes al sistema operativo.
@@ -27,19 +27,19 @@ El plugin utiliza el Java del proceso Maven mediante ${java.home}/bin/java para
 que su JVM hija no tome otro Java del PATH. En terminal, JAVA_HOME debe apuntar
 al JDK 21. El SDK del proyecto también está configurado en Java 21.
 
-MainGrafico sigue siendo el punto de entrada y permite arrancar con dependencias
+GraphicalMain sigue siendo el punto de entrada y permite arrancar con dependencias
 en el classpath, pero ejecutarlo directamente con el botón de su método main
 puede crear otra configuración que cargue JavaFX fuera del module-path y vuelva
 a mostrar el aviso de unnamed module. Para la ejecución configurada sin esos
-avisos se utiliza **ChiquiChess**. AplicacionAjedrez mantiene el ensamblado y el
-ciclo de vida gráfico; MainGrafico solo inicia esa aplicación. La consola conserva
+avisos se utiliza **ChiquiChess**. ChessApplication mantiene el ensamblado y el
+ciclo de vida gráfico; GraphicalMain solo inicia esa aplicación. La consola conserva
 adaptadores.Main como entrada.
 
 ## Consola y tests
 
 ```text
 mvn test
-java -cp target/classes adaptadores.Main
+java -cp target/classes adapters.Main
 ```
 
 La consola conserva su entrada y comportamiento anteriores. El núcleo no depende
