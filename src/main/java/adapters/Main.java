@@ -1,6 +1,6 @@
 package adapters;
 
-import core.ia.Difficulty;
+import core.ai.Difficulty;
 import core.game.GameInProgress;
 import adapters.configuration.GameConfiguration;
 import adapters.configuration.GameConfiguration.Mode;

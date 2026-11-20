@@ -232,7 +232,7 @@ class GameAssemblerTest {
     void againstAiPlayer2IsAiWithItsColorAndItsName() {
         GameConfiguration againstAi = new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO, Rival.IA,
                 Team.BOCA, Team.RIVER, Colors.JUGADOR_2_BLANCAS, false, GameConfiguration.DEFAULT_LIMIT,
-                java.util.Optional.of(core.ia.Difficulty.FACIL));
+                java.util.Optional.of(core.ai.Difficulty.FACIL));
 
         var prepared = assembler.prepareConfigured(againstAi);
 
@@ -253,6 +253,6 @@ class GameAssemblerTest {
                 Rival.IA, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false));
         assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO,
                 Rival.AMIGO, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false, GameConfiguration.DEFAULT_LIMIT,
-                java.util.Optional.of(core.ia.Difficulty.MEDIO)));
+                java.util.Optional.of(core.ai.Difficulty.MEDIO)));
     }
 }

@@ -1,4 +1,4 @@
-package core.ia;
+package core.ai;
 
 import org.junit.jupiter.api.Test;
 

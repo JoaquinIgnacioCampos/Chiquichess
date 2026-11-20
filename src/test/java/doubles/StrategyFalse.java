@@ -1,6 +1,6 @@
 package doubles;
 
-import core.ia.GameStrategy;
+import core.ai.GameStrategy;
 import core.game.GameSituation;
 import core.moves.Move;
 import core.board.Position;

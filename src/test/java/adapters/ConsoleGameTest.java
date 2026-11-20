@@ -251,7 +251,7 @@ class ConsoleGameTest {
     @Test
     void againstAiIsPlaysAloneAndShowsItsMove() throws IOException {
         var againstAi = new GameAssembler().createWithoutClockAgainstAi(
-                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ia.Difficulty.FACIL);
+                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ai.Difficulty.FACIL);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         new ConsoleGame(againstAi.game(), new ConsoleRenderer(), new ConsoleMessages(),
@@ -269,7 +269,7 @@ class ConsoleGameTest {
     @Test
     void againstAiUndoReturnsToTurnOfPerson() throws IOException {
         var againstAi = new GameAssembler().createWithoutClockAgainstAi(
-                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ia.Difficulty.FACIL);
+                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ai.Difficulty.FACIL);
 
         new ConsoleGame(againstAi.game(), new ConsoleRenderer(), new ConsoleMessages(),
                 new ByteArrayInputStream("e2 e4\ndeshacer\nsalir\n".getBytes(StandardCharsets.UTF_8)),
