@@ -40,10 +40,26 @@ class RepresentacionConSpritesTest {
         }
     }
 
+    /** El sprite va dentro de un contenedor del tamaño de una casilla: se busca la imagen adentro. */
+    private static ImageView imagenDe(javafx.scene.Node figura) {
+        return assertInstanceOf(ImageView.class, figura.lookup(".image-view"));
+    }
+
+    @Test
+    void elSpriteSobresaleHaciaArribaYApoyaSuBaseEnLaCasilla() {
+        var figura = representacion.crear(new Rey(Bando.BLANCO), tema);
+        var imagen = imagenDe(figura);
+        assertEquals(RepresentacionPiezas.LADO_BASE, figura.prefWidth(-1));
+        assertEquals(RepresentacionPiezas.LADO_BASE, figura.prefHeight(-1));
+        assertTrue(imagen.getFitHeight() > RepresentacionPiezas.LADO_BASE);
+        assertTrue(imagen.getLayoutY() < 0);
+        assertTrue(imagen.getLayoutY() + imagen.getFitHeight() <= RepresentacionPiezas.LADO_BASE);
+    }
+
     @Test
     void cadaColorUsaSuPropiaVersionDelSprite() {
-        ImageView blanco = assertInstanceOf(ImageView.class, representacion.crear(new Rey(Bando.BLANCO), tema));
-        ImageView negro = assertInstanceOf(ImageView.class, representacion.crear(new Rey(Bando.NEGRO), tema));
+        ImageView blanco = imagenDe(representacion.crear(new Rey(Bando.BLANCO), tema));
+        ImageView negro = imagenDe(representacion.crear(new Rey(Bando.NEGRO), tema));
         assertEquals(2, blanco.getImage().getWidth());
         assertEquals(4, negro.getImage().getWidth());
     }
@@ -63,7 +79,7 @@ class RepresentacionConSpritesTest {
     void unBandoSinCatalogoUsaLaRepresentacionDeRespaldo() {
         RepresentacionPiezas soloBlancas = new RepresentacionConSprites(
                 Map.of(Bando.BLANCO, catalogo), new RepresentacionUnicode());
-        assertInstanceOf(ImageView.class, soloBlancas.crear(new Rey(Bando.BLANCO), tema));
+        imagenDe(soloBlancas.crear(new Rey(Bando.BLANCO), tema));
         assertInstanceOf(Text.class, soloBlancas.crear(new Rey(Bando.NEGRO), tema));
     }
 
@@ -91,7 +107,8 @@ class RepresentacionConSpritesTest {
         List<Posicion> pulsadas = new ArrayList<>();
         VistaTablero vista = new VistaTablero(tablero, tema, representacion, pulsadas::add);
         StackPane casilla = (StackPane) vista.lookup("#casilla-0-0");
-        ImageView sprite = assertInstanceOf(ImageView.class, casilla.getChildren().getFirst());
+        javafx.scene.Node sprite = casilla.getChildren().getFirst();
+        imagenDe(sprite);
         assertTrue(sprite.isMouseTransparent());
         assertEquals("Rey BLANCO", sprite.getAccessibleText());
         casilla.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,

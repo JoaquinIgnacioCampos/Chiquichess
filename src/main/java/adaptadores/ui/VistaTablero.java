@@ -198,6 +198,8 @@ public final class VistaTablero extends Region {
         StackPane casilla = new StackPane();
         casilla.setMinSize(0, 0);
         casilla.setId("casilla-" + posicion.columna() + "-" + posicion.fila());
+        // Las piezas de las filas de abajo (las más cercanas) tapan a las de arriba cuando sus sprites se pisan.
+        casilla.setViewOrder(-enPantalla(posicion)[1]);
         casilla.getStyleClass().add("casilla");
         boolean oscura = (posicion.columna() + posicion.fila()) % 2 == 0;
         Color colorCasilla = oscura ? tema.casillaOscura() : tema.casillaClara();
@@ -234,7 +236,7 @@ public final class VistaTablero extends Region {
             }
             if (seleccionada) {
                 // Por encima de las vecinas, para que la sombra de la pieza levantada no quede tapada.
-                casilla.setViewOrder(-0.5);
+                casilla.setViewOrder(-50);
                 factor = factor.multiply(alzado.multiply(0.12).add(1));
                 DropShadow sombra = new DropShadow(0, 0, 0, Color.web("#000000", 0.45));
                 sombra.radiusProperty().bind(alzado.multiply(12));
@@ -349,7 +351,7 @@ public final class VistaTablero extends Region {
     private void atarDesplazamiento(Node nodo, StackPane casilla, Recorrido recorrido) {
         nodo.translateXProperty().bind(recorrido.columnas().multiply(casilla.widthProperty()));
         nodo.translateYProperty().bind(recorrido.filas().multiply(casilla.heightProperty()));
-        casilla.setViewOrder(-1);
+        casilla.setViewOrder(-100);
     }
 
     /** Columna y fila en pantalla de una casilla, según hacia dónde esté girado el tablero. */
