@@ -38,8 +38,6 @@ public record PresentacionClub(Equipo equipo, Image escudo, TemaPanel tema) {
             // Tarjeta clara: necesita texto oscuro para que se lea.
             case RIVER -> new Estilo("river.png", "#E8E5DF", "#A51D2D", "#FFFFFF", "#242424", "#505050");
             case INDEPENDIENTE -> new Estilo("independiente.png", "#321719", "#FF777D", "#7E3A41");
-            case SAN_LORENZO -> new Estilo("san-lorenzo.png", "#182941", "#FF6573", "#704354");
-            case RACING -> new Estilo("racing.png", "#103342", "#66D8FA", "#3486A1");
             case ARGENTINA -> new Estilo("argentina.png", "#14304D", "#75AADB", "#3D6E9C");
         };
     }

@@ -13,8 +13,8 @@ Cada club tiene su propio juego de piezas, con una versión blanca y otra negra 
 
 ## Archivos
 
-Van en `src/main/resources/sprites/<club>/`, donde `<club>` es `boca`, `river`, `independiente`, `san_lorenzo`, `racing` o `argentina` (el nombre de
-su constante de `Equipo` en minúsculas: San Lorenzo lleva guion bajo).
+Van en `src/main/resources/sprites/<club>/`, donde `<club>` es `boca`, `river`, `independiente` o `argentina` (el nombre de
+su constante de `Equipo` en minúsculas).
 Cada carpeta lleva estos 12 archivos:
 
 | Pieza | Versión blanca | Versión negra |
