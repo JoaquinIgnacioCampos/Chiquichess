@@ -15,6 +15,8 @@ public enum Sound {
     PASS("pase", false),
     GOAL("gol", true),
     VICTORIA("victoria", true),
+    /** Al perder la persona contra la IA: suena en lugar de la victoria. */
+    DEFEAT("derrota", false),
     DRAW("tablas", false),
     WHISTLE_INITIAL("silbato-inicial", false),
     WHISTLE_FINAL("silbato-final", false),

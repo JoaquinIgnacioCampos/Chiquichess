@@ -38,10 +38,21 @@ public final class SoundScript {
     }
 
     private final boolean football;
+    /** El bando de la persona cuando juega contra la IA; vacío si juegan dos personas. */
+    private final Optional<Side> person;
 
     /** @param football si la partida es del modo fútbol (silbato final y hinchada) */
     public SoundScript(boolean football) {
+        this(football, Optional.empty());
+    }
+
+    /**
+     * @param football si la partida es del modo fútbol (silbato final y hinchada)
+     * @param person   el bando de la persona si juega contra la IA: si pierde, suena la derrota en vez de la victoria
+     */
+    public SoundScript(boolean football, Optional<Side> person) {
         this.football = football;
+        this.person = Objects.requireNonNull(person, "persona");
     }
 
     /** Lo que suena cuando arranca la partida (al tocar "Jugar" o la revancha): el silbato, en todos los modos. */
@@ -72,7 +83,9 @@ public final class SoundScript {
         List<Cue> cues = new ArrayList<>();
         if (football) cues.add(Cue.common(Sound.WHISTLE_FINAL));
         cues.add(fin.result().winner()
-                .map(winner -> Cue.de(Sound.VICTORIA, winner))
+                .map(winner -> person.filter(side -> side != winner).isPresent()
+                        ? Cue.common(Sound.DEFEAT)
+                        : Cue.de(Sound.VICTORIA, winner))
                 .orElse(Cue.common(Sound.DRAW)));
         return List.copyOf(cues);
     }

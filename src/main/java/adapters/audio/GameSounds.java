@@ -41,14 +41,14 @@ public final class GameSounds implements GameObserver, AutoCloseable {
     private boolean closed = false;
 
     private GameSounds(GameQuery game, SoundCatalog catalog, AudioPlayer player,
-                             Map<Side, Team> teams, VolumeControl control, boolean football) {
+                             Map<Side, Team> teams, VolumeControl control, boolean football, Optional<Side> person) {
         this.game = Objects.requireNonNull(game, "partida");
         this.catalog = Objects.requireNonNull(catalog, "catalogo");
         this.player = Objects.requireNonNull(player, "reproductor");
         this.teams = Map.copyOf(Objects.requireNonNull(teams, "equipos"));
         this.control = Objects.requireNonNull(control, "control");
         this.football = football;
-        this.script = new SoundScript(football);
+        this.script = new SoundScript(football, person);
     }
 
     /**
@@ -59,7 +59,17 @@ public final class GameSounds implements GameObserver, AutoCloseable {
      */
     public static GameSounds connect(GameQuery game, SoundCatalog catalog, AudioPlayer player,
                                             Map<Side, Team> teams, VolumeControl control, boolean football) {
-        GameSounds sounds = new GameSounds(game, catalog, player, teams, control, football);
+        return connect(game, catalog, player, teams, control, football, Optional.empty());
+    }
+
+    /**
+     * Igual que la anterior, sabiendo el bando de la persona cuando juega contra la IA: si pierde, suena la
+     * derrota en lugar de la victoria del rival.
+     */
+    public static GameSounds connect(GameQuery game, SoundCatalog catalog, AudioPlayer player,
+                                            Map<Side, Team> teams, VolumeControl control, boolean football,
+                                            Optional<Side> person) {
+        GameSounds sounds = new GameSounds(game, catalog, player, teams, control, football, person);
         game.addObserver(sounds);
         control.onChange(sounds.onChangeVolume);
         sounds.script.onStart().forEach(sounds::play);

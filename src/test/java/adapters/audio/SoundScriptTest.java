@@ -75,6 +75,38 @@ class SoundScriptTest {
     }
 
     @Test
+    void thePersonThatLosesAgainstTheAiHearsDefeatInsteadOfTheVictoryOfTheRival() {
+        // Arrange: la persona juega con blancas y las negras (la IA) dan mate
+        FinishedGame mate = new FinishedGame(new GameResult(Optional.of(Side.BLACK), FinishReason.CHECK_MATE));
+
+        // Act + Assert
+        assertEquals(List.of(new Cue(Sound.DEFEAT, Optional.empty())),
+                new SoundScript(false, Optional.of(Side.WHITE)).para(mate));
+        assertEquals(List.of(new Cue(Sound.WHISTLE_FINAL, Optional.empty()), new Cue(Sound.DEFEAT, Optional.empty())),
+                new SoundScript(true, Optional.of(Side.WHITE)).para(mate));
+    }
+
+    @Test
+    void thePersonThatWinsAgainstTheAiHearsTheVictoryOfItsClub() {
+        FinishedGame mate = new FinishedGame(new GameResult(Optional.of(Side.WHITE), FinishReason.CHECK_MATE));
+        assertEquals(List.of(new Cue(Sound.VICTORIA, Optional.of(Side.WHITE))),
+                new SoundScript(false, Optional.of(Side.WHITE)).para(mate));
+    }
+
+    @Test
+    void whenTwoPeoplePlayTheWinnerAlwaysHearsVictoryAndNobodyTheDefeat() {
+        FinishedGame mate = new FinishedGame(new GameResult(Optional.of(Side.BLACK), FinishReason.CHECK_MATE));
+        assertEquals(List.of(new Cue(Sound.VICTORIA, Optional.of(Side.BLACK))), classic.para(mate));
+    }
+
+    @Test
+    void aDrawAgainstTheAiIsNotADefeat() {
+        FinishedGame draw = new FinishedGame(new GameResult(Optional.empty(), FinishReason.AGREEMENT));
+        assertEquals(List.of(new Cue(Sound.DRAW, Optional.empty())),
+                new SoundScript(false, Optional.of(Side.WHITE)).para(draw));
+    }
+
+    @Test
     void drawNotAreOfNoTeam() {
         // Arrange
         FinishedGame draw = new FinishedGame(new GameResult(Optional.empty(), FinishReason.AGREEMENT));
@@ -111,6 +143,9 @@ class SoundScriptTest {
         Set<Sound> used = EnumSet.noneOf(Sound.class);
         events.forEach(event -> used.addAll(sounds(football.para(event))));
         used.addAll(sounds(football.onStart()));
+        // La derrota solo suena cuando la persona pierde contra la IA
+        used.addAll(sounds(new SoundScript(true, Optional.of(Side.BLACK))
+                .para(new FinishedGame(new GameResult(Optional.of(Side.WHITE), FinishReason.GOALS)))));
 
         // Assert
         // La hinchada suena en bucle, la selección la avisa la vista, y la risa y el ambiente son del menú.

@@ -26,6 +26,7 @@ Durante la partida:
   tablas            final en tablas
   silbato-inicial   al empezar la partida, en cualquier modo
   silbato-final     al terminar la partida           (si falta, suena silbato-inicial)
+  derrota           al perder la persona contra la IA (suena en vez de victoria; si falta, no suena)
   rebobinar         al deshacer o rehacer
   hinchada          ambiente en bucle del modo fútbol (propio de cada club)
   seleccion         al tocar una pieza propia; también al elegir una opción del menú
