@@ -46,4 +46,3 @@ configuracion.txt
 
 ### IntelliJ: solo se versiona la configuracion de ejecucion (.run) ###
 .idea/
-/dist/
