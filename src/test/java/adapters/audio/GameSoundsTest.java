@@ -71,9 +71,9 @@ class GameSoundsTest {
         play(game, "f2f3", "e7e5", "g2g4", "d8h4");
 
         // Assert: el silbato de arranque, tres movimientos, el que da mate, la victoria de las negras (sin
-        // archivo propio de River) y la derrota
+        // archivo propio de River) y el fin de partida
         assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/movimiento.wav", "comunes/movimiento.wav",
-                "comunes/movimiento.wav", "comunes/movimiento.wav", "comunes/victoria.wav", "comunes/derrota.wav"),
+                "comunes/movimiento.wav", "comunes/movimiento.wav", "comunes/victoria.wav", "comunes/fin-de-partida.wav"),
                 player.played);
     }
 
@@ -88,9 +88,9 @@ class GameSoundsTest {
         // Act: ganan las negras, que son River
         play(game, "f2f3", "e7e5", "g2g4", "d8h4");
 
-        // Assert: la victoria propia del club ganador y, después, la derrota (que es común)
+        // Assert: la victoria propia del club ganador y, después, el fin de partida (que es común)
         assertEquals("clubes/river/victoria.wav", player.played.get(player.played.size() - 2));
-        assertEquals("comunes/derrota.wav", player.played.getLast());
+        assertEquals("comunes/fin-de-partida.wav", player.played.getLast());
     }
 
     @Test
@@ -152,9 +152,9 @@ class GameSoundsTest {
         // Act
         game.resign(Side.WHITE);
 
-        // Assert: silbato final, victoria de River y derrota; la hinchada se detuvo
+        // Assert: silbato final, victoria de River y fin de partida; la hinchada se detuvo
         assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/silbato-final.wav", "comunes/victoria.wav",
-                "comunes/derrota.wav"), player.played);
+                "comunes/fin-de-partida.wav"), player.played);
         assertTrue(player.sounding().isEmpty());
         sounds.close();
         int before = player.played.size();

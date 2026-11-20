@@ -71,10 +71,10 @@ public final class SoundScript {
     private List<Cue> forEnding(FinishedGame fin) {
         List<Cue> cues = new ArrayList<>();
         if (football) cues.add(Cue.common(Sound.WHISTLE_FINAL));
-        fin.result().winner().ifPresentOrElse(winner -> {
-            cues.add(Cue.de(Sound.VICTORIA, winner));
-            cues.add(Cue.common(Sound.DEFEAT));
-        }, () -> cues.add(Cue.common(Sound.DRAW)));
+        fin.result().winner().ifPresentOrElse(winner -> cues.add(Cue.de(Sound.VICTORIA, winner)),
+                () -> cues.add(Cue.common(Sound.DRAW)));
+        // El silbato de fin de partida suena siempre, además de la victoria del club o del sonido de tablas
+        cues.add(Cue.common(Sound.GAME_END));
         return List.copyOf(cues);
     }
 }

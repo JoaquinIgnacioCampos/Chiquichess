@@ -33,9 +33,9 @@ class SoundCatalogTest {
     }
 
     @Test
-    void theDefeatSoundThatComesWithTheGameIsFound() {
+    void theGameEndSoundThatComesWithTheGameIsFound() {
         // El catálogo real busca en los recursos del programa
-        assertTrue(new SoundCatalog().search(Sound.DEFEAT, Optional.empty()).isPresent());
+        assertTrue(new SoundCatalog().search(Sound.GAME_END, Optional.empty()).isPresent());
     }
 
     @Test
