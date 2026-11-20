@@ -23,6 +23,16 @@ import static doubles.Squares.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameStatePanelTest {
+
+    /** La vista carga el logo, que es una imagen: necesita el toolkit de JavaFX iniciado, sea cual sea el orden de los tests. */
+    @org.junit.jupiter.api.BeforeAll
+    static void startJavaFx() {
+        try {
+            javafx.application.Platform.startup(() -> { });
+        } catch (IllegalStateException alreadyStarted) {
+            // otro test ya lo inició
+        }
+    }
     private final PanelTheme themePanel = PanelTheme.scoreboard();
     private final BoardTheme themeBoard = new BoardTheme(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
