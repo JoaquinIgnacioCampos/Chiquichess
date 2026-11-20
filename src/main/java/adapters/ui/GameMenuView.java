@@ -52,9 +52,11 @@ public final class GameMenuView extends GridPane {
             GameConfiguration.LIMIT_MAXIMUM, GameConfiguration.DEFAULT_LIMIT, 10);
     private final Label noticeLimit = new Label();
     private final Button play = new Button("JUGAR");
+    private final Button exit = new Button("SALIR");
     /** La imagen del personaje de la portada (se balancea al abrir el juego). */
     private ImageView figure;
     private Runnable onChooseOption = () -> { };
+    private Runnable onExit = () -> { };
     private final HBox pie;
     private final Label pending = new Label();
     /** Club elegido por cada jugador, al lado de su nombre. */
@@ -158,7 +160,13 @@ public final class GameMenuView extends GridPane {
         play.focusedProperty().addListener((p, before, focus) -> paintPlay());
         play.disabledProperty().addListener((p, before, disabled) -> paintPlay());
         play.setOnAction(e -> emitConfiguration());
-        pie = new HBox(14, pending, play);
+        exit.setId("salir");
+        exit.setFont(PixelStyle.font(14, true));
+        exit.setMinWidth(100);
+        exit.setCursor(Cursor.HAND);
+        PixelStyle.paint(exit, theme.border(), theme.texto());
+        exit.setOnAction(e -> onExit.run());
+        pie = new HBox(14, pending, exit, play);
         pie.setAlignment(Pos.CENTER_RIGHT);
         pie.setPadding(new Insets(10, 26, 14, 26));
         HBox.setHgrow(pending, Priority.ALWAYS);
@@ -214,6 +222,11 @@ public final class GameMenuView extends GridPane {
         });
         laugh.play();
         return laugh;
+    }
+
+    /** Qué hacer cuando la persona toca "Salir": cerrar el juego. Sin esto, el botón no hace nada. */
+    public void onExit(Runnable action) {
+        onExit = Objects.requireNonNull(action, "accion");
     }
 
     /** Qué hacer cuando la persona toca una opción del menú (por ejemplo, un clic de sonido). */

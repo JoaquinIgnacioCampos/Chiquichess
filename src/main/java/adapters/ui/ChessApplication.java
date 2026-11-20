@@ -101,6 +101,8 @@ public class ChessApplication extends Application {
         menu.preselect(menuSelection);
         menu.configureSound(volume);
         menu.onChooseOption(menuSounds::chosenOption);
+        // Salir cierra la ventana: eso guarda las opciones, cierra la partida y termina el programa.
+        menu.onExit(ventana::close);
         return menu;
     }
 
