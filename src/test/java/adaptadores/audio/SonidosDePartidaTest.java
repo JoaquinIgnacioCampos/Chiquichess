@@ -70,9 +70,10 @@ class SonidosDePartidaTest {
         // Act: mate del loco
         jugar(partida, "f2f3", "e7e5", "g2g4", "d8h4");
 
-        // Assert: tres movimientos, el que da mate y la victoria de las negras (sin archivo propio de River)
-        assertEquals(List.of("comunes/movimiento.wav", "comunes/movimiento.wav", "comunes/movimiento.wav",
-                "comunes/movimiento.wav", "comunes/victoria.wav"), reproductor.tocados);
+        // Assert: el silbato de arranque, tres movimientos, el que da mate y la victoria de las negras (sin
+        // archivo propio de River)
+        assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/movimiento.wav", "comunes/movimiento.wav",
+                "comunes/movimiento.wav", "comunes/movimiento.wav", "comunes/victoria.wav"), reproductor.tocados);
     }
 
     @Test
@@ -91,13 +92,13 @@ class SonidosDePartidaTest {
     }
 
     @Test
-    void elClasicoNoTieneHinchadaNiSilbatos() {
+    void elClasicoNoTieneHinchadaYSoloArrancaConElSilbato() {
         // Act
         conectar(clasica(), false);
 
         // Assert
         assertTrue(reproductor.pistas.isEmpty());
-        assertTrue(reproductor.tocados.isEmpty());
+        assertEquals(List.of("comunes/silbato-inicial.wav"), reproductor.tocados);
     }
 
     @Test
@@ -203,8 +204,8 @@ class SonidosDePartidaTest {
         // Act
         sonidos.piezaSeleccionada();
 
-        // Assert
-        assertEquals(List.of("comunes/seleccion.wav"), reproductor.tocados);
-        assertEquals(control.efectivo() * SonidosDePartida.VOLUMEN_SELECCION, reproductor.volumenes.getFirst(), 1e-9);
+        // Assert: tras el silbato de arranque, el clic suave
+        assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/seleccion.wav"), reproductor.tocados);
+        assertEquals(control.efectivo() * SonidosDePartida.VOLUMEN_SELECCION, reproductor.volumenes.getLast(), 1e-9);
     }
 }

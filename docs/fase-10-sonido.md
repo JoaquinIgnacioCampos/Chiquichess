@@ -1,7 +1,7 @@
 # Fase 10: sonido
 
-La partida ahora suena: un efecto por cada jugada, silbatos y hinchadas en el modo fútbol, y gol y
-victoria propios de cada club. El sonido es un adaptador más: el núcleo no sabe que existe.
+La partida ahora suena: un efecto por cada jugada, un silbato al empezar, silbato final y hinchadas en el
+modo fútbol, y gol y victoria propios de cada club. El sonido es un adaptador más: el núcleo no sabe que existe.
 
 ## Cómo suena
 
@@ -10,7 +10,8 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 - **El final**: la victoria del club que ganó, o un sonido de tablas. En el modo fútbol, antes, el
   silbato final.
 - **Deshacer y rehacer** suenan como un rebobinado.
-- **Modo fútbol**: silbato al empezar y las dos hinchadas cantando en bucle todo el partido.
+- **Al empezar** (al tocar "Jugar" o la revancha), en cualquier modo: el silbato del árbitro.
+- **Modo fútbol**: las dos hinchadas cantando en bucle todo el partido.
   - Crecen a medida que se acerca el límite de jugadas.
   - Si el partido está parejo (a lo sumo un gol de diferencia), crecen más: un final apretado es lo
     que más se escucha.
@@ -18,7 +19,7 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
     parecido.
   - El grito de gol es el pico: lo pone el sonido del gol, no la hinchada.
   - Al terminar la partida se callan. Si se deshace la jugada final, vuelven.
-- **El clásico** tiene solo efectos, sin hinchada ni silbatos.
+- **El clásico** tiene solo efectos y el silbato de arranque, sin hinchada ni silbato final.
 - **La consola** no tiene sonido.
 - **Volumen**: en la cabecera de la partida hay un botón "Sonido: sí/no" y una barra de volumen. Lo
   elegido sigue valiendo en la revancha y en las partidas siguientes.
@@ -173,7 +174,7 @@ el nombre de la columna "Archivo".
 | `comunes/gol.wav` | [Goal!](https://freesound.org/people/blaukreuz/sounds/189821/) | blaukreuz | 1:22 | Recortar a unos 8 s. |
 | `comunes/victoria.wav` | [WinBrass](https://freesound.org/people/Fupicat/sounds/521639/) | Fupicat | 3,8 s | |
 | `comunes/tablas.wav` | [Tibetan bowl center hit](https://freesound.org/people/dersinnsspace/sounds/421829/) | dersinnsspace | 19 s | Recortar a unos 4 s. |
-| `comunes/silbato-inicial.wav` | [Referee whistle sound](https://freesound.org/people/Rosa-Orenes256/sounds/538422/) | Rosa-Orenes256 | 0,5 s | |
+| `comunes/silbato-inicial.wav` | [referee whistle](https://freesound.org/people/pablo-f/sounds/90743/) | pablo-f | 2,1 s | Suena al empezar cualquier partida. Licencia por confirmar en Freesound. |
 | `comunes/silbato-final.wav` | [Referee whistle blow, gymnasium](https://freesound.org/people/SpliceSound/sounds/218318/) | SpliceSound | 3,3 s | |
 | `comunes/rebobinar.wav` | [Woosh_Medium_Short_01](https://freesound.org/people/moogy73/sounds/425706/) | moogy73 | 2,3 s | |
 | `comunes/hinchada.aiff` | [noise#01 (Feyenoord, De Kuip)](https://freesound.org/people/huubjeroen/sounds/39733/) | huubjeroen | 5:25 | Recortar a 30–40 s. Es AIFF: se usa tal cual. |
