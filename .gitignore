@@ -24,7 +24,6 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -44,3 +43,7 @@ build/
 
 ### Opciones locales del juego ###
 configuracion.txt
+
+### IntelliJ: solo se versiona la configuracion de ejecucion (.run) ###
+.idea/
+/dist/

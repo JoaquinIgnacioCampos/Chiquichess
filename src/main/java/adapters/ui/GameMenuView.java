@@ -14,8 +14,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
@@ -316,7 +314,7 @@ public final class GameMenuView extends GridPane {
         logo.setId("logo-menu");
         logo.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1,
                 javafx.beans.binding.Bindings.min(360, widthProperty().multiply(.4).subtract(56))));
-        VBox cover = new VBox(14, logo, title("AJEDREZ ARGENTINO", 12), character, caption);
+        VBox cover = new VBox(14, logo, title("AJEDREZ DEL FUTBOL   ARGENTINO", 12), character, caption);
         cover.setId("portada-menu");
         cover.setPadding(new Insets(28, 28, 24, 28));
         cover.setMinWidth(0);

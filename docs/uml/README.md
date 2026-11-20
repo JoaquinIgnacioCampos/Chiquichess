@@ -23,6 +23,8 @@ Se generó a partir de los diagramas de abajo, así que no puede contradecirlos.
 
 ### Regenerarla después de cambiar un diagrama
 
+> El script y la página de dibujo (`docs/uml/generar/`) se usan en local y no se entregan: están ignorados en git.
+
 1. Correr el script; solo necesita Python:
 
    ```powershell
@@ -43,7 +45,7 @@ Se generó a partir de los diagramas de abajo, así que no puede contradecirlos.
 | 3 | [Jugadas](03-jugadas.md) | La jugada como lista de efectos (Command) |
 | 4 | [Reglas](04-reglas.md) | Movimientos legales, reglas especiales y condiciones de fin (Strategy, Memento) |
 | 5 | [Partida (Game)](05-partida.md) | La fachada del núcleo, eventos (Observer) y reloj |
-| 6 | [IA](06-ia.md) | Minimax detrás de `EstrategiaDeJuego` |
+| 6 | [IA](06-ia.md) | Minimax detrás de `GameStrategy` |
 | 7 | [Adaptadores](07-adaptadores.md) | Ensamblado, configuración, consola, interfaz gráfica y sonido |
 
 ## Cómo leerlos
