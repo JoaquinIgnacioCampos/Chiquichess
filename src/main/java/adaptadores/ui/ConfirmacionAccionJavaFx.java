@@ -25,7 +25,7 @@ final class ConfirmacionAccionJavaFx extends VBox {
         setBorder(new Border(new BorderStroke(tema.borde(), BorderStrokeStyle.SOLID,
                 new CornerRadii(6), new BorderWidths(1))));
         Text texto = new Text(pregunta);
-        texto.setFont(Font.font("System", FontWeight.BOLD, 16));
+        texto.setFont(EstiloPixel.fuente(16, true));
         texto.setFill(tema.texto());
         texto.setTextAlignment(TextAlignment.CENTER);
         texto.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().subtract(24)));
@@ -50,16 +50,11 @@ final class ConfirmacionAccionJavaFx extends VBox {
 
     private Button boton(String texto, Color fondo, Color tinta) {
         Button boton = new Button(texto);
-        boton.setFont(Font.font("System", FontWeight.BOLD, 14));
-        boton.setTextFill(tinta);
-        boton.setPadding(new Insets(7, 10, 7, 10));
+        boton.setFont(EstiloPixel.fuente(14, true));
         boton.setMinWidth(0);
         boton.setMaxWidth(Double.MAX_VALUE);
-        boton.setBackground(new Background(new BackgroundFill(fondo, new CornerRadii(4), Insets.EMPTY)));
         boton.setCursor(javafx.scene.Cursor.HAND);
-        boton.focusedProperty().addListener((p, antes, foco) -> boton.setBorder(foco
-                ? new Border(new BorderStroke(tinta, BorderStrokeStyle.SOLID, new CornerRadii(4), new BorderWidths(1)))
-                : Border.EMPTY));
+        EstiloPixel.pintar(boton, fondo, tinta);
         return boton;
     }
 

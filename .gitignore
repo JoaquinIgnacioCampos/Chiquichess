@@ -38,3 +38,6 @@ build/
 .DS_Store
 # Sonidos locales de prueba (ver src/main/resources/sonidos/LEEME.txt)
 /sonidos/
+
+### Opciones locales del juego ###
+configuracion.txt

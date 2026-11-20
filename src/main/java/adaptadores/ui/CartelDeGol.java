@@ -65,7 +65,7 @@ public final class CartelDeGol extends StackPane {
         gol.prefHeightProperty().bind(gol.prefWidthProperty().multiply(7.0 / 29));
         gol.setMinHeight(Region.USE_PREF_SIZE);
         nombre.setId("gol-equipo");
-        nombre.setFont(Font.font("System", FontWeight.BOLD, 26));
+        nombre.setFont(EstiloPixel.fuente(26, true));
         tarjeta = new VBox(12, escudo, gol, nombre);
         tarjeta.setAlignment(Pos.CENTER);
         tarjeta.setPadding(new Insets(22, 30, 22, 30));

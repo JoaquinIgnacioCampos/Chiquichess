@@ -22,9 +22,8 @@ class RepresentacionUnicodeTest {
         for (Bando color : Bando.values()) {
             List<Pieza> piezas = List.of(new Rey(color), new Reina(color), new Torre(color),
                     new Alfil(color), new Caballo(color), new Peon(color));
-            List<String> esperados = color == Bando.BLANCO
-                    ? List.of("♔", "♕", "♖", "♗", "♘", "♙")
-                    : List.of("♚", "♛", "♜", "♝", "♞", "♟");
+            // Los dos bandos usan el símbolo relleno; los distingue el color (ver el test siguiente).
+            List<String> esperados = List.of("♚", "♛", "♜", "♝", "♞", "♟");
             for (int i = 0; i < piezas.size(); i++) {
                 assertEquals(esperados.get(i), ((Text) representacion.crear(piezas.get(i), tema)).getText());
             }

@@ -8,7 +8,10 @@ import javafx.scene.text.Text;
 
 import java.util.Objects;
 
-/** Dibuja cada pieza con su símbolo de ajedrez Unicode. */
+/**
+ * Dibuja cada pieza con su símbolo de ajedrez Unicode. Las dos usan la versión rellena del símbolo: el
+ * bando lo da el color de relleno, con el contorno oscuro marcando la forma de la pieza blanca.
+ */
 public class RepresentacionUnicode implements RepresentacionPiezas {
     @Override
     public Node crear(Pieza pieza, TemaTablero tema) {
@@ -25,18 +28,15 @@ public class RepresentacionUnicode implements RepresentacionPiezas {
     }
 
     private String simbolo(Pieza pieza) {
-        int blanco = switch (pieza.codigo()) {
-            case 'R' -> 0x2654;
-            case 'D' -> 0x2655;
-            case 'T' -> 0x2656;
-            case 'A' -> 0x2657;
-            case 'C' -> 0x2658;
-            case 'P' -> 0x2659;
+        int relleno = switch (pieza.codigo()) {
+            case 'R' -> 0x265A;
+            case 'D' -> 0x265B;
+            case 'T' -> 0x265C;
+            case 'A' -> 0x265D;
+            case 'C' -> 0x265E;
+            case 'P' -> 0x265F;
             default -> -1;
         };
-        if (blanco == -1) {
-            return String.valueOf(pieza.codigo());
-        }
-        return Character.toString(blanco + (pieza.color() == Bando.NEGRO ? 6 : 0));
+        return relleno == -1 ? String.valueOf(pieza.codigo()) : Character.toString(relleno);
     }
 }

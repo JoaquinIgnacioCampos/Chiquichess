@@ -56,7 +56,7 @@ class RepresentacionConSpritesTest {
     @Test
     void siFaltaElSpriteUsaLaRepresentacionDeRespaldo() {
         Text figura = assertInstanceOf(Text.class, representacion.crear(new Peon(Bando.BLANCO), tema));
-        assertEquals("♙", figura.getText());
+        assertEquals("♟", figura.getText());
     }
 
     @Test

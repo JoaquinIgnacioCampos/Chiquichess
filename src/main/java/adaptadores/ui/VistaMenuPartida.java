@@ -8,10 +8,12 @@ import adaptadores.configuracion.SeleccionDelMenu;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -20,10 +22,17 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/** Menú de selección: emite una configuración completa; no crea partidas ni relojes. */
+/**
+ * Menú de selección: emite una configuración completa; no crea partidas ni relojes.
+ *
+ * Estilo de estadio en pixel art: títulos con las letras de puntos del marcador, tarjetas y botones de
+ * bordes rectos con sombra dura, y un fondo con las franjas del pasto. Las opciones van en una grilla de
+ * tarjetas para que todo entre sin desplazarse; las que dependen de otra aparecen dentro de su tarjeta.
+ */
 public final class VistaMenuPartida extends GridPane {
-    /** Altura desde la que las opciones entran sin juntarlas. */
-    private static final double ALTO_COMODO = 810;
+    private static final double ALTO_TITULO = 16;
+    /** Clave con la que cada opción dependiente guarda el texto que la reemplaza cuando no aplica. */
+    private static final String PISTA = "pista";
 
     private final TemaPanel tema;
     private final Consumer<ConfiguracionPartida> iniciar;
@@ -42,12 +51,19 @@ public final class VistaMenuPartida extends GridPane {
     private final Spinner<Integer> limiteDeJugadas = new Spinner<>(ConfiguracionPartida.LIMITE_MINIMO,
             ConfiguracionPartida.LIMITE_MAXIMO, ConfiguracionPartida.LIMITE_POR_DEFECTO, 10);
     private final Label avisoLimite = new Label();
-    private final Button jugar = new Button("Jugar");
+    private final Button jugar = new Button("JUGAR");
     /** La imagen del personaje de la portada (se balancea al abrir el juego). */
     private ImageView figura;
     private Runnable alElegirOpcion = () -> { };
-    private HBox pie;
+    private final HBox pie;
     private final Label pendientes = new Label();
+    /** Club elegido por cada jugador, al lado de su nombre. */
+    private final Text clubJugador1 = new Text();
+    private final Text clubJugador2 = new Text();
+    /** Opciones que dependen de otra: se muestran dentro de su tarjeta solo cuando aplican. */
+    private final VBox panelLimite;
+    private final VBox panelDeshacer;
+    private final VBox panelDificultad;
 
     public VistaMenuPartida(TemaPanel tema, Consumer<ConfiguracionPartida> iniciar) {
         this.tema = Objects.requireNonNull(tema, "tema");
@@ -63,65 +79,70 @@ public final class VistaMenuPartida extends GridPane {
             columna.setMinWidth(0);
             getColumnConstraints().add(columna);
         }
-        RowConstraints fila = new RowConstraints();
-        fila.setPercentHeight(100);
-        getRowConstraints().add(fila);
+        RowConstraints filaUnica = new RowConstraints();
+        filaUnica.setPercentHeight(100);
+        getRowConstraints().add(filaUnica);
         add(portada(), 0, 0);
 
-        VBox opciones = new VBox(18);
-        opciones.setPadding(new Insets(28, 32, 28, 32));
-        opciones.setMinWidth(0);
-        VBox titulo = new VBox(5, texto("Selección de partida", 28, tema.texto(), true),
-                texto("Completá las opciones para empezar.", 14, tema.textoSecundario(), false));
-        opciones.getChildren().add(titulo);
-        opciones.getChildren().add(seccion("MODO", fila(opcion("Clásico", "modo-clasico", Modo.CLASICO, modo),
-                opcion("Fútbol · Posesión y gol", "modo-futbol", Modo.FUTBOL, modo))));
-        limiteDeJugadas.setId("limite-jugadas");
-        limiteDeJugadas.setEditable(true);
-        limiteDeJugadas.setPrefWidth(110);
-        limiteDeJugadas.getEditor().setFont(Font.font("System", FontWeight.BOLD, 13));
-        limiteDeJugadas.setStyle("-fx-background-color: " + css(tema.borde()) + "; -fx-background-radius: 5;");
-        limiteDeJugadas.getEditor().setStyle("-fx-background-color: " + css(tema.tarjeta())
-                + "; -fx-text-fill: " + css(tema.texto()) + "; -fx-background-radius: 5 0 0 5;");
-        // Lo escrito a mano se toma al salir del campo (y también al apretar Jugar).
-        limiteDeJugadas.getEditor().focusedProperty().addListener((p, antes, foco) -> {
-            if (!foco) confirmarLimiteEscrito();
-        });
-        avisoLimite.setId("aviso-limite");
-        avisoLimite.setFont(Font.font("System", 12));
-        avisoLimite.setTextFill(tema.textoSecundario());
-        avisoLimite.setWrapText(true);
-        opciones.getChildren().add(seccion("LÍMITE DE JUGADAS (FÚTBOL)", new VBox(6, limiteDeJugadas, avisoLimite)));
+        configurarLimite();
+        panelLimite = dependiente("Límite de jugadas", new VBox(6, limiteDeJugadas, avisoLimite));
+        Node tarjetaModo = tarjeta("MODO", new VBox(fila(
+                opcion("Clásico", "modo-clasico", Modo.CLASICO, modo),
+                opcion("Fútbol", "modo-futbol", Modo.FUTBOL, modo)),
+                ranura(panelLimite, "Con Fútbol se elige el límite de jugadas.")));
+
         FlowPane tiempos = fila();
-        for (Tiempo valor : Tiempo.values()) tiempos.getChildren().add(opcion(valor.texto(),
+        for (Tiempo valor : Tiempo.values()) tiempos.getChildren().add(opcion(textoDe(valor),
                 "tiempo-" + valor.name().toLowerCase(java.util.Locale.ROOT), valor, tiempo));
-        opciones.getChildren().add(seccion("TIEMPO POR JUGADOR", tiempos));
         permitirDeshacer = opcion("Permitir deshacer", "permitir-deshacer", Boolean.TRUE, null);
-        avisoDeshacer.setId("aviso-deshacer");
-        avisoDeshacer.setFont(Font.font("System", 12));
-        avisoDeshacer.setTextFill(tema.textoSecundario());
-        opciones.getChildren().add(seccion("DESHACER JUGADAS", new VBox(6, fila(permitirDeshacer), avisoDeshacer)));
-        opciones.getChildren().add(seccion("RIVAL", fila(
-                opcion("Amigo · misma pantalla", "rival-amigo", Rival.AMIGO, rival),
-                opcion("IA · la computadora", "rival-ia", Rival.IA, rival))));
-        avisoDificultad.setId("aviso-dificultad");
-        avisoDificultad.setFont(Font.font("System", 12));
-        avisoDificultad.setTextFill(tema.textoSecundario());
-        avisoDificultad.setWrapText(true);
-        opciones.getChildren().add(seccion("DIFICULTAD DE LA IA", new VBox(6, fila(
+        aviso(avisoDeshacer, "aviso-deshacer");
+        avisoDeshacer.setText("Ambos pueden deshacer jugadas.");
+        panelDeshacer = dependiente("Deshacer jugadas", new VBox(6, fila(permitirDeshacer), avisoDeshacer));
+        Node tarjetaTiempo = tarjeta("TIEMPO", new VBox(tiempos,
+                ranura(panelDeshacer, "Sin tiempo se pueden deshacer jugadas.")));
+
+        aviso(avisoDificultad, "aviso-dificultad");
+        avisoDificultad.setText("La IA es el Jugador 2.");
+        panelDificultad = dependiente("Dificultad de la IA", new VBox(6, fila(
                 opcion("Fácil", "dificultad-facil", Dificultad.FACIL, dificultad),
                 opcion("Medio", "dificultad-medio", Dificultad.MEDIO, dificultad),
-                opcion("Difícil", "dificultad-dificil", Dificultad.DIFICIL, dificultad)), avisoDificultad)));
-        VBox equipos = new VBox(10, seleccionEquipo("Jugador 1", "jugador-1", equipo1),
-                seleccionEquipo("Jugador 2", "jugador-2", equipo2));
-        opciones.getChildren().add(seccion("EQUIPOS", equipos));
-        opciones.getChildren().add(seccion("QUIÉN JUEGA CON BLANCAS", fila(
-                opcion("Jugador 1 blancas", "color-jugador-1", Colores.JUGADOR_1_BLANCAS, colores),
-                opcion("Jugador 2 blancas", "color-jugador-2", Colores.JUGADOR_2_BLANCAS, colores),
-                opcion("Aleatorio", "color-aleatorio", Colores.ALEATORIO, colores))));
+                opcion("Difícil", "dificultad-dificil", Dificultad.DIFICIL, dificultad)), avisoDificultad));
+        Node tarjetaRival = tarjeta("RIVAL", new VBox(fila(
+                opcion("Amigo", "rival-amigo", Rival.AMIGO, rival),
+                opcion("IA", "rival-ia", Rival.IA, rival)),
+                ranura(panelDificultad, "Contra la IA se elige la dificultad.")));
+
+        Node tarjetaColores = tarjeta("CON BLANCAS", fila(
+                opcion("Jugador 1", "color-jugador-1", Colores.JUGADOR_1_BLANCAS, colores),
+                opcion("Jugador 2", "color-jugador-2", Colores.JUGADOR_2_BLANCAS, colores),
+                opcion("Al azar", "color-aleatorio", Colores.ALEATORIO, colores)));
+
+        Node tarjetaEquipos = tarjeta("EQUIPOS", new VBox(10,
+                seleccionEquipo("Jugador 1", "jugador-1", equipo1, clubJugador1),
+                seleccionEquipo("Jugador 2", "jugador-2", equipo2, clubJugador2)));
+
+        GridPane grilla = new GridPane();
+        grilla.setHgap(14);
+        grilla.setVgap(10);
+        for (int i = 0; i < 2; i++) {
+            ColumnConstraints columna = new ColumnConstraints();
+            columna.setPercentWidth(50);
+            columna.setMinWidth(0);
+            grilla.getColumnConstraints().add(columna);
+        }
+        grilla.add(tarjetaModo, 0, 0);
+        grilla.add(tarjetaTiempo, 1, 0);
+        grilla.add(tarjetaRival, 0, 1);
+        grilla.add(tarjetaColores, 1, 1);
+        grilla.add(tarjetaEquipos, 0, 2, 2, 1);
+
+        Text bajada = texto("Elegí cómo se juega y los equipos.", 13, tema.textoSecundario(), false);
+        VBox opciones = new VBox(14, new VBox(6, titulo("ARMA LA PARTIDA", 22), bajada), grilla);
+        opciones.setPadding(new Insets(16, 26, 12, 26));
+        opciones.setMinWidth(0);
 
         pendientes.setId("selecciones-pendientes");
-        pendientes.setFont(Font.font("System", 13));
+        pendientes.setFont(EstiloPixel.fuente(12, true));
         pendientes.setTextFill(tema.textoSecundario());
         pendientes.setWrapText(true);
         // Puede necesitar varios renglones en ventanas angostas: crece en alto en vez de cortarse.
@@ -129,35 +150,33 @@ public final class VistaMenuPartida extends GridPane {
         pendientes.setMinWidth(0);
         pendientes.setMaxWidth(Double.MAX_VALUE);
         jugar.setId("jugar");
-        jugar.setFont(Font.font("System", FontWeight.BOLD, 17));
-        jugar.setTextFill(tema.fondo());
-        jugar.setBackground(fondo(tema.acento()));
-        jugar.setPadding(new Insets(12, 38, 12, 38));
+        jugar.setFont(EstiloPixel.fuente(18, true));
         jugar.setMinWidth(150);
         jugar.setPrefWidth(150);
         jugar.setMaxWidth(150);
         jugar.setCursor(Cursor.HAND);
         jugar.focusedProperty().addListener((p, antes, foco) -> pintarJugar());
-        pintarJugar();
+        jugar.disabledProperty().addListener((p, antes, deshabilitado) -> pintarJugar());
         jugar.setOnAction(e -> emitirConfiguracion());
-        pie = new HBox(16, pendientes, jugar);
+        pie = new HBox(14, pendientes, jugar);
         pie.setAlignment(Pos.CENTER_RIGHT);
+        pie.setPadding(new Insets(10, 26, 14, 26));
         HBox.setHgrow(pendientes, Priority.ALWAYS);
-        pie.setBackground(fondo(tema.tarjeta()));
+        pie.setBackground(new Background(new BackgroundFill(tema.tarjeta(), CornerRadii.EMPTY, Insets.EMPTY)));
+        pie.setBorder(new Border(new BorderStroke(tema.borde(), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(3, 0, 0, 0))));
 
-        ScrollPane desplazamiento = new ScrollPane(opciones);
+        // Si la ventana es muy baja, las opciones se achican para entrar sin desplazamiento; "Jugar"
+        // queda siempre fijo debajo.
+        AjusteAlAlto desplazamiento = new AjusteAlAlto(opciones);
         desplazamiento.setId("opciones-menu");
-        desplazamiento.setFitToWidth(true);
-        desplazamiento.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        desplazamiento.setMinSize(0, 0);
-        desplazamiento.setStyle("-fx-background: " + css(tema.fondo()) + "; -fx-background-color: " + css(tema.fondo()) + ";");
-        // "Jugar" queda fijo debajo de las opciones: se ve siempre, aunque haya que desplazarlas.
+        String pasto = "linear-gradient(from 0px 0px to 112px 0px, repeat, #0C1712 50%, #0F1D16 50%)";
+        desplazamiento.setStyle("-fx-background-color: " + pasto + ";");
+        opciones.setStyle("-fx-background-color: transparent;");
         VBox columnaOpciones = new VBox(desplazamiento, pie);
         columnaOpciones.setMinSize(0, 0);
         VBox.setVgrow(desplazamiento, Priority.ALWAYS);
         add(columnaOpciones, 1, 0);
-        heightProperty().addListener((p, antes, alto) -> ajustarDensidad(opciones, pie, alto.doubleValue()));
-        ajustarDensidad(opciones, pie, getHeight());
         for (ToggleGroup grupo : new ToggleGroup[]{modo, tiempo, rival, equipo1, equipo2, colores, dificultad}) {
             grupo.selectedToggleProperty().addListener((p, antes, ahora) -> actualizarSeleccion());
         }
@@ -235,12 +254,37 @@ public final class VistaMenuPartida extends GridPane {
                 .findFirst().orElse(null));
     }
 
-    /** En pantallas bajas junta las opciones para que entren sin desplazarlas. */
-    private void ajustarDensidad(VBox opciones, HBox pie, double alto) {
-        boolean compacto = alto < ALTO_COMODO;
-        opciones.setSpacing(compacto ? 11 : 18);
-        opciones.setPadding(compacto ? new Insets(16, 32, 8, 32) : new Insets(28, 32, 12, 32));
-        pie.setPadding(compacto ? new Insets(8, 32, 12, 32) : new Insets(12, 32, 20, 32));
+    private static String textoDe(Tiempo valor) {
+        return switch (valor) {
+            case TRES_MINUTOS -> "3 min";
+            case CINCO_MINUTOS -> "5 min";
+            case DIEZ_MINUTOS -> "10 min";
+            case SIN_TIEMPO -> "Sin tiempo";
+        };
+    }
+
+    private void configurarLimite() {
+        limiteDeJugadas.setId("limite-jugadas");
+        limiteDeJugadas.setEditable(true);
+        limiteDeJugadas.setPrefWidth(110);
+        limiteDeJugadas.getEditor().setFont(EstiloPixel.fuente(13, true));
+        limiteDeJugadas.setStyle("-fx-background-color: " + css(tema.borde()) + "; -fx-background-radius: 0;");
+        limiteDeJugadas.getEditor().setStyle("-fx-background-color: " + css(tema.fondo())
+                + "; -fx-text-fill: " + css(tema.texto()) + "; -fx-background-radius: 0;");
+        // Lo escrito a mano se toma al salir del campo (y también al apretar Jugar).
+        limiteDeJugadas.getEditor().focusedProperty().addListener((p, antes, foco) -> {
+            if (!foco) confirmarLimiteEscrito();
+        });
+        aviso(avisoLimite, "aviso-limite");
+        avisoLimite.setText("Jugadas de los dos juntos (de " + ConfiguracionPartida.LIMITE_MINIMO + " a "
+                + ConfiguracionPartida.LIMITE_MAXIMO + "). Al llegar, gana quien tenga más goles.");
+    }
+
+    private void aviso(Label aviso, String id) {
+        aviso.setId(id);
+        aviso.setFont(EstiloPixel.fuente(12, false));
+        aviso.setTextFill(tema.textoSecundario());
+        aviso.setWrapText(true);
     }
 
     private static Image cargarPersonaje() {
@@ -252,108 +296,186 @@ public final class VistaMenuPartida extends GridPane {
     }
 
     private VBox portada() {
-        Text marca = texto("CHIQUICHESS", 32, tema.texto(), true);
-        Text subtitulo = texto("AJEDREZ ARGENTINO", 13, tema.acento(), true);
         figura = new ImageView(cargarPersonaje());
         figura.setId("personaje");
         figura.setPreserveRatio(true);
         figura.setSmooth(true);
         StackPane personaje = new StackPane(figura);
-        figura.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.widthProperty().subtract(24)));
-        figura.fitHeightProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.heightProperty().subtract(24)));
+        figura.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.widthProperty().subtract(32)));
+        figura.fitHeightProperty().bind(javafx.beans.binding.Bindings.max(1, personaje.heightProperty().subtract(32)));
         personaje.setId("espacio-personaje");
         personaje.setMinSize(0, 0);
         personaje.setPrefHeight(370);
         personaje.setMaxHeight(Double.MAX_VALUE);
-        personaje.setBackground(new Background(new BackgroundFill(tema.fondo(), new CornerRadii(12), Insets.EMPTY)));
-        personaje.setBorder(new Border(new BorderStroke(tema.borde(), BorderStrokeStyle.DASHED,
-                new CornerRadii(12), new BorderWidths(1))));
+        personaje.setStyle(estiloTarjeta(tema.fondo()));
         personaje.setAccessibleText("Personaje de ChiquiChess");
-        Text leyenda = texto("Elegí tu equipo.\nJugá tu clásico.", 23, tema.texto(), true);
+        Text leyenda = texto("Elegí tu equipo.\nJugá tu clásico.", 22, tema.texto(), true);
         leyenda.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
-        marca.fontProperty().bind(javafx.beans.binding.Bindings.createObjectBinding(() ->
-                Font.font("System", FontWeight.BOLD, Math.max(21, Math.min(34, getWidth() * .027))), widthProperty()));
-        VBox portada = new VBox(14, marca, subtitulo, personaje, leyenda);
+        VBox portada = new VBox(14, titulo("CHIQUICHESS", 30), titulo("AJEDREZ ARGENTINO", 12), personaje, leyenda);
         portada.setId("portada-menu");
-        portada.setPadding(new Insets(32));
+        portada.setPadding(new Insets(28, 28, 24, 28));
         portada.setMinWidth(0);
         portada.setBackground(fondo(tema.tarjeta()));
         portada.setBorder(new Border(new BorderStroke(tema.borde(), BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(0, 1, 0, 0))));
+                CornerRadii.EMPTY, new BorderWidths(0, 3, 0, 0))));
         VBox.setVgrow(personaje, Priority.ALWAYS);
         return portada;
     }
 
-    private VBox seleccionEquipo(String jugador, String id, ToggleGroup grupo) {
-        FlowPane botones = fila();
+    /** Fila de un jugador: su nombre con el club elegido y los escudos para elegirlo. */
+    private HBox seleccionEquipo(String jugador, String id, ToggleGroup grupo, Text club) {
+        FlowPane escudos = new FlowPane(6, 6);
         for (Equipo equipo : Equipo.values()) {
-            ToggleButton boton = opcion(equipo.nombre(),
-                    id + "-" + equipo.name().toLowerCase(java.util.Locale.ROOT), equipo, grupo);
-            var imagen = new javafx.scene.image.ImageView(PresentacionClub.escudoDe(equipo));
-            imagen.setFitWidth(26);
-            imagen.setFitHeight(30);
+            ToggleButton boton = opcion("", id + "-" + equipo.name().toLowerCase(java.util.Locale.ROOT), equipo, grupo);
+            var imagen = new ImageView(PresentacionClub.escudoDe(equipo));
+            imagen.setFitWidth(54);
+            imagen.setFitHeight(54);
             imagen.setPreserveRatio(true);
             imagen.setSmooth(true);
             imagen.setMouseTransparent(true);
             boton.setGraphic(imagen);
-            boton.setGraphicTextGap(7);
-            botones.getChildren().add(boton);
+            boton.setAccessibleText(equipo.nombre());
+            boton.setTooltip(new Tooltip(equipo.nombre()));
+            boton.setMinSize(78, 70);
+            boton.setPrefSize(78, 70);
+            boton.setMaxSize(78, 70);
+            escudos.getChildren().add(boton);
         }
-        return new VBox(6, texto(jugador, 14, tema.texto(), true), botones);
+        club.setFont(EstiloPixel.fuente(13, true));
+        club.setFill(tema.acento());
+        VBox nombre = new VBox(2, texto(jugador, 14, tema.texto(), true), club);
+        nombre.setMinWidth(96);
+        nombre.setPrefWidth(96);
+        HBox fila = new HBox(10, nombre, escudos);
+        fila.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(escudos, Priority.ALWAYS);
+        return fila;
     }
 
     private ToggleButton opcion(String texto, String id, Object valor, ToggleGroup grupo) {
-        ToggleButton boton = new ToggleButton(texto);
+        // En un grupo siempre queda una opción elegida: tocar la elegida no la suelta. Las opciones
+        // sueltas (sin grupo), como "Permitir deshacer", sí se activan y desactivan.
+        ToggleButton boton = new ToggleButton(texto) {
+            @Override
+            public void fire() {
+                if (getToggleGroup() == null || !isSelected()) super.fire();
+            }
+        };
         boton.setId(id);
         boton.setUserData(valor);
         boton.setToggleGroup(grupo);
-        boton.setFont(Font.font("System", FontWeight.BOLD, 13));
-        boton.setPadding(new Insets(9, 12, 9, 12));
+        boton.setFont(EstiloPixel.fuente(12, true));
         boton.setCursor(Cursor.HAND);
         // Solo los clics de la persona (no las selecciones que hace el propio menú) avisan.
         boton.setOnAction(evento -> alElegirOpcion.run());
         boton.selectedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         boton.focusedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
+        boton.hoverProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
+        boton.pressedProperty().addListener((p, antes, ahora) -> pintarOpcion(boton));
         pintarOpcion(boton);
         return boton;
     }
 
+    /**
+     * Botón de pixel art: sombra dura abajo a la derecha, borde de 2 píxeles y cara plana. Al estar
+     * elegido o apretado se "hunde": pierde la sombra y se corre hacia ella.
+     */
     private void pintarOpcion(ToggleButton boton) {
-        boton.setStyle("-fx-background-color: " + css(boton.isSelected() ? tema.acento() : tema.tarjeta())
-                + "; -fx-text-fill: " + css(boton.isSelected() ? tema.fondo() : tema.texto())
-                + "; -fx-border-color: " + css(boton.isFocused() ? tema.texto() :
-                boton.isSelected() ? tema.acento() : tema.borde())
-                + "; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-width: 1;");
+        boolean hundido = boton.isSelected() || boton.isPressed();
+        Color cara = boton.isSelected() ? tema.acento()
+                : boton.isHover() ? tema.tarjeta().interpolate(tema.borde(), 0.6) : tema.tarjeta();
+        Color borde = boton.isFocused() ? tema.texto() : boton.isSelected() ? tema.acento().darker() : tema.borde();
+        boton.setStyle(estiloBoton(cara, borde, hundido)
+                + "-fx-text-fill: " + css(boton.isSelected() ? tema.fondo() : tema.texto()) + ";");
     }
 
     private void pintarJugar() {
-        jugar.setStyle("-fx-background-color: " + css(tema.acento()) + "; -fx-text-fill: " + css(tema.fondo())
-                + "; -fx-border-color: " + css(jugar.isFocused() ? tema.texto() : tema.acento())
-                + "; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-width: 2;");
+        Color cara = jugar.isDisabled() ? tema.borde() : tema.acento();
+        Color borde = jugar.isFocused() ? tema.texto() : cara.darker();
+        jugar.setStyle(estiloBoton(cara, borde, false) + "-fx-text-fill: " + css(tema.fondo()) + ";"
+                + "-fx-opacity: 1; -fx-padding: 10 18 14 14;");
+    }
+
+    private String estiloBoton(Color cara, Color borde, boolean hundido) {
+        return EstiloPixel.boton(cara, borde, hundido);
+    }
+
+    /** Tarjeta de pixel art: sombra dura, borde grueso y cara oscura. */
+    private String estiloTarjeta(Color cara) {
+        return EstiloPixel.tarjeta(cara, tema.borde());
+    }
+
+    private VBox tarjeta(String titulo, Node contenido) {
+        VBox tarjeta = new VBox(10, titulo(titulo, ALTO_TITULO), contenido);
+        tarjeta.setPadding(new Insets(11, 19, 15, 15));
+        tarjeta.setMinWidth(0);
+        tarjeta.setStyle(estiloTarjeta(tema.tarjeta()));
+        GridPane.setFillHeight(tarjeta, true);
+        tarjeta.setMaxHeight(Double.MAX_VALUE);
+        return tarjeta;
+    }
+
+    /** Título con las letras de puntos del marcador del estadio, alineado a la izquierda. */
+    private Node titulo(String texto, double alto) {
+        TextoLed led = new TextoLed(tema.acento());
+        led.setColorApagado(tema.puntoApagado());
+        led.setTexto(texto);
+        double ancho = (texto.length() * 6 - 1) * alto / 7;
+        led.setMinSize(ancho, alto);
+        led.setPrefSize(ancho, alto);
+        led.setMaxSize(ancho, alto);
+        return led;
+    }
+
+    /** Opción que depende de otra, en un recuadro hundido dentro de su tarjeta. */
+    private VBox dependiente(String titulo, Node contenido) {
+        VBox panel = new VBox(6, texto(titulo, 12, tema.acento(), true), contenido);
+        panel.setPadding(new Insets(8, 10, 10, 10));
+        panel.setBackground(fondo(tema.fondo()));
+        return panel;
+    }
+
+    /**
+     * Lugar fijo para una opción dependiente: siempre ocupa lo mismo, así la tarjeta no cambia de alto.
+     * Cuando la opción no aplica, en su lugar se lee qué la habilita.
+     */
+    private StackPane ranura(VBox panel, String pista) {
+        Label explicacion = new Label(pista);
+        explicacion.setFont(EstiloPixel.fuente(12, false));
+        explicacion.setTextFill(tema.textoSecundario());
+        explicacion.setWrapText(true);
+        explicacion.setPadding(new Insets(8, 10, 0, 10));
+        panel.getProperties().put(PISTA, explicacion);
+        StackPane ranura = new StackPane(panel, explicacion);
+        ranura.setAlignment(Pos.TOP_LEFT);
+        VBox.setMargin(ranura, new Insets(10, 0, 0, 0));
+        return ranura;
+    }
+
+    private static void mostrar(Node panel, boolean visible) {
+        panel.setVisible(visible);
+        ((Node) panel.getProperties().get(PISTA)).setVisible(!visible);
     }
 
     private void actualizarSeleccion() {
         bloquearEquipo(equipo1, equipo2);
         bloquearEquipo(equipo2, equipo1);
+        clubJugador1.setText(nombreDelClub(equipo1));
+        clubJugador2.setText(nombreDelClub(equipo2));
         // Deshacer solo existe en partidas sin tiempo: con un tiempo elegido se apaga y se deshabilita.
         boolean sinTiempo = tiempo.getSelectedToggle() != null
                 && tiempo.getSelectedToggle().getUserData() == Tiempo.SIN_TIEMPO;
         if (!sinTiempo) permitirDeshacer.setSelected(false);
         permitirDeshacer.setDisable(!sinTiempo);
-        avisoDeshacer.setText(sinTiempo ? "Cualquiera de los dos podrá deshacer y rehacer jugadas."
-                : "Disponible solo en partidas sin tiempo.");
+        mostrar(panelDeshacer, sinTiempo);
         // La dificultad solo existe contra la IA: con otro rival se borra y se deshabilita.
         boolean contraLaIa = rival.getSelectedToggle() != null && rival.getSelectedToggle().getUserData() == Rival.IA;
         if (!contraLaIa && dificultad.getSelectedToggle() != null) dificultad.selectToggle(null);
         for (Toggle opcion : dificultad.getToggles()) ((ToggleButton) opcion).setDisable(!contraLaIa);
-        avisoDificultad.setText(contraLaIa ? "La IA juega como Jugador 2, con su equipo."
-                : "Disponible solo contra la IA.");
+        mostrar(panelDificultad, contraLaIa);
         boolean futbol = modo.getSelectedToggle() != null && modo.getSelectedToggle().getUserData() == Modo.FUTBOL;
         limiteDeJugadas.setDisable(!futbol);
-        avisoLimite.setText(futbol
-                ? "Jugadas de los dos juntos (de " + ConfiguracionPartida.LIMITE_MINIMO + " a "
-                + ConfiguracionPartida.LIMITE_MAXIMO + "). Al llegar, gana quien tenga más goles."
-                : "Disponible solo en el modo fútbol.");
+        mostrar(panelLimite, futbol);
         var faltantes = new ArrayList<String>();
         if (modo.getSelectedToggle() == null) faltantes.add("modo");
         if (tiempo.getSelectedToggle() == null) faltantes.add("tiempo");
@@ -363,7 +485,12 @@ public final class VistaMenuPartida extends GridPane {
         if (equipo2.getSelectedToggle() == null) faltantes.add("equipo de Jugador 2");
         if (colores.getSelectedToggle() == null) faltantes.add("colores");
         jugar.setDisable(!faltantes.isEmpty());
+        pintarJugar();
         pendientes.setText(faltantes.isEmpty() ? "Todo listo para jugar." : "Falta elegir: " + String.join(", ", faltantes) + ".");
+    }
+
+    private static String nombreDelClub(ToggleGroup grupo) {
+        return grupo.getSelectedToggle() == null ? "Sin elegir" : ((Equipo) grupo.getSelectedToggle().getUserData()).nombre();
     }
 
     private void bloquearEquipo(ToggleGroup propio, ToggleGroup otro) {
@@ -400,26 +527,22 @@ public final class VistaMenuPartida extends GridPane {
         limiteDeJugadas.getEditor().setText(fabrica.getConverter().toString(fabrica.getValue()));
     }
 
-    private VBox seccion(String titulo, javafx.scene.Node contenido) {
-        return new VBox(8, texto(titulo, 12, tema.textoSecundario(), true), contenido);
-    }
-
-    private FlowPane fila(javafx.scene.Node... botones) {
+    private FlowPane fila(Node... botones) {
         return new FlowPane(8, 8, botones);
     }
 
-    private Text texto(String valor, double tamano, javafx.scene.paint.Color color, boolean negrita) {
+    private Text texto(String valor, double tamano, Color color, boolean negrita) {
         Text texto = new Text(valor);
-        texto.setFont(Font.font("System", negrita ? FontWeight.BOLD : FontWeight.NORMAL, tamano));
+        texto.setFont(EstiloPixel.fuente(tamano, negrita));
         texto.setFill(color);
         return texto;
     }
 
-    private Background fondo(javafx.scene.paint.Color color) {
+    private Background fondo(Color color) {
         return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
     }
 
-    private String css(javafx.scene.paint.Color color) {
+    private static String css(Color color) {
         return String.format(java.util.Locale.ROOT, "#%02x%02x%02x", Math.round(color.getRed() * 255),
                 Math.round(color.getGreen() * 255), Math.round(color.getBlue() * 255));
     }

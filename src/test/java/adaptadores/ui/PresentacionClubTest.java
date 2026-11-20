@@ -2,7 +2,6 @@ package adaptadores.ui;
 
 import adaptadores.configuracion.ConfiguracionPartida.Equipo;
 import javafx.application.Platform;
-import javafx.scene.control.ScrollPane;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +38,7 @@ class PresentacionClubTest {
     @Test
     void argentinaSePuedeElegirParaLosDosJugadores() {
         VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> { });
-        var opciones = ((ScrollPane) menu.lookup("#opciones-menu")).getContent();
+        var opciones = menu;
         assertNotNull(opciones.lookup("#jugador-1-argentina"));
         assertNotNull(opciones.lookup("#jugador-2-argentina"));
     }

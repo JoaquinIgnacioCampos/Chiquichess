@@ -7,10 +7,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -70,10 +75,10 @@ public final class VistaPartida extends BorderPane {
         juego.setPadding(new Insets(24));
         Text chiqui = new Text("CHIQUI");
         chiqui.setFill(temaPanel.texto());
-        chiqui.setFont(Font.font("System", FontWeight.BOLD, 22));
+        chiqui.setFont(EstiloPixel.fuente(22, true));
         Text chess = new Text("CHESS");
         chess.setFill(temaPanel.acento());
-        chess.setFont(Font.font("System", FontWeight.BOLD, 22));
+        chess.setFont(EstiloPixel.fuente(22, true));
         titulo.getChildren().add(new HBox(chiqui, chess));
         titulo.setAlignment(Pos.CENTER_LEFT);
         BorderPane.setMargin(titulo, new Insets(0, 0, 16, 0));
@@ -89,12 +94,25 @@ public final class VistaPartida extends BorderPane {
         setRight(panel);
         mensaje.setId("mensaje-movimiento");
         mensaje.setFill(temaPanel.texto());
-        mensaje.setFont(Font.font(16));
-        mensaje.wrappingWidthProperty().bind(juego.widthProperty().subtract(48));
-        mensaje.managedProperty().bind(mensaje.textProperty().isNotEmpty());
-        mensaje.visibleProperty().bind(mensaje.textProperty().isNotEmpty());
-        BorderPane.setMargin(mensaje, new Insets(12, 0, 0, 0));
-        juego.setBottom(mensaje);
+        mensaje.setFont(EstiloPixel.fuente(16, false));
+        mensaje.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.min(520,
+                areaTablero.widthProperty().multiply(0.8)));
+        mensaje.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        // Cartel flotante sobre la parte de abajo del tablero: se ve sin correr ni achicar nada.
+        // No toma clics, así el tablero que queda debajo se sigue pudiendo usar.
+        StackPane cartel = new StackPane(mensaje);
+        cartel.setId("cartel-mensaje");
+        cartel.setMouseTransparent(true);
+        cartel.setPadding(new Insets(10, 18, 10, 18));
+        cartel.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        cartel.setBackground(new Background(new BackgroundFill(
+                temaPanel.fondo().deriveColor(0, 1, 1, 0.9), CornerRadii.EMPTY, Insets.EMPTY)));
+        cartel.setBorder(new Border(new BorderStroke(temaPanel.acento(), BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, new BorderWidths(2))));
+        cartel.visibleProperty().bind(mensaje.textProperty().isNotEmpty());
+        StackPane.setAlignment(cartel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(cartel, new Insets(0, 0, 18, 0));
+        areaTablero.getChildren().add(cartel);
         // Después del panel: el panel anota el evento y recién entonces se redibuja todo.
         controlador.escuchar(evento -> {
             if (evento instanceof Nucleo.juego.EventoDePartida.JugadaHecha hecha
@@ -151,6 +169,12 @@ public final class VistaPartida extends BorderPane {
         selectorPromocion.mostrar(opciones);
     }
 
+    /** Tablero y tarjetas vistos desde ese bando: sus piezas y su tarjeta quedan abajo. */
+    public void mirarDesde(Nucleo.bando.Bando bando) {
+        tablero.mirarDesde(bando);
+        panel.mirarDesde(bando);
+    }
+
     public void redibujar() {
         tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
         mostrarPromocion(controlador.promocionPendiente());
@@ -170,8 +194,10 @@ public final class VistaPartida extends BorderPane {
     public void configurarDeshacer() {
         if (deshacer != null) throw new IllegalStateException("Deshacer ya configurado");
         if (!controlador.permiteDeshacer()) return;
-        deshacer = BotonDeCabecera.crear("Deshacer", "deshacer", temaPanel.tarjeta(), temaPanel.texto());
-        rehacer = BotonDeCabecera.crear("Rehacer", "rehacer", temaPanel.tarjeta(), temaPanel.texto());
+        deshacer = BotonDeCabecera.crear("Deshacer", "deshacer", temaPanel.tarjeta(), temaPanel.texto(),
+                IconoPixel.DESHACER, false);
+        rehacer = BotonDeCabecera.crear("Rehacer", "rehacer", temaPanel.tarjeta(), temaPanel.texto(),
+                IconoPixel.DESHACER, true);
         deshacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.deshacer()));
         rehacer.setOnAction(e -> mostrarRespuestaDeshacer(controlador.rehacer()));
         titulo.getChildren().addAll(deshacer, rehacer);

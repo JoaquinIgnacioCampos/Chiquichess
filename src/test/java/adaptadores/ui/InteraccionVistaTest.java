@@ -126,7 +126,7 @@ class InteraccionVistaTest {
         pulsar(vista, "d5");
         assertEquals(Bando.BLANCO, partida.tablero().piezaEn(pos("d5")).orElseThrow().color());
         assertEquals(31, partida.tablero().piezas().size());
-        assertEquals("♙", ((Text) casilla(vista, "d5").getChildren().getFirst()).getText());
+        assertEquals("♟", ((Text) casilla(vista, "d5").getChildren().getFirst()).getText());
         assertTrue(casilla(vista, "e4").getChildren().isEmpty());
         assertTrue(vista.lookupAll(".indicador-captura").isEmpty());
         assertTrue(vista.lookupAll(".indicador-movimiento").isEmpty());
