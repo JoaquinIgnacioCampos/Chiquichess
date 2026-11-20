@@ -25,14 +25,14 @@ class EnPassantTest {
     /** Peón blanco en e5 y peón negro en d5 (que acaba de llegar), con los dos reyes. */
     private Board whiteInE5BlackInD5() {
         return BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "...pP...",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
     }
 
     private Move advance(Piece pawn, String from, String until) {
@@ -66,14 +66,14 @@ class EnPassantTest {
     void worksTowardTwoSidesAndForBlack() {
         // Arrange: peón negro en d4; el blanco acaba de avanzar e2-e4 y queda a su derecha
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "...pP...",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Piece white = board.pieceIn(pos("e4")).orElseThrow();
 
         // Act
@@ -121,14 +121,14 @@ class EnPassantTest {
     void pawnRivalHasThatStayToSide() {
         // Arrange: el peón negro llegó a b5, lejos del blanco en e5
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 ".p..P...",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Piece black = board.pieceIn(pos("b5")).orElseThrow();
 
         // Act + Assert
@@ -139,14 +139,14 @@ class EnPassantTest {
     void notCaptureToStepAOwnPawn() {
         // Arrange: el que avanzó doble es blanco, igual que el que pregunta
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "...PP...",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Piece otherWhite = board.pieceIn(pos("e4")).orElseThrow();
 
         // Act + Assert
@@ -157,14 +157,14 @@ class EnPassantTest {
     void onlyPawnsCaptureToStep() {
         // Arrange: un caballo blanco en e5 al lado del peón que avanzó
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
-                "...pN...",
+                "...pC...",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Piece black = board.pieceIn(pos("d5")).orElseThrow();
 
         // Act + Assert

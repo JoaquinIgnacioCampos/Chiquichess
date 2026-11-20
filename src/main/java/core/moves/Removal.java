@@ -10,14 +10,14 @@ import java.util.Objects;
 public record Removal(Piece piece, Position position) implements Effect {
 
     public Removal {
-        Objects.requireNonNull(piece, "piece");
-        Objects.requireNonNull(position, "position");
+        Objects.requireNonNull(piece, "pieza");
+        Objects.requireNonNull(position, "posicion");
     }
 
     @Override
     public void apply(Board board) {
         if (board.pieceIn(position).orElse(null) != piece) {
-            throw new IllegalStateException("The expected piece is not at " + position);
+            throw new IllegalStateException("No está la pieza esperada en " + position);
         }
         board.remove(position);
     }
@@ -25,7 +25,7 @@ public record Removal(Piece piece, Position position) implements Effect {
     @Override
     public void revert(Board board) {
         if (board.pieceIn(position).isPresent()) {
-            throw new IllegalStateException("The square " + position + " is not empty");
+            throw new IllegalStateException("La casilla " + position + " no está vacía");
         }
         board.place(position, piece);
     }

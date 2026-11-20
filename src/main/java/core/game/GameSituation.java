@@ -18,9 +18,9 @@ import java.util.Objects;
 public record GameSituation(Board board, Side turn, List<Move> moves, GameRules rules) {
 
     public GameSituation {
-        Objects.requireNonNull(board, "board");
-        Objects.requireNonNull(turn, "turn");
-        moves = List.copyOf(Objects.requireNonNull(moves, "moves"));
-        Objects.requireNonNull(rules, "rules");
+        Objects.requireNonNull(board, "tablero");
+        Objects.requireNonNull(turn, "turno");
+        moves = List.copyOf(Objects.requireNonNull(moves, "jugadas"));
+        Objects.requireNonNull(rules, "reglas");
     }
 }

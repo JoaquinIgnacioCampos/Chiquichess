@@ -114,14 +114,14 @@ class MoveBallTest {
     void fingerprintUpdatedWithAGoalMatchesWithCalculatedFromZero() {
         // Arrange: torre blanca con la pelota en d2, a punto de hacer gol
         Board board = BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         new core.rules.BallRule().preparePitch(board);
         board.placeBall(pos("d2"));
         long before = PositionFingerprint.de(board, Side.WHITE);

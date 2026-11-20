@@ -74,14 +74,14 @@ class LegalMovesTest {
     void aPiecePinnedNotCanMoveSelfIfLeavesToKingInCheck() {
         // Arrange: el alfil blanco en e2 tapa el jaque de la torre negra en e8
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....B...",
-                "....K...");
+                "....A...",
+                "....R...");
 
         // Act
         Set<Position> destinations = legal.destinations(board, pos("e2"));
@@ -100,8 +100,8 @@ class LegalMovesTest {
                 "........",
                 "........",
                 "........",
-                "r.......",
-                "....K...");
+                "t.......",
+                "....R...");
 
         // Act
         Set<Position> destinations = legal.destinations(board, pos("e1"));
@@ -114,14 +114,14 @@ class LegalMovesTest {
     void inCheckOnlyAreLegalMovesThatItResolve() {
         // Arrange: torre negra en e8 da jaque; la torre blanca en a8 puede capturarla
         Board board = BoardFake.from(
-                "R...r...",
+                "T...t...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         Set<Position> destinationsRook = legal.destinations(board, pos("a8"));
@@ -144,9 +144,9 @@ class LegalMovesTest {
     void inCheckMateNotExistsNoLegalMove() {
         // Arrange: mate del pasillo, rey negro en h8
         Board board = BoardFake.from(
-                "R......k",
+                "T......r",
                 "........",
-                "......K.",
+                "......R.",
                 "........",
                 "........",
                 "........",
@@ -164,14 +164,14 @@ class LegalMovesTest {
     void leavesToKingInCheckSimulatesWithoutModifyBoardReal() {
         // Arrange
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....B...",
-                "....K...");
+                "....A...",
+                "....R...");
         Map<Position, Piece> before = new HashMap<>(board.pieces());
         Piece bishop = board.pieceIn(pos("e2")).orElseThrow();
 
@@ -233,14 +233,14 @@ class LegalMovesTest {
     void leavesToKingInCheckWithAMoveSimulatesAllTheirEffectsWithoutPlayBoard() {
         // Arrange: el alfil clavado en e2 no puede salir de la columna
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....B...",
-                "....K...");
+                "....A...",
+                "....R...");
         Map<Position, Piece> before = new HashMap<>(board.pieces());
         Move exitOfPinned = Move.normal(board, pos("e2"), pos("d3"));
 
@@ -256,14 +256,14 @@ class LegalMovesTest {
 
     private Board readyForCastle() {
         return BoardFake.from(
-                "k.......",
+                "r.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "R...K..R");
+                "T...R..T");
     }
 
     @Test

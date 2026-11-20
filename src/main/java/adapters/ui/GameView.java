@@ -60,17 +60,17 @@ public final class GameView extends BorderPane {
     public GameView(BoardController controller, BoardTheme theme,
                         PieceRepresentation representation, PanelTheme themePanel,
                         java.util.Map<Side, ClubPresentation> clubs, InterfaceMessages messages) {
-        this.controller = Objects.requireNonNull(controller, "controller");
-        this.messages = Objects.requireNonNull(messages, "messages");
-        Objects.requireNonNull(theme, "theme");
+        this.controller = Objects.requireNonNull(controller, "controlador");
+        this.messages = Objects.requireNonNull(messages, "mensajes");
+        Objects.requireNonNull(theme, "tema");
         this.board = new BoardView(controller.board(), theme, representation, this::press);
-        this.themePanel = Objects.requireNonNull(themePanel, "themePanel");
-        this.clubs = java.util.Map.copyOf(Objects.requireNonNull(clubs, "clubs"));
+        this.themePanel = Objects.requireNonNull(themePanel, "temaPanel");
+        this.clubs = java.util.Map.copyOf(Objects.requireNonNull(clubs, "clubes"));
         this.goalBanner = new GoalBanner(themePanel);
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(theme.background(), CornerRadii.EMPTY, Insets.EMPTY)));
         BorderPane game = new BorderPane();
-        game.setId("area-game");
+        game.setId("area-juego");
         game.setMinSize(0, 0);
         game.setPadding(new Insets(24));
         Text chiqui = new Text("CHIQUI");
@@ -92,7 +92,7 @@ public final class GameView extends BorderPane {
         panel = new GameStatePanel(controller, themePanel, clubs, messages);
         panel.prefWidthProperty().bind(widthProperty().multiply(0.35));
         setRight(panel);
-        message.setId("message-movement");
+        message.setId("mensaje-movimiento");
         message.setFill(themePanel.texto());
         message.setFont(PixelStyle.font(16, false));
         message.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.min(520,
@@ -101,7 +101,7 @@ public final class GameView extends BorderPane {
         // Cartel flotante sobre la parte de abajo del tablero: se ve sin correr ni achicar nada.
         // No toma clics, así el tablero que queda debajo se sigue pudiendo usar.
         StackPane sign = new StackPane(message);
-        sign.setId("sign-message");
+        sign.setId("cartel-mensaje");
         sign.setMouseTransparent(true);
         sign.setPadding(new Insets(10, 18, 10, 18));
         sign.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -137,7 +137,7 @@ public final class GameView extends BorderPane {
     private javafx.animation.Animation celebrateGoal(Side side) {
         ClubPresentation club = clubs.get(side);
         if (club == null) {
-            return goalBanner.celebrate(side == Side.WHITE ? "White" : "Black", themePanel.accent(),
+            return goalBanner.celebrate(side == Side.WHITE ? "Blancas" : "Negras", themePanel.accent(),
                     java.util.Optional.empty());
         }
         return goalBanner.celebrate(club.team().displayName(), club.theme().accent(), java.util.Optional.of(club.crest()));
@@ -145,7 +145,7 @@ public final class GameView extends BorderPane {
 
     /** Qué hacer cuando la persona elige una pieza para mover (por ejemplo, un clic de sonido). */
     public void onSelectPiece(Runnable action) {
-        onSelectPiece = Objects.requireNonNull(action, "action");
+        onSelectPiece = Objects.requireNonNull(action, "accion");
     }
 
     private void promote(char code) {
@@ -196,11 +196,11 @@ public final class GameView extends BorderPane {
      * configurarNavegacion, así quedan a la izquierda de "Volver al menú".
      */
     public void configureUndo() {
-        if (undo != null) throw new IllegalStateException("Undo already configured");
+        if (undo != null) throw new IllegalStateException("Deshacer ya configurado");
         if (!controller.allowsUndo()) return;
-        undo = HeaderButton.create("Undo", "undo", themePanel.card(), themePanel.texto(),
+        undo = HeaderButton.create("Deshacer", "deshacer", themePanel.card(), themePanel.texto(),
                 PixelIcon.UNDO, false);
-        redo = HeaderButton.create("Redo", "redo", themePanel.card(), themePanel.texto(),
+        redo = HeaderButton.create("Rehacer", "rehacer", themePanel.card(), themePanel.texto(),
                 PixelIcon.UNDO, true);
         undo.setOnAction(e -> showResponseUndo(controller.undo()));
         redo.setOnAction(e -> showResponseUndo(controller.redo()));
@@ -221,8 +221,8 @@ public final class GameView extends BorderPane {
      */
     public void configureSound(VolumeControl control) {
         Objects.requireNonNull(control, "control");
-        if (title.lookup("#silence") != null) throw new IllegalStateException("Sound already configured");
-        title.getChildren().addAll(SoundControls.create(control, "silence", "volume",
+        if (title.lookup("#silencio") != null) throw new IllegalStateException("Sonido ya configurado");
+        title.getChildren().addAll(SoundControls.create(control, "silencio", "volumen",
                 themePanel.card(), themePanel.texto()));
     }
 
@@ -231,7 +231,7 @@ public final class GameView extends BorderPane {
     }
 
     public void configureNavigation(Runnable onMenu, Runnable onRematch) {
-        if (navigation != null) throw new IllegalStateException("Navigation already configured");
+        if (navigation != null) throw new IllegalStateException("Navegación ya configurada");
         navigation = new GameNavigation(controller, themePanel, onMenu, onRematch);
         title.getChildren().add(navigation.returnValue());
         areaBoard.getChildren().add(navigation.confirmation());

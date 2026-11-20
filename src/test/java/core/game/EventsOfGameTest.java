@@ -57,7 +57,7 @@ class EventsOfGameTest {
         for (int i = received.size() - 1; i >= 0; i--) {
             if (received.get(i) instanceof MoveMade made) return made;
         }
-        return fail("No move was notified");
+        return fail("No se avisó ninguna jugada");
     }
 
     @Test
@@ -88,14 +88,14 @@ class EventsOfGameTest {
     void captureAndCheckStayInNotice() {
         // Arrange: la dama blanca puede tomar el peón de f7 dando jaque
         Game game = built(GameRules.classic(),
-                "....k...",
+                "....r...",
                 ".....p..",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K....Q..");
+                "R....D..");
 
         // Act
         play(game, "f1f7");
@@ -108,14 +108,14 @@ class EventsOfGameTest {
     void castlingRecognizesByThatMovesTwoPieces() {
         // Arrange
         Game game = built(GameRules.classic(),
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K..R");
+                "....R..T");
 
         // Act
         play(game, "e1g1");
@@ -128,14 +128,14 @@ class EventsOfGameTest {
     void promotionStaysInNotice() {
         // Arrange
         Game game = built(GameRules.classic(),
-                "k.......",
+                "r.......",
                 "......P.",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         play(game, "g7g8");
@@ -214,14 +214,14 @@ class EventsOfGameTest {
     void passThatEndsInNetRivalNotifiesPassAndGoal() {
         // Arrange: el caballo blanco espera en el arco rival y la torre tiene la pelota
         Board board = BoardFake.from(
-                "....N..k",
+                "....C..r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....R...",
-                "K.......");
+                "....T...",
+                "R.......");
         new BallRule().preparePitch(board);
         board.placeBall(pos("e2"));
         Game game = observed(new Game(board, new Player("Ana", Side.WHITE),

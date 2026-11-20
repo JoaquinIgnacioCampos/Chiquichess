@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public final class ConsoleMessages {
 
-    static final String WITHOUT_TEXT = "The action could not be completed.";
+    static final String WITHOUT_TEXT = "No se pudo completar la accion.";
 
     private final Map<InvalidMoveException.Reason, String> movements =
             new EnumMap<>(InvalidMoveException.Reason.class);
@@ -26,43 +26,43 @@ public final class ConsoleMessages {
     private final Map<FinishReason, String> finalValue = new EnumMap<>(FinishReason.class);
 
     public ConsoleMessages() {
-        actions.put(InvalidActionException.Reason.FINISHED_GAME, "The game is already over.");
-        actions.put(InvalidActionException.Reason.NOT_YOUR_TURN, "It is not your turn.");
-        actions.put(InvalidActionException.Reason.OFFER_PENDING, "There is already a pending draw offer.");
-        actions.put(InvalidActionException.Reason.WITHOUT_OFFER, "There is no draw offer.");
-        actions.put(InvalidActionException.Reason.IS_OWN_OFFER, "Only the rival can respond to the offer.");
-        actions.put(InvalidActionException.Reason.UNDO_NOT_ALLOWED, "This game does not allow undoing moves.");
-        actions.put(InvalidActionException.Reason.NOTHING_TO_UNDO, "There are no moves to undo.");
-        actions.put(InvalidActionException.Reason.NOTHING_TO_REDO, "There are no moves to redo.");
+        actions.put(InvalidActionException.Reason.PARTIDA_FINALIZADA, "La partida ya termino.");
+        actions.put(InvalidActionException.Reason.NO_ES_SU_TURNO, "No es su turno.");
+        actions.put(InvalidActionException.Reason.OFERTA_PENDIENTE, "Ya hay una oferta de tablas pendiente.");
+        actions.put(InvalidActionException.Reason.SIN_OFERTA, "No hay ninguna oferta de tablas.");
+        actions.put(InvalidActionException.Reason.ES_SU_PROPIA_OFERTA, "Solo el rival puede responder la oferta.");
+        actions.put(InvalidActionException.Reason.DESHACER_NO_PERMITIDO, "Esta partida no permite deshacer jugadas.");
+        actions.put(InvalidActionException.Reason.NADA_PARA_DESHACER, "No hay jugadas para deshacer.");
+        actions.put(InvalidActionException.Reason.NADA_PARA_REHACER, "No hay jugadas para rehacer.");
 
-        movements.put(InvalidMoveException.Reason.NO_PIECE_AT_ORIGIN, "There is no piece on the origin square.");
-        movements.put(InvalidMoveException.Reason.NOT_YOUR_TURN, "That piece is not yours: it is the other player's turn.");
-        movements.put(InvalidMoveException.Reason.MOVE_NOT_ALLOWED, "That piece cannot move there.");
-        movements.put(InvalidMoveException.Reason.LEAVES_KING_IN_CHECK, "Illegal move: leaves your king in check.");
-        movements.put(InvalidMoveException.Reason.FINISHED_GAME, "The game is already over.");
+        movements.put(InvalidMoveException.Reason.SIN_PIEZA_EN_ORIGEN, "No hay ninguna pieza en la casilla de origen.");
+        movements.put(InvalidMoveException.Reason.NO_ES_SU_TURNO, "Esa pieza no es suya: es el turno del otro jugador.");
+        movements.put(InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO, "Esa pieza no puede moverse ahi.");
+        movements.put(InvalidMoveException.Reason.DEJA_AL_REY_EN_JAQUE, "Movimiento ilegal: deja a su rey en jaque.");
+        movements.put(InvalidMoveException.Reason.PARTIDA_FINALIZADA, "La partida ya termino.");
 
-        finalValue.put(FinishReason.CHECK_MATE, "Checkmate! %s wins.");
-        finalValue.put(FinishReason.STALEMATE, "Draw by stalemate: the player has no moves but is not in check.");
-        finalValue.put(FinishReason.REPETITION, "Draw by repetition of position.");
-        finalValue.put(FinishReason.RULE_50_MOVEMENTS, "Draw by the 50-move rule.");
-        finalValue.put(FinishReason.RESIGNATION, "%s wins by resignation.");
-        finalValue.put(FinishReason.TIME_EXHAUSTED, "%s wins on time.");
-        finalValue.put(FinishReason.AGREEMENT, "Draw by agreement.");
-        finalValue.put(FinishReason.GOALS, "%s wins on goals.");
-        finalValue.put(FinishReason.TIED_ON_GOALS, "Draw: the move limit was reached with equal goals.");
+        finalValue.put(FinishReason.CHECK_MATE, "Jaque mate! Gana %s.");
+        finalValue.put(FinishReason.STALEMATE, "Tablas por ahogado: el jugador no tiene jugadas pero no esta en jaque.");
+        finalValue.put(FinishReason.REPETITION, "Tablas por repeticion de posicion.");
+        finalValue.put(FinishReason.RULE_50_MOVEMENTS, "Tablas por la regla de los 50 movimientos.");
+        finalValue.put(FinishReason.RESIGNATION, "Gana %s por rendicion.");
+        finalValue.put(FinishReason.TIME_EXHAUSTED, "Gana %s por tiempo.");
+        finalValue.put(FinishReason.AGREEMENT, "Tablas por acuerdo.");
+        finalValue.put(FinishReason.GOALS, "Gana %s por goles.");
+        finalValue.put(FinishReason.TIED_ON_GOALS, "Empate: se llego al limite de jugadas con los goles iguales.");
     }
 
     public String moveRejection(InvalidMoveException.Reason reason) {
-        return movements.getOrDefault(Objects.requireNonNull(reason, "reason"), WITHOUT_TEXT);
+        return movements.getOrDefault(Objects.requireNonNull(reason, "motivo"), WITHOUT_TEXT);
     }
 
     public String actionRejection(InvalidActionException.Reason reason) {
-        return actions.getOrDefault(Objects.requireNonNull(reason, "reason"), WITHOUT_TEXT);
+        return actions.getOrDefault(Objects.requireNonNull(reason, "motivo"), WITHOUT_TEXT);
     }
 
     /** Mensaje de fin de partida, con el nombre del ganador si lo hubo. */
     public String gameEnd(FinishReason reason, Optional<String> winner) {
-        String template = finalValue.getOrDefault(Objects.requireNonNull(reason, "reason"), WITHOUT_TEXT);
+        String template = finalValue.getOrDefault(Objects.requireNonNull(reason, "motivo"), WITHOUT_TEXT);
         return String.format(template, winner.orElse("?"));
     }
 }

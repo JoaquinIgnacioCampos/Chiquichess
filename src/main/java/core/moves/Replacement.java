@@ -10,9 +10,9 @@ import java.util.Objects;
 public record Replacement(Piece previous, Piece newValue, Position position) implements Effect {
 
     public Replacement {
-        Objects.requireNonNull(previous, "previous");
-        Objects.requireNonNull(newValue, "new");
-        Objects.requireNonNull(position, "position");
+        Objects.requireNonNull(previous, "anterior");
+        Objects.requireNonNull(newValue, "nueva");
+        Objects.requireNonNull(position, "posicion");
     }
 
     @Override
@@ -27,7 +27,7 @@ public record Replacement(Piece previous, Piece newValue, Position position) imp
 
     private void change(Board board, Piece expected, Piece replacement) {
         if (board.pieceIn(position).orElse(null) != expected) {
-            throw new IllegalStateException("The expected piece is not at " + position);
+            throw new IllegalStateException("No está la pieza esperada en " + position);
         }
         board.place(position, replacement);
     }

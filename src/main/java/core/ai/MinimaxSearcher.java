@@ -82,7 +82,7 @@ final class MinimaxSearcher {
                 .filter(condition -> !(condition instanceof StatefulCondition))
                 .toList();
         this.evaluator = new PositionEvaluator(board);
-        this.clock = Objects.requireNonNull(clock, "clock");
+        this.clock = Objects.requireNonNull(clock, "reloj");
         this.withStillness = withStillness;
     }
 

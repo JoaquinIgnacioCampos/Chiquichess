@@ -17,15 +17,15 @@ public class ChessClock implements GameClock {
     private long turnStart;
 
     public ChessClock(Duration whiteTime, Duration blackTime, TimeSource font) {
-        this.font = Objects.requireNonNull(font, "font");
+        this.font = Objects.requireNonNull(font, "fuente");
         remainingTimes.put(Side.WHITE, validateDuration(whiteTime));
         remainingTimes.put(Side.BLACK, validateDuration(blackTime));
     }
 
     private static Duration validateDuration(Duration duration) {
-        Objects.requireNonNull(duration, "duration");
+        Objects.requireNonNull(duration, "duracion");
         if (duration.isNegative() || duration.isZero()) {
-            throw new IllegalArgumentException("The initial time must be positive");
+            throw new IllegalArgumentException("El tiempo inicial debe ser positivo");
         }
         return duration;
     }
@@ -34,7 +34,7 @@ public class ChessClock implements GameClock {
     public void start(Side color) {
         Objects.requireNonNull(color, "color");
         if (started) {
-            throw new IllegalStateException("The clock already belongs to a started game");
+            throw new IllegalStateException("El reloj ya pertenece a una partida iniciada");
         }
         turnStart = font.nowInNanos();
         activo = color;
@@ -44,7 +44,7 @@ public class ChessClock implements GameClock {
     @Override
     public void changeTurn() {
         if (activo == null) {
-            throw new IllegalStateException("The clock is not running");
+            throw new IllegalStateException("El reloj no está corriendo");
         }
         long now = font.nowInNanos();
         remainingTimes.put(activo, remainingActive(now));

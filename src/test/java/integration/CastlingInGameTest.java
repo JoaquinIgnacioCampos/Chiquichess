@@ -105,7 +105,7 @@ class CastlingInGameTest {
                 () -> play(game, "e1g1"));
 
         // Assert
-        assertEquals(InvalidMoveException.Reason.MOVE_NOT_ALLOWED, rejection.reason());
+        assertEquals(InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO, rejection.reason());
         assertFalse(game.movementsLegal(pos("e1")).contains(pos("g1")));
     }
 

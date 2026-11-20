@@ -21,7 +21,7 @@ public abstract class Piece {
 
     protected Piece(Side color, MovementRule regla) {
         this.color = Objects.requireNonNull(color, "color");
-        this.regla = Objects.requireNonNull(regla, "rule");
+        this.regla = Objects.requireNonNull(regla, "regla");
     }
 
     public Side color() {

@@ -69,7 +69,7 @@ class ArtificialPlayerTest {
     }
 
     private static Game game(Board board, GameRules rules) {
-        return new Game(board, new Player("Ana", Side.WHITE), new Player("AI", Side.BLACK),
+        return new Game(board, new Player("Ana", Side.WHITE), new Player("IA", Side.BLACK),
                 rules, new NoClock());
     }
 
@@ -82,15 +82,15 @@ class ArtificialPlayerTest {
         for (Difficulty difficulty : Difficulty.values()) {
             // Arrange: mate del pasillo con la torre en a8
             Game game = game(GameRules.classic(),
-                    "......k.",
+                    "......r.",
                     ".....ppp",
                     "........",
                     "........",
                     "........",
                     "........",
                     "........",
-                    "R.....K.");
-            ArtificialPlayer ia = difficulty == Difficulty.HARD
+                    "T.....R.");
+            ArtificialPlayer ia = difficulty == Difficulty.DIFICIL
                     ? new ArtificialPlayer(difficulty, new ChanceWithoutOversights(7), new FontThatAdvances())
                     : ia(difficulty);
 
@@ -106,16 +106,16 @@ class ArtificialPlayerTest {
     void middleGivesMateInTwoMovesAlthoughRivalDefendsItBestPossible() {
         // Arrange: escalera de torres contra el rey solo
         Game game = game(GameRules.classic(),
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "RR..K...");
-        ArtificialPlayer white = ia(Difficulty.MIDDLE);
-        ArtificialPlayer black = ia(Difficulty.MIDDLE);
+                "TT..R...");
+        ArtificialPlayer white = ia(Difficulty.MEDIO);
+        ArtificialPlayer black = ia(Difficulty.MEDIO);
 
         // Act
         playAi(game, white);
@@ -130,17 +130,17 @@ class ArtificialPlayerTest {
     void untilEasyEatsAQueenThatStayedWithoutDefense() {
         // Arrange: el caballo blanco de f3 puede comer la dama negra de e5
         Game game = game(GameRules.classic(),
-                "....k...",
+                "....r...",
                 "........",
                 "........",
-                "....q...",
+                "....d...",
                 "........",
-                ".....N..",
+                ".....C..",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
-        Move move = ia(Difficulty.EASY).chooseMove(game.situation());
+        Move move = ia(Difficulty.FACIL).chooseMove(game.situation());
 
         // Assert
         assertEquals(pos("e5"), move.destination());
@@ -151,18 +151,18 @@ class ArtificialPlayerTest {
     void easyLooksAAloneMoveAndLosesQueenByARookDefendedMiddleNot() {
         // Arrange: la torre negra de d6 está defendida por el peón de e7
         Game game = game(GameRules.classic(),
-                ".......k",
+                ".......r",
                 "....p...",
-                "...r....",
+                "...t....",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K..Q....");
+                "R..D....");
 
         // Act
-        Move easy = ia(Difficulty.EASY).chooseMove(game.situation());
-        Move middle = ia(Difficulty.MIDDLE).chooseMove(game.situation());
+        Move easy = ia(Difficulty.FACIL).chooseMove(game.situation());
+        Move middle = ia(Difficulty.MEDIO).chooseMove(game.situation());
 
         // Assert: el fácil ve la torre pero no que después le comen la dama
         assertEquals(pos("d6"), easy.destination());
@@ -174,22 +174,22 @@ class ArtificialPlayerTest {
         for (long seed = 0; seed < 25; seed++) {
             // Arrange: si la torre blanca deja la primera fila, Ta1 es mate
             Game game = game(GameRules.classic(),
-                    "r......k",
+                    "t......r",
                     "........",
                     "........",
                     "........",
                     "........",
                     "........",
                     ".....PPP",
-                    "....R.K.");
-            ArtificialPlayer distracted = new ArtificialPlayer(Difficulty.EASY, new ChanceDistracted(seed), STILL);
+                    "....T.R.");
+            ArtificialPlayer distracted = new ArtificialPlayer(Difficulty.FACIL, new ChanceDistracted(seed), STILL);
 
             // Act: juega el distraído y responde un rival que no se pierde un mate en 1
             playAi(game, distracted);
-            playAi(game, ia(Difficulty.MIDDLE));
+            playAi(game, ia(Difficulty.MEDIO));
 
             // Assert
-            assertNotEquals(GameState.CHECK_MATE, game.state(), "seed " + seed);
+            assertNotEquals(GameState.CHECK_MATE, game.state(), "semilla " + seed);
         }
     }
 
@@ -197,17 +197,17 @@ class ArtificialPlayerTest {
     void middleNotLeavesItsQueenWhereEat() {
         // Arrange: un peón negro en e5 ataca a la dama blanca de d4
         Game game = game(GameRules.classic(),
-                "k.......",
+                "r.......",
                 "........",
                 "........",
                 "....p...",
-                "...Q....",
+                "...D....",
                 "........",
                 "........",
-                ".......K");
+                ".......R");
 
         // Act
-        Move move = ia(Difficulty.MIDDLE).chooseMove(game.situation());
+        Move move = ia(Difficulty.MEDIO).chooseMove(game.situation());
 
         // Assert: la dama se va de d4 (o se come el peón)
         assertEquals(pos("d4"), move.origin());
@@ -217,20 +217,20 @@ class ArtificialPlayerTest {
     void inFootballPutsGoalWhenCan() {
         // Arrange: torre blanca con la pelota en d2 y el arco rival libre en d8
         Board board = BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         new BallRule().preparePitch(board);
         board.placeBall(pos("d2"));
         Game game = game(board, GameRules.football());
 
         // Act
-        playAi(game, ia(Difficulty.EASY));
+        playAi(game, ia(Difficulty.FACIL));
 
         // Assert
         assertEquals(1, game.scoreboard().orElseThrow().white());
@@ -240,11 +240,11 @@ class ArtificialPlayerTest {
     void withSameSeedChoosesSameMove() {
         // Arrange
         Game game = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
 
         // Act
-        Move first = new ArtificialPlayer(Difficulty.EASY, new Random(42), STILL).chooseMove(game.situation());
-        Move second = new ArtificialPlayer(Difficulty.EASY, new Random(42), STILL).chooseMove(game.situation());
+        Move first = new ArtificialPlayer(Difficulty.FACIL, new Random(42), STILL).chooseMove(game.situation());
+        Move second = new ArtificialPlayer(Difficulty.FACIL, new Random(42), STILL).chooseMove(game.situation());
 
         // Assert
         assertEquals(MoveRequest.de(first), MoveRequest.de(second));
@@ -254,8 +254,8 @@ class ArtificialPlayerTest {
     void hardShortWhenHimEndsTimeAndPlaysSomethingLegal() {
         // Arrange: el tiempo avanza en cada consulta, así se agota enseguida
         Game game = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
-        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.HARD, new Random(1), new FontThatAdvances());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
+        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.DIFICIL, new Random(1), new FontThatAdvances());
 
         // Act
         Move move = ia.chooseMove(game.situation(), Duration.ofMillis(5));
@@ -268,13 +268,13 @@ class ArtificialPlayerTest {
     void thinkNotPlaysGameNorFiresEvents() {
         // Arrange
         Game game = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
         List<Object> events = new ArrayList<>();
         game.addObserver(events::add);
         var before = game.board().pieces();
 
         // Act
-        ia(Difficulty.MIDDLE).chooseMove(game.situation());
+        ia(Difficulty.MEDIO).chooseMove(game.situation());
 
         // Assert
         assertTrue(events.isEmpty());
@@ -286,22 +286,22 @@ class ArtificialPlayerTest {
     void acceptsDrawOnlyIfGoesClearlyLosing() {
         // Arrange: las blancas ofrecen; en una partida tienen dama de más, en la otra están iguales
         Game withQueenOfMore = game(GameRules.classic(),
-                "....k...", "........", "........", "........", "........", "........", "...Q....", "....K...");
+                "....r...", "........", "........", "........", "........", "........", "...D....", "....R...");
         Game even = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
 
         // Act + Assert
-        assertTrue(ia(Difficulty.MIDDLE).acceptsDraw(withQueenOfMore.situation()));
-        assertFalse(ia(Difficulty.MIDDLE).acceptsDraw(even.situation()));
+        assertTrue(ia(Difficulty.MEDIO).acceptsDraw(withQueenOfMore.situation()));
+        assertFalse(ia(Difficulty.MEDIO).acceptsDraw(even.situation()));
     }
 
     @Test
     void withoutMovesLegalNotCanChoose() {
         // Arrange: el rey negro está ahogado y le toca a las negras
         Board board = BoardFake.from(
-                "k.......",
-                "..Q.....",
-                ".K......",
+                "r.......",
+                "..D.....",
+                ".R......",
                 "........",
                 "........",
                 "........",
@@ -310,45 +310,45 @@ class ArtificialPlayerTest {
         GameSituation situation = new GameSituation(board, Side.BLACK, List.of(), GameRules.classic());
 
         // Act + Assert
-        assertThrows(IllegalStateException.class, () -> ia(Difficulty.EASY).chooseMove(situation));
+        assertThrows(IllegalStateException.class, () -> ia(Difficulty.FACIL).chooseMove(situation));
     }
 
     @Test
     void movementOfAPromotionCarriesChosenPiece() {
         // Arrange
         Game game = game(GameRules.classic(),
-                "k.......",
+                "r.......",
                 "......P.",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
-        MoveRequest movement = MoveRequest.de(ia(Difficulty.EASY).chooseMove(game.situation()));
+        MoveRequest movement = MoveRequest.de(ia(Difficulty.FACIL).chooseMove(game.situation()));
 
         // Assert: corona en g8 y dice a qué pieza
         assertEquals(pos("g8"), movement.destination());
-        assertEquals(Optional.of('Q'), movement.promotion());
+        assertEquals(Optional.of('D'), movement.promotion());
     }
 
     @Test
     void withAAloneMovePossibleRespondsInASecond() {
         // Arrange: el rey blanco solo puede ir a a2 (la torre negra controla la columna b)
         Game game = game(GameRules.classic(),
-                ".r.....k",
+                ".t.....r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K.......");
+                "R.......");
 
         // Act
-        GameDecision decision = ia(Difficulty.HARD).decide(game.situation(), Optional.empty());
+        GameDecision decision = ia(Difficulty.DIFICIL).decide(game.situation(), Optional.empty());
 
         // Assert
         assertEquals(pos("a2"), decision.move().destination());
@@ -359,8 +359,8 @@ class ArtificialPlayerTest {
     void hardTakesAsAPersonOfItsLevelAndThinksThatTime() {
         // Arrange: cada consulta del tiempo avanza un segundo, así la búsqueda se corta enseguida
         Game game = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
-        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.HARD, new Random(3), new FontThatAdvancesASecond());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
+        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.DIFICIL, new Random(3), new FontThatAdvancesASecond());
 
         // Act
         GameDecision decision = ia.decide(game.situation(), Optional.empty());

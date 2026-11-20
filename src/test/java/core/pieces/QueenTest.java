@@ -50,7 +50,7 @@ class QueenTest {
                 "........",
                 "........",
                 "...p....",
-                "...QP...",
+                "...DP...",
                 "..P.....",
                 "........",
                 "........");
@@ -60,10 +60,10 @@ class QueenTest {
         Set<Position> destinations = queen.destinationsPossible(board, pos("d4"));
 
         // Assert
-        assertTrue(destinations.contains(pos("d5")), "Captures upward");
+        assertTrue(destinations.contains(pos("d5")), "Captura hacia arriba");
         assertFalse(destinations.contains(pos("d6")));
-        assertFalse(destinations.contains(pos("e4")), "Blocked on the right by own piece");
-        assertFalse(destinations.contains(pos("c3")), "Blocked diagonally by own piece");
+        assertFalse(destinations.contains(pos("e4")), "Bloqueada a la derecha por pieza propia");
+        assertFalse(destinations.contains(pos("c3")), "Bloqueada en diagonal por pieza propia");
     }
 
     @Test
@@ -72,8 +72,8 @@ class QueenTest {
         Queen queen = new Queen(Side.WHITE);
 
         // Assert
-        assertEquals('Q', queen.code());
-        assertEquals("Queen", queen.displayName());
+        assertEquals('D', queen.code());
+        assertEquals("Reina", queen.displayName());
         assertFalse(queen.isKing());
     }
 }

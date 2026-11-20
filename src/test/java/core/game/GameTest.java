@@ -133,14 +133,14 @@ class GameTest {
     void onCaptureReturnsCapturedPieceAndTakesOfBoard() {
         // Arrange
         Board board = BoardFake.from(
-                "r.......",
+                "t.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "R.......");
+                "T.......");
         Piece blackRook = board.pieceIn(pos("a8")).orElseThrow();
         Game game = game(board, StubDetectorOfCheck.neverInCheck());
 
@@ -165,7 +165,7 @@ class GameTest {
                 () -> game.move(move("e4", "e5")));
 
         // Assert
-        assertEquals(Reason.NO_PIECE_AT_ORIGIN, e.reason());
+        assertEquals(Reason.SIN_PIEZA_EN_ORIGEN, e.reason());
     }
 
     @Test
@@ -178,7 +178,7 @@ class GameTest {
                 () -> game.move(move("e7", "e5")));
 
         // Assert
-        assertEquals(Reason.NOT_YOUR_TURN, e.reason());
+        assertEquals(Reason.NO_ES_SU_TURNO, e.reason());
     }
 
     @Test
@@ -191,7 +191,7 @@ class GameTest {
                 () -> game.move(move("a1", "a3")));
 
         // Assert
-        assertEquals(Reason.MOVE_NOT_ALLOWED, e.reason());
+        assertEquals(Reason.MOVIMIENTO_NO_PERMITIDO, e.reason());
     }
 
     @Test
@@ -204,7 +204,7 @@ class GameTest {
                 () -> game.move(move("e2", "e4")));
 
         // Assert
-        assertEquals(Reason.LEAVES_KING_IN_CHECK, e.reason());
+        assertEquals(Reason.DEJA_AL_REY_EN_JAQUE, e.reason());
     }
 
     @Test
@@ -217,7 +217,7 @@ class GameTest {
                 () -> game.move(move("e2", "e4")));
 
         // Assert
-        assertEquals(Reason.FINISHED_GAME, e.reason());
+        assertEquals(Reason.PARTIDA_FINALIZADA, e.reason());
     }
 
     @Test
@@ -281,7 +281,7 @@ class GameTest {
         // Assert
         assertEquals(2, mock.amountOfCalls());
         MoveContext context = mock.lastContext();
-        assertEquals(Side.BLACK, context.turn(), "The context is from the point of view of whoever plays now");
+        assertEquals(Side.BLACK, context.turn(), "El contexto es desde el punto de vista de quien juega ahora");
         assertTrue(context.pieceMoved().orElseThrow().isPawn());
         assertFalse(context.wasCapture());
         assertFalse(context.inCheck());
@@ -292,14 +292,14 @@ class GameTest {
     void conditionWholeOfCaptures() {
         // Arrange
         Board board = BoardFake.from(
-                "r.......",
+                "t.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "R.......");
+                "T.......");
         MockCondition mock = new MockCondition();
         Game game = game(board, StubDetectorOfCheck.neverInCheck(), mock);
 

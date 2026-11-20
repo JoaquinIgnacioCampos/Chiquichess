@@ -39,7 +39,7 @@ class GameAgainstAiInViewTest {
     }
 
     private final GameInProgress game = new Game(new StandardLayout().createBoard(),
-            new Player("Ana", Side.WHITE), new Player("AI (medium)", Side.BLACK),
+            new Player("Ana", Side.WHITE), new Player("IA (medio)", Side.BLACK),
             GameRules.classic().withUndo(), new NoClock());
     private final ArtificialRival rival = new ArtificialRival(game, Side.BLACK, new StrategyFalse(false));
     private final BoardController controller = new BoardController(game, Optional.of(rival));
@@ -53,7 +53,7 @@ class GameAgainstAiInViewTest {
         var rejection = controller.press(pos("e7"));
 
         // Assert
-        assertEquals(Optional.of(InvalidMoveException.Reason.NOT_YOUR_TURN), rejection);
+        assertEquals(Optional.of(InvalidMoveException.Reason.NO_ES_SU_TURNO), rejection);
         assertTrue(controller.selected().isEmpty());
     }
 
@@ -63,8 +63,8 @@ class GameAgainstAiInViewTest {
         game.move(move("e2", "e4"));
 
         // Act + Assert
-        assertEquals(Optional.of(InvalidActionException.Reason.NOT_YOUR_TURN), controller.resign(Side.BLACK));
-        assertEquals(Optional.of(InvalidActionException.Reason.NOT_YOUR_TURN), controller.offerDraw(Side.BLACK));
+        assertEquals(Optional.of(InvalidActionException.Reason.NO_ES_SU_TURNO), controller.resign(Side.BLACK));
+        assertEquals(Optional.of(InvalidActionException.Reason.NO_ES_SU_TURNO), controller.offerDraw(Side.BLACK));
         assertFalse(game.state().isFinished());
     }
 
@@ -106,8 +106,8 @@ class GameAgainstAiInViewTest {
         game.move(move("e2", "e4"));
 
         // Assert
-        assertEquals("AI THINKING…", ((Text) view.lookup("#state-game")).getText());
-        assertTrue(((Button) view.lookup("#resign-black")).isDisable());
-        assertTrue(((Button) view.lookup("#offer-draw-black")).isDisable());
+        assertEquals("IA PENSANDO…", ((Text) view.lookup("#estado-partida")).getText());
+        assertTrue(((Button) view.lookup("#rendirse-negro")).isDisable());
+        assertTrue(((Button) view.lookup("#ofrecer-tablas-negro")).isDisable());
     }
 }

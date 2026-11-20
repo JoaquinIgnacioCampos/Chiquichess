@@ -30,7 +30,7 @@ class GameMenuViewTest {
 
     /** Busca un control de las opciones del menú. */
     private javafx.scene.Node searchInOptions(String id) {
-        return menu.lookup("#options-menu").lookup("#" + id);
+        return menu.lookup("#opciones-menu").lookup("#" + id);
     }
 
     private javafx.scene.Node search(String id) {
@@ -43,16 +43,16 @@ class GameMenuViewTest {
     }
 
     private void chooseAllLessTime() {
-        button("mode-classic").setSelected(true);
-        button("rival-friend").setSelected(true);
-        button("player-1-boca").setSelected(true);
-        button("player-2-river").setSelected(true);
-        button("color-player-1").setSelected(true);
+        button("modo-clasico").setSelected(true);
+        button("rival-amigo").setSelected(true);
+        button("jugador-1-boca").setSelected(true);
+        button("jugador-2-river").setSelected(true);
+        button("color-jugador-1").setSelected(true);
     }
 
     @Test
     void coverShowsImageOfCharacter() {
-        var space = (javafx.scene.layout.StackPane) menu.lookup("#space-character");
+        var space = (javafx.scene.layout.StackPane) menu.lookup("#espacio-personaje");
         var figure = assertInstanceOf(javafx.scene.image.ImageView.class, space.getChildren().getFirst());
         assertFalse(figure.getImage().isError());
         assertEquals(500, figure.getImage().getWidth());
@@ -60,23 +60,23 @@ class GameMenuViewTest {
 
     @Test
     void playStaysOutsideOfOffsetForBeSeenAlways() {
-        assertNull(searchInOptions("play"));
-        assertNotNull(menu.lookup("#play"));
+        assertNull(searchInOptions("jugar"));
+        assertNotNull(menu.lookup("#jugar"));
     }
 
     @Test
     void withoutChooseTimeOptionIsDisabled() {
-        assertTrue(button("allow-undo").isDisable());
+        assertTrue(button("permitir-deshacer").isDisable());
     }
 
     @Test
     void withWithoutTimeEnablesAndTravelsInConfiguration() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        assertFalse(button("allow-undo").isDisable());
+        button("tiempo-sin_tiempo").setSelected(true);
+        assertFalse(button("permitir-deshacer").isDisable());
 
-        button("allow-undo").setSelected(true);
-        ((Button) search("play")).fire();
+        button("permitir-deshacer").setSelected(true);
+        ((Button) search("jugar")).fire();
 
         assertEquals(1, emitted.size());
         assertTrue(emitted.get(0).allowUndo());
@@ -85,57 +85,57 @@ class GameMenuViewTest {
     @Test
     void chooseATimeTurnsOffAndDisablesOption() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        button("allow-undo").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
+        button("permitir-deshacer").setSelected(true);
 
-        button("time-five_minutes").setSelected(true);
+        button("tiempo-cinco_minutos").setSelected(true);
 
-        assertTrue(button("allow-undo").isDisable());
-        assertFalse(button("allow-undo").isSelected());
-        ((Button) search("play")).fire();
+        assertTrue(button("permitir-deshacer").isDisable());
+        assertFalse(button("permitir-deshacer").isSelected());
+        ((Button) search("jugar")).fire();
         assertFalse(emitted.get(0).allowUndo());
     }
 
     @Test
     void optionNotIsRequiredForPlay() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        assertFalse(search("play").isDisable());
+        button("tiempo-sin_tiempo").setSelected(true);
+        assertFalse(search("jugar").isDisable());
     }
 
     @Test
     void modeFootballTravelsInConfiguration() {
         chooseAllLessTime();
-        button("mode-football").setSelected(true);
-        button("time-without_time").setSelected(true);
+        button("modo-futbol").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
 
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
 
-        assertEquals(GameConfiguration.Mode.FOOTBALL, emitted.get(0).mode());
+        assertEquals(GameConfiguration.Mode.FUTBOL, emitted.get(0).mode());
     }
 
     @SuppressWarnings("unchecked")
     private javafx.scene.control.Spinner<Integer> limit() {
-        return (javafx.scene.control.Spinner<Integer>) search("limit-moves");
+        return (javafx.scene.control.Spinner<Integer>) search("limite-jugadas");
     }
 
     @Test
     void limitOfMovesOnlyEnablesInModeFootball() {
         assertTrue(limit().isDisable());
-        button("mode-football").setSelected(true);
+        button("modo-futbol").setSelected(true);
         assertFalse(limit().isDisable());
-        button("mode-classic").setSelected(true);
+        button("modo-clasico").setSelected(true);
         assertTrue(limit().isDisable());
     }
 
     @Test
     void limitWrittenTravelsInConfiguration() {
         chooseAllLessTime();
-        button("mode-football").setSelected(true);
-        button("time-without_time").setSelected(true);
+        button("modo-futbol").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
         limit().getEditor().setText("40");
 
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
 
         assertEquals(40, emitted.get(0).moveLimit());
     }
@@ -143,13 +143,13 @@ class GameMenuViewTest {
     @Test
     void aLimitOutsideOfRangeAdjustsAndATextInvalidDiscards() {
         chooseAllLessTime();
-        button("mode-football").setSelected(true);
-        button("time-without_time").setSelected(true);
+        button("modo-futbol").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
 
         limit().getEditor().setText("5000");
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
         limit().getEditor().setText("muchas");
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
 
         assertEquals(GameConfiguration.LIMIT_MAXIMUM, emitted.get(0).moveLimit());
         assertEquals(GameConfiguration.LIMIT_MAXIMUM, emitted.get(1).moveLimit());
@@ -160,40 +160,40 @@ class GameMenuViewTest {
     @Test
     void difficultyOnlyEnablesAgainstAiAndIsRequired() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        assertTrue(button("difficulty-middle").isDisable());
+        button("tiempo-sin_tiempo").setSelected(true);
+        assertTrue(button("dificultad-medio").isDisable());
 
-        button("rival-ai").setSelected(true);
+        button("rival-ia").setSelected(true);
 
-        assertFalse(button("difficulty-middle").isDisable());
-        assertTrue(search("play").isDisable());
-        assertTrue(((javafx.scene.control.Label) menu.lookup("#selections-pending")).getText().contains("difficulty"));
+        assertFalse(button("dificultad-medio").isDisable());
+        assertTrue(search("jugar").isDisable());
+        assertTrue(((javafx.scene.control.Label) menu.lookup("#selecciones-pendientes")).getText().contains("dificultad"));
     }
 
     @Test
     void difficultyChosenTravelsInConfiguration() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        button("rival-ai").setSelected(true);
-        button("difficulty-hard").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
+        button("rival-ia").setSelected(true);
+        button("dificultad-dificil").setSelected(true);
 
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
 
         assertEquals(GameConfiguration.Rival.IA, emitted.getFirst().rival());
-        assertEquals(java.util.Optional.of(core.ia.Difficulty.HARD), emitted.getFirst().difficulty());
+        assertEquals(java.util.Optional.of(core.ia.Difficulty.DIFICIL), emitted.getFirst().difficulty());
     }
 
     @Test
     void returnToChooseFriendDeletesDifficulty() {
         chooseAllLessTime();
-        button("time-without_time").setSelected(true);
-        button("rival-ai").setSelected(true);
-        button("difficulty-easy").setSelected(true);
+        button("tiempo-sin_tiempo").setSelected(true);
+        button("rival-ia").setSelected(true);
+        button("dificultad-facil").setSelected(true);
 
-        button("rival-friend").setSelected(true);
+        button("rival-amigo").setSelected(true);
 
-        assertFalse(button("difficulty-easy").isSelected());
-        ((Button) search("play")).fire();
+        assertFalse(button("dificultad-facil").isSelected());
+        ((Button) search("jugar")).fire();
         assertTrue(emitted.getFirst().difficulty().isEmpty());
     }
 
@@ -202,11 +202,11 @@ class GameMenuViewTest {
     @Test
     void onOpenCharacterSwaysSomeSecondsAndReturnsToStayStill() {
         var laugh = menu.animateCharacter();
-        var character = search("character");
+        var character = search("personaje");
 
         assertEquals(javafx.animation.Animation.Status.RUNNING, laugh.getStatus());
         double seconds = laugh.getTotalDuration().toSeconds();
-        assertTrue(seconds > 2 && seconds < 4, "lasts " + seconds + " s");
+        assertTrue(seconds > 2 && seconds < 4, "dura " + seconds + " s");
         laugh.stop();
         laugh.getOnFinished().handle(null);
         assertEquals(0, character.getRotate());
@@ -217,12 +217,12 @@ class GameMenuViewTest {
     void buttonOfSoundOfMenuUsesSameControlThatGame() {
         var control = new adapters.audio.VolumeControl();
         menu.configureSound(control);
-        Button silence = (Button) menu.lookup("#silence-menu");
+        Button silence = (Button) menu.lookup("#silencio-menu");
 
         silence.fire();
 
         assertTrue(control.muted());
-        assertEquals("Sound: off", silence.getAccessibleText());
+        assertEquals("Sonido: no", silence.getAccessibleText());
     }
 
     @Test
@@ -230,39 +230,39 @@ class GameMenuViewTest {
         int[] notices = {0};
         menu.onChooseOption(() -> notices[0]++);
 
-        button("mode-classic").fire();
-        button("player-1-argentina").fire();
-        button("rival-friend").setSelected(true);   // lo hace el programa, no un clic: no avisa
+        button("modo-clasico").fire();
+        button("jugador-1-argentina").fire();
+        button("rival-amigo").setSelected(true);   // lo hace el programa, no un clic: no avisa
 
         assertEquals(2, notices[0]);
     }
     @Test
     void selectionUsualOnlyLeavesPendingTeams() {
         menu.preselect(adapters.configuration.MenuSelection.usual());
-        assertTrue(button("mode-classic").isSelected());
-        assertTrue(button("time-ten_minutes").isSelected());
-        assertTrue(button("rival-friend").isSelected());
-        assertTrue(button("color-random").isSelected());
-        assertFalse(button("allow-undo").isSelected());
-        assertTrue(search("play").isDisable());
-        assertEquals("Still to choose: team of Player 1, team of Player 2.",
-                ((javafx.scene.control.Label) search("selections-pending")).getText());
+        assertTrue(button("modo-clasico").isSelected());
+        assertTrue(button("tiempo-diez_minutos").isSelected());
+        assertTrue(button("rival-amigo").isSelected());
+        assertTrue(button("color-aleatorio").isSelected());
+        assertFalse(button("permitir-deshacer").isSelected());
+        assertTrue(search("jugar").isDisable());
+        assertEquals("Falta elegir: equipo de Jugador 1, equipo de Jugador 2.",
+                ((javafx.scene.control.Label) search("selecciones-pendientes")).getText());
 
-        button("player-1-boca").setSelected(true);
-        button("player-2-river").setSelected(true);
-        ((Button) search("play")).fire();
-        assertEquals(GameConfiguration.Colors.RANDOM, emitted.getFirst().colors());
-        assertEquals(GameConfiguration.Time.TEN_MINUTES, emitted.getFirst().time());
+        button("jugador-1-boca").setSelected(true);
+        button("jugador-2-river").setSelected(true);
+        ((Button) search("jugar")).fire();
+        assertEquals(GameConfiguration.Colors.ALEATORIO, emitted.getFirst().colors());
+        assertEquals(GameConfiguration.Time.DIEZ_MINUTOS, emitted.getFirst().time());
     }
 
     @Test
     void aMenuNewRecoversLastSelectionComplete() {
-        var previous = new GameConfiguration(GameConfiguration.Mode.FOOTBALL, GameConfiguration.Time.WITHOUT_TIME,
+        var previous = new GameConfiguration(GameConfiguration.Mode.FUTBOL, GameConfiguration.Time.SIN_TIEMPO,
                 GameConfiguration.Rival.IA, GameConfiguration.Team.RIVER, GameConfiguration.Team.BOCA,
-                GameConfiguration.Colors.PLAYER_2_WHITE, true, 120,
-                java.util.Optional.of(core.ia.Difficulty.HARD));
+                GameConfiguration.Colors.JUGADOR_2_BLANCAS, true, 120,
+                java.util.Optional.of(core.ia.Difficulty.DIFICIL));
         menu.preselect(adapters.configuration.MenuSelection.de(previous));
-        ((Button) search("play")).fire();
+        ((Button) search("jugar")).fire();
         assertEquals(List.of(previous), emitted);
     }
 
@@ -270,24 +270,24 @@ class GameMenuViewTest {
     void volumeOfMenuChangesControlShared() {
         var control = new adapters.audio.VolumeControl();
         menu.configureSound(control);
-        ((javafx.scene.control.Slider) menu.lookup("#volume-menu")).setValue(0.2);
+        ((javafx.scene.control.Slider) menu.lookup("#volumen-menu")).setValue(0.2);
         assertEquals(0.2, control.volume(), 1e-9);
     }
     @Test
     void silenceCarriesVolumeToZeroAndRaiseItItReactivates() {
         var control = new adapters.audio.VolumeControl();
         menu.configureSound(control);
-        Button silence = (Button) menu.lookup("#silence-menu");
-        var volume = (javafx.scene.control.Slider) menu.lookup("#volume-menu");
+        Button silence = (Button) menu.lookup("#silencio-menu");
+        var volume = (javafx.scene.control.Slider) menu.lookup("#volumen-menu");
         double before = volume.getValue();
 
         silence.fire();
         assertEquals(0, volume.getValue());
-        assertEquals("Sound: off", silence.getAccessibleText());
+        assertEquals("Sonido: no", silence.getAccessibleText());
 
         volume.setValue(0.4);
         assertFalse(control.muted());
-        assertEquals("Sound: on", silence.getAccessibleText());
+        assertEquals("Sonido: sí", silence.getAccessibleText());
 
         silence.fire();
         silence.fire();

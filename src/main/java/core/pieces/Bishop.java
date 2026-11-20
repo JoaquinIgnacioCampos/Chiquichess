@@ -12,12 +12,12 @@ public class Bishop extends Piece {
 
     @Override
     public String displayName() {
-        return "Bishop";
+        return "Alfil";
     }
 
     @Override
     public char code() {
-        return 'B';
+        return 'A';
     }
 
     @Override

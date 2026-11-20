@@ -26,10 +26,10 @@ public enum Difficulty {
      * Mira una sola jugada: ve lo que gana con su movimiento, pero no la respuesta del rival (por eso,
      * por ejemplo, se come un peón defendido con la dama y la pierde). Y una de cada cinco se distrae.
      */
-    EASY(1, Duration.ofMillis(300), 150, false, 0.2, Duration.ofSeconds(1), Duration.ofSeconds(3), false),
-    MIDDLE(3, Duration.ofMillis(800), 25, true, 0, Duration.ofSeconds(2), Duration.ofSeconds(5), false),
+    FACIL(1, Duration.ofMillis(300), 150, false, 0.2, Duration.ofSeconds(1), Duration.ofSeconds(3), false),
+    MEDIO(3, Duration.ofMillis(800), 25, true, 0, Duration.ofSeconds(2), Duration.ofSeconds(5), false),
     /** Piensa de verdad todo lo que tarda: por eso mira más hondo que los otros dos. */
-    HARD(64, Duration.ofMillis(1500), 0, true, 0, Duration.ofSeconds(3), Duration.ofSeconds(7), true);
+    DIFICIL(64, Duration.ofMillis(1500), 0, true, 0, Duration.ofSeconds(3), Duration.ofSeconds(7), true);
 
     private final int depthMaximum;
     private final Duration calculationTime;

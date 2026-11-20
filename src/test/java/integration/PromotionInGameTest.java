@@ -26,14 +26,14 @@ class PromotionInGameTest {
     /** Peón blanco en a7 a punto de promover; torre negra en b8 para poder capturar al promover. */
     private Game withPawnInTo7() {
         Board board = BoardFake.from(
-                ".r..k...",
+                ".t..r...",
                 "P.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         return new Game(board, new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
                 GameRules.classic().withUndo(), new NoClock());
     }
@@ -48,9 +48,9 @@ class PromotionInGameTest {
 
         // Assert
         Piece newValue = game.board().pieceIn(pos("a8")).orElseThrow();
-        assertEquals('Q', newValue.code());
+        assertEquals('D', newValue.code());
         assertEquals(Side.WHITE, newValue.color());
-        assertEquals(List.of(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'Q')), game.history());
+        assertEquals(List.of(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'D')), game.history());
     }
 
     @Test
@@ -59,10 +59,10 @@ class PromotionInGameTest {
         Game game = withPawnInTo7();
 
         // Act
-        game.move(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'N'));
+        game.move(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'C'));
 
         // Assert
-        assertEquals('N', game.board().pieceIn(pos("a8")).orElseThrow().code());
+        assertEquals('C', game.board().pieceIn(pos("a8")).orElseThrow().code());
     }
 
     @Test
@@ -71,11 +71,11 @@ class PromotionInGameTest {
         Game game = withPawnInTo7();
 
         // Act
-        var result = game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'R'));
+        var result = game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'T'));
 
         // Assert
         assertTrue(result.capturedPiece().orElseThrow().isRook());
-        assertEquals('R', game.board().pieceIn(pos("b8")).orElseThrow().code());
+        assertEquals('T', game.board().pieceIn(pos("b8")).orElseThrow().code());
         assertEquals(Side.WHITE, game.board().pieceIn(pos("b8")).orElseThrow().color());
     }
 
@@ -86,10 +86,10 @@ class PromotionInGameTest {
 
         // Act
         InvalidMoveException rejection = assertThrows(InvalidMoveException.class,
-                () -> game.move(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'K')));
+                () -> game.move(MoveRequest.withPromotion(pos("a7"), pos("a8"), 'R')));
 
         // Assert
-        assertEquals(InvalidMoveException.Reason.MOVE_NOT_ALLOWED, rejection.reason());
+        assertEquals(InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO, rejection.reason());
         assertTrue(game.board().pieceIn(pos("a7")).orElseThrow().isPawn());
     }
 
@@ -100,7 +100,7 @@ class PromotionInGameTest {
 
         // Act + Assert
         assertThrows(InvalidMoveException.class,
-                () -> game.move(MoveRequest.withPromotion(pos("e1"), pos("e2"), 'Q')));
+                () -> game.move(MoveRequest.withPromotion(pos("e1"), pos("e2"), 'D')));
     }
 
     @Test
@@ -109,7 +109,7 @@ class PromotionInGameTest {
         Game game = withPawnInTo7();
 
         // Act: el peón captura la torre de b8 y se convierte en dama, que ataca e8 por la fila
-        game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'Q'));
+        game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'D'));
 
         // Assert
         assertEquals(GameState.CHECK, game.state());
@@ -125,8 +125,8 @@ class PromotionInGameTest {
         List<Character> capturing = codes(game.promotionOptions(pos("a7"), pos("b8")));
 
         // Assert
-        assertEquals(List.of('Q', 'R', 'B', 'N'), advancing);
-        assertEquals(List.of('Q', 'R', 'B', 'N'), capturing);
+        assertEquals(List.of('D', 'T', 'A', 'C'), advancing);
+        assertEquals(List.of('D', 'T', 'A', 'C'), capturing);
         assertTrue(game.promotionOptions(pos("a7"), pos("a8")).stream()
                 .allMatch(piece -> piece.color() == Side.WHITE));
     }
@@ -152,7 +152,7 @@ class PromotionInGameTest {
         Game game = withPawnInTo7();
         Piece pawn = game.board().pieceIn(pos("a7")).orElseThrow();
         long fingerprintBefore = PositionFingerprint.de(game.board(), game.turn());
-        game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'Q'));
+        game.move(MoveRequest.withPromotion(pos("a7"), pos("b8"), 'D'));
 
         // Act
         game.undo();

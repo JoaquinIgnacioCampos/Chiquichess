@@ -23,10 +23,10 @@ public class Slide implements MovementRule {
 
     public Slide(int deltaColumn, int deltaRow, int maxSteps) {
         if (deltaColumn == 0 && deltaRow == 0) {
-            throw new IllegalArgumentException("The direction cannot be (0, 0)");
+            throw new IllegalArgumentException("La dirección no puede ser (0, 0)");
         }
         if (maxSteps < 1) {
-            throw new IllegalArgumentException("maxSteps must be at least 1");
+            throw new IllegalArgumentException("maxPasos debe ser al menos 1");
         }
         this.deltaColumn = deltaColumn;
         this.deltaRow = deltaRow;

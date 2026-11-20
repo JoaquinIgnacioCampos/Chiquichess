@@ -38,7 +38,7 @@ import java.util.Optional;
  * desvanece; dura unos 2 segundos. No intercepta clics: se puede seguir jugando mientras se ve.
  */
 public final class GoalBanner extends StackPane {
-    static final String TEXT = "GOAL!";
+    static final String TEXT = "¡GOL!";
 
     private final PanelTheme theme;
     private final ImageView crest = new ImageView();
@@ -48,8 +48,8 @@ public final class GoalBanner extends StackPane {
     private Animation celebration;
 
     public GoalBanner(PanelTheme theme) {
-        this.theme = Objects.requireNonNull(theme, "theme");
-        setId("sign-goal");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        setId("cartel-gol");
         setMouseTransparent(true);
         setVisible(false);
         setPickOnBounds(false);
@@ -58,13 +58,13 @@ public final class GoalBanner extends StackPane {
         crest.setPreserveRatio(true);
         crest.setSmooth(true);
         goal = new LedText(theme.accent());
-        goal.setId("goal-lights");
+        goal.setId("gol-luces");
         goal.setText(TEXT);
         // Ancho proporcional al tablero; la altura sale de las 5 letras de 5x7 puntos.
         goal.prefWidthProperty().bind(widthProperty().multiply(0.62));
         goal.prefHeightProperty().bind(goal.prefWidthProperty().multiply(7.0 / 29));
         goal.setMinHeight(Region.USE_PREF_SIZE);
-        displayName.setId("goal-team");
+        displayName.setId("gol-equipo");
         displayName.setFont(PixelStyle.font(26, true));
         card = new VBox(12, crest, goal, displayName);
         card.setAlignment(Pos.CENTER);
@@ -82,9 +82,9 @@ public final class GoalBanner extends StackPane {
      * @param escudo escudo del equipo; vacío si la partida no tiene clubes
      */
     public Animation celebrate(String team, Color color, Optional<Image> crest) {
-        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(team, "equipo");
         Objects.requireNonNull(color, "color");
-        Objects.requireNonNull(crest, "crest");
+        Objects.requireNonNull(crest, "escudo");
         if (celebration != null) celebration.stop();
         this.crest.setImage(crest.orElse(null));
         this.crest.setVisible(crest.isPresent());

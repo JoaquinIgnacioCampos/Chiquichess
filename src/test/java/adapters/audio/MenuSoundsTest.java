@@ -24,12 +24,12 @@ class MenuSoundsTest {
 
     @BeforeEach
     void prepare() throws IOException {
-        for (String displayName : List.of("laugh", "menu", "selection")) {
-            Path file = folder.resolve("sounds/common/" + displayName + ".wav");
+        for (String displayName : List.of("risa", "menu", "seleccion")) {
+            Path file = folder.resolve("sonidos/comunes/" + displayName + ".wav");
             Files.createDirectories(file.getParent());
             Files.write(file, new byte[]{0});
         }
-        sounds = new MenuSounds(new SoundCatalog(Optional.of(folder.resolve("sounds")), false),
+        sounds = new MenuSounds(new SoundCatalog(Optional.of(folder.resolve("sonidos")), false),
                 player, control);
     }
 
@@ -39,8 +39,8 @@ class MenuSoundsTest {
         sounds.openGame();
 
         // Assert
-        assertEquals(List.of("common/laugh.wav"), player.played);
-        assertEquals(List.of("common/menu.wav"), player.sounding().stream().map(p -> p.file).toList());
+        assertEquals(List.of("comunes/risa.wav"), player.played);
+        assertEquals(List.of("comunes/menu.wav"), player.sounding().stream().map(p -> p.file).toList());
     }
 
     @Test
@@ -103,7 +103,7 @@ class MenuSoundsTest {
         sounds.chosenOption();
 
         // Assert
-        assertEquals(List.of("common/selection.wav"), player.played);
+        assertEquals(List.of("comunes/seleccion.wav"), player.played);
         assertEquals(control.effective() * GameSounds.VOLUME_SELECTION, player.volumes.getFirst(), 1e-9);
     }
 }

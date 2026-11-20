@@ -28,14 +28,14 @@ public final class SpriteRepresentation implements PieceRepresentation {
     private final PieceRepresentation fallback;
 
     public SpriteRepresentation(Map<Side, SpriteCatalog> catalogs, PieceRepresentation fallback) {
-        this.catalogs = Map.copyOf(Objects.requireNonNull(catalogs, "catalogs"));
-        this.fallback = Objects.requireNonNull(fallback, "fallback");
+        this.catalogs = Map.copyOf(Objects.requireNonNull(catalogs, "catalogos"));
+        this.fallback = Objects.requireNonNull(fallback, "respaldo");
     }
 
     @Override
     public Node create(Piece piece, BoardTheme theme) {
-        Objects.requireNonNull(piece, "piece");
-        Objects.requireNonNull(theme, "theme");
+        Objects.requireNonNull(piece, "pieza");
+        Objects.requireNonNull(theme, "tema");
         return Optional.ofNullable(catalogs.get(piece.color()))
                 .flatMap(catalog -> catalog.sprite(piece.code(), piece.color()))
                 .<Node>map(sprite -> figure(sprite, piece))
@@ -58,7 +58,7 @@ public final class SpriteRepresentation implements PieceRepresentation {
         image.setLayoutX((SIDE_BASE - HEIGHT_SPRITE * PROPORTION) / 2);
         image.setLayoutY(SIDE_BASE - MARGIN_BASE - HEIGHT_SPRITE);
         figure.setMouseTransparent(true);
-        figure.setAccessibleText(piece.displayName() + " " + piece.color());
+        figure.setAccessibleText(piece.displayName() + " " + (piece.color() == core.side.Side.WHITE ? "BLANCO" : "NEGRO"));
         return figure;
     }
 }

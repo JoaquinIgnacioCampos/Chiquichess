@@ -44,7 +44,7 @@ class ResignationTest {
         Game game = game();
         game.move(move("e2", "e4"));
         var error = assertThrows(InvalidActionException.class, () -> game.resign(Side.WHITE));
-        assertEquals(InvalidActionException.Reason.NOT_YOUR_TURN, error.reason());
+        assertEquals(InvalidActionException.Reason.NO_ES_SU_TURNO, error.reason());
         assertTrue(game.result().isEmpty());
         assertEquals(Side.BLACK, game.turn());
         assertEquals(List.of(move("e2", "e4")), game.history());
@@ -55,7 +55,7 @@ class ResignationTest {
         Game game = game();
         game.offerDraw(Side.WHITE);
         var error = assertThrows(InvalidActionException.class, () -> game.resign(Side.BLACK));
-        assertEquals(InvalidActionException.Reason.NOT_YOUR_TURN, error.reason());
+        assertEquals(InvalidActionException.Reason.NO_ES_SU_TURNO, error.reason());
         assertTrue(game.result().isEmpty());
         assertEquals(GameState.IN_PROGRESS, game.state());
         assertEquals(Optional.of(Side.WHITE), game.offerDrawPending());
@@ -70,7 +70,7 @@ class ResignationTest {
         game.move(move("d8", "h4"));
         var result = game.result();
         var error = assertThrows(InvalidActionException.class, () -> game.resign(Side.BLACK));
-        assertEquals(InvalidActionException.Reason.FINISHED_GAME, error.reason());
+        assertEquals(InvalidActionException.Reason.PARTIDA_FINALIZADA, error.reason());
         assertEquals(result, game.result());
     }
 
@@ -80,7 +80,7 @@ class ResignationTest {
         game.resign(Side.WHITE);
         var error = assertThrows(InvalidMoveException.class,
                 () -> game.move(move("e2", "e4")));
-        assertEquals(InvalidMoveException.Reason.FINISHED_GAME, error.reason());
+        assertEquals(InvalidMoveException.Reason.PARTIDA_FINALIZADA, error.reason());
         assertTrue(game.movementsLegal(doubles.Squares.pos("e2")).isEmpty());
     }
 

@@ -23,12 +23,12 @@ public class King extends Piece {
 
     @Override
     public String displayName() {
-        return "King";
+        return "Rey";
     }
 
     @Override
     public char code() {
-        return 'K';
+        return 'R';
     }
 
     /** No se cuenta: nunca sale del tablero (el jaque mate termina la partida antes). */

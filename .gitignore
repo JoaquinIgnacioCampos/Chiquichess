@@ -36,8 +36,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
-# Sonidos locales de prueba (ver src/main/resources/sounds/README.txt)
-/sounds/
+# Sonidos locales de prueba (ver src/main/resources/sonidos/LEEME.txt)
+/sonidos/
 
 ### Opciones locales del juego ###
-settings.txt
+configuracion.txt

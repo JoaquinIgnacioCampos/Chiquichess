@@ -11,8 +11,8 @@ import java.util.Objects;
  */
 public record GameDecision(Move move, Duration responseTime) {
     public GameDecision {
-        Objects.requireNonNull(move, "move");
-        Objects.requireNonNull(responseTime, "responseTime");
-        if (responseTime.isNegative()) throw new IllegalArgumentException("Time cannot be negative");
+        Objects.requireNonNull(move, "jugada");
+        Objects.requireNonNull(responseTime, "tiempoDeRespuesta");
+        if (responseTime.isNegative()) throw new IllegalArgumentException("El tiempo no puede ser negativo");
     }
 }

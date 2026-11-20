@@ -48,7 +48,7 @@ class KingTest {
                 "........",
                 "........",
                 "...p....",
-                "...KP...",
+                "...RP...",
                 "........",
                 "........",
                 "........");
@@ -70,7 +70,7 @@ class KingTest {
         // Assert
         assertTrue(king.isKing());
         assertFalse(king.isPawn());
-        assertEquals('K', king.code());
-        assertEquals("King", king.displayName());
+        assertEquals('R', king.code());
+        assertEquals("Rey", king.displayName());
     }
 }

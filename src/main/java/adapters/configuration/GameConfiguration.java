@@ -25,23 +25,23 @@ public record GameConfiguration(Mode mode, Time time, Rival rival,
     public static final int LIMIT_MAXIMUM = 400;
 
     public GameConfiguration {
-        Objects.requireNonNull(mode, "mode");
-        Objects.requireNonNull(time, "time");
+        Objects.requireNonNull(mode, "modo");
+        Objects.requireNonNull(time, "tiempo");
         Objects.requireNonNull(rival, "rival");
-        Objects.requireNonNull(teamPlayer1, "teamPlayer1");
-        Objects.requireNonNull(teamPlayer2, "teamPlayer2");
-        Objects.requireNonNull(colors, "colors");
-        if (teamPlayer1 == teamPlayer2) throw new IllegalArgumentException("The teams must be different");
-        Objects.requireNonNull(difficulty, "difficulty");
+        Objects.requireNonNull(teamPlayer1, "equipoJugador1");
+        Objects.requireNonNull(teamPlayer2, "equipoJugador2");
+        Objects.requireNonNull(colors, "colores");
+        if (teamPlayer1 == teamPlayer2) throw new IllegalArgumentException("Los equipos deben ser distintos");
+        Objects.requireNonNull(difficulty, "dificultad");
         if ((rival == Rival.IA) != difficulty.isPresent()) {
-            throw new IllegalArgumentException("The difficulty is chosen only, and always, to play against the AI");
+            throw new IllegalArgumentException("La dificultad se elige solo, y siempre, para jugar contra la IA");
         }
         if (allowUndo && time.duration().isPresent()) {
-            throw new IllegalArgumentException("Undo is only possible in games without a clock");
+            throw new IllegalArgumentException("Solo se puede deshacer en partidas sin tiempo");
         }
         if (moveLimit < LIMIT_MINIMUM || moveLimit > LIMIT_MAXIMUM) {
-            throw new IllegalArgumentException("The move limit must be between "
-                    + LIMIT_MINIMUM + " and " + LIMIT_MAXIMUM);
+            throw new IllegalArgumentException("El límite de jugadas debe estar entre "
+                    + LIMIT_MINIMUM + " y " + LIMIT_MAXIMUM);
         }
     }
 
@@ -67,18 +67,18 @@ public record GameConfiguration(Mode mode, Time time, Rival rival,
     }
 
     /** CLASICO: ajedrez. FUTBOL: "Posesión y gol", ajedrez con pelota (3 goles o más goles al llegar al límite). */
-    public enum Mode { CLASSIC, FOOTBALL }
-    public enum Rival { FRIEND, IA }
+    public enum Mode { CLASICO, FUTBOL }
+    public enum Rival { AMIGO, IA }
     public enum Team {
         BOCA("Boca"), RIVER("River"), INDEPENDIENTE("Independiente"), ARGENTINA("Argentina");
         private final String displayName;
         Team(String displayName) { this.displayName = displayName; }
         public String displayName() { return displayName; }
     }
-    public enum Colors { PLAYER_1_WHITE, PLAYER_2_WHITE, RANDOM }
+    public enum Colors { JUGADOR_1_BLANCAS, JUGADOR_2_BLANCAS, ALEATORIO }
     public enum Time {
-        THREE_MINUTES("3 minutes", 3), FIVE_MINUTES("5 minutes", 5),
-        TEN_MINUTES("10 minutes", 10), WITHOUT_TIME("No clock", 0);
+        TRES_MINUTOS("3 minutos", 3), CINCO_MINUTOS("5 minutos", 5),
+        DIEZ_MINUTOS("10 minutos", 10), SIN_TIEMPO("Sin tiempo", 0);
         private final String texto;
         private final int minutes;
         Time(String texto, int minutes) { this.texto = texto; this.minutes = minutes; }

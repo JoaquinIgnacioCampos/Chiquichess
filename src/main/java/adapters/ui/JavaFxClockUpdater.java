@@ -19,8 +19,8 @@ public final class JavaFxClockUpdater implements AutoCloseable {
     private final Timeline update;
 
     public JavaFxClockUpdater(BoardController controller, Runnable updateClocks) {
-        this.controller = Objects.requireNonNull(controller, "controller");
-        this.updateClocks = Objects.requireNonNull(updateClocks, "updateClocks");
+        this.controller = Objects.requireNonNull(controller, "controlador");
+        this.updateClocks = Objects.requireNonNull(updateClocks, "actualizarRelojes");
         update = new Timeline(new KeyFrame(Duration.millis(100), event -> update()));
         update.setCycleCount(Animation.INDEFINITE);
     }

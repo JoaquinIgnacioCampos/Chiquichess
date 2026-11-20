@@ -26,7 +26,7 @@ public class FiftyMoveRuleDraw implements StatefulCondition {
 
     public FiftyMoveRuleDraw(int movesPerPlayer) {
         if (movesPerPlayer < 1) {
-            throw new IllegalArgumentException("It must be at least 1 move");
+            throw new IllegalArgumentException("Debe ser al menos 1 movimiento");
         }
         this.looseMoveLimit = movesPerPlayer * 2;
     }
@@ -50,7 +50,7 @@ public class FiftyMoveRuleDraw implements StatefulCondition {
     @Override
     public void restore(Memento memento) {
         if (!(memento instanceof CounterPrevious previous) || previous.owner() != this) {
-            throw new IllegalArgumentException("The memento does not belong to this condition");
+            throw new IllegalArgumentException("El recuerdo no pertenece a esta condición");
         }
         movesWithoutProgress = previous.value();
     }

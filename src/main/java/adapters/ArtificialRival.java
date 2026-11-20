@@ -33,9 +33,9 @@ public final class ArtificialRival {
     private final GameStrategy strategy;
 
     public ArtificialRival(GameInProgress game, Side side, GameStrategy strategy) {
-        this.game = Objects.requireNonNull(game, "game");
-        this.side = Objects.requireNonNull(side, "side");
-        this.strategy = Objects.requireNonNull(strategy, "strategy");
+        this.game = Objects.requireNonNull(game, "partida");
+        this.side = Objects.requireNonNull(side, "bando");
+        this.strategy = Objects.requireNonNull(strategy, "estrategia");
     }
 
     /** Con qué color juega la IA. */
@@ -67,7 +67,7 @@ public final class ArtificialRival {
 
     /** Piensa y juega enseguida, en este mismo hilo, sin esperar la demora. Devuelve lo que jugó. */
     public MoveRequest play() {
-        if (!himPlays()) throw new IllegalStateException("It is not the AI's turn");
+        if (!himPlays()) throw new IllegalStateException("No es el turno de la IA");
         MoveRequest movement = think().movement();
         game.move(movement);
         return movement;

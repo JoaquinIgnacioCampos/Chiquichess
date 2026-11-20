@@ -47,9 +47,9 @@ public final class ArtificialPlayer implements GameStrategy {
     private final TimeSource clock;
 
     public ArtificialPlayer(Difficulty difficulty, Random chance, TimeSource clock) {
-        this.difficulty = Objects.requireNonNull(difficulty, "difficulty");
-        this.chance = Objects.requireNonNull(chance, "chance");
-        this.clock = Objects.requireNonNull(clock, "clock");
+        this.difficulty = Objects.requireNonNull(difficulty, "dificultad");
+        this.chance = Objects.requireNonNull(chance, "azar");
+        this.clock = Objects.requireNonNull(clock, "reloj");
     }
 
     public Difficulty difficulty() {
@@ -59,8 +59,8 @@ public final class ArtificialPlayer implements GameStrategy {
     /** Piensa lo que le permite su dificultad, sin pasarse de {@code tiempoMaximo}. */
     @Override
     public Move chooseMove(GameSituation situation, Duration timeMaximum) {
-        Objects.requireNonNull(situation, "situation");
-        Objects.requireNonNull(timeMaximum, "timeMaximum");
+        Objects.requireNonNull(situation, "situacion");
+        Objects.requireNonNull(timeMaximum, "tiempoMaximo");
         return choose(situation, smaller(timeMaximum, difficulty.calculationTime()), difficulty.depthMaximum()).move();
     }
 
@@ -73,10 +73,10 @@ public final class ArtificialPlayer implements GameStrategy {
      */
     @Override
     public GameDecision decide(GameSituation situation, Optional<Duration> timeRemaining) {
-        Objects.requireNonNull(situation, "situation");
-        Objects.requireNonNull(timeRemaining, "timeRemaining");
+        Objects.requireNonNull(situation, "situacion");
+        Objects.requireNonNull(timeRemaining, "tiempoRestante");
         int legal = new MinimaxSearcher(situation, clock, false).legalMoveCount(situation.turn());
-        if (legal == 0) throw new IllegalStateException("There are no legal moves to choose from");
+        if (legal == 0) throw new IllegalStateException("No hay jugadas legales para elegir");
         boolean inCheck = situation.rules().detector().isInCheck(situation.board(), situation.turn());
         Duration response = HumanRhythm.time(difficulty, legal, inCheck, situation.moves().size(),
                 timeRemaining, chance.nextDouble(), chance.nextDouble());
@@ -101,7 +101,7 @@ public final class ArtificialPlayer implements GameStrategy {
         List<MinimaxSearcher.MoveEvaluated> evaluatedMoves =
                 new MinimaxSearcher(situation, clock, difficulty.withStillness())
                         .search(situation.turn(), depth, time, 2 * noise, chance);
-        if (evaluatedMoves.isEmpty()) throw new IllegalStateException("There are no legal moves to choose from");
+        if (evaluatedMoves.isEmpty()) throw new IllegalStateException("No hay jugadas legales para elegir");
         int best = evaluatedMoves.getFirst().score();
         boolean doubtful = evaluatedMoves.size() > 1 && Math.abs(best) < MinimaxSearcher.MATE_THRESHOLD
                 && evaluatedMoves.get(1).score() >= best - ALMOST_EQUAL;
@@ -135,7 +135,7 @@ public final class ArtificialPlayer implements GameStrategy {
     /** Acepta solo si va claramente perdiendo; si no, sigue jugando. Nunca se rinde. */
     @Override
     public boolean acceptsDraw(GameSituation situation) {
-        Objects.requireNonNull(situation, "situation");
+        Objects.requireNonNull(situation, "situacion");
         int forOfferer = new PositionEvaluator(situation.board())
                 .evaluate(situation.board(), situation.turn(), situation.moves());
         return forOfferer >= DISADVANTAGE_TO_ACCEPT_DRAW;

@@ -32,7 +32,7 @@ public final class BoardFake {
         Board board = new Board(width, height);
         for (int i = 0; i < height; i++) {
             if (rows[i].length() != width) {
-                throw new IllegalArgumentException("All rows must have the same length");
+                throw new IllegalArgumentException("Todas las filas deben tener el mismo largo");
             }
             int row = height - 1 - i;
             for (int column = 0; column < width; column++) {
@@ -61,12 +61,12 @@ public final class BoardFake {
         Side color = Character.isUpperCase(letter) ? Side.WHITE : Side.BLACK;
         return switch (Character.toUpperCase(letter)) {
             case 'P' -> new Pawn(color);
-            case 'R' -> new Rook(color);
-            case 'N' -> new Knight(color);
-            case 'B' -> new Bishop(color);
-            case 'Q' -> new Queen(color);
-            case 'K' -> new King(color);
-            default -> throw new IllegalArgumentException("Unknown piece letter: " + letter);
+            case 'T' -> new Rook(color);
+            case 'C' -> new Knight(color);
+            case 'A' -> new Bishop(color);
+            case 'D' -> new Queen(color);
+            case 'R' -> new King(color);
+            default -> throw new IllegalArgumentException("Letra de pieza desconocida: " + letter);
         };
     }
 }

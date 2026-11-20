@@ -17,12 +17,12 @@ public class Rook extends Piece {
 
     @Override
     public String displayName() {
-        return "Rook";
+        return "Torre";
     }
 
     @Override
     public char code() {
-        return 'R';
+        return 'T';
     }
 
     @Override

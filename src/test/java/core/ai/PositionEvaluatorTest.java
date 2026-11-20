@@ -34,7 +34,7 @@ class PositionEvaluatorTest {
 
         @Override
         public String displayName() {
-            return "Elephant";
+            return "Elefante";
         }
 
         @Override
@@ -85,7 +85,7 @@ class PositionEvaluatorTest {
                 return 0.99;
             }
         };
-        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.EASY, withoutOversights, new FontOfTimeFalse());
+        ArtificialPlayer ia = new ArtificialPlayer(Difficulty.FACIL, withoutOversights, new FontOfTimeFalse());
 
         // Act
         Move chosen = ia.chooseMove(situation);

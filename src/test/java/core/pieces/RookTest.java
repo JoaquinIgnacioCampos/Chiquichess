@@ -38,7 +38,7 @@ class RookTest {
 
         // Assert
         for (Position destination : destinations) {
-            assertTrue(destination.column() == 3 || destination.row() == 3, "Destination not orthogonal: " + destination);
+            assertTrue(destination.column() == 3 || destination.row() == 3, "Destino no ortogonal: " + destination);
         }
     }
 
@@ -50,7 +50,7 @@ class RookTest {
                 "........",
                 "...P....",
                 "........",
-                ".p.R....",
+                ".p.T....",
                 "........",
                 "........",
                 "........");
@@ -61,10 +61,10 @@ class RookTest {
 
         // Assert
         assertTrue(destinations.contains(pos("d5")));
-        assertFalse(destinations.contains(pos("d6")), "It cannot land on its own pawn");
-        assertFalse(destinations.contains(pos("d7")), "It cannot jump its own pawn");
-        assertTrue(destinations.contains(pos("b4")), "It can capture the rival pawn");
-        assertFalse(destinations.contains(pos("a4")), "It cannot jump the rival pawn");
+        assertFalse(destinations.contains(pos("d6")), "No puede caer sobre su propio peón");
+        assertFalse(destinations.contains(pos("d7")), "No puede saltar su propio peón");
+        assertTrue(destinations.contains(pos("b4")), "Puede capturar el peón rival");
+        assertFalse(destinations.contains(pos("a4")), "No puede saltar el peón rival");
     }
 
     @Test
@@ -86,8 +86,8 @@ class RookTest {
         Rook rook = new Rook(Side.BLACK);
 
         // Assert
-        assertEquals('R', rook.code());
-        assertEquals("Rook", rook.displayName());
+        assertEquals('T', rook.code());
+        assertEquals("Torre", rook.displayName());
         assertEquals(Side.BLACK, rook.color());
         assertFalse(rook.isKing());
         assertFalse(rook.isPawn());

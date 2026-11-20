@@ -91,10 +91,10 @@ class GameAssemblerTest {
     void inModeRandomDrawInjectedDecidesColorsAndTeams() {
         FixedColorLottery draw = FixedColorLottery.player1WithBlack();
         GameAssembler withDraw = new GameAssembler(draw, new FontOfTimeFalse());
-        ConfiguredGame prepared = withDraw.prepareConfigured(configuration(Time.WITHOUT_TIME, Colors.RANDOM));
+        ConfiguredGame prepared = withDraw.prepareConfigured(configuration(Time.SIN_TIEMPO, Colors.ALEATORIO));
         assertEquals(1, draw.queries());
-        assertEquals("Player 2", prepared.game().player(Side.WHITE).displayName());
-        assertEquals("Player 1", prepared.game().player(Side.BLACK).displayName());
+        assertEquals("Jugador 2", prepared.game().player(Side.WHITE).displayName());
+        assertEquals("Jugador 1", prepared.game().player(Side.BLACK).displayName());
         assertEquals(Team.RIVER, prepared.whiteTeam());
         assertEquals(Team.BOCA, prepared.blackTeam());
     }
@@ -104,9 +104,9 @@ class GameAssemblerTest {
         FixedColorLottery draw = FixedColorLottery.player1WithBlack();
         GameAssembler withDraw = new GameAssembler(draw, new FontOfTimeFalse());
         ConfiguredGame prepared = withDraw.prepareConfigured(
-                configuration(Time.WITHOUT_TIME, Colors.PLAYER_1_WHITE));
+                configuration(Time.SIN_TIEMPO, Colors.JUGADOR_1_BLANCAS));
         assertEquals(0, draw.queries());
-        assertEquals("Player 1", prepared.game().player(Side.WHITE).displayName());
+        assertEquals("Jugador 1", prepared.game().player(Side.WHITE).displayName());
         assertEquals(Team.BOCA, prepared.whiteTeam());
     }
 
@@ -115,7 +115,7 @@ class GameAssemblerTest {
         FontOfTimeFalse font = new FontOfTimeFalse();
         GameAssembler withFont = new GameAssembler(FixedColorLottery.player1WithWhite(), font);
         GameInProgress game = withFont.prepareConfigured(
-                configuration(Time.THREE_MINUTES, Colors.PLAYER_1_WHITE)).game();
+                configuration(Time.TRES_MINUTOS, Colors.JUGADOR_1_BLANCAS)).game();
         font.advance(Duration.ofSeconds(30));
         assertEquals(Optional.of(Duration.ofSeconds(150)), game.timeRemaining(Side.WHITE));
         assertEquals(Optional.of(Duration.ofMinutes(3)), game.timeRemaining(Side.BLACK));
@@ -138,8 +138,8 @@ class GameAssemblerTest {
 
     @Test
     void withOptionOfMenuGameAllowsUndo() {
-        GameConfiguration withUndo = new GameConfiguration(Mode.CLASSIC, Time.WITHOUT_TIME, Rival.FRIEND,
-                Team.BOCA, Team.RIVER, Colors.PLAYER_1_WHITE, true);
+        GameConfiguration withUndo = new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO, Rival.AMIGO,
+                Team.BOCA, Team.RIVER, Colors.JUGADOR_1_BLANCAS, true);
         GameInProgress game = assembler.createConfigured(withUndo);
         game.move(move("e2", "e4"));
         assertTrue(game.canUndo());
@@ -149,15 +149,15 @@ class GameAssemblerTest {
 
     @Test
     void withoutOptionOfMenuNotCanUndo() {
-        GameInProgress game = assembler.createConfigured(configuration(Time.WITHOUT_TIME, Colors.PLAYER_1_WHITE));
+        GameInProgress game = assembler.createConfigured(configuration(Time.SIN_TIEMPO, Colors.JUGADOR_1_BLANCAS));
         game.move(move("e2", "e4"));
         assertFalse(game.canUndo());
     }
 
     @Test
     void configurationNotAdmitsUndoWithTime() {
-        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASSIC,
-                Time.FIVE_MINUTES, Rival.FRIEND, Team.BOCA, Team.RIVER, Colors.RANDOM, true));
+        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASICO,
+                Time.CINCO_MINUTOS, Rival.AMIGO, Team.BOCA, Team.RIVER, Colors.ALEATORIO, true));
     }
 
     @Test
@@ -168,7 +168,7 @@ class GameAssemblerTest {
     }
 
     private GameConfiguration configuration(Time time, Colors colors) {
-        return new GameConfiguration(Mode.CLASSIC, time, Rival.FRIEND, Team.BOCA, Team.RIVER, colors);
+        return new GameConfiguration(Mode.CLASICO, time, Rival.AMIGO, Team.BOCA, Team.RIVER, colors);
     }
 
     private void cycleOfKnights(GameInProgress game) {
@@ -180,8 +180,8 @@ class GameAssemblerTest {
 
     @Test
     void modeFootballPutsBallInD5AndPlaysWithGoals() {
-        GameConfiguration football = new GameConfiguration(Mode.FOOTBALL, Time.WITHOUT_TIME, Rival.FRIEND,
-                Team.BOCA, Team.RIVER, Colors.PLAYER_1_WHITE, true);
+        GameConfiguration football = new GameConfiguration(Mode.FUTBOL, Time.SIN_TIEMPO, Rival.AMIGO,
+                Team.BOCA, Team.RIVER, Colors.JUGADOR_1_BLANCAS, true);
         GameInProgress game = assembler.createConfigured(football);
         assertEquals(Optional.of(pos("d5")), game.board().ball());
         assertTrue(game.allowsUndo());
@@ -189,39 +189,39 @@ class GameAssemblerTest {
 
     @Test
     void modeClassicNotHasBall() {
-        GameInProgress game = assembler.createConfigured(configuration(Time.WITHOUT_TIME, Colors.PLAYER_1_WHITE));
+        GameInProgress game = assembler.createConfigured(configuration(Time.SIN_TIEMPO, Colors.JUGADOR_1_BLANCAS));
         assertTrue(game.board().ball().isEmpty());
     }
 
     @Test
     void consoleCanPlayToFootball() {
-        GameInProgress game = assembler.createWithoutClockWithUndo(Mode.FOOTBALL);
+        GameInProgress game = assembler.createWithoutClockWithUndo(Mode.FUTBOL);
         assertEquals(Optional.of(pos("d5")), game.board().ball());
         assertTrue(game.allowsUndo());
     }
 
     @Test
     void limitOfMovesOfMenuArrivesToGame() {
-        GameConfiguration football = new GameConfiguration(Mode.FOOTBALL, Time.WITHOUT_TIME, Rival.FRIEND,
-                Team.BOCA, Team.RIVER, Colors.PLAYER_1_WHITE, false, 40);
+        GameConfiguration football = new GameConfiguration(Mode.FUTBOL, Time.SIN_TIEMPO, Rival.AMIGO,
+                Team.BOCA, Team.RIVER, Colors.JUGADOR_1_BLANCAS, false, 40);
         assertEquals(Optional.of(40), assembler.createConfigured(football).moveLimit());
-        assertEquals(Optional.of(90), assembler.createWithoutClockWithUndo(Mode.FOOTBALL).moveLimit());
-        assertEquals(Optional.of(30), assembler.createWithoutClockWithUndo(Mode.FOOTBALL, 30).moveLimit());
+        assertEquals(Optional.of(90), assembler.createWithoutClockWithUndo(Mode.FUTBOL).moveLimit());
+        assertEquals(Optional.of(30), assembler.createWithoutClockWithUndo(Mode.FUTBOL, 30).moveLimit());
     }
 
     @Test
     void configurationRejectsLimitsOutsideOfRange() {
-        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.FOOTBALL,
-                Time.WITHOUT_TIME, Rival.FRIEND, Team.BOCA, Team.RIVER, Colors.RANDOM, false,
+        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.FUTBOL,
+                Time.SIN_TIEMPO, Rival.AMIGO, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false,
                 GameConfiguration.LIMIT_MINIMUM - 1));
-        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.FOOTBALL,
-                Time.WITHOUT_TIME, Rival.FRIEND, Team.BOCA, Team.RIVER, Colors.RANDOM, false,
+        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.FUTBOL,
+                Time.SIN_TIEMPO, Rival.AMIGO, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false,
                 GameConfiguration.LIMIT_MAXIMUM + 1));
     }
 
     @Test
     void modeFootballMarksNets() {
-        GameInProgress game = assembler.createWithoutClockWithUndo(Mode.FOOTBALL);
+        GameInProgress game = assembler.createWithoutClockWithUndo(Mode.FUTBOL);
         assertEquals(Optional.of(Side.BLACK), game.board().netIn(pos("e8")));
         assertEquals(Optional.of(Side.WHITE), game.board().netIn(pos("d1")));
     }
@@ -230,29 +230,29 @@ class GameAssemblerTest {
 
     @Test
     void againstAiPlayer2IsAiWithItsColorAndItsName() {
-        GameConfiguration againstAi = new GameConfiguration(Mode.CLASSIC, Time.WITHOUT_TIME, Rival.IA,
-                Team.BOCA, Team.RIVER, Colors.PLAYER_2_WHITE, false, GameConfiguration.DEFAULT_LIMIT,
-                java.util.Optional.of(core.ia.Difficulty.EASY));
+        GameConfiguration againstAi = new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO, Rival.IA,
+                Team.BOCA, Team.RIVER, Colors.JUGADOR_2_BLANCAS, false, GameConfiguration.DEFAULT_LIMIT,
+                java.util.Optional.of(core.ia.Difficulty.FACIL));
 
         var prepared = assembler.prepareConfigured(againstAi);
 
         assertEquals(Side.WHITE, prepared.rival().orElseThrow().side());
-        assertEquals("AI (easy)", prepared.game().player(Side.WHITE).displayName());
+        assertEquals("IA (fácil)", prepared.game().player(Side.WHITE).displayName());
         assertEquals(Team.RIVER, prepared.whiteTeam());
     }
 
     @Test
     void againstAFriendNotHasAi() {
-        var prepared = assembler.prepareConfigured(configuration(Time.WITHOUT_TIME, Colors.PLAYER_1_WHITE));
+        var prepared = assembler.prepareConfigured(configuration(Time.SIN_TIEMPO, Colors.JUGADOR_1_BLANCAS));
         assertTrue(prepared.rival().isEmpty());
     }
 
     @Test
     void difficultyGoesOnlyAndAlwaysWithAi() {
-        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASSIC, Time.WITHOUT_TIME,
-                Rival.IA, Team.BOCA, Team.RIVER, Colors.RANDOM, false));
-        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASSIC, Time.WITHOUT_TIME,
-                Rival.FRIEND, Team.BOCA, Team.RIVER, Colors.RANDOM, false, GameConfiguration.DEFAULT_LIMIT,
-                java.util.Optional.of(core.ia.Difficulty.MIDDLE)));
+        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO,
+                Rival.IA, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false));
+        assertThrows(IllegalArgumentException.class, () -> new GameConfiguration(Mode.CLASICO, Time.SIN_TIEMPO,
+                Rival.AMIGO, Team.BOCA, Team.RIVER, Colors.ALEATORIO, false, GameConfiguration.DEFAULT_LIMIT,
+                java.util.Optional.of(core.ia.Difficulty.MEDIO)));
     }
 }

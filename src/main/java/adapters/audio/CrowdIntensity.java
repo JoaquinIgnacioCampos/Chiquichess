@@ -34,9 +34,9 @@ public final class CrowdIntensity {
      * @param limite        jugadas a las que termina la partida; sin límite, el avance no cuenta
      */
     public static double de(Side crowd, int movesMade, Optional<Integer> limit, Scoreboard scoreboard) {
-        Objects.requireNonNull(crowd, "crowd");
-        Objects.requireNonNull(limit, "limit");
-        Objects.requireNonNull(scoreboard, "scoreboard");
+        Objects.requireNonNull(crowd, "hinchada");
+        Objects.requireNonNull(limit, "limite");
+        Objects.requireNonNull(scoreboard, "marcador");
         double advance = limit.filter(l -> l > 0)
                 .map(l -> Math.min(1.0, Math.max(0, movesMade) / (double) l))
                 .orElse(0.0);

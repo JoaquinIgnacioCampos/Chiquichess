@@ -39,7 +39,7 @@ class ClubPresentationTest {
     void argentinaCanChooseForTwoPlayers() {
         GameMenuView menu = new GameMenuView(PanelTheme.scoreboard(), configuration -> { });
         var options = menu;
-        assertNotNull(options.lookup("#player-1-argentina"));
-        assertNotNull(options.lookup("#player-2-argentina"));
+        assertNotNull(options.lookup("#jugador-1-argentina"));
+        assertNotNull(options.lookup("#jugador-2-argentina"));
     }
 }

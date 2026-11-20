@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 public final class GameMenuView extends GridPane {
     private static final double HEIGHT_TITLE = 16;
     /** Clave con la que cada opción dependiente guarda el texto que la reemplaza cuando no aplica. */
-    private static final String TRACK = "track";
+    private static final String TRACK = "pista";
 
     private final PanelTheme theme;
     private final Consumer<GameConfiguration> start;
@@ -51,7 +51,7 @@ public final class GameMenuView extends GridPane {
     private final Spinner<Integer> moveLimit = new Spinner<>(GameConfiguration.LIMIT_MINIMUM,
             GameConfiguration.LIMIT_MAXIMUM, GameConfiguration.DEFAULT_LIMIT, 10);
     private final Label noticeLimit = new Label();
-    private final Button play = new Button("PLAY");
+    private final Button play = new Button("JUGAR");
     /** La imagen del personaje de la portada (se balancea al abrir el juego). */
     private ImageView figure;
     private Runnable onChooseOption = () -> { };
@@ -66,9 +66,9 @@ public final class GameMenuView extends GridPane {
     private final VBox panelDifficulty;
 
     public GameMenuView(PanelTheme theme, Consumer<GameConfiguration> start) {
-        this.theme = Objects.requireNonNull(theme, "theme");
-        this.start = Objects.requireNonNull(start, "start");
-        setId("menu-game");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        this.start = Objects.requireNonNull(start, "iniciar");
+        setId("menu-partida");
         setMinSize(0, 0);
         setBackground(background(theme.background()));
         setStyle("-fx-base: " + css(theme.card()) + "; -fx-accent: " + css(theme.accent())
@@ -85,41 +85,41 @@ public final class GameMenuView extends GridPane {
         add(cover(), 0, 0);
 
         configureLimit();
-        panelLimit = dependent("Move limit", new VBox(6, moveLimit, noticeLimit));
-        Node cardMode = card("MODE", new VBox(row(
-                option("Classic", "mode-classic", Mode.CLASSIC, mode),
-                option("Football", "mode-football", Mode.FOOTBALL, mode)),
-                slot(panelLimit, "With Football the move limit is chosen.")));
+        panelLimit = dependent("Límite de jugadas", new VBox(6, moveLimit, noticeLimit));
+        Node cardMode = card("MODO", new VBox(row(
+                option("Clásico", "modo-clasico", Mode.CLASICO, mode),
+                option("Fútbol", "modo-futbol", Mode.FUTBOL, mode)),
+                slot(panelLimit, "Con Fútbol se elige el límite de jugadas.")));
 
         FlowPane times = row();
         for (Time value : Time.values()) times.getChildren().add(option(textFor(value),
-                "time-" + value.name().toLowerCase(java.util.Locale.ROOT), value, time));
-        allowUndo = option("Allow undo", "allow-undo", Boolean.TRUE, null);
-        notice(noticeUndo, "notice-undo");
-        noticeUndo.setText("Both can undo moves.");
-        panelUndo = dependent("Undo moves", new VBox(6, row(allowUndo), noticeUndo));
-        Node cardTime = card("TIME", new VBox(times,
-                slot(panelUndo, "Without a clock, moves can be undone.")));
+                "tiempo-" + value.name().toLowerCase(java.util.Locale.ROOT), value, time));
+        allowUndo = option("Permitir deshacer", "permitir-deshacer", Boolean.TRUE, null);
+        notice(noticeUndo, "aviso-deshacer");
+        noticeUndo.setText("Ambos pueden deshacer jugadas.");
+        panelUndo = dependent("Deshacer jugadas", new VBox(6, row(allowUndo), noticeUndo));
+        Node cardTime = card("TIEMPO", new VBox(times,
+                slot(panelUndo, "Sin tiempo se pueden deshacer jugadas.")));
 
-        notice(noticeDifficulty, "notice-difficulty");
-        noticeDifficulty.setText("The AI is Player 2.");
-        panelDifficulty = dependent("AI difficulty", new VBox(6, row(
-                option("Easy", "difficulty-easy", Difficulty.EASY, difficulty),
-                option("Middle", "difficulty-middle", Difficulty.MIDDLE, difficulty),
-                option("Hard", "difficulty-hard", Difficulty.HARD, difficulty)), noticeDifficulty));
+        notice(noticeDifficulty, "aviso-dificultad");
+        noticeDifficulty.setText("La IA es el Jugador 2.");
+        panelDifficulty = dependent("Dificultad de la IA", new VBox(6, row(
+                option("Fácil", "dificultad-facil", Difficulty.FACIL, difficulty),
+                option("Medio", "dificultad-medio", Difficulty.MEDIO, difficulty),
+                option("Difícil", "dificultad-dificil", Difficulty.DIFICIL, difficulty)), noticeDifficulty));
         Node cardRival = card("RIVAL", new VBox(row(
-                option("Friend", "rival-friend", Rival.FRIEND, rival),
-                option("AI", "rival-ai", Rival.IA, rival)),
-                slot(panelDifficulty, "Against the AI the difficulty is chosen.")));
+                option("Amigo", "rival-amigo", Rival.AMIGO, rival),
+                option("IA", "rival-ia", Rival.IA, rival)),
+                slot(panelDifficulty, "Contra la IA se elige la dificultad.")));
 
-        Node cardColors = card("PLAYS WHITE", row(
-                option("Player 1", "color-player-1", Colors.PLAYER_1_WHITE, colors),
-                option("Player 2", "color-player-2", Colors.PLAYER_2_WHITE, colors),
-                option("Random", "color-random", Colors.RANDOM, colors)));
+        Node cardColors = card("CON BLANCAS", row(
+                option("Jugador 1", "color-jugador-1", Colors.JUGADOR_1_BLANCAS, colors),
+                option("Jugador 2", "color-jugador-2", Colors.JUGADOR_2_BLANCAS, colors),
+                option("Al azar", "color-aleatorio", Colors.ALEATORIO, colors)));
 
-        Node cardTeams = card("TEAMS", new VBox(10,
-                selectionTeam("Player 1", "player-1", team1, clubPlayer1),
-                selectionTeam("Player 2", "player-2", team2, clubPlayer2)));
+        Node cardTeams = card("EQUIPOS", new VBox(10,
+                selectionTeam("Jugador 1", "jugador-1", team1, clubPlayer1),
+                selectionTeam("Jugador 2", "jugador-2", team2, clubPlayer2)));
 
         GridPane grid = new GridPane();
         grid.setHgap(14);
@@ -136,12 +136,12 @@ public final class GameMenuView extends GridPane {
         grid.add(cardColors, 1, 1);
         grid.add(cardTeams, 0, 2, 2, 1);
 
-        Text lowered = texto("Choose how to play and the teams.", 13, theme.textSecondary(), false);
-        VBox options = new VBox(14, new VBox(6, title("SET UP THE GAME", 22), lowered), grid);
+        Text lowered = texto("Elegí cómo se juega y los equipos.", 13, theme.textSecondary(), false);
+        VBox options = new VBox(14, new VBox(6, title("ARMA LA PARTIDA", 22), lowered), grid);
         options.setPadding(new Insets(16, 26, 12, 26));
         options.setMinWidth(0);
 
-        pending.setId("selections-pending");
+        pending.setId("selecciones-pendientes");
         pending.setFont(PixelStyle.font(12, true));
         pending.setTextFill(theme.textSecondary());
         pending.setWrapText(true);
@@ -149,7 +149,7 @@ public final class GameMenuView extends GridPane {
         pending.setMinHeight(Region.USE_PREF_SIZE);
         pending.setMinWidth(0);
         pending.setMaxWidth(Double.MAX_VALUE);
-        play.setId("play");
+        play.setId("jugar");
         play.setFont(PixelStyle.font(18, true));
         play.setMinWidth(150);
         play.setPrefWidth(150);
@@ -169,7 +169,7 @@ public final class GameMenuView extends GridPane {
         // Si la ventana es muy baja, las opciones se achican para entrar sin desplazamiento; "Jugar"
         // queda siempre fijo debajo.
         FitToHeight offset = new FitToHeight(options);
-        offset.setId("options-menu");
+        offset.setId("opciones-menu");
         String grass = "linear-gradient(from 0px 0px to 112px 0px, repeat, #0C1712 50%, #0F1D16 50%)";
         offset.setStyle("-fx-background-color: " + grass + ";");
         options.setStyle("-fx-background-color: transparent;");
@@ -218,7 +218,7 @@ public final class GameMenuView extends GridPane {
 
     /** Qué hacer cuando la persona toca una opción del menú (por ejemplo, un clic de sonido). */
     public void onChooseOption(Runnable action) {
-        onChooseOption = Objects.requireNonNull(action, "action");
+        onChooseOption = Objects.requireNonNull(action, "accion");
     }
 
     /**
@@ -227,14 +227,14 @@ public final class GameMenuView extends GridPane {
      */
     public void configureSound(VolumeControl control) {
         Objects.requireNonNull(control, "control");
-        if (pie.lookup("#silence-menu") != null) throw new IllegalStateException("Sound already configured");
-        pie.getChildren().addAll(0, SoundControls.create(control, "silence-menu", "volume-menu",
+        if (pie.lookup("#silencio-menu") != null) throw new IllegalStateException("Sonido ya configurado");
+        pie.getChildren().addAll(0, SoundControls.create(control, "silencio-menu", "volumen-menu",
                 theme.border(), theme.texto()));
     }
 
     /** Deja elegidas esas opciones, como si la persona las hubiera tocado (pero sin el clic de sonido). */
     public void preselect(MenuSelection selection) {
-        Objects.requireNonNull(selection, "selection");
+        Objects.requireNonNull(selection, "seleccion");
         choose(mode, selection.mode());
         // El tiempo y el rival van antes que deshacer y dificultad, que dependen de ellos.
         choose(time, selection.time());
@@ -256,15 +256,15 @@ public final class GameMenuView extends GridPane {
 
     private static String textFor(Time value) {
         return switch (value) {
-            case THREE_MINUTES -> "3 min";
-            case FIVE_MINUTES -> "5 min";
-            case TEN_MINUTES -> "10 min";
-            case WITHOUT_TIME -> "No clock";
+            case TRES_MINUTOS -> "3 min";
+            case CINCO_MINUTOS -> "5 min";
+            case DIEZ_MINUTOS -> "10 min";
+            case SIN_TIEMPO -> "Sin tiempo";
         };
     }
 
     private void configureLimit() {
-        moveLimit.setId("limit-moves");
+        moveLimit.setId("limite-jugadas");
         moveLimit.setEditable(true);
         moveLimit.setPrefWidth(110);
         moveLimit.getEditor().setFont(PixelStyle.font(13, true));
@@ -275,9 +275,9 @@ public final class GameMenuView extends GridPane {
         moveLimit.getEditor().focusedProperty().addListener((p, before, focus) -> {
             if (!focus) confirmLimitWritten();
         });
-        notice(noticeLimit, "notice-limit");
-        noticeLimit.setText("Moves of both together (from " + GameConfiguration.LIMIT_MINIMUM + " to "
-                + GameConfiguration.LIMIT_MAXIMUM + "). When it is reached, whoever has more goals wins.");
+        notice(noticeLimit, "aviso-limite");
+        noticeLimit.setText("Jugadas de los dos juntos (de " + GameConfiguration.LIMIT_MINIMUM + " a "
+                + GameConfiguration.LIMIT_MAXIMUM + "). Al llegar, gana quien tenga más goles.");
     }
 
     private void notice(Label notice, String id) {
@@ -288,31 +288,31 @@ public final class GameMenuView extends GridPane {
     }
 
     private static Image loadCharacter() {
-        var resource = Objects.requireNonNull(GameMenuView.class.getResource("/character/chiquichess.png"),
-                "Missing the character image");
+        var resource = Objects.requireNonNull(GameMenuView.class.getResource("/personaje/chiquichess.png"),
+                "Falta la imagen del personaje");
         Image image = new Image(resource.toExternalForm(), false);
-        if (image.isError()) throw new IllegalStateException("Could not load the character image", image.getException());
+        if (image.isError()) throw new IllegalStateException("No se pudo cargar la imagen del personaje", image.getException());
         return image;
     }
 
     private VBox cover() {
         figure = new ImageView(loadCharacter());
-        figure.setId("character");
+        figure.setId("personaje");
         figure.setPreserveRatio(true);
         figure.setSmooth(true);
         StackPane character = new StackPane(figure);
         figure.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1, character.widthProperty().subtract(32)));
         figure.fitHeightProperty().bind(javafx.beans.binding.Bindings.max(1, character.heightProperty().subtract(32)));
-        character.setId("space-character");
+        character.setId("espacio-personaje");
         character.setMinSize(0, 0);
         character.setPrefHeight(370);
         character.setMaxHeight(Double.MAX_VALUE);
         character.setStyle(styleCard(theme.background()));
-        character.setAccessibleText("ChiquiChess character");
-        Text caption = texto("Pick your team.\nPlay your classic.", 22, theme.texto(), true);
+        character.setAccessibleText("Personaje de ChiquiChess");
+        Text caption = texto("Elegí tu equipo.\nJugá tu clásico.", 22, theme.texto(), true);
         caption.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
-        VBox cover = new VBox(14, title("CHIQUICHESS", 30), title("ARGENTINE CHESS", 12), character, caption);
-        cover.setId("cover-menu");
+        VBox cover = new VBox(14, title("CHIQUICHESS", 30), title("AJEDREZ ARGENTINO", 12), character, caption);
+        cover.setId("portada-menu");
         cover.setPadding(new Insets(28, 28, 24, 28));
         cover.setMinWidth(0);
         cover.setBackground(background(theme.card()));
@@ -464,7 +464,7 @@ public final class GameMenuView extends GridPane {
         clubPlayer2.setText(clubName(team2));
         // Deshacer solo existe en partidas sin tiempo: con un tiempo elegido se apaga y se deshabilita.
         boolean withoutTime = time.getSelectedToggle() != null
-                && time.getSelectedToggle().getUserData() == Time.WITHOUT_TIME;
+                && time.getSelectedToggle().getUserData() == Time.SIN_TIEMPO;
         if (!withoutTime) allowUndo.setSelected(false);
         allowUndo.setDisable(!withoutTime);
         show(panelUndo, withoutTime);
@@ -473,24 +473,24 @@ public final class GameMenuView extends GridPane {
         if (!againstAi && difficulty.getSelectedToggle() != null) difficulty.selectToggle(null);
         for (Toggle option : difficulty.getToggles()) ((ToggleButton) option).setDisable(!againstAi);
         show(panelDifficulty, againstAi);
-        boolean football = mode.getSelectedToggle() != null && mode.getSelectedToggle().getUserData() == Mode.FOOTBALL;
+        boolean football = mode.getSelectedToggle() != null && mode.getSelectedToggle().getUserData() == Mode.FUTBOL;
         moveLimit.setDisable(!football);
         show(panelLimit, football);
         var missing = new ArrayList<String>();
-        if (mode.getSelectedToggle() == null) missing.add("mode");
-        if (time.getSelectedToggle() == null) missing.add("time");
+        if (mode.getSelectedToggle() == null) missing.add("modo");
+        if (time.getSelectedToggle() == null) missing.add("tiempo");
         if (rival.getSelectedToggle() == null) missing.add("rival");
-        if (againstAi && difficulty.getSelectedToggle() == null) missing.add("difficulty");
-        if (team1.getSelectedToggle() == null) missing.add("team of Player 1");
-        if (team2.getSelectedToggle() == null) missing.add("team of Player 2");
-        if (colors.getSelectedToggle() == null) missing.add("colors");
+        if (againstAi && difficulty.getSelectedToggle() == null) missing.add("dificultad");
+        if (team1.getSelectedToggle() == null) missing.add("equipo de Jugador 1");
+        if (team2.getSelectedToggle() == null) missing.add("equipo de Jugador 2");
+        if (colors.getSelectedToggle() == null) missing.add("colores");
         play.setDisable(!missing.isEmpty());
         paintPlay();
-        pending.setText(missing.isEmpty() ? "All set to play." : "Still to choose: " + String.join(", ", missing) + ".");
+        pending.setText(missing.isEmpty() ? "Todo listo para jugar." : "Falta elegir: " + String.join(", ", missing) + ".");
     }
 
     private static String clubName(ToggleGroup group) {
-        return group.getSelectedToggle() == null ? "Not chosen" : ((Team) group.getSelectedToggle().getUserData()).displayName();
+        return group.getSelectedToggle() == null ? "Sin elegir" : ((Team) group.getSelectedToggle().getUserData()).displayName();
     }
 
     private void blockTeam(ToggleGroup own, ToggleGroup other) {

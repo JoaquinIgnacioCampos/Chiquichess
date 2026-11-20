@@ -63,7 +63,7 @@ class SlideTest {
                 "........",
                 "........",
                 "........",
-                "R...P...");
+                "T...P...");
         Slide toward = new Slide(RIGHT, 0, Slide.WITHOUT_LIMIT);
 
         // Act
@@ -84,7 +84,7 @@ class SlideTest {
                 "........",
                 "........",
                 "........",
-                "R...p.p.");
+                "T...p.p.");
         Slide toward = new Slide(RIGHT, 0, Slide.WITHOUT_LIMIT);
 
         // Act
@@ -129,7 +129,7 @@ class SlideTest {
                 "........",
                 "........",
                 "........",
-                "R..p....");
+                "T..p....");
         Slide toward = new Slide(RIGHT, 0, Slide.WITHOUT_LIMIT);
 
         // Act

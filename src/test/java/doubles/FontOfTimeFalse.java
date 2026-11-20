@@ -14,7 +14,7 @@ public class FontOfTimeFalse implements TimeSource {
 
     public void advance(Duration duration) {
         if (duration.isNegative()) {
-            throw new IllegalArgumentException("Time cannot go backwards");
+            throw new IllegalArgumentException("El tiempo no puede retroceder");
         }
         nanos = Math.addExact(nanos, duration.toNanos());
     }

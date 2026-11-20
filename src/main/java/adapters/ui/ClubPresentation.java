@@ -26,9 +26,9 @@ public record ClubPresentation(Team team, Image crest, PanelTheme theme) {
     }
 
     public ClubPresentation {
-        Objects.requireNonNull(team, "team");
-        Objects.requireNonNull(crest, "crest");
-        Objects.requireNonNull(theme, "theme");
+        Objects.requireNonNull(team, "equipo");
+        Objects.requireNonNull(crest, "escudo");
+        Objects.requireNonNull(theme, "tema");
     }
 
     /** Escudo, fondo de la tarjeta, acento (nombre del club y detalles) y borde de cada equipo. */
@@ -43,7 +43,7 @@ public record ClubPresentation(Team team, Image crest, PanelTheme theme) {
     }
 
     public static ClubPresentation de(Team team, PanelTheme base) {
-        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(team, "equipo");
         Objects.requireNonNull(base, "base");
         Style style = STYLES.get(team);
         Color texto = style.texto().orElse(base.texto());
@@ -56,12 +56,12 @@ public record ClubPresentation(Team team, Image crest, PanelTheme theme) {
 
     /** El escudo de un equipo, sin armar sus colores (lo usa el menú). */
     static Image crestFor(Team team) {
-        return STYLES.get(Objects.requireNonNull(team, "team")).crest();
+        return STYLES.get(Objects.requireNonNull(team, "equipo")).crest();
     }
 
     /** Nombre del archivo del escudo de ese equipo, dentro de {@code /escudos/}. */
     static String crestFile(Team team) {
-        return STYLES.get(Objects.requireNonNull(team, "team")).file();
+        return STYLES.get(Objects.requireNonNull(team, "equipo")).file();
     }
 
     /** Si no trae colores de texto, la tarjeta usa los del tema base (pensados para fondos oscuros). */
@@ -79,10 +79,10 @@ public record ClubPresentation(Team team, Image crest, PanelTheme theme) {
     }
 
     private static Image load(String file) {
-        var resource = Objects.requireNonNull(ClubPresentation.class.getResource("/crests/" + file),
-                "Missing the crest " + file);
+        var resource = Objects.requireNonNull(ClubPresentation.class.getResource("/escudos/" + file),
+                "Falta el escudo " + file);
         Image image = new Image(resource.toExternalForm(), false);
-        if (image.isError()) throw new IllegalStateException("Could not load the crest " + file, image.getException());
+        if (image.isError()) throw new IllegalStateException("No se pudo cargar el escudo " + file, image.getException());
         return image;
     }
 }

@@ -31,8 +31,8 @@ final class EndingReferee {
     /** Estado que decidieron las condiciones de fin y, si alguna terminó la partida con victoria, quién ganó. */
     record Verdict(GameState state, Optional<Side> winner) {
         Verdict {
-            Objects.requireNonNull(state, "state");
-            Objects.requireNonNull(winner, "winner");
+            Objects.requireNonNull(state, "estado");
+            Objects.requireNonNull(winner, "ganador");
         }
     }
 
@@ -40,7 +40,7 @@ final class EndingReferee {
     record Record(List<Memento> mementos, Verdict verdict) {
         Record {
             mementos = List.copyOf(mementos);
-            Objects.requireNonNull(verdict, "verdict");
+            Objects.requireNonNull(verdict, "veredicto");
         }
     }
 
@@ -49,7 +49,7 @@ final class EndingReferee {
     private final List<StatefulCondition> conditionsWithMemory;
 
     EndingReferee(GameRules rules) {
-        this.rules = Objects.requireNonNull(rules, "rules");
+        this.rules = Objects.requireNonNull(rules, "reglas");
         this.conditionsWithMemory = rules.conditions().stream()
                 .filter(StatefulCondition.class::isInstance)
                 .map(StatefulCondition.class::cast)
@@ -78,7 +78,7 @@ final class EndingReferee {
     /** Cada condición con memoria vuelve a como estaba antes de registrar esa jugada, en orden inverso. */
     void restore(List<Memento> mementos) {
         if (mementos.size() != conditionsWithMemory.size()) {
-            throw new IllegalArgumentException("The mementos do not match the conditions of these rules");
+            throw new IllegalArgumentException("Los recuerdos no corresponden a las condiciones de estas reglas");
         }
         for (int i = conditionsWithMemory.size() - 1; i >= 0; i--) {
             conditionsWithMemory.get(i).restore(mementos.get(i));

@@ -40,8 +40,8 @@ public final class HumanRhythm {
      */
     public static Duration time(Difficulty difficulty, int movesLegal, boolean inCheck, int movesMade,
                                   Optional<Duration> timeRemaining, double chance1, double chance2) {
-        Objects.requireNonNull(difficulty, "difficulty");
-        Objects.requireNonNull(timeRemaining, "timeRemaining");
+        Objects.requireNonNull(difficulty, "dificultad");
+        Objects.requireNonNull(timeRemaining, "tiempoRestante");
         Duration time;
         if (movesLegal <= 1) {
             time = MOVE_FORCED.plusMillis(Math.round(300 * chance1));

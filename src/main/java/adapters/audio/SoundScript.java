@@ -24,8 +24,8 @@ public final class SoundScript {
     /** Un sonido que hay que tocar; {@code bando} dice de qué hinchada es, para los sonidos propios de cada club. */
     public record Cue(Sound sound, Optional<Side> side) {
         public Cue {
-            Objects.requireNonNull(sound, "sound");
-            Objects.requireNonNull(side, "side");
+            Objects.requireNonNull(sound, "sonido");
+            Objects.requireNonNull(side, "bando");
         }
 
         static Cue common(Sound sound) {
@@ -50,7 +50,7 @@ public final class SoundScript {
     }
 
     public List<Cue> para(GameEvent event) {
-        return switch (Objects.requireNonNull(event, "event")) {
+        return switch (Objects.requireNonNull(event, "evento")) {
             case MoveMade made -> List.of(forMove(made));
             case MoveRedone redone -> List.of(Cue.common(Sound.REWIND));
             case MoveUndone undone -> List.of(Cue.common(Sound.REWIND));

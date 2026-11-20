@@ -71,13 +71,13 @@ public class BallRule implements SpecialRule {
      */
     public BallRule(Set<Integer> netColumns, Position kickoffInitial,
                            Position kickoffAfterGoalOfWhite, Position kickoffAfterGoalOfBlack) {
-        this.netColumns = Set.copyOf(Objects.requireNonNull(netColumns, "netColumns"));
+        this.netColumns = Set.copyOf(Objects.requireNonNull(netColumns, "columnasDelArco"));
         if (this.netColumns.isEmpty()) {
-            throw new IllegalArgumentException("The goal must have at least one column");
+            throw new IllegalArgumentException("El arco tiene que tener al menos una columna");
         }
-        this.kickoffInitial = Objects.requireNonNull(kickoffInitial, "kickoffInitial");
-        this.kickoffAfterGoalOfWhite = Objects.requireNonNull(kickoffAfterGoalOfWhite, "kickoffAfterGoalOfWhite");
-        this.kickoffAfterGoalOfBlack = Objects.requireNonNull(kickoffAfterGoalOfBlack, "kickoffAfterGoalOfBlack");
+        this.kickoffInitial = Objects.requireNonNull(kickoffInitial, "saqueInicial");
+        this.kickoffAfterGoalOfWhite = Objects.requireNonNull(kickoffAfterGoalOfWhite, "saqueTrasGolDeBlancas");
+        this.kickoffAfterGoalOfBlack = Objects.requireNonNull(kickoffAfterGoalOfBlack, "saqueTrasGolDeNegras");
     }
 
     /**

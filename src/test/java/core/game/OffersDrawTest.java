@@ -59,14 +59,14 @@ class OffersDrawTest {
     void acceptWithoutOfferRejects() {
         var error = assertThrows(InvalidActionException.class,
                 () -> game().acceptDraw(Side.BLACK));
-        assertEquals(InvalidActionException.Reason.WITHOUT_OFFER, error.reason());
+        assertEquals(InvalidActionException.Reason.SIN_OFERTA, error.reason());
     }
 
     @Test
     void rejectWithoutOfferRejects() {
         var error = assertThrows(InvalidActionException.class,
                 () -> game().rejectDraw(Side.BLACK));
-        assertEquals(InvalidActionException.Reason.WITHOUT_OFFER, error.reason());
+        assertEquals(InvalidActionException.Reason.SIN_OFERTA, error.reason());
     }
 
     @Test
@@ -75,7 +75,7 @@ class OffersDrawTest {
         game.offerDraw(Side.WHITE);
         var error = assertThrows(InvalidActionException.class,
                 () -> game.acceptDraw(Side.WHITE));
-        assertEquals(InvalidActionException.Reason.IS_OWN_OFFER, error.reason());
+        assertEquals(InvalidActionException.Reason.ES_SU_PROPIA_OFERTA, error.reason());
         assertThrows(InvalidActionException.class, () -> game.rejectDraw(Side.WHITE));
         assertEquals(Optional.of(Side.WHITE), game.offerDrawPending());
         assertTrue(game.result().isEmpty());
@@ -87,7 +87,7 @@ class OffersDrawTest {
         game.offerDraw(Side.WHITE);
         var error = assertThrows(InvalidActionException.class,
                 () -> game.offerDraw(Side.WHITE));
-        assertEquals(InvalidActionException.Reason.OFFER_PENDING, error.reason());
+        assertEquals(InvalidActionException.Reason.OFERTA_PENDIENTE, error.reason());
         assertEquals(Optional.of(Side.WHITE), game.offerDrawPending());
     }
 
@@ -96,7 +96,7 @@ class OffersDrawTest {
         Game game = game();
         var error = assertThrows(InvalidActionException.class,
                 () -> game.offerDraw(Side.BLACK));
-        assertEquals(InvalidActionException.Reason.NOT_YOUR_TURN, error.reason());
+        assertEquals(InvalidActionException.Reason.NO_ES_SU_TURNO, error.reason());
         assertTrue(game.offerDrawPending().isEmpty());
     }
 
@@ -130,7 +130,7 @@ class OffersDrawTest {
         assertTrue(game.offerDrawPending().isEmpty());
         var error = assertThrows(InvalidActionException.class,
                 () -> game.offerDraw(Side.WHITE));
-        assertEquals(InvalidActionException.Reason.FINISHED_GAME, error.reason());
+        assertEquals(InvalidActionException.Reason.PARTIDA_FINALIZADA, error.reason());
         assertThrows(InvalidActionException.class, () -> game.acceptDraw(Side.BLACK));
         assertThrows(InvalidActionException.class, () -> game.rejectDraw(Side.BLACK));
     }

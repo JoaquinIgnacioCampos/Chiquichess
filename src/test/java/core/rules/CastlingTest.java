@@ -32,7 +32,7 @@ class CastlingTest {
                 "........",
                 "........",
                 "........",
-                "R...K..R");
+                "T...R..T");
     }
 
     private Set<Position> destinations(Board board, String origin, List<Move> history) {
@@ -55,7 +55,7 @@ class CastlingTest {
     @Test
     void withAllFreeKingCanCastleShortAndLength() {
         // Act
-        Set<Position> result = destinations(readyForCastle("k......."), "e1");
+        Set<Position> result = destinations(readyForCastle("r......."), "e1");
 
         // Assert
         assertEquals(positions("g1", "c1"), result);
@@ -64,7 +64,7 @@ class CastlingTest {
     @Test
     void castlingShortMovesKingAg1AndRookAf1() {
         // Arrange
-        Board board = readyForCastle("k.......");
+        Board board = readyForCastle("r.......");
         Piece king = board.pieceIn(pos("e1")).orElseThrow();
         Piece rook = board.pieceIn(pos("h1")).orElseThrow();
 
@@ -82,7 +82,7 @@ class CastlingTest {
     @Test
     void castlingLengthMovesKingAc1AndRookAd1() {
         // Arrange
-        Board board = readyForCastle("k.......");
+        Board board = readyForCastle("r.......");
         Piece king = board.pieceIn(pos("e1")).orElseThrow();
         Piece rook = board.pieceIn(pos("a1")).orElseThrow();
 
@@ -99,14 +99,14 @@ class CastlingTest {
     void blackCastleInRowEight() {
         // Arrange
         Board board = BoardFake.from(
-                "r...k..r",
+                "t...r..t",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act + Assert
         assertEquals(positions("g8", "c8"), destinations(board, "e8"));
@@ -115,7 +115,7 @@ class CastlingTest {
     @Test
     void ifKingAlreadyMovedNotCanCastle() {
         // Arrange: el rey fue a e2 y volvió
-        Board board = readyForCastle("k.......");
+        Board board = readyForCastle("r.......");
         Piece king = board.pieceIn(pos("e1")).orElseThrow();
 
         // Act + Assert
@@ -125,7 +125,7 @@ class CastlingTest {
     @Test
     void ifARookAlreadyMovedOnlyCanCastleOfOtherSide() {
         // Arrange: la torre de h1 fue a h2 y volvió
-        Board board = readyForCastle("k.......");
+        Board board = readyForCastle("r.......");
         Piece rook = board.pieceIn(pos("h1")).orElseThrow();
 
         // Act + Assert
@@ -135,10 +135,10 @@ class CastlingTest {
     @Test
     void aPieceInMiddlePreventsThatCastling() {
         // Arrange
-        Board withKnightInB1 = BoardFake.from("k.......", "........", "........", "........",
-                "........", "........", "........", "RN..K..R");
-        Board withKnightInG1 = BoardFake.from("k.......", "........", "........", "........",
-                "........", "........", "........", "R...K.NR");
+        Board withKnightInB1 = BoardFake.from("r.......", "........", "........", "........",
+                "........", "........", "........", "TC..R..T");
+        Board withKnightInG1 = BoardFake.from("r.......", "........", "........", "........",
+                "........", "........", "........", "T...R.CT");
 
         // Act + Assert
         assertEquals(positions("g1"), destinations(withKnightInB1, "e1"));
@@ -148,32 +148,32 @@ class CastlingTest {
     @Test
     void inCheckNotCanCastle() {
         // Act + Assert: la torre negra de e8 da jaque
-        assertTrue(destinations(readyForCastle("k...r..."), "e1").isEmpty());
+        assertTrue(destinations(readyForCastle("r...t..."), "e1").isEmpty());
     }
 
     @Test
     void kingNotCanPassByASquareAttacked() {
         // Act + Assert: la torre negra de f8 controla f1, por donde pasa el enroque corto
-        assertEquals(positions("c1"), destinations(readyForCastle("k....r.."), "e1"));
+        assertEquals(positions("c1"), destinations(readyForCastle("r....t.."), "e1"));
     }
 
     @Test
     void kingNotCanEndInASquareAttacked() {
         // Act + Assert: la torre negra de g8 controla g1
-        assertEquals(positions("c1"), destinations(readyForCastle("k.....r."), "e1"));
+        assertEquals(positions("c1"), destinations(readyForCastle("r.....t."), "e1"));
     }
 
     @Test
     void thatB1ThisAttackedNotPreventsCastlingLength() {
         // Act + Assert: el rey no pasa por b1; solo tiene que estar vacía
-        assertEquals(positions("g1", "c1"), destinations(readyForCastle("kr......"), "e1"));
+        assertEquals(positions("g1", "c1"), destinations(readyForCastle("rt......"), "e1"));
     }
 
     @Test
     void onlyCastlesWithAOwnRook() {
         // Arrange: en h1 hay un alfil propio
-        Board board = BoardFake.from("k.......", "........", "........", "........",
-                "........", "........", "........", "R...K..B");
+        Board board = BoardFake.from("r.......", "........", "........", "........",
+                "........", "........", "........", "T...R..A");
 
         // Act + Assert
         assertEquals(positions("c1"), destinations(board, "e1"));
@@ -182,8 +182,8 @@ class CastlingTest {
     @Test
     void withRookTooMuchNearNotHasCastling() {
         // Arrange: la torre en g1 deja una sola casilla libre entre ambos
-        Board board = BoardFake.from("k.......", "........", "........", "........",
-                "........", "........", "........", "R...K.R.");
+        Board board = BoardFake.from("r.......", "........", "........", "........",
+                "........", "........", "........", "T...R.T.");
 
         // Act + Assert
         assertEquals(positions("c1"), destinations(board, "e1"));
@@ -192,8 +192,8 @@ class CastlingTest {
     @Test
     void outsideOfRowBaseNotHasCastling() {
         // Arrange: rey y torre en la fila 4
-        Board board = BoardFake.from("k.......", "........", "........", "........",
-                "....K..R", "........", "........", "........");
+        Board board = BoardFake.from("r.......", "........", "........", "........",
+                "....R..T", "........", "........", "........");
 
         // Act + Assert
         assertTrue(destinations(board, "e4").isEmpty());
@@ -202,7 +202,7 @@ class CastlingTest {
     @Test
     void onlyKingCastles() {
         // Act + Assert: pedir enroques desde la torre o desde una casilla vacía no devuelve nada
-        Board board = readyForCastle("k.......");
+        Board board = readyForCastle("r.......");
         assertTrue(destinations(board, "h1").isEmpty());
         assertTrue(destinations(board, "d4").isEmpty());
     }

@@ -58,13 +58,13 @@ public class Game implements GameInProgress {
      */
     public Game(Board board, Player whitePlayer, Player blackPlayer,
                    GameRules rules, GameClock clock) {
-        this.board = Objects.requireNonNull(board, "board");
-        this.whitePlayer = Objects.requireNonNull(whitePlayer, "whitePlayer");
-        this.blackPlayer = Objects.requireNonNull(blackPlayer, "blackPlayer");
-        this.rules = Objects.requireNonNull(rules, "rules");
-        this.clock = Objects.requireNonNull(clock, "clock");
+        this.board = Objects.requireNonNull(board, "tablero");
+        this.whitePlayer = Objects.requireNonNull(whitePlayer, "jugadorBlanco");
+        this.blackPlayer = Objects.requireNonNull(blackPlayer, "jugadorNegro");
+        this.rules = Objects.requireNonNull(rules, "reglas");
+        this.clock = Objects.requireNonNull(clock, "reloj");
         if (whitePlayer.color() != Side.WHITE || blackPlayer.color() != Side.BLACK) {
-            throw new IllegalArgumentException("The players do not match their colors");
+            throw new IllegalArgumentException("Los jugadores no coinciden con sus colores");
         }
         this.referee = new EndingReferee(rules);
         this.clock.start(turn);
@@ -160,10 +160,10 @@ public class Game implements GameInProgress {
     public void undo() {
         ensureUndoAllowed();
         if (result.isPresent() && !endedByMove) {
-            throw new InvalidActionException(InvalidActionException.Reason.FINISHED_GAME);
+            throw new InvalidActionException(InvalidActionException.Reason.PARTIDA_FINALIZADA);
         }
         if (!moveHistory.hasUndo()) {
-            throw new InvalidActionException(InvalidActionException.Reason.NOTHING_TO_UNDO);
+            throw new InvalidActionException(InvalidActionException.Reason.NADA_PARA_DESHACER);
         }
         MoveHistory.Entrada input = moveHistory.undo();
         input.move().revert(board);
@@ -186,10 +186,10 @@ public class Game implements GameInProgress {
     public void redo() {
         ensureUndoAllowed();
         if (state.isFinished()) {
-            throw new InvalidActionException(InvalidActionException.Reason.FINISHED_GAME);
+            throw new InvalidActionException(InvalidActionException.Reason.PARTIDA_FINALIZADA);
         }
         if (!moveHistory.hasRedo()) {
-            throw new InvalidActionException(InvalidActionException.Reason.NOTHING_TO_REDO);
+            throw new InvalidActionException(InvalidActionException.Reason.NADA_PARA_REHACER);
         }
         Move move = moveHistory.nextToRedo();
         move.apply(board);
@@ -222,7 +222,7 @@ public class Game implements GameInProgress {
 
     private void ensureUndoAllowed() {
         if (!allowsUndo()) {
-            throw new InvalidActionException(InvalidActionException.Reason.UNDO_NOT_ALLOWED);
+            throw new InvalidActionException(InvalidActionException.Reason.DESHACER_NO_PERMITIDO);
         }
     }
 
@@ -231,7 +231,7 @@ public class Game implements GameInProgress {
         Objects.requireNonNull(color, "color");
         ensureInProgress();
         if (color != turn) {
-            throw new InvalidActionException(InvalidActionException.Reason.NOT_YOUR_TURN);
+            throw new InvalidActionException(InvalidActionException.Reason.NO_ES_SU_TURNO);
         }
         finish(GameState.RESIGNATION, Optional.of(color.opposite()));
         notifyIfEnded();
@@ -265,7 +265,7 @@ public class Game implements GameInProgress {
     private void ensureInProgress() {
         verifyTime();
         if (state.isFinished()) {
-            throw new InvalidActionException(InvalidActionException.Reason.FINISHED_GAME);
+            throw new InvalidActionException(InvalidActionException.Reason.PARTIDA_FINALIZADA);
         }
     }
 
@@ -300,7 +300,7 @@ public class Game implements GameInProgress {
      * permitida ahora: así la UI sabe cuándo preguntar qué pieza quiere el jugador.
      */
     public List<Piece> promotionOptions(Position origin, Position destination) {
-        Objects.requireNonNull(destination, "destination");
+        Objects.requireNonNull(destination, "destino");
         if (!movementsLegal(origin).contains(destination)) {
             return List.of();
         }
@@ -318,27 +318,27 @@ public class Game implements GameInProgress {
     public MoveResult move(MoveRequest movement) {
         verifyTime();
         if (state.isFinished()) {
-            throw new InvalidMoveException(InvalidMoveException.Reason.FINISHED_GAME);
+            throw new InvalidMoveException(InvalidMoveException.Reason.PARTIDA_FINALIZADA);
         }
         Piece piece = board.pieceIn(movement.origin())
                 .orElseThrow(() -> new InvalidMoveException(
-                        InvalidMoveException.Reason.NO_PIECE_AT_ORIGIN));
+                        InvalidMoveException.Reason.SIN_PIEZA_EN_ORIGEN));
 
         if (piece.color() != turn) {
-            throw new InvalidMoveException(InvalidMoveException.Reason.NOT_YOUR_TURN);
+            throw new InvalidMoveException(InvalidMoveException.Reason.NO_ES_SU_TURNO);
         }
         LegalMoves movementsLegal = rules.movementsLegal();
         Move move = chooseMove(movementsLegal, movement)
                 .orElseThrow(() -> new InvalidMoveException(
-                        InvalidMoveException.Reason.MOVE_NOT_ALLOWED));
+                        InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO));
         if (movementsLegal.leavesKingInCheck(board, move)) {
-            throw new InvalidMoveException(InvalidMoveException.Reason.LEAVES_KING_IN_CHECK);
+            throw new InvalidMoveException(InvalidMoveException.Reason.DEJA_AL_REY_EN_JAQUE);
         }
 
         // La validación también puede consumir tiempo: comprobar antes de ejecutar.
         verifyTime();
         if (state.isFinished()) {
-            throw new InvalidMoveException(InvalidMoveException.Reason.FINISHED_GAME);
+            throw new InvalidMoveException(InvalidMoveException.Reason.PARTIDA_FINALIZADA);
         }
         move.apply(board);
         drawOffer.onMove(piece.color());

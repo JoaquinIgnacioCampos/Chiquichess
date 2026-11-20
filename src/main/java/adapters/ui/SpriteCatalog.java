@@ -17,25 +17,25 @@ import java.util.Optional;
  */
 public final class SpriteCatalog {
     private static final Map<Character, String> FILES = Map.of(
-            'K', "king", 'Q', "queen", 'R', "rook", 'B', "bishop", 'N', "knight", 'P', "pawn");
+            'R', "rey", 'D', "reina", 'T', "torre", 'A', "alfil", 'C', "caballo", 'P', "peon");
 
     private final String folder;
     private final Map<String, Optional<Image>> loadedItems = new HashMap<>();
 
     SpriteCatalog(String folder) {
-        this.folder = Objects.requireNonNull(folder, "folder");
+        this.folder = Objects.requireNonNull(folder, "carpeta");
     }
 
     public static SpriteCatalog de(Team team) {
-        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(team, "equipo");
         return new SpriteCatalog("/sprites/" + team.name().toLowerCase(Locale.ROOT));
     }
 
     Optional<Image> sprite(char code, Side side) {
-        Objects.requireNonNull(side, "side");
+        Objects.requireNonNull(side, "bando");
         String piece = FILES.get(code);
         if (piece == null) return Optional.empty();
-        String file = piece + "-" + (side == Side.WHITE ? "white" : "black") + ".png";
+        String file = piece + "-" + (side == Side.WHITE ? "blanco" : "negro") + ".png";
         return loadedItems.computeIfAbsent(file, this::load);
     }
 

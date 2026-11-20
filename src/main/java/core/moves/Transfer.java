@@ -10,11 +10,11 @@ import java.util.Objects;
 public record Transfer(Piece piece, Position origin, Position destination) implements Effect {
 
     public Transfer {
-        Objects.requireNonNull(piece, "piece");
-        Objects.requireNonNull(origin, "origin");
-        Objects.requireNonNull(destination, "destination");
+        Objects.requireNonNull(piece, "pieza");
+        Objects.requireNonNull(origin, "origen");
+        Objects.requireNonNull(destination, "destino");
         if (origin.equals(destination)) {
-            throw new IllegalArgumentException("The origin and the destination must be different");
+            throw new IllegalArgumentException("El origen y el destino deben ser distintos");
         }
     }
 
@@ -30,10 +30,10 @@ public record Transfer(Piece piece, Position origin, Position destination) imple
 
     private void move(Board board, Position from, Position toward) {
         if (board.pieceIn(from).orElse(null) != piece) {
-            throw new IllegalStateException("The expected piece is not at " + from);
+            throw new IllegalStateException("No está la pieza esperada en " + from);
         }
         if (board.pieceIn(toward).isPresent()) {
-            throw new IllegalStateException("The square " + toward + " is not empty");
+            throw new IllegalStateException("La casilla " + toward + " no está vacía");
         }
         board.remove(from);
         board.place(toward, piece);

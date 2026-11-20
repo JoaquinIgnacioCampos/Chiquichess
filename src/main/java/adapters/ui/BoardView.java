@@ -97,10 +97,10 @@ public final class BoardView extends Region {
 
     public BoardView(IBoard board, BoardTheme theme, PieceRepresentation representation,
                         Consumer<Position> onPress) {
-        this.board = Objects.requireNonNull(board, "board");
-        this.theme = Objects.requireNonNull(theme, "theme");
-        this.representation = Objects.requireNonNull(representation, "representation");
-        this.onPress = Objects.requireNonNull(onPress, "onPress");
+        this.board = Objects.requireNonNull(board, "tablero");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        this.representation = Objects.requireNonNull(representation, "representacion");
+        this.onPress = Objects.requireNonNull(onPress, "alPulsar");
         setMinSize(0, 0);
         layer.setMouseTransparent(true);
         layer.setManaged(false);
@@ -144,13 +144,13 @@ public final class BoardView extends Region {
      * antes de redibujar.
      */
     public void markKing(Optional<Side> side, boolean isMate) {
-        inCheck = Objects.requireNonNull(side, "side");
+        inCheck = Objects.requireNonNull(side, "bando");
         mate = isMate && side.isPresent();
     }
 
     /** Gira el tablero para que ese bando quede abajo, como lo vería quien juega con él. */
     public void lookFrom(core.side.Side side) {
-        down = Objects.requireNonNull(side, "side");
+        down = Objects.requireNonNull(side, "bando");
         redraw();
     }
 
@@ -161,8 +161,8 @@ public final class BoardView extends Region {
 
     /** La selección puede estar vacía y los destinos ya vienen calculados por el núcleo. */
     public void redraw(Optional<Position> selected, Set<Position> destinations) {
-        Objects.requireNonNull(selected, "selected");
-        Objects.requireNonNull(destinations, "destinations");
+        Objects.requireNonNull(selected, "seleccionada");
+        Objects.requireNonNull(destinations, "destinos");
         // Color de la pieza elegida: un destino ocupado por una pieza del mismo color es un pase.
         Optional<core.side.Side> colorChosen = selected.flatMap(board::pieceIn).map(core.pieces.Piece::color);
         if (animatable() && pulse.getStatus() != Animation.Status.RUNNING) pulse.play();
@@ -197,14 +197,14 @@ public final class BoardView extends Region {
                                    Optional<core.side.Side> colorChosen) {
         StackPane square = new StackPane();
         square.setMinSize(0, 0);
-        square.setId("square-" + position.column() + "-" + position.row());
+        square.setId("casilla-" + position.column() + "-" + position.row());
         // Las piezas de las filas de abajo (las más cercanas) tapan a las de arriba cuando sus sprites se pisan.
         square.setViewOrder(-inScreen(position)[1]);
-        square.getStyleClass().add("square");
+        square.getStyleClass().add("casilla");
         boolean dark = (position.column() + position.row()) % 2 == 0;
         Color colorSquare = dark ? theme.darkSquare() : theme.lightSquare();
         if (selected) {
-            square.getStyleClass().add("square-selected");
+            square.getStyleClass().add("casilla-seleccionada");
             colorSquare = theme.selectedSquare();
         }
         square.setBackground(Background.fill(colorSquare));
@@ -222,7 +222,7 @@ public final class BoardView extends Region {
                 onPress.accept(position);
             }
         });
-        square.setAccessibleText("Column " + (position.column() + 1) + ", row " + (position.row() + 1));
+        square.setAccessibleText("Columna " + (position.column() + 1) + ", fila " + (position.row() + 1));
         board.netIn(position).ifPresent(defender -> addNet(square, position));
         board.pieceIn(position).ifPresent(piece -> {
             boolean kingMarked = piece instanceof King && inCheck.filter(piece.color()::equals).isPresent();
@@ -273,8 +273,8 @@ public final class BoardView extends Region {
      */
     private void addNet(StackPane square, Position position) {
         Pane net = new Pane();
-        net.setId("net-" + position.column() + "-" + position.row());
-        net.getStyleClass().add("net");
+        net.setId("arco-" + position.column() + "-" + position.row());
+        net.getStyleClass().add("arco");
         net.setMouseTransparent(true);
         net.setMinSize(0, 0);
         net.setBackground(new Background(new BackgroundFill(
@@ -312,8 +312,8 @@ public final class BoardView extends Region {
      */
     private void addBall(StackPane square, boolean withPiece) {
         Circle ball = new Circle();
-        ball.setId("ball");
-        ball.getStyleClass().add("ball");
+        ball.setId("pelota");
+        ball.getStyleClass().add("pelota");
         ball.setManaged(false);
         ball.setMouseTransparent(true);
         var side = Bindings.min(square.widthProperty(), square.heightProperty());
@@ -331,7 +331,7 @@ public final class BoardView extends Region {
     /** Brillo rojo debajo del rey en jaque: late mientras dure el jaque y queda fijo en el mate. */
     private void addCheckGlow(StackPane square) {
         Region glow = new Region();
-        glow.getStyleClass().add("glow-check");
+        glow.getStyleClass().add("brillo-jaque");
         glow.setMouseTransparent(true);
         glow.setMinSize(0, 0);
         glow.setBackground(new Background(new BackgroundFill(new javafx.scene.paint.RadialGradient(0, 0, 0.5, 0.5,
@@ -504,7 +504,7 @@ public final class BoardView extends Region {
         Circle indicator = new Circle();
         indicator.setManaged(false);
         indicator.setMouseTransparent(true);
-        indicator.getStyleClass().add("indicator-pass");
+        indicator.getStyleClass().add("indicador-pase");
         indicator.centerXProperty().bind(square.widthProperty().divide(2));
         indicator.centerYProperty().bind(square.heightProperty().divide(2));
         var side = Bindings.min(square.widthProperty(), square.heightProperty());
@@ -525,12 +525,12 @@ public final class BoardView extends Region {
         var side = Bindings.min(square.widthProperty(), square.heightProperty());
         indicator.radiusProperty().bind(side.multiply(capture ? 0.43 : 0.16));
         if (capture) {
-            indicator.getStyleClass().add("indicator-capture");
+            indicator.getStyleClass().add("indicador-captura");
             indicator.setFill(null);
             indicator.setStroke(theme.destinationCapture());
             indicator.strokeWidthProperty().bind(side.multiply(0.08));
         } else {
-            indicator.getStyleClass().add("indicator-movement");
+            indicator.getStyleClass().add("indicador-movimiento");
             indicator.setFill(theme.destinationFree());
         }
         square.getChildren().add(indicator);

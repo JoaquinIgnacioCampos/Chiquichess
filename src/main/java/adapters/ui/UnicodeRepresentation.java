@@ -15,25 +15,25 @@ import java.util.Objects;
 public class UnicodeRepresentation implements PieceRepresentation {
     @Override
     public Node create(Piece piece, BoardTheme theme) {
-        Objects.requireNonNull(piece, "piece");
-        Objects.requireNonNull(theme, "theme");
+        Objects.requireNonNull(piece, "pieza");
+        Objects.requireNonNull(theme, "tema");
         Text figure = new Text(symbol(piece));
         figure.setFont(Font.font("Segoe UI Symbol", SIDE_BASE * 0.7));
         figure.setFill(piece.color() == Side.WHITE ? theme.whitePiece() : theme.blackPiece());
         figure.setStroke(theme.outlinePieces());
         figure.setStrokeWidth(0.8);
         figure.setMouseTransparent(true);
-        figure.setAccessibleText(piece.displayName() + " " + piece.color());
+        figure.setAccessibleText(piece.displayName() + " " + (piece.color() == core.side.Side.WHITE ? "BLANCO" : "NEGRO"));
         return figure;
     }
 
     private String symbol(Piece piece) {
         int fill = switch (piece.code()) {
-            case 'K' -> 0x265A;
-            case 'Q' -> 0x265B;
-            case 'R' -> 0x265C;
-            case 'B' -> 0x265D;
-            case 'N' -> 0x265E;
+            case 'R' -> 0x265A;
+            case 'D' -> 0x265B;
+            case 'T' -> 0x265C;
+            case 'A' -> 0x265D;
+            case 'C' -> 0x265E;
             case 'P' -> 0x265F;
             default -> -1;
         };

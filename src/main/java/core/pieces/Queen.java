@@ -16,12 +16,12 @@ public class Queen extends Piece {
 
     @Override
     public String displayName() {
-        return "Queen";
+        return "Reina";
     }
 
     @Override
     public char code() {
-        return 'Q';
+        return 'D';
     }
 
     @Override

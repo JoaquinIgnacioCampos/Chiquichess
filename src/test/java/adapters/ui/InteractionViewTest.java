@@ -32,7 +32,7 @@ class InteractionViewTest {
 
     private StackPane square(GameView view, String displayName) {
         var position = pos(displayName);
-        return (StackPane) view.lookup("#square-" + position.column() + "-" + position.row());
+        return (StackPane) view.lookup("#casilla-" + position.column() + "-" + position.row());
     }
 
     private void press(GameView view, String displayName) {
@@ -49,12 +49,12 @@ class InteractionViewTest {
         GameInProgress game = new GameAssembler().createWithoutClock();
         GameView view = view(game);
         press(view, "e2");
-        assertEquals(2, view.lookupAll(".indicator-movement").size());
-        assertNotNull(square(view, "e3").lookup(".indicator-movement"));
-        assertNotNull(square(view, "e4").lookup(".indicator-movement"));
+        assertEquals(2, view.lookupAll(".indicador-movimiento").size());
+        assertNotNull(square(view, "e3").lookup(".indicador-movimiento"));
+        assertNotNull(square(view, "e4").lookup(".indicador-movimiento"));
         assertEquals(javafx.scene.paint.Color.YELLOW,
                 square(view, "e2").getBackground().getFills().getFirst().getFill());
-        Circle point = (Circle) square(view, "e4").lookup(".indicator-movement");
+        Circle point = (Circle) square(view, "e4").lookup(".indicador-movimiento");
         assertEquals(javafx.scene.paint.Color.PURPLE, point.getFill());
         assertTrue(point.isMouseTransparent());
         assertTrue(game.history().isEmpty());
@@ -65,10 +65,10 @@ class InteractionViewTest {
         GameView view = view(new GameAssembler().createWithoutClock());
         press(view, "e2");
         press(view, "g1");
-        assertEquals(2, view.lookupAll(".indicator-movement").size());
-        assertNull(square(view, "e4").lookup(".indicator-movement"));
-        assertNotNull(square(view, "f3").lookup(".indicator-movement"));
-        assertNotNull(square(view, "h3").lookup(".indicator-movement"));
+        assertEquals(2, view.lookupAll(".indicador-movimiento").size());
+        assertNull(square(view, "e4").lookup(".indicador-movimiento"));
+        assertNotNull(square(view, "f3").lookup(".indicador-movimiento"));
+        assertNotNull(square(view, "h3").lookup(".indicador-movimiento"));
     }
 
     @Test
@@ -77,8 +77,8 @@ class InteractionViewTest {
         GameView view = view(game);
         press(view, "e2");
         press(view, "e6");
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
-        assertTrue(view.lookupAll(".square-selected").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
+        assertTrue(view.lookupAll(".casilla-seleccionada").isEmpty());
         assertTrue(game.history().isEmpty());
     }
 
@@ -88,8 +88,8 @@ class InteractionViewTest {
         GameView view = view(game);
         press(view, "e2");
         press(view, "a7");
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
-        assertTrue(view.lookupAll(".square-selected").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
+        assertTrue(view.lookupAll(".casilla-seleccionada").isEmpty());
         assertEquals(32, game.board().pieces().size());
     }
 
@@ -103,7 +103,7 @@ class InteractionViewTest {
         view.resize(1000, 720);
         view.layout();
         StackPane rival = square(view, "d5");
-        Circle ring = (Circle) rival.lookup(".indicator-capture");
+        Circle ring = (Circle) rival.lookup(".indicador-captura");
         assertNotNull(ring);
         assertNull(ring.getFill());
         assertEquals(javafx.scene.paint.Color.BLUE, ring.getStroke());
@@ -112,8 +112,8 @@ class InteractionViewTest {
         assertTrue(ring.isMouseTransparent());
         assertInstanceOf(Text.class, rival.getChildren().getFirst());
         assertSame(ring, rival.getChildren().getLast());
-        assertNull(rival.lookup(".indicator-movement"));
-        assertNotNull(square(view, "e5").lookup(".indicator-movement"));
+        assertNull(rival.lookup(".indicador-movimiento"));
+        assertNotNull(square(view, "e5").lookup(".indicador-movimiento"));
     }
 
     @Test
@@ -128,9 +128,9 @@ class InteractionViewTest {
         assertEquals(31, game.board().pieces().size());
         assertEquals("♟", ((Text) square(view, "d5").getChildren().getFirst()).getText());
         assertTrue(square(view, "e4").getChildren().isEmpty());
-        assertTrue(view.lookupAll(".indicator-capture").isEmpty());
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
-        assertTrue(view.lookupAll(".square-selected").isEmpty());
+        assertTrue(view.lookupAll(".indicador-captura").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
+        assertTrue(view.lookupAll(".casilla-seleccionada").isEmpty());
         assertEquals(move("e4", "d5"), game.history().getLast());
     }
 
@@ -142,10 +142,10 @@ class InteractionViewTest {
         press(view, "e4");
         assertEquals(Side.BLACK, game.turn());
         press(view, "d2");
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
         press(view, "e7");
-        assertNotNull(square(view, "e5").lookup(".indicator-movement"));
-        assertNotNull(square(view, "e6").lookup(".indicator-movement"));
+        assertNotNull(square(view, "e5").lookup(".indicador-movimiento"));
+        assertNotNull(square(view, "e6").lookup(".indicador-movimiento"));
     }
 
     @Test
@@ -156,11 +156,11 @@ class InteractionViewTest {
         press(view, "e2");
         font.advance(Duration.ofSeconds(1));
         press(view, "e4");
-        Text message = (Text) view.lookup("#message-movement");
+        Text message = (Text) view.lookup("#mensaje-movimiento");
         assertFalse(message.getText().isBlank());
         assertTrue(game.state().isFinished());
         assertTrue(game.history().isEmpty());
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
         assertFalse(square(view, "e2").getChildren().isEmpty());
     }
 
@@ -169,8 +169,8 @@ class InteractionViewTest {
         GameInProgress game = new GameAssembler().createWithoutClock();
         GameView view = view(game);
         click(square(view, "e2"), MouseButton.SECONDARY);
-        assertTrue(view.lookupAll(".indicator-movement").isEmpty());
-        assertTrue(view.lookupAll(".square-selected").isEmpty());
+        assertTrue(view.lookupAll(".indicador-movimiento").isEmpty());
+        assertTrue(view.lookupAll(".casilla-seleccionada").isEmpty());
         assertTrue(game.history().isEmpty());
     }
 

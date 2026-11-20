@@ -30,9 +30,9 @@ final class JavaFxActionConfirmation extends VBox {
         texto.setTextAlignment(TextAlignment.CENTER);
         texto.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().subtract(24)));
         cancel = button(textCancel, theme.border(), theme.texto());
-        cancel.setId("cancel-" + suffix);
+        cancel.setId("cancelar-" + suffix);
         Button accept = button(textAccept, accent, theme.background());
-        accept.setId("confirm-" + suffix);
+        accept.setId("confirmar-" + suffix);
         cancel.setOnAction(e -> close.run());
         accept.setOnAction(e -> confirm.run());
         HBox buttons = new HBox(10, cancel, accept);

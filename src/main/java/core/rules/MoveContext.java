@@ -30,9 +30,9 @@ public record MoveContext(
         boolean hasMovementsLegal) {
 
     public MoveContext {
-        Objects.requireNonNull(board, "board");
-        Objects.requireNonNull(turn, "turn");
-        moves = List.copyOf(Objects.requireNonNull(moves, "moves"));
+        Objects.requireNonNull(board, "tablero");
+        Objects.requireNonNull(turn, "turno");
+        moves = List.copyOf(Objects.requireNonNull(moves, "jugadas"));
     }
 
     /** La última jugada ejecutada; vacío en la evaluación inicial. */

@@ -27,14 +27,14 @@ class CheckDetectorTest {
     void aRookInSameColumnWithoutObstaclesGivesCheck() {
         // Arrange
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         boolean inCheck = detector.isInCheck(board, Side.WHITE);
@@ -47,14 +47,14 @@ class CheckDetectorTest {
     void aPieceInMiddleBlocksCheck() {
         // Arrange
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "....P...",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         boolean inCheck = detector.isInCheck(board, Side.WHITE);
@@ -71,10 +71,10 @@ class CheckDetectorTest {
                 "........",
                 "........",
                 "........",
-                ".b......",
+                ".a......",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         boolean inCheck = detector.isInCheck(board, Side.WHITE);
@@ -92,8 +92,8 @@ class CheckDetectorTest {
                 "........",
                 "........",
                 "........",
-                "...PPPn.",
-                "...PKP..",
+                "...PPPc.",
+                "...PRP..",
                 "...PPP..");
 
         // Act
@@ -113,7 +113,7 @@ class CheckDetectorTest {
                 "........",
                 "........",
                 "...PPP..",
-                "...PKP.n",
+                "...PRP.c",
                 "...PPP..");
 
         // Act
@@ -131,7 +131,7 @@ class CheckDetectorTest {
                 "........",
                 "........",
                 "...p....",
-                "....K...",
+                "....R...",
                 "........",
                 "........",
                 "........");
@@ -140,7 +140,7 @@ class CheckDetectorTest {
                 "........",
                 "........",
                 "....p...",
-                "....K...",
+                "....R...",
                 "........",
                 "........",
                 "........");
@@ -154,14 +154,14 @@ class CheckDetectorTest {
     void piecesOwnNotGiveCheck() {
         // Arrange
         Board board = BoardFake.from(
-                "....R...",
+                "....T...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         boolean inCheck = detector.isInCheck(board, Side.WHITE);
@@ -174,14 +174,14 @@ class CheckDetectorTest {
     void onlyIsInCheckColorAttacked() {
         // Arrange
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K...R...");
+                "R...T...");
 
         // Act + Assert
         assertTrue(detector.isInCheck(board, Side.BLACK));
@@ -192,7 +192,7 @@ class CheckDetectorTest {
     void withoutKingNotHasCheck() {
         // Arrange
         Board board = BoardFake.from(
-                "....r...",
+                "....t...",
                 "........",
                 "........",
                 "........",

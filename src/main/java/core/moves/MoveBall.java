@@ -16,8 +16,8 @@ import java.util.Objects;
 public record MoveBall(Position from, Position toward, boolean goal) implements Effect {
 
     public MoveBall {
-        Objects.requireNonNull(from, "from");
-        Objects.requireNonNull(toward, "toward");
+        Objects.requireNonNull(from, "desde");
+        Objects.requireNonNull(toward, "hacia");
     }
 
     @Override
@@ -32,7 +32,7 @@ public record MoveBall(Position from, Position toward, boolean goal) implements 
 
     private static void move(Board board, Position de, Position a) {
         if (!board.ball().filter(de::equals).isPresent()) {
-            throw new IllegalStateException("The ball is not at " + de);
+            throw new IllegalStateException("La pelota no está en " + de);
         }
         board.placeBall(a);
     }

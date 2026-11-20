@@ -39,7 +39,7 @@ public final class BoardController {
     }
 
     public BoardController(GameInProgress game, Optional<ArtificialRival> rival) {
-        this.game = Objects.requireNonNull(game, "game");
+        this.game = Objects.requireNonNull(game, "partida");
         this.rival = Objects.requireNonNull(rival, "rival");
     }
 
@@ -110,7 +110,7 @@ public final class BoardController {
 
     /** Contra la IA, la oferta se responde enseguida: la IA acepta solo si va claramente perdiendo. */
     public Optional<InvalidActionException.Reason> offerDraw(Side color) {
-        if (!isHuman(color)) return Optional.of(InvalidActionException.Reason.NOT_YOUR_TURN);
+        if (!isHuman(color)) return Optional.of(InvalidActionException.Reason.NO_ES_SU_TURNO);
         return executeAction(() -> {
             game.offerDraw(color);
             rival.ifPresent(ArtificialRival::respondDraw);
@@ -173,7 +173,7 @@ public final class BoardController {
 
     /** El núcleo valida la orden y determina el ganador. */
     public Optional<InvalidActionException.Reason> resign(Side color) {
-        if (!isHuman(color)) return Optional.of(InvalidActionException.Reason.NOT_YOUR_TURN);
+        if (!isHuman(color)) return Optional.of(InvalidActionException.Reason.NO_ES_SU_TURNO);
         game.verifyTime();
         try {
             game.resign(color);
@@ -219,7 +219,7 @@ public final class BoardController {
      */
     public Optional<InvalidMoveException.Reason> promote(char code) {
         if (promotionPending().isEmpty()) {
-            throw new IllegalStateException("There is no pending promotion");
+            throw new IllegalStateException("No hay una promoción pendiente");
         }
         MoveRequest chosen = MoveRequest.withPromotion(promotion.get().origin(), promotion.get().destination(), code);
         promotion = Optional.empty();
@@ -233,16 +233,16 @@ public final class BoardController {
 
     /** Devuelve el motivo de rechazo del núcleo, si hubo un intento de movimiento rechazado. */
     public Optional<InvalidMoveException.Reason> press(Position position) {
-        Objects.requireNonNull(position, "position");
+        Objects.requireNonNull(position, "posicion");
         promotion = Optional.empty();
         if (game.state().isFinished()) {
             selection = Optional.empty();
-            return Optional.of(InvalidMoveException.Reason.FINISHED_GAME);
+            return Optional.of(InvalidMoveException.Reason.PARTIDA_FINALIZADA);
         }
         if (isAiTurn()) {
             // Mientras piensa la IA, el tablero no responde: sus piezas no se tocan.
             selection = Optional.empty();
-            return Optional.of(InvalidMoveException.Reason.NOT_YOUR_TURN);
+            return Optional.of(InvalidMoveException.Reason.NO_ES_SU_TURNO);
         }
         Optional<Position> origin = selected();
         if (origin.isPresent() && destinationsLegal().contains(position)) {

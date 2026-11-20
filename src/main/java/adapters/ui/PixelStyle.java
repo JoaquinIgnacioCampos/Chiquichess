@@ -20,7 +20,7 @@ final class PixelStyle {
     static {
         // Se registran una vez: después cualquier Font.font con la familia encuentra la fuente.
         for (String file : new String[]{"Silkscreen-Regular.ttf", "Silkscreen-Bold.ttf"}) {
-            var resource = PixelStyle.class.getResource("/fonts/" + file);
+            var resource = PixelStyle.class.getResource("/fuentes/" + file);
             if (resource != null) Font.loadFont(resource.toExternalForm(), 12);
         }
     }

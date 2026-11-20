@@ -21,14 +21,14 @@ class PositionFingerprintTest {
     void samePiecesInSameSquaresGiveSameFingerprintAlthoughBuildDifferent() {
         // Arrange: el mismo dibujo, pero un tablero armado pieza por pieza en otro orden
         Board drawn = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K.N.");
+                "....R.C.");
         Board toHand = BoardFake.empty();
         toHand.place(pos("g1"), new Knight(Side.WHITE));
         toHand.place(pos("e8"), new King(Side.BLACK));
@@ -73,7 +73,7 @@ class PositionFingerprintTest {
             incremental = PositionFingerprint.tras(incremental, move);
             turn = turn.opposite();
             // Assert
-            assertEquals(PositionFingerprint.de(board, turn), incremental, "After " + texto);
+            assertEquals(PositionFingerprint.de(board, turn), incremental, "Después de " + texto);
         }
     }
 
@@ -97,14 +97,14 @@ class PositionFingerprintTest {
     void updateWorksWithMovesOfSeveralEffects() {
         // Arrange: un enroque armado a mano (dos traslados)
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K..R");
+                "....R..T");
         long before = PositionFingerprint.de(board, Side.WHITE);
         Move castling = new Move(pos("e1"), pos("g1"), List.of(
                 new Transfer(board.pieceIn(pos("e1")).orElseThrow(), pos("e1"), pos("g1")),

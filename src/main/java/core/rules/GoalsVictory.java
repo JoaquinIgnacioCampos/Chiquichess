@@ -29,7 +29,7 @@ public class GoalsVictory implements EndCondition {
 
     public GoalsVictory(int goalsToWin, int movesMaximum) {
         if (goalsToWin < 1 || movesMaximum < 1) {
-            throw new IllegalArgumentException("The goals to win and the maximum moves must be positive");
+            throw new IllegalArgumentException("Los goles para ganar y las jugadas máximas deben ser positivos");
         }
         this.goalsToWin = goalsToWin;
         this.movesMaximum = movesMaximum;

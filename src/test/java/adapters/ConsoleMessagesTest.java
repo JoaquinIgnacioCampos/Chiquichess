@@ -17,7 +17,7 @@ class ConsoleMessagesTest {
     void allRejectionOfMovementHasItsText() {
         for (InvalidMoveException.Reason reason : InvalidMoveException.Reason.values()) {
             assertNotEquals(ConsoleMessages.WITHOUT_TEXT, messages.moveRejection(reason),
-                    "Missing the text for " + reason);
+                    "Falta el texto de " + reason);
         }
     }
 
@@ -25,7 +25,7 @@ class ConsoleMessagesTest {
     void allRejectionOfActionHasItsText() {
         for (core.game.InvalidActionException.Reason reason : core.game.InvalidActionException.Reason.values()) {
             assertNotEquals(ConsoleMessages.WITHOUT_TEXT, messages.actionRejection(reason),
-                    "Missing the text for " + reason);
+                    "Falta el texto de " + reason);
         }
     }
 
@@ -33,15 +33,15 @@ class ConsoleMessagesTest {
     void allReasonOfFinalHasItsText() {
         for (FinishReason reason : FinishReason.values()) {
             assertFalse(messages.gameEnd(reason, Optional.of("Ana")).startsWith(ConsoleMessages.WITHOUT_TEXT),
-                    "Missing the text for " + reason);
+                    "Falta el texto de " + reason);
         }
     }
 
     @Test
     void finalWithWinnerIncludeItsName() {
         // Assert
-        assertEquals("Checkmate! Ana wins.", messages.gameEnd(FinishReason.CHECK_MATE, Optional.of("Ana")));
-        assertEquals("Ana wins on time.", messages.gameEnd(FinishReason.TIME_EXHAUSTED, Optional.of("Ana")));
-        assertEquals("Draw by agreement.", messages.gameEnd(FinishReason.AGREEMENT, Optional.empty()));
+        assertEquals("Jaque mate! Gana Ana.", messages.gameEnd(FinishReason.CHECK_MATE, Optional.of("Ana")));
+        assertEquals("Gana Ana por tiempo.", messages.gameEnd(FinishReason.TIME_EXHAUSTED, Optional.of("Ana")));
+        assertEquals("Tablas por acuerdo.", messages.gameEnd(FinishReason.AGREEMENT, Optional.empty()));
     }
 }

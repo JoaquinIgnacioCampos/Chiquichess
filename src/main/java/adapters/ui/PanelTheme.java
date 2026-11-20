@@ -8,17 +8,17 @@ public record PanelTheme(Color background, Color card, Color texto, Color textSe
                         Color accent, Color activo, Color alerta, Color border,
                         Color pointOff, Color badgeWhite, Color badgeBlack) {
     public PanelTheme {
-        Objects.requireNonNull(background, "background");
-        Objects.requireNonNull(card, "card");
-        Objects.requireNonNull(texto, "text");
-        Objects.requireNonNull(textSecondary, "textSecondary");
-        Objects.requireNonNull(accent, "accent");
-        Objects.requireNonNull(activo, "active");
-        Objects.requireNonNull(alerta, "alert");
-        Objects.requireNonNull(border, "border");
-        Objects.requireNonNull(pointOff, "pointOff");
-        Objects.requireNonNull(badgeWhite, "badgeWhite");
-        Objects.requireNonNull(badgeBlack, "badgeBlack");
+        Objects.requireNonNull(background, "fondo");
+        Objects.requireNonNull(card, "tarjeta");
+        Objects.requireNonNull(texto, "texto");
+        Objects.requireNonNull(textSecondary, "textoSecundario");
+        Objects.requireNonNull(accent, "acento");
+        Objects.requireNonNull(activo, "activo");
+        Objects.requireNonNull(alerta, "alerta");
+        Objects.requireNonNull(border, "borde");
+        Objects.requireNonNull(pointOff, "puntoApagado");
+        Objects.requireNonNull(badgeWhite, "insigniaBlanca");
+        Objects.requireNonNull(badgeBlack, "insigniaNegra");
     }
 
     public static PanelTheme scoreboard() {

@@ -68,7 +68,7 @@ public final class LedText extends Region {
     }
 
     public void setText(String texto) {
-        Objects.requireNonNull(texto, "text");
+        Objects.requireNonNull(texto, "texto");
         if (this.texto.equals(texto)) return;
         this.texto = texto;
         setAccessibleText(texto);
@@ -84,7 +84,7 @@ public final class LedText extends Region {
 
     /** Dibuja también los puntos apagados, tenues, como un cartel de luces de estadio. */
     public void setColorOff(Color off) {
-        this.off = Objects.requireNonNull(off, "off");
+        this.off = Objects.requireNonNull(off, "apagado");
         requestLayout();
     }
 

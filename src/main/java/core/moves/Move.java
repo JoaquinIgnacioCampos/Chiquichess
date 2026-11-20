@@ -25,12 +25,12 @@ import java.util.Optional;
 public record Move(Position origin, Position destination, List<Effect> effects) {
 
     public Move {
-        Objects.requireNonNull(origin, "origin");
-        Objects.requireNonNull(destination, "destination");
-        effects = List.copyOf(Objects.requireNonNull(effects, "effects"));
+        Objects.requireNonNull(origin, "origen");
+        Objects.requireNonNull(destination, "destino");
+        effects = List.copyOf(Objects.requireNonNull(effects, "efectos"));
         if (!movesFrom(effects, origin)) {
-            throw new IllegalArgumentException("The move must transfer the piece that is at " + origin
-                    + " or be a pass from there");
+            throw new IllegalArgumentException("La jugada debe trasladar la pieza que está en " + origin
+                    + " o ser un pase desde ahí");
         }
     }
 
@@ -50,7 +50,7 @@ public record Move(Position origin, Position destination, List<Effect> effects) 
     /** Jugada común: la pieza de origen va a destino y, si había una pieza rival ahí, la captura. */
     public static Move normal(IBoard board, Position origin, Position destination) {
         Piece piece = board.pieceIn(origin)
-                .orElseThrow(() -> new IllegalArgumentException("There is no piece at " + origin));
+                .orElseThrow(() -> new IllegalArgumentException("No hay ninguna pieza en " + origin));
         List<Effect> effects = new ArrayList<>();
         board.pieceIn(destination).ifPresent(captured -> effects.add(new Removal(captured, destination)));
         effects.add(new Transfer(piece, origin, destination));
@@ -69,7 +69,7 @@ public record Move(Position origin, Position destination, List<Effect> effects) 
                 return pass.passer();
             }
         }
-        throw new IllegalStateException("The move does not move any piece");
+        throw new IllegalStateException("La jugada no mueve ninguna pieza");
     }
 
     /** true si la jugada es un pase (modo fútbol): ninguna pieza se mueve, solo la pelota. */
@@ -115,7 +115,7 @@ public record Move(Position origin, Position destination, List<Effect> effects) 
     /** La misma jugada con un efecto más al final. */
     public Move con(Effect effect) {
         List<Effect> enlarged = new ArrayList<>(effects);
-        enlarged.add(Objects.requireNonNull(effect, "effect"));
+        enlarged.add(Objects.requireNonNull(effect, "efecto"));
         return new Move(origin, destination, enlarged);
     }
 

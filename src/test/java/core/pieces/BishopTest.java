@@ -52,7 +52,7 @@ class BishopTest {
                 "........",
                 ".....p..",
                 "........",
-                "...B....",
+                "...A....",
                 "..P.....",
                 "........",
                 "........");
@@ -62,10 +62,10 @@ class BishopTest {
         Set<Position> destinations = bishop.destinationsPossible(board, pos("d4"));
 
         // Assert
-        assertTrue(destinations.contains(pos("f6")), "Captures the rival pawn");
-        assertFalse(destinations.contains(pos("g7")), "It does not jump the rival pawn");
-        assertFalse(destinations.contains(pos("c3")), "It does not land on its own pawn");
-        assertFalse(destinations.contains(pos("b2")), "It does not jump its own pawn");
+        assertTrue(destinations.contains(pos("f6")), "Captura al peón rival");
+        assertFalse(destinations.contains(pos("g7")), "No salta al peón rival");
+        assertFalse(destinations.contains(pos("c3")), "No cae sobre su propio peón");
+        assertFalse(destinations.contains(pos("b2")), "No salta a su propio peón");
     }
 
     @Test
@@ -87,8 +87,8 @@ class BishopTest {
         Bishop bishop = new Bishop(Side.WHITE);
 
         // Assert
-        assertEquals('B', bishop.code());
-        assertEquals("Bishop", bishop.displayName());
+        assertEquals('A', bishop.code());
+        assertEquals("Alfil", bishop.displayName());
         assertFalse(bishop.isKing());
         assertFalse(bishop.isPawn());
     }

@@ -17,14 +17,14 @@ import java.util.Optional;
 public final class ClockView extends StackPane {
     private final PanelTheme theme;
     private final LedText digits;
-    private final Text withoutLimit = new Text("No limit");
+    private final Text withoutLimit = new Text("Sin límite");
 
     public ClockView(Side color, PanelTheme theme) {
         Objects.requireNonNull(color, "color");
-        this.theme = Objects.requireNonNull(theme, "theme");
-        setId(color == Side.WHITE ? "clock-white" : "clock-black");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        setId(color == Side.WHITE ? "reloj-blanco" : "reloj-negro");
         setAccessibleRole(AccessibleRole.TEXT);
-        setAccessibleHelp(color == Side.WHITE ? "White's time" : "Black's time");
+        setAccessibleHelp(color == Side.WHITE ? "Tiempo de blancas" : "Tiempo de negras");
         setMouseTransparent(true);
         setAlignment(Pos.CENTER_RIGHT);
         setMinSize(0, 16);
@@ -38,18 +38,18 @@ public final class ClockView extends StackPane {
     }
 
     public void update(Optional<Duration> remaining, boolean activo) {
-        Objects.requireNonNull(remaining, "remaining");
+        Objects.requireNonNull(remaining, "restante");
         boolean limited = remaining.isPresent();
         digits.setVisible(limited);
         digits.setManaged(limited);
         withoutLimit.setVisible(!limited);
         withoutLimit.setManaged(!limited);
-        String texto = remaining.map(this::format).orElse("No limit");
+        String texto = remaining.map(this::format).orElse("Sin límite");
         if (limited) digits.setText(texto);
         digits.setColor(activo ? theme.activo() : theme.textSecondary());
         setAccessibleText(texto);
-        getStyleClass().remove("clock-active");
-        if (limited && activo) getStyleClass().add("clock-active");
+        getStyleClass().remove("reloj-activo");
+        if (limited && activo) getStyleClass().add("reloj-activo");
     }
 
     private String format(Duration duration) {

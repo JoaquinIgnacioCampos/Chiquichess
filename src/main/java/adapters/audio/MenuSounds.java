@@ -23,8 +23,8 @@ public final class MenuSounds implements AutoCloseable {
     private boolean laughed = false;
 
     public MenuSounds(SoundCatalog catalog, AudioPlayer player, VolumeControl control) {
-        this.catalog = Objects.requireNonNull(catalog, "catalog");
-        this.player = Objects.requireNonNull(player, "player");
+        this.catalog = Objects.requireNonNull(catalog, "catalogo");
+        this.player = Objects.requireNonNull(player, "reproductor");
         this.control = Objects.requireNonNull(control, "control");
         control.onChange(onChangeVolume);
     }

@@ -60,8 +60,8 @@ class KnightTest {
         Knight knight = new Knight(Side.WHITE);
 
         // Assert
-        assertEquals('N', knight.code());
-        assertEquals("Knight", knight.displayName());
+        assertEquals('C', knight.code());
+        assertEquals("Caballo", knight.displayName());
         assertFalse(knight.isKing());
     }
 }

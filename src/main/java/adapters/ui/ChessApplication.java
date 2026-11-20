@@ -40,7 +40,7 @@ public class ChessApplication extends Application {
     private AiTurn turnOfAi;
     /** Hilos donde piensa la IA; son daemon para no impedir que el programa se cierre. */
     private final ExecutorService aiThreads = Executors.newCachedThreadPool(task -> {
-        Thread thread = new Thread(task, "ai-thinking");
+        Thread thread = new Thread(task, "ia-pensando");
         thread.setDaemon(true);
         return thread;
     });
@@ -54,7 +54,7 @@ public class ChessApplication extends Application {
     private MenuSelection menuSelection = MenuSelection.usual();
     /** Opciones y sonido guardados entre una vez y la otra, en la carpeta desde la que se abre el juego. */
     private final SettingsFile settingsFile =
-            new SettingsFile(java.nio.file.Path.of("settings.txt"));
+            new SettingsFile(java.nio.file.Path.of("configuracion.txt"));
 
     @Override
     public void start(Stage ventana) {
@@ -66,7 +66,7 @@ public class ChessApplication extends Application {
         menuSounds = new MenuSounds(soundCatalog, player, volume);
         ventana.setTitle("ChiquiChess");
         // El personaje de la portada también es el ícono de la ventana y de la barra de tareas.
-        ventana.getIcons().add(new Image("/character/chiquichess.png"));
+        ventana.getIcons().add(new Image("/personaje/chiquichess.png"));
         // Arranca con la intro: video, logo y un botón para comenzar, que lleva al menú.
         intro = new IntroScreen(PanelTheme.scoreboard(), volume, () -> enterMenu(ventana));
         ventana.setScene(new Scene(intro));
@@ -123,7 +123,7 @@ public class ChessApplication extends Application {
                 Color.web("#FFFBEF"), Color.web("#202733"),
                 Color.web("#202733"), Color.web("#1B212B"),
                 Color.web("#F7F769"), Color.web("#202733", 0.18), Color.web("#202733", 0.23),
-                new Image("/board/grass.jpg", 1280, 1280, true, true));
+                new Image("/tablero/pasto.jpg", 1280, 1280, true, true));
         BoardController controller = new BoardController(game, prepared.rival());
         PanelTheme themePanel = PanelTheme.scoreboard();
         var clubs = java.util.Map.of(
@@ -147,7 +147,7 @@ public class ChessApplication extends Application {
         ventana.getScene().setRoot(view);
         GameSounds sounds = GameSounds.connect(game, soundCatalog, player,
                 Map.of(Side.WHITE, prepared.whiteTeam(), Side.BLACK, prepared.blackTeam()),
-                volume, configuration.mode() == GameConfiguration.Mode.FOOTBALL);
+                volume, configuration.mode() == GameConfiguration.Mode.FUTBOL);
         soundsCurrent = sounds;
         view.onSelectPiece(sounds::selectedPiece);
         updaterClock.start();
@@ -167,7 +167,7 @@ public class ChessApplication extends Application {
     private void startRematch(Stage ventana, GameConfiguration previous, ConfiguredGame prepared) {
         if (currentGame != prepared || !prepared.game().state().isFinished()) return;
         var colors = prepared.whiteTeam() == previous.teamPlayer1()
-                ? GameConfiguration.Colors.PLAYER_2_WHITE : GameConfiguration.Colors.PLAYER_1_WHITE;
+                ? GameConfiguration.Colors.JUGADOR_2_BLANCAS : GameConfiguration.Colors.JUGADOR_1_BLANCAS;
         startGame(ventana, new GameConfiguration(previous.mode(), previous.time(), previous.rival(),
                 previous.teamPlayer1(), previous.teamPlayer2(), colors, previous.allowUndo(),
                 previous.moveLimit(), previous.difficulty()));

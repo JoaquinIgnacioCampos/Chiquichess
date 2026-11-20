@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpriteRepresentationTest {
     private final BoardTheme theme = new BoardTheme(Color.BEIGE, Color.BROWN, Color.WHITE, Color.BLACK,
             Color.BLACK, Color.GRAY);
-    private final SpriteCatalog catalog = new SpriteCatalog("/test-sprites");
+    private final SpriteCatalog catalog = new SpriteCatalog("/sprites-de-prueba");
     private final PieceRepresentation representation = new SpriteRepresentation(
             Map.of(Side.WHITE, catalog, Side.BLACK, catalog), new UnicodeRepresentation());
 
@@ -66,7 +66,7 @@ class SpriteRepresentationTest {
 
     @Test
     void catalogLoadsEachImageAAloneTime() {
-        assertSame(catalog.sprite('K', Side.WHITE).orElseThrow(), catalog.sprite('K', Side.WHITE).orElseThrow());
+        assertSame(catalog.sprite('R', Side.WHITE).orElseThrow(), catalog.sprite('R', Side.WHITE).orElseThrow());
     }
 
     @Test
@@ -86,7 +86,7 @@ class SpriteRepresentationTest {
     @Test
     void aNewPieceWithoutFileNotBreaksView() {
         Piece newValue = new Piece(Side.WHITE, new core.movements.CompositeRule()) {
-            @Override public String displayName() { return "New"; }
+            @Override public String displayName() { return "Nueva"; }
             @Override public char code() { return 'X'; }
             @Override public int value() { return 0; }
         };
@@ -106,11 +106,11 @@ class SpriteRepresentationTest {
         board.place(new Position(0, 0), new King(Side.WHITE));
         List<Position> pressed = new ArrayList<>();
         BoardView view = new BoardView(board, theme, representation, pressed::add);
-        StackPane square = (StackPane) view.lookup("#square-0-0");
+        StackPane square = (StackPane) view.lookup("#casilla-0-0");
         javafx.scene.Node sprite = square.getChildren().getFirst();
         imageOf(sprite);
         assertTrue(sprite.isMouseTransparent());
-        assertEquals("King WHITE", sprite.getAccessibleText());
+        assertEquals("Rey BLANCO", sprite.getAccessibleText());
         square.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
                 false, false, false, false, false, false, false, false, false, true, null));
         assertEquals(List.of(new Position(0, 0)), pressed);

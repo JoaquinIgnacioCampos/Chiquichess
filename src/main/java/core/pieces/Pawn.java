@@ -39,7 +39,7 @@ public class Pawn extends Piece {
 
     @Override
     public String displayName() {
-        return "Pawn";
+        return "Peon";
     }
 
     @Override

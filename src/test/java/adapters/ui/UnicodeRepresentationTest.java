@@ -43,7 +43,7 @@ class UnicodeRepresentationTest {
     @Test
     void aNewPieceCanShowWithItsCodeWithoutBreakView() {
         Piece newValue = new Piece(Side.WHITE, new CompositeRule()) {
-            @Override public String displayName() { return "New"; }
+            @Override public String displayName() { return "Nueva"; }
             @Override public char code() { return 'X'; }
             @Override public int value() { return 0; }
         };

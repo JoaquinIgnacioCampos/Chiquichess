@@ -25,14 +25,14 @@ public record BoardTheme(Color lightSquare, Color darkSquare,
     }
 
     public BoardTheme {
-        Objects.requireNonNull(lightSquare, "lightSquare");
-        Objects.requireNonNull(darkSquare, "darkSquare");
-        Objects.requireNonNull(whitePiece, "whitePiece");
-        Objects.requireNonNull(blackPiece, "blackPiece");
-        Objects.requireNonNull(outlinePieces, "outlinePieces");
-        Objects.requireNonNull(background, "background");
-        Objects.requireNonNull(selectedSquare, "selectedSquare");
-        Objects.requireNonNull(destinationFree, "destinationFree");
-        Objects.requireNonNull(destinationCapture, "destinationCapture");
+        Objects.requireNonNull(lightSquare, "casillaClara");
+        Objects.requireNonNull(darkSquare, "casillaOscura");
+        Objects.requireNonNull(whitePiece, "piezaBlanca");
+        Objects.requireNonNull(blackPiece, "piezaNegra");
+        Objects.requireNonNull(outlinePieces, "contornoPiezas");
+        Objects.requireNonNull(background, "fondo");
+        Objects.requireNonNull(selectedSquare, "casillaSeleccionada");
+        Objects.requireNonNull(destinationFree, "destinoLibre");
+        Objects.requireNonNull(destinationCapture, "destinoCaptura");
     }
 }

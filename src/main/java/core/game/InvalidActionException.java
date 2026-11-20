@@ -3,15 +3,15 @@ package core.game;
 /** Rechazo de una orden que no es un movimiento de pieza. */
 public class InvalidActionException extends RuntimeException {
     public enum Reason {
-        FINISHED_GAME,
-        NOT_YOUR_TURN,
-        OFFER_PENDING,
-        WITHOUT_OFFER,
-        IS_OWN_OFFER,
+        PARTIDA_FINALIZADA,
+        NO_ES_SU_TURNO,
+        OFERTA_PENDIENTE,
+        SIN_OFERTA,
+        ES_SU_PROPIA_OFERTA,
         /** La partida no habilita deshacer: no se eligió esa opción o se juega con tiempo. */
-        UNDO_NOT_ALLOWED,
-        NOTHING_TO_UNDO,
-        NOTHING_TO_REDO
+        DESHACER_NO_PERMITIDO,
+        NADA_PARA_DESHACER,
+        NADA_PARA_REHACER
     }
 
     private static final long serialVersionUID = 1L;

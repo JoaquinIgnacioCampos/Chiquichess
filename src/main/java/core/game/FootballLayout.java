@@ -17,7 +17,7 @@ public class FootballLayout implements InitialLayout {
 
     public FootballLayout(InitialLayout base, BallRule ball) {
         this.base = Objects.requireNonNull(base, "base");
-        this.ball = Objects.requireNonNull(ball, "ball");
+        this.ball = Objects.requireNonNull(ball, "pelota");
     }
 
     @Override

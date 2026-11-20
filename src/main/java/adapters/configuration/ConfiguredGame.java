@@ -17,12 +17,12 @@ import java.util.Optional;
 public record ConfiguredGame(GameInProgress game, Team whiteTeam, Team blackTeam,
                                  GameClock clock, Optional<ArtificialRival> rival) implements AutoCloseable {
     public ConfiguredGame {
-        Objects.requireNonNull(game, "game");
+        Objects.requireNonNull(game, "partida");
         Objects.requireNonNull(rival, "rival");
-        Objects.requireNonNull(whiteTeam, "whiteTeam");
-        Objects.requireNonNull(blackTeam, "blackTeam");
-        Objects.requireNonNull(clock, "clock");
-        if (whiteTeam == blackTeam) throw new IllegalArgumentException("The teams must be different");
+        Objects.requireNonNull(whiteTeam, "equipoBlancas");
+        Objects.requireNonNull(blackTeam, "equipoNegras");
+        Objects.requireNonNull(clock, "reloj");
+        if (whiteTeam == blackTeam) throw new IllegalArgumentException("Los equipos deben ser distintos");
     }
 
     public Team team(Side color) {

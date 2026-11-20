@@ -28,7 +28,7 @@ public class MockCondition implements EndCondition {
 
     public MoveContext lastContext() {
         if (contextsReceived.isEmpty()) {
-            throw new IllegalStateException("The condition was never queried");
+            throw new IllegalStateException("La condición nunca fue consultada");
         }
         return contextsReceived.get(contextsReceived.size() - 1);
     }

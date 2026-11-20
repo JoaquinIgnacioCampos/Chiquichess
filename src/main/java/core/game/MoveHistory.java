@@ -22,7 +22,7 @@ final class MoveHistory {
     /** Una jugada ejecutada y los recuerdos que dejaron las condiciones con memoria al registrarla. */
     record Entrada(Move move, List<Memento> mementos) {
         Entrada {
-            Objects.requireNonNull(move, "move");
+            Objects.requireNonNull(move, "jugada");
             mementos = List.copyOf(mementos);
         }
     }
@@ -59,7 +59,7 @@ final class MoveHistory {
     /** Saca la última jugada ejecutada y la guarda para poder rehacerla. */
     Entrada undo() {
         if (made.isEmpty()) {
-            throw new IllegalStateException("There are no moves to undo");
+            throw new IllegalStateException("No hay jugadas para deshacer");
         }
         Entrada last = made.remove(made.size() - 1);
         undone.add(last.move());
@@ -69,7 +69,7 @@ final class MoveHistory {
     /** Próxima jugada para rehacer; se confirma con {@link #confirmarRehecha}. */
     Move nextToRedo() {
         if (undone.isEmpty()) {
-            throw new IllegalStateException("There are no moves to redo");
+            throw new IllegalStateException("No hay jugadas para rehacer");
         }
         return undone.get(undone.size() - 1);
     }

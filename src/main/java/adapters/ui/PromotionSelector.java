@@ -30,21 +30,21 @@ final class PromotionSelector extends StackPane {
 
     PromotionSelector(BoardTheme themeBoard, PieceRepresentation representation, PanelTheme theme,
                       Consumer<Character> onChoose, Runnable onCancel) {
-        this.themeBoard = Objects.requireNonNull(themeBoard, "themeBoard");
-        this.representation = Objects.requireNonNull(representation, "representation");
-        this.theme = Objects.requireNonNull(theme, "theme");
-        this.onChoose = Objects.requireNonNull(onChoose, "onChoose");
-        Objects.requireNonNull(onCancel, "onCancel");
-        setId("selector-promotion");
+        this.themeBoard = Objects.requireNonNull(themeBoard, "temaTablero");
+        this.representation = Objects.requireNonNull(representation, "representacion");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        this.onChoose = Objects.requireNonNull(onChoose, "alElegir");
+        Objects.requireNonNull(onCancel, "alCancelar");
+        setId("selector-promocion");
         setAlignment(Pos.CENTER);
         setBackground(new Background(new BackgroundFill(
                 theme.background().deriveColor(0, 1, 1, .8), CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Text asks = new Text("Which piece does the pawn promote to?");
+        Text asks = new Text("¿A qué pieza promueve el peón?");
         asks.setFont(PixelStyle.font(16, true));
         asks.setFill(theme.texto());
         options.setAlignment(Pos.CENTER);
-        Button cancel = HeaderButton.create("Cancel", "cancel-promotion", theme.border(), theme.texto());
+        Button cancel = HeaderButton.create("Cancelar", "cancelar-promocion", theme.border(), theme.texto());
         cancel.setOnAction(e -> onCancel.run());
 
         VBox card = new VBox(12, asks, options, cancel);
@@ -83,7 +83,7 @@ final class PromotionSelector extends StackPane {
 
     private Button button(Piece piece) {
         Button button = new Button();
-        button.setId("promote-" + piece.code());
+        button.setId("promover-" + piece.code());
         button.setGraphic(representation.create(piece, themeBoard));
         button.setAccessibleText(piece.displayName());
         button.setPrefSize(72, 72);

@@ -29,7 +29,7 @@ class AiTurnTest {
 
     private Game game() {
         return new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic().withUndo(), new NoClock());
+                new Player("IA", Side.BLACK), GameRules.classic().withUndo(), new NoClock());
     }
 
     private AiTurn turn(GameInProgress game, Side sideOfAi) {

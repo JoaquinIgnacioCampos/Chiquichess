@@ -20,14 +20,14 @@ class RepetitionDrawTest {
     /** Reyes en e1/e8 y caballos en g1/g8: los caballos pueden ir y volver sin cambiar nada más. */
     private Board withKnights() {
         return BoardFake.from(
-                "....k.n.",
+                "....r.c.",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K.N.");
+                "....R.C.");
     }
 
     private Optional<GameState> tras(RepetitionDraw regla, Board board, String... moves) {
@@ -80,14 +80,14 @@ class RepetitionDrawTest {
         // Arrange: la torre blanca captura el peón de a7 y después los caballos van y vuelven.
         // La posición posterior a la captura (juegan las negras) aparece dos veces.
         Board board = BoardFake.from(
-                "....k.n.",
+                "....r.c.",
                 "p.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "R...K.N.");
+                "T...R.C.");
 
         // Act
         Optional<GameState> withTwo = tras(new RepetitionDraw(2), board.copy(),

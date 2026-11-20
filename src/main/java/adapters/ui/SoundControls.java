@@ -38,7 +38,7 @@ final class SoundControls {
         silence.setOnAction(e -> control.mute(!control.muted()));
         Slider volume = new Slider(0, 1, control.effective());
         volume.setId(idVolume);
-        volume.setAccessibleText("Volume");
+        volume.setAccessibleText("Volumen");
         volume.setPrefWidth(90);
         volume.setMinWidth(Region.USE_PREF_SIZE);
         volume.setFocusTraversable(false);
@@ -51,7 +51,7 @@ final class SoundControls {
             icon.setMaxSize(26, 24);
             silence.setGraphic(icon);
             silence.setAccessibleText(texto(control));
-            silence.getTooltip().setText(control.muted() ? "Turn the sound on" : "Mute");
+            silence.getTooltip().setText(control.muted() ? "Activar el sonido" : "Silenciar");
             volume.setValue(control.effective());
         };
         show.run();
@@ -64,6 +64,6 @@ final class SoundControls {
     }
 
     private static String texto(VolumeControl control) {
-        return control.muted() ? "Sound: off" : "Sound: on";
+        return control.muted() ? "Sonido: no" : "Sonido: sí";
     }
 }

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ArtificialRivalTest {
 
     private final GameInProgress game = new Game(new StandardLayout().createBoard(),
-            new Player("Ana", Side.WHITE), new Player("AI", Side.BLACK),
+            new Player("Ana", Side.WHITE), new Player("IA", Side.BLACK),
             GameRules.classic().withUndo(), new NoClock());
 
     private ArtificialRival rival(boolean acceptsDraw) {
@@ -108,7 +108,7 @@ class ArtificialRivalTest {
     void respondsDrawAccordingItsStrategy() {
         // Arrange
         GameInProgress other = new Game(new StandardLayout().createBoard(), new Player("Ana", Side.WHITE),
-                new Player("AI", Side.BLACK), GameRules.classic(), new NoClock());
+                new Player("IA", Side.BLACK), GameRules.classic(), new NoClock());
         ArtificialRival accepts = new ArtificialRival(other, Side.BLACK, new StrategyFalse(true));
         ArtificialRival rejects = rival(false);
 

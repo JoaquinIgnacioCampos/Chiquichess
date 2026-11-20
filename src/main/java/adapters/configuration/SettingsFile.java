@@ -29,7 +29,7 @@ public final class SettingsFile {
     private final Path file;
 
     public SettingsFile(Path file) {
-        this.file = Objects.requireNonNull(file, "file");
+        this.file = Objects.requireNonNull(file, "archivo");
     }
 
     /** Las preferencias guardadas; si el archivo no existe, lo crea con las de por defecto. */
@@ -43,56 +43,56 @@ public final class SettingsFile {
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             values.load(reader);
         } catch (IOException | IllegalArgumentException illegible) {
-            System.err.println("ChiquiChess: could not read " + file + " (" + illegible.getMessage()
-                    + "); the default settings are used");
+            System.err.println("ChiquiChess: no se pudo leer " + file + " (" + illegible.getMessage()
+                    + "); se usan las opciones por defecto");
             return Preferences.byDefault();
         }
         return from(values);
     }
 
     public void save(Preferences preferences) {
-        Objects.requireNonNull(preferences, "preferences");
+        Objects.requireNonNull(preferences, "preferencias");
         MenuSelection s = preferences.selection();
         List<String> lines = List.of(
-                "# ChiquiChess settings. They are loaded when the game opens and saved when playing and quitting.",
-                "# If this file is deleted, it is created again with the default settings.",
-                "mode=" + displayName(s.mode()),
-                "time=" + displayName(s.time()),
-                "opponent=" + displayName(s.rival()),
-                "difficulty=" + displayName(s.difficulty()),
-                "player1Team=" + displayName(s.teamPlayer1()),
-                "player2Team=" + displayName(s.teamPlayer2()),
-                "colors=" + displayName(s.colors()),
-                "allowUndo=" + s.allowUndo(),
-                "moveLimit=" + s.moveLimit(),
-                "volume=" + String.format(Locale.ROOT, "%.2f", preferences.volume()),
-                "muted=" + preferences.muted());
+                "# Opciones de ChiquiChess. Se cargan al abrir el juego y se guardan al jugar y al salir.",
+                "# Si se borra este archivo, se vuelve a crear con las opciones por defecto.",
+                "modo=" + displayName(s.mode()),
+                "tiempo=" + displayName(s.time()),
+                "rival=" + displayName(s.rival()),
+                "dificultad=" + displayName(s.difficulty()),
+                "equipoJugador1=" + displayName(s.teamPlayer1()),
+                "equipoJugador2=" + displayName(s.teamPlayer2()),
+                "colores=" + displayName(s.colors()),
+                "permitirDeshacer=" + s.allowUndo(),
+                "limiteDeJugadas=" + s.moveLimit(),
+                "volumen=" + String.format(Locale.ROOT, "%.2f", preferences.volume()),
+                "silenciado=" + preferences.muted());
         try {
             Files.write(file, lines, StandardCharsets.UTF_8);
         } catch (IOException couldNot) {
-            System.err.println("ChiquiChess: could not save " + file + " (" + couldNot.getMessage() + ")");
+            System.err.println("ChiquiChess: no se pudo guardar " + file + " (" + couldNot.getMessage() + ")");
         }
     }
 
     private static Preferences from(Properties values) {
         MenuSelection usual = MenuSelection.usual();
-        Optional<Team> team1 = constant(values, "teamPlayer1", Team.class);
+        Optional<Team> team1 = constant(values, "equipoJugador1", Team.class);
         // Los dos jugadores no pueden tener el mismo club: el segundo queda sin elegir.
-        Optional<Team> team2 = constant(values, "teamPlayer2", Team.class).filter(e -> !team1.equals(Optional.of(e)));
+        Optional<Team> team2 = constant(values, "equipoJugador2", Team.class).filter(e -> !team1.equals(Optional.of(e)));
         MenuSelection selection = new MenuSelection(
-                constant(values, "mode", Mode.class).or(usual::mode),
-                constant(values, "time", Time.class).or(usual::time),
+                constant(values, "modo", Mode.class).or(usual::mode),
+                constant(values, "tiempo", Time.class).or(usual::time),
                 constant(values, "rival", Rival.class).or(usual::rival),
                 team1,
                 team2,
-                constant(values, "colors", Colors.class).or(usual::colors),
-                Boolean.parseBoolean(values.getProperty("allowUndo", "false").trim()),
-                whole(values, "moveLimit").filter(limit -> limit >= GameConfiguration.LIMIT_MINIMUM
+                constant(values, "colores", Colors.class).or(usual::colors),
+                Boolean.parseBoolean(values.getProperty("permitirDeshacer", "false").trim()),
+                whole(values, "limiteDeJugadas").filter(limit -> limit >= GameConfiguration.LIMIT_MINIMUM
                         && limit <= GameConfiguration.LIMIT_MAXIMUM).orElse(usual.moveLimit()),
-                constant(values, "difficulty", Difficulty.class));
-        double volume = decimal(values, "volume").filter(v -> v > 0 && v <= 1)
+                constant(values, "dificultad", Difficulty.class));
+        double volume = decimal(values, "volumen").filter(v -> v > 0 && v <= 1)
                 .orElse(Preferences.DEFAULT_VOLUME);
-        boolean muted = Boolean.parseBoolean(values.getProperty("muted", "false").trim());
+        boolean muted = Boolean.parseBoolean(values.getProperty("silenciado", "false").trim());
         return new Preferences(selection, volume, muted);
     }
 

@@ -30,7 +30,7 @@ final class PlayerCard extends StackPane {
     private Button offerDraw;
     private final VBox content = new VBox(12);
     private final HBox barActions = new HBox(8);
-    private final Text waiting = new Text("Waiting for a response");
+    private final Text waiting = new Text("Esperando respuesta");
     private JavaFxActionConfirmation confirmation;
     private JavaFxActionConfirmation confirmOffer;
     private JavaFxActionConfirmation respondOffer;
@@ -45,8 +45,8 @@ final class PlayerCard extends StackPane {
         PanelTheme theme = club == null ? themeBase : club.theme();
         this.theme = theme;
         this.color = color;
-        setId(color == Side.WHITE ? "player-white" : "player-black");
-        displayName.setId(color == Side.WHITE ? "displayName-white" : "displayName-black");
+        setId(color == Side.WHITE ? "jugador-blanco" : "jugador-negro");
+        displayName.setId(color == Side.WHITE ? "nombre-blanco" : "nombre-negro");
         displayName.setFill(theme.texto());
         setMinSize(0, 0);
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -55,7 +55,7 @@ final class PlayerCard extends StackPane {
         content.setAlignment(Pos.CENTER_LEFT);
         setBackground(new Background(new BackgroundFill(theme.card(), CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Text rol = new Text(color == Side.WHITE ? "HOME" : "AWAY");
+        Text rol = new Text(color == Side.WHITE ? "LOCAL" : "VISITANTE");
         rol.setFont(PixelStyle.font(14, true));
         rol.setFill(theme.textSecondary());
         clock = new ClockView(color, theme);
@@ -77,8 +77,8 @@ final class PlayerCard extends StackPane {
             badge.getChildren().addAll(crest, pawn);
         } else {
             ImageView image = new ImageView(club.crest());
-            image.setId("crest-" + suffix());
-            image.setAccessibleText("Crest of " + club.team().displayName());
+            image.setId("escudo-" + suffix());
+            image.setAccessibleText("Escudo de " + club.team().displayName());
             image.setPreserveRatio(true);
             image.setFitWidth(64);
             image.setFitHeight(80);
@@ -90,7 +90,7 @@ final class PlayerCard extends StackPane {
         badge.setPrefSize(64, 80);
         badge.setMaxSize(64, 80);
 
-        side.setText(color == Side.WHITE ? "WHITE" : "BLACK");
+        side.setText(color == Side.WHITE ? "BLANCAS" : "NEGRAS");
         side.setFill(theme.textSecondary());
         side.setFont(PixelStyle.font(13, true));
         nameClub.setId("club-" + suffix());
@@ -110,7 +110,7 @@ final class PlayerCard extends StackPane {
         barActions.setAlignment(Pos.CENTER_RIGHT);
         barActions.setVisible(false);
         barActions.setManaged(false);
-        waiting.setId("waiting-draw-" + suffix());
+        waiting.setId("esperando-tablas-" + suffix());
         waiting.setFill(theme.accent());
         waiting.setFont(PixelStyle.font(12, true));
         waiting.setVisible(false);
@@ -142,14 +142,14 @@ final class PlayerCard extends StackPane {
     }
 
     private String suffix() {
-        return color == Side.WHITE ? "white" : "black";
+        return color == Side.WHITE ? "blanco" : "negro";
     }
 
     void update(Player player, boolean activo) {
         displayName.setText(player.displayName());
         displayName.setAccessibleText(player.displayName());
-        getStyleClass().remove("player-active");
-        if (activo) getStyleClass().add("player-active");
+        getStyleClass().remove("jugador-activo");
+        if (activo) getStyleClass().add("jugador-activo");
         setBorder(new Border(new BorderStroke(activo ? theme.activo() : theme.border(),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(activo ? 2 : 1))));
         setEffect(activo ? new DropShadow(14, theme.activo().deriveColor(0, 1, 1, 0.2)) : null);
@@ -161,22 +161,22 @@ final class PlayerCard extends StackPane {
 
     /** Las acciones se conectan desde el ensamblado; la tarjeta solo emite el clic. */
     void configureResignation(Runnable request) {
-        if (resign != null) throw new IllegalStateException("Resignation already configured");
-        resign = new Button("Resign");
-        resign.setId(getId().equals("player-white") ? "resign-white" : "resign-black");
-        resign.setAccessibleText(getId().equals("player-white") ? "Resign: white" : "Resign: black");
+        if (resign != null) throw new IllegalStateException("Rendición ya configurada");
+        resign = new Button("Rendirse");
+        resign.setId(getId().equals("jugador-blanco") ? "rendirse-blanco" : "rendirse-negro");
+        resign.setAccessibleText(getId().equals("jugador-blanco") ? "Rendirse: blancas" : "Rendirse: negras");
         resign.setFont(PixelStyle.font(13, true));
         resign.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         resign.setCursor(javafx.scene.Cursor.HAND);
         resign.setGraphic(PixelIcon.create(PixelIcon.FLAG, theme.alerta(), theme.card(), theme.alerta()));
         resign.setGraphicTextGap(6);
         PixelStyle.paint(resign, theme.card(), theme.alerta());
-        confirmation = new JavaFxActionConfirmation(theme, "Are you sure you want\nto resign?", "Resign", "Cancel",
-                "resignation", theme.alerta(), () -> {
+        confirmation = new JavaFxActionConfirmation(theme, "¿Seguro que querés\nrendirte?", "Rendirse", "Cancelar",
+                "rendicion", theme.alerta(), () -> {
             show(Panel.NORMAL);
             request.run();
         }, () -> show(Panel.NORMAL));
-        confirmation.setId(getId().equals("player-white") ? "confirmation-white" : "confirmation-black");
+        confirmation.setId(getId().equals("jugador-blanco") ? "confirmacion-blanco" : "confirmacion-negro");
         confirmation.setVisible(false);
         confirmation.setManaged(false);
         getChildren().add(confirmation);
@@ -192,22 +192,22 @@ final class PlayerCard extends StackPane {
     }
 
     void configureDraw(Runnable offer, Runnable accept, Runnable reject) {
-        if (offerDraw != null) throw new IllegalStateException("Draw already configured");
-        offerDraw = new Button("Offer a draw");
-        offerDraw.setId("offer-draw-" + suffix());
-        offerDraw.setAccessibleText("Offer a draw: " + (color == Side.WHITE ? "white" : "black"));
+        if (offerDraw != null) throw new IllegalStateException("Tablas ya configuradas");
+        offerDraw = new Button("Ofrecer tablas");
+        offerDraw.setId("ofrecer-tablas-" + suffix());
+        offerDraw.setAccessibleText("Ofrecer tablas: " + (color == Side.WHITE ? "blancas" : "negras"));
         offerDraw.setFont(PixelStyle.font(13, true));
         offerDraw.setCursor(javafx.scene.Cursor.HAND);
         PixelStyle.paint(offerDraw, theme.card(), theme.accent());
-        confirmOffer = new JavaFxActionConfirmation(theme, "Do you want to offer\na draw to the rival?",
-                "Offer a draw", "Cancel", "offer-draw", theme.accent(), () -> {
+        confirmOffer = new JavaFxActionConfirmation(theme, "¿Querés ofrecer\ntablas al rival?",
+                "Ofrecer tablas", "Cancelar", "oferta-tablas", theme.accent(), () -> {
             show(Panel.NORMAL);
             offer.run();
         }, () -> show(Panel.NORMAL));
-        confirmOffer.setId("confirm-offer-" + suffix());
-        respondOffer = new JavaFxActionConfirmation(theme, "You were offered a draw",
-                "Accept", "Reject", "response-draw", theme.activo(), accept, reject);
-        respondOffer.setId("response-draw-" + suffix());
+        confirmOffer.setId("confirmar-oferta-" + suffix());
+        respondOffer = new JavaFxActionConfirmation(theme, "Te ofrecieron tablas",
+                "Aceptar", "Rechazar", "respuesta-tablas", theme.activo(), accept, reject);
+        respondOffer.setId("respuesta-tablas-" + suffix());
         for (var panel : new JavaFxActionConfirmation[]{confirmOffer, respondOffer}) {
             panel.setVisible(false);
             panel.setManaged(false);

@@ -16,15 +16,15 @@ import java.util.Objects;
 public record Pass(Piece passer, Position from, Piece receiver, Position toward) implements Effect {
 
     public Pass {
-        Objects.requireNonNull(passer, "passer");
-        Objects.requireNonNull(from, "from");
-        Objects.requireNonNull(receiver, "receiver");
-        Objects.requireNonNull(toward, "toward");
+        Objects.requireNonNull(passer, "pasador");
+        Objects.requireNonNull(from, "desde");
+        Objects.requireNonNull(receiver, "receptor");
+        Objects.requireNonNull(toward, "hacia");
         if (from.equals(toward)) {
-            throw new IllegalArgumentException("A pass has to go to another square");
+            throw new IllegalArgumentException("Un pase tiene que ir a otra casilla");
         }
         if (passer.color() != receiver.color()) {
-            throw new IllegalArgumentException("The ball can only be passed to a teammate");
+            throw new IllegalArgumentException("Solo se le puede pasar la pelota a un compañero");
         }
     }
 
@@ -40,10 +40,10 @@ public record Pass(Piece passer, Position from, Piece receiver, Position toward)
 
     private void pass(Board board, Position de, Position a) {
         if (board.pieceIn(from).orElse(null) != passer || board.pieceIn(toward).orElse(null) != receiver) {
-            throw new IllegalStateException("The pieces of the pass are not at " + from + " and " + toward);
+            throw new IllegalStateException("Las piezas del pase no están en " + from + " y " + toward);
         }
         if (!board.ball().filter(de::equals).isPresent()) {
-            throw new IllegalStateException("The ball is not at " + de);
+            throw new IllegalStateException("La pelota no está en " + de);
         }
         board.placeBall(a);
     }

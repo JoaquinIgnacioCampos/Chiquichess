@@ -40,7 +40,7 @@ public class LegalMoves {
 
     public LegalMoves(ICheckDetector detector, List<SpecialRule> special) {
         this.detector = Objects.requireNonNull(detector, "detector");
-        this.special = List.copyOf(Objects.requireNonNull(special, "special"));
+        this.special = List.copyOf(Objects.requireNonNull(special, "especiales"));
     }
 
     /** Detector con el que se decide si una jugada deja al rey en jaque. */

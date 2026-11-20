@@ -20,25 +20,25 @@ public record MenuSelection(Optional<Mode> mode, Optional<Time> time, Optional<R
                                Optional<Difficulty> difficulty) {
 
     public MenuSelection {
-        Objects.requireNonNull(mode, "mode");
-        Objects.requireNonNull(time, "time");
+        Objects.requireNonNull(mode, "modo");
+        Objects.requireNonNull(time, "tiempo");
         Objects.requireNonNull(rival, "rival");
-        Objects.requireNonNull(teamPlayer1, "teamPlayer1");
-        Objects.requireNonNull(teamPlayer2, "teamPlayer2");
-        Objects.requireNonNull(colors, "colors");
-        Objects.requireNonNull(difficulty, "difficulty");
+        Objects.requireNonNull(teamPlayer1, "equipoJugador1");
+        Objects.requireNonNull(teamPlayer2, "equipoJugador2");
+        Objects.requireNonNull(colors, "colores");
+        Objects.requireNonNull(difficulty, "dificultad");
     }
 
     /** La partida más común: clásico, 10 minutos, contra un amigo y colores al azar; los equipos los elige cada uno. */
     public static MenuSelection usual() {
-        return new MenuSelection(Optional.of(Mode.CLASSIC), Optional.of(Time.TEN_MINUTES),
-                Optional.of(Rival.FRIEND), Optional.empty(), Optional.empty(), Optional.of(Colors.RANDOM),
+        return new MenuSelection(Optional.of(Mode.CLASICO), Optional.of(Time.DIEZ_MINUTOS),
+                Optional.of(Rival.AMIGO), Optional.empty(), Optional.empty(), Optional.of(Colors.ALEATORIO),
                 false, GameConfiguration.DEFAULT_LIMIT, Optional.empty());
     }
 
     /** Lo que se eligió para la última partida, para volver a mostrarlo al regresar al menú. */
     public static MenuSelection de(GameConfiguration configuration) {
-        Objects.requireNonNull(configuration, "configuration");
+        Objects.requireNonNull(configuration, "configuracion");
         return new MenuSelection(Optional.of(configuration.mode()), Optional.of(configuration.time()),
                 Optional.of(configuration.rival()), Optional.of(configuration.teamPlayer1()),
                 Optional.of(configuration.teamPlayer2()), Optional.of(configuration.colors()),

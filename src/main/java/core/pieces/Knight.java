@@ -11,12 +11,12 @@ public class Knight extends Piece {
 
     @Override
     public String displayName() {
-        return "Knight";
+        return "Caballo";
     }
 
     @Override
     public char code() {
-        return 'N';
+        return 'C';
     }
 
     @Override

@@ -23,14 +23,14 @@ class PromotionTest {
     /** Peón blanco en a7 con torre negra en b8, y los dos reyes. */
     private Board pawnToPointOfPromote() {
         return BoardFake.from(
-                ".r..k...",
+                ".t..r...",
                 "P.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
     }
 
     private List<Character> codes(List<Move> moves) {
@@ -48,7 +48,7 @@ class PromotionTest {
         List<Move> variants = promotion.transform(board, advance);
 
         // Assert: dama primero (la elección por defecto), después torre, alfil y caballo
-        assertEquals(List.of('Q', 'R', 'B', 'N'), codes(variants));
+        assertEquals(List.of('D', 'T', 'A', 'C'), codes(variants));
         Move toQueen = variants.get(0);
         assertEquals(new Transfer(pawn, pos("a7"), pos("a8")), toQueen.effects().get(0));
         assertInstanceOf(Replacement.class, toQueen.effects().get(1));
@@ -76,14 +76,14 @@ class PromotionTest {
     void blackPromoteInRowOne() {
         // Arrange
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "p.......",
-                "....K...");
+                "....R...");
 
         // Act
         List<Move> variants = promotion.transform(board, Move.normal(board, pos("a2"), pos("a1")));
@@ -97,14 +97,14 @@ class PromotionTest {
     void movesThatNotArriveToLastRowStayEqual() {
         // Arrange: un avance de peón común y una jugada de torre que llega a la última fila
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "P......R",
-                "....K...");
+                "P......T",
+                "....R...");
         Move advance = Move.normal(board, pos("a2"), pos("a4"));
         Move rook = Move.normal(board, pos("h2"), pos("h8"));
 
@@ -129,7 +129,7 @@ class PromotionTest {
         List<Move> variants = onlyRook.transform(board, Move.normal(board, pos("a7"), pos("a8")));
 
         // Assert
-        assertEquals(List.of('R'), codes(variants));
+        assertEquals(List.of('T'), codes(variants));
         assertThrows(IllegalArgumentException.class, () -> new Promotion(List.of()));
     }
 }

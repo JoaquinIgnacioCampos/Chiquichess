@@ -12,9 +12,9 @@ public record Preferences(MenuSelection selection, double volume, boolean muted)
     public static final double DEFAULT_VOLUME = adapters.audio.VolumeControl.DEFAULT_VOLUME;
 
     public Preferences {
-        Objects.requireNonNull(selection, "selection");
+        Objects.requireNonNull(selection, "seleccion");
         if (Double.isNaN(volume) || volume <= 0 || volume > 1) {
-            throw new IllegalArgumentException("The volume must be between 0 (exclusive) and 1");
+            throw new IllegalArgumentException("El volumen debe estar entre 0 (sin incluir) y 1");
         }
     }
 

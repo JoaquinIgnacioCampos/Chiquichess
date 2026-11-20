@@ -99,8 +99,8 @@ class BoardControllerTest {
     @Test
     void destinationsExcludeMovesThatLeaveToKingInCheck() {
         GameInProgress pinned = new Game(BoardFake.from(
-                "k...r...", "........", "........", "........",
-                "........", "........", "....R...", "....K..."),
+                "r...t...", "........", "........", "........",
+                "........", "........", "....T...", "....R..."),
                 new Player("B", Side.WHITE), new Player("N", Side.BLACK),
                 new GameRules(new CheckDetector(), List.of()), new NoClock());
         BoardController interaction = new BoardController(pinned);
@@ -124,7 +124,7 @@ class BoardControllerTest {
         interaction.press(pos("e2"));
         var boardBefore = new HashMap<>(timed.board().pieces());
         font.advance(Duration.ofSeconds(10));
-        assertEquals(Optional.of(InvalidMoveException.Reason.FINISHED_GAME),
+        assertEquals(Optional.of(InvalidMoveException.Reason.PARTIDA_FINALIZADA),
                 interaction.press(pos("e4")));
         assertEquals(FinishReason.TIME_EXHAUSTED, timed.result().orElseThrow().reason());
         assertEquals(boardBefore, timed.board().pieces());
@@ -135,7 +135,7 @@ class BoardControllerTest {
     @Test
     void notAllowsSelectInAEndedGame() {
         game.resign(Side.WHITE);
-        assertEquals(Optional.of(InvalidMoveException.Reason.FINISHED_GAME),
+        assertEquals(Optional.of(InvalidMoveException.Reason.PARTIDA_FINALIZADA),
                 controller.press(pos("e2")));
         assertTrue(controller.selected().isEmpty());
         assertTrue(controller.destinationsLegal().isEmpty());

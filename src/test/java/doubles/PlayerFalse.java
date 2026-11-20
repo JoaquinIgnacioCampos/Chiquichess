@@ -39,8 +39,8 @@ public class PlayerFalse implements AudioPlayer {
 
     private static String displayName(URL file) {
         String path = file.getPath();
-        int sounds = path.lastIndexOf("/sounds/");
-        return sounds >= 0 ? path.substring(sounds + "/sounds/".length()) : path;
+        int sounds = path.lastIndexOf("/sonidos/");
+        return sounds >= 0 ? path.substring(sounds + "/sonidos/".length()) : path;
     }
 
     @Override

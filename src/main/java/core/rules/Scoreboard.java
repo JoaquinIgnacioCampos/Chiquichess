@@ -18,7 +18,7 @@ public record Scoreboard(int white, int black) {
 
     public Scoreboard {
         if (white < 0 || black < 0) {
-            throw new IllegalArgumentException("Goals cannot be negative");
+            throw new IllegalArgumentException("Los goles no pueden ser negativos");
         }
     }
 
@@ -26,7 +26,7 @@ public record Scoreboard(int white, int black) {
     public static Scoreboard de(List<Move> moves) {
         int white = 0;
         int black = 0;
-        for (Move move : Objects.requireNonNull(moves, "moves")) {
+        for (Move move : Objects.requireNonNull(moves, "jugadas")) {
             if (move.isGoal()) {
                 if (move.pieceMoved().color() == Side.WHITE) {
                     white++;
@@ -39,7 +39,7 @@ public record Scoreboard(int white, int black) {
     }
 
     public int goals(Side side) {
-        return Objects.requireNonNull(side, "side") == Side.WHITE ? white : black;
+        return Objects.requireNonNull(side, "bando") == Side.WHITE ? white : black;
     }
 
     /** El bando que va ganando; vacío si están empatados. */

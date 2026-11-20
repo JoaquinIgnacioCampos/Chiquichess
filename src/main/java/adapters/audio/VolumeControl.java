@@ -35,7 +35,7 @@ public final class VolumeControl {
 
     /** Cero silencia; un valor mayor fija el volumen y reactiva el sonido si estaba silenciado. */
     public void changeVolume(double newValue) {
-        if (Double.isNaN(newValue)) throw new IllegalArgumentException("Invalid volume");
+        if (Double.isNaN(newValue)) throw new IllegalArgumentException("Volumen inválido");
         double adjusted = Math.max(0, Math.min(1, newValue));
         if (adjusted == 0) {
             mute(true);
@@ -54,7 +54,7 @@ public final class VolumeControl {
     }
 
     public void onChange(Runnable listener) {
-        listeners.add(Objects.requireNonNull(listener, "listener"));
+        listeners.add(Objects.requireNonNull(listener, "oyente"));
     }
 
     public void stopListening(Runnable listener) {

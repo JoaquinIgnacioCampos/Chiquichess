@@ -21,7 +21,7 @@ public final class InterfaceMessages {
     /** Lo que se intentó hacer, para los rechazos cuyo texto depende de la acción. */
     public enum Action { RESIGN, DRAW, UNDO }
 
-    static final String WITHOUT_TEXT = "The action could not be completed.";
+    static final String WITHOUT_TEXT = "No se pudo completar la acción.";
 
     private final Map<InvalidMoveException.Reason, String> movements =
             new EnumMap<>(InvalidMoveException.Reason.class);
@@ -31,33 +31,33 @@ public final class InterfaceMessages {
     private final Map<FinishReason, String> finalValue = new EnumMap<>(FinishReason.class);
 
     public InterfaceMessages() {
-        movements.put(InvalidMoveException.Reason.NO_PIECE_AT_ORIGIN, "There is no longer a piece on the selected square.");
-        movements.put(InvalidMoveException.Reason.NOT_YOUR_TURN, "It is the other player's turn.");
-        movements.put(InvalidMoveException.Reason.MOVE_NOT_ALLOWED, "The core rejected that move.");
-        movements.put(InvalidMoveException.Reason.LEAVES_KING_IN_CHECK, "That move leaves your king in check.");
-        movements.put(InvalidMoveException.Reason.FINISHED_GAME, "The game is already over.");
+        movements.put(InvalidMoveException.Reason.SIN_PIEZA_EN_ORIGEN, "Ya no hay una pieza en la casilla seleccionada.");
+        movements.put(InvalidMoveException.Reason.NO_ES_SU_TURNO, "Es el turno del otro jugador.");
+        movements.put(InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO, "El núcleo rechazó ese movimiento.");
+        movements.put(InvalidMoveException.Reason.DEJA_AL_REY_EN_JAQUE, "Esa jugada deja a tu rey en jaque.");
+        movements.put(InvalidMoveException.Reason.PARTIDA_FINALIZADA, "La partida ya terminó.");
 
-        actions.put(InvalidActionException.Reason.FINISHED_GAME, "The game is already over.");
-        actions.put(InvalidActionException.Reason.NOT_YOUR_TURN, "It is the other player's turn.");
-        actions.put(InvalidActionException.Reason.OFFER_PENDING, "There is already a pending draw offer.");
-        actions.put(InvalidActionException.Reason.WITHOUT_OFFER, "The draw offer is no longer available.");
-        actions.put(InvalidActionException.Reason.IS_OWN_OFFER, "Only the rival can respond to this offer.");
-        actions.put(InvalidActionException.Reason.UNDO_NOT_ALLOWED, "This game does not allow undoing moves.");
-        actions.put(InvalidActionException.Reason.NOTHING_TO_UNDO, "There are no moves to undo.");
-        actions.put(InvalidActionException.Reason.NOTHING_TO_REDO, "There are no moves to redo.");
+        actions.put(InvalidActionException.Reason.PARTIDA_FINALIZADA, "La partida ya terminó.");
+        actions.put(InvalidActionException.Reason.NO_ES_SU_TURNO, "Es el turno del otro jugador.");
+        actions.put(InvalidActionException.Reason.OFERTA_PENDIENTE, "Ya hay una oferta de tablas pendiente.");
+        actions.put(InvalidActionException.Reason.SIN_OFERTA, "La oferta de tablas ya no está disponible.");
+        actions.put(InvalidActionException.Reason.ES_SU_PROPIA_OFERTA, "Solo el rival puede responder a esta oferta.");
+        actions.put(InvalidActionException.Reason.DESHACER_NO_PERMITIDO, "Esta partida no permite deshacer jugadas.");
+        actions.put(InvalidActionException.Reason.NADA_PARA_DESHACER, "No hay jugadas para deshacer.");
+        actions.put(InvalidActionException.Reason.NADA_PARA_REHACER, "No hay jugadas para rehacer.");
 
-        byAction(Action.RESIGN).put(InvalidActionException.Reason.NOT_YOUR_TURN, "You can only resign during your turn.");
-        byAction(Action.DRAW).put(InvalidActionException.Reason.NOT_YOUR_TURN, "You can only offer a draw during your turn.");
+        byAction(Action.RESIGN).put(InvalidActionException.Reason.NO_ES_SU_TURNO, "Solo podés rendirte durante tu turno.");
+        byAction(Action.DRAW).put(InvalidActionException.Reason.NO_ES_SU_TURNO, "Solo podés ofrecer tablas durante tu turno.");
 
-        finalValue.put(FinishReason.CHECK_MATE, "By checkmate");
-        finalValue.put(FinishReason.STALEMATE, "By stalemate");
-        finalValue.put(FinishReason.REPETITION, "By repetition");
-        finalValue.put(FinishReason.RULE_50_MOVEMENTS, "50-move rule");
-        finalValue.put(FinishReason.RESIGNATION, "By resignation");
-        finalValue.put(FinishReason.TIME_EXHAUSTED, "On time");
-        finalValue.put(FinishReason.AGREEMENT, "By agreement");
-        finalValue.put(FinishReason.GOALS, "On goals");
-        finalValue.put(FinishReason.TIED_ON_GOALS, "Tied on goals");
+        finalValue.put(FinishReason.CHECK_MATE, "Por jaque mate");
+        finalValue.put(FinishReason.STALEMATE, "Por ahogado");
+        finalValue.put(FinishReason.REPETITION, "Por repetición");
+        finalValue.put(FinishReason.RULE_50_MOVEMENTS, "Regla de los 50 movimientos");
+        finalValue.put(FinishReason.RESIGNATION, "Por rendición");
+        finalValue.put(FinishReason.TIME_EXHAUSTED, "Por tiempo agotado");
+        finalValue.put(FinishReason.AGREEMENT, "Por acuerdo");
+        finalValue.put(FinishReason.GOALS, "Por goles");
+        finalValue.put(FinishReason.TIED_ON_GOALS, "Empate en goles");
     }
 
     private Map<InvalidActionException.Reason, String> byAction(Action action) {
@@ -65,17 +65,17 @@ public final class InterfaceMessages {
     }
 
     public String moveRejection(InvalidMoveException.Reason reason) {
-        return movements.getOrDefault(Objects.requireNonNull(reason, "reason"), WITHOUT_TEXT);
+        return movements.getOrDefault(Objects.requireNonNull(reason, "motivo"), WITHOUT_TEXT);
     }
 
     /** Texto específico de la acción si lo hay; si no, el texto general del motivo. */
     public String actionRejection(Action action, InvalidActionException.Reason reason) {
-        Objects.requireNonNull(reason, "reason");
-        String specific = byAction.getOrDefault(Objects.requireNonNull(action, "action"), Map.of()).get(reason);
+        Objects.requireNonNull(reason, "motivo");
+        String specific = byAction.getOrDefault(Objects.requireNonNull(action, "accion"), Map.of()).get(reason);
         return specific != null ? specific : actions.getOrDefault(reason, WITHOUT_TEXT);
     }
 
     public String finalReason(FinishReason reason) {
-        return finalValue.getOrDefault(Objects.requireNonNull(reason, "reason"), WITHOUT_TEXT);
+        return finalValue.getOrDefault(Objects.requireNonNull(reason, "motivo"), WITHOUT_TEXT);
     }
 }

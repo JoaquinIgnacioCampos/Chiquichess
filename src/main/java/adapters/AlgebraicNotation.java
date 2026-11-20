@@ -12,17 +12,17 @@ public final class AlgebraicNotation {
 
     public static Position parse(String texto) {
         if (texto == null || texto.length() < 2) {
-            throw new IllegalArgumentException("Invalid square: " + texto);
+            throw new IllegalArgumentException("Casilla invalida: " + texto);
         }
         char letter = Character.toLowerCase(texto.charAt(0));
         if (letter < 'a' || letter > 'z') {
-            throw new IllegalArgumentException("Invalid square: " + texto);
+            throw new IllegalArgumentException("Casilla invalida: " + texto);
         }
         try {
             int row = Integer.parseInt(texto.substring(1)) - 1;
             return new Position(letter - 'a', row);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid square: " + texto);
+            throw new IllegalArgumentException("Casilla invalida: " + texto);
         }
     }
 

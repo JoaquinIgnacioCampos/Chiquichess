@@ -27,28 +27,28 @@ import java.util.Optional;
 public final class SoundCatalog {
     /** Formatos que entiende Java Sound sin bibliotecas extra. */
     private static final List<String> EXTENSIONS = List.of("wav", "aiff", "aif", "au");
-    private static final String RESOURCES = "/sounds/";
+    private static final String RESOURCES = "/sonidos/";
 
     private final Optional<Path> folderExternal;
     private final boolean useResources;
 
     /** Catálogo real: la carpeta {@code sonidos} junto a donde se ejecuta el juego y los recursos del programa. */
     public SoundCatalog() {
-        this(Optional.of(Path.of("sounds")), true);
+        this(Optional.of(Path.of("sonidos")), true);
     }
 
     public SoundCatalog(Optional<Path> folderExternal, boolean useResources) {
-        this.folderExternal = Objects.requireNonNull(folderExternal, "folderExternal");
+        this.folderExternal = Objects.requireNonNull(folderExternal, "carpetaExterna");
         this.useResources = useResources;
     }
 
     /** El archivo para ese sonido y ese club (vacío para los sonidos que son iguales para todos). */
     public Optional<URL> search(Sound sound, Optional<Team> team) {
-        Objects.requireNonNull(sound, "sound");
-        Objects.requireNonNull(team, "team");
+        Objects.requireNonNull(sound, "sonido");
+        Objects.requireNonNull(team, "equipo");
         Optional<URL> found = team.filter(e -> sound.teamSpecific())
-                .flatMap(e -> searchIn("clubs/" + e.name().toLowerCase(Locale.ROOT) + "/", sound))
-                .or(() -> searchIn("common/", sound));
+                .flatMap(e -> searchIn("clubes/" + e.name().toLowerCase(Locale.ROOT) + "/", sound))
+                .or(() -> searchIn("comunes/", sound));
         return found.or(() -> sound.alternative().flatMap(other -> search(other, team)));
     }
 

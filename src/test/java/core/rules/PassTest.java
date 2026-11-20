@@ -40,13 +40,13 @@ class PassTest {
     void kingFreesOfBallPassingItToAPartnerOfToSide() {
         // Arrange: el rey blanco de e2 tiene la pelota y el caballo está en d3
         Game game = game("e2",
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...N....",
-                "....K...",
+                "...C....",
+                "....R...",
                 "........");
 
         // Act
@@ -54,8 +54,8 @@ class PassTest {
 
         // Assert: ninguna pieza se movió, la pelota la tiene el caballo y el turno pasó
         assertEquals(Optional.of(pos("d3")), ball(game));
-        assertEquals('K', codeIn(game, "e2"));
-        assertEquals('N', codeIn(game, "d3"));
+        assertEquals('R', codeIn(game, "e2"));
+        assertEquals('C', codeIn(game, "d3"));
         assertEquals(Side.BLACK, game.turn());
     }
 
@@ -63,14 +63,14 @@ class PassTest {
     void rookPassesOnlyWithPathFree() {
         // Arrange
         String[] free = {
-                "....k...",
+                "....r...",
                 "........",
                 "........",
-                "N.......",
+                "C.......",
                 "........",
                 "........",
                 "........",
-                "R...K..."};
+                "T...R..."};
         String[] covered = free.clone();
         covered[5] = "p.......";
 
@@ -85,35 +85,35 @@ class PassTest {
     void knightPassesByUp() {
         // Arrange: el caballo de b1 está rodeado de peones propios
         Game game = game("b1",
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "PPPP....",
-                ".N..K...");
+                ".C..R...");
 
         // Act
         game.move(move("b1", "d2"));
 
         // Assert
         assertEquals(Optional.of(pos("d2")), ball(game));
-        assertEquals('N', codeIn(game, "b1"));
+        assertEquals('C', codeIn(game, "b1"));
     }
 
     @Test
     void pawnPassesOnlyInDiagonalTowardForward() {
         // Arrange: compañeros en e5 (diagonal adelante), c3 (diagonal atrás) y d5 (adelante derecho)
         Game game = game("d4",
-                "....k...",
+                "....r...",
                 "........",
                 "........",
-                "...RN...",
+                "...TC...",
                 "...P....",
-                "..N.....",
+                "..C.....",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         Set<Position> destinations = game.movementsLegal(pos("d4"));
@@ -128,14 +128,14 @@ class PassTest {
     void passToToAPartnerThatIsInNetRivalIsGoal() {
         // Arrange
         Game game = game("e2",
-                "....N..k",
+                "....C..r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....R...",
-                "K.......");
+                "....T...",
+                "R.......");
 
         // Act
         game.move(move("e2", "e8"));
@@ -143,20 +143,20 @@ class PassTest {
         // Assert: gol y la pelota al saque; la torre no se movió
         assertEquals(new Scoreboard(1, 0), game.scoreboard().orElseThrow());
         assertEquals(Optional.of(pos("d5")), ball(game));
-        assertEquals('R', codeIn(game, "e2"));
+        assertEquals('T', codeIn(game, "e2"));
     }
 
     @Test
     void passToToKingInNetNotIsGoal() {
         // Arrange
         Game game = game("e2",
-                "....K..k",
+                "....R..r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....R...",
+                "....T...",
                 "........");
 
         // Act
@@ -171,14 +171,14 @@ class PassTest {
     void inCheckNotCanPass() {
         // Arrange: la torre negra de e8 le da jaque al rey blanco de e1
         Game game = game("a1",
-                "....r..k",
+                "....t..r",
                 "........",
                 "........",
-                "N.......",
+                "C.......",
                 "........",
                 "........",
                 "........",
-                "R...K...");
+                "T...R...");
 
         // Act + Assert
         assertFalse(game.movementsLegal(pos("a1")).contains(pos("a5")));
@@ -188,14 +188,14 @@ class PassTest {
     void aPawnThatPassesFromSeventhNotPromotesAndCanDoGoal() {
         // Arrange: peón blanco en c7 con la pelota, caballo blanco en d8 (arco negro)
         Game game = game("c7",
-                "...N...k",
+                "...C...r",
                 "..P.....",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K.......");
+                "R.......");
 
         // Act
         assertTrue(game.promotionOptions(pos("c7"), pos("d8")).isEmpty());
@@ -203,7 +203,7 @@ class PassTest {
 
         // Assert
         assertEquals('P', codeIn(game, "c7"));
-        assertEquals('N', codeIn(game, "d8"));
+        assertEquals('C', codeIn(game, "d8"));
         assertEquals(new Scoreboard(1, 0), game.scoreboard().orElseThrow());
     }
 
@@ -211,13 +211,13 @@ class PassTest {
     void undoAPassReturnsBall() {
         // Arrange
         Game game = game("e2",
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...N....",
-                "....K...",
+                "...C....",
+                "....R...",
                 "........");
         game.move(move("e2", "d3"));
 
@@ -233,13 +233,13 @@ class PassTest {
     void onlyCanPassWhoHasBall() {
         // Arrange: la pelota la tiene el caballo de d3, no el rey
         Game game = game("d3",
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...N....",
-                "....K...",
+                "...C....",
+                "....R...",
                 "........");
 
         // Act + Assert

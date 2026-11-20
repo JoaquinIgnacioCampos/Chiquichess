@@ -36,14 +36,14 @@ class PromotionInViewTest {
 
     /** Peón blanco en a7 a punto de promover. */
     private final GameInProgress game = new Game(BoardFake.from(
-            "....k...",
+            "....r...",
             "P.......",
             "........",
             "........",
             "........",
             "........",
             "........",
-            "....K..."), new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
+            "....R..."), new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
             GameRules.classic(), new NoClock());
     private final BoardController controller = new BoardController(game);
 
@@ -60,7 +60,7 @@ class PromotionInViewTest {
         controller.press(pos("a8"));
 
         // Assert: todavía no movió
-        assertEquals(List.of('Q', 'R', 'B', 'N'), codes(controller.promotionPending()));
+        assertEquals(List.of('D', 'T', 'A', 'C'), codes(controller.promotionPending()));
         assertTrue(game.history().isEmpty());
         assertTrue(game.board().pieceIn(pos("a7")).orElseThrow().isPawn());
     }
@@ -72,10 +72,10 @@ class PromotionInViewTest {
         controller.press(pos("a8"));
 
         // Act
-        assertTrue(controller.promote('N').isEmpty());
+        assertTrue(controller.promote('C').isEmpty());
 
         // Assert
-        assertEquals('N', game.board().pieceIn(pos("a8")).orElseThrow().code());
+        assertEquals('C', game.board().pieceIn(pos("a8")).orElseThrow().code());
         assertEquals(Side.BLACK, game.turn());
         assertTrue(controller.promotionPending().isEmpty());
     }
@@ -111,7 +111,7 @@ class PromotionInViewTest {
 
     @Test
     void promoteWithoutPromotionPendingIsAError() {
-        assertThrows(IllegalStateException.class, () -> controller.promote('Q'));
+        assertThrows(IllegalStateException.class, () -> controller.promote('D'));
     }
 
     @Test
@@ -135,7 +135,7 @@ class PromotionInViewTest {
 
     private void press(GameView view, String square) {
         var position = pos(square);
-        StackPane node = (StackPane) view.lookup("#square-" + position.column() + "-" + position.row());
+        StackPane node = (StackPane) view.lookup("#casilla-" + position.column() + "-" + position.row());
         node.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
                 false, false, false, false, false, false, false, false, false, true, null));
     }
@@ -146,16 +146,16 @@ class PromotionInViewTest {
         GameView view = view();
 
         // Assert: al empezar no existe (se crea recién al promover)
-        assertNull(view.lookup("#selector-promotion"));
+        assertNull(view.lookup("#selector-promocion"));
 
         // Act
         press(view, "a7");
         press(view, "a8");
 
         // Assert
-        assertTrue(view.lookup("#selector-promotion").isVisible());
-        for (char code : List.of('Q', 'R', 'B', 'N')) {
-            assertNotNull(view.lookup("#promote-" + code), "Missing the button for " + code);
+        assertTrue(view.lookup("#selector-promocion").isVisible());
+        for (char code : List.of('D', 'T', 'A', 'C')) {
+            assertNotNull(view.lookup("#promover-" + code), "Falta el botón de " + code);
         }
     }
 
@@ -167,11 +167,11 @@ class PromotionInViewTest {
         press(view, "a8");
 
         // Act
-        ((Button) view.lookup("#promote-R")).fire();
+        ((Button) view.lookup("#promover-T")).fire();
 
         // Assert
-        assertEquals('R', game.board().pieceIn(pos("a8")).orElseThrow().code());
-        assertFalse(view.lookup("#selector-promotion").isVisible());
+        assertEquals('T', game.board().pieceIn(pos("a8")).orElseThrow().code());
+        assertFalse(view.lookup("#selector-promocion").isVisible());
     }
 
     @Test
@@ -182,10 +182,10 @@ class PromotionInViewTest {
         press(view, "a8");
 
         // Act
-        ((Button) view.lookup("#cancel-promotion")).fire();
+        ((Button) view.lookup("#cancelar-promocion")).fire();
 
         // Assert
-        assertFalse(view.lookup("#selector-promotion").isVisible());
+        assertFalse(view.lookup("#selector-promocion").isVisible());
         assertTrue(game.board().pieceIn(pos("a7")).orElseThrow().isPawn());
     }
 }

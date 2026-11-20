@@ -29,13 +29,13 @@ class IntroScreenTest {
     void showsLogoAndAButtonForStart() {
         ImageView logo = assertInstanceOf(ImageView.class, screen.lookup("#logo-intro"));
         assertFalse(logo.getImage().isError());
-        Button button = assertInstanceOf(Button.class, screen.lookup("#start"));
-        assertEquals("START", button.getText());
+        Button button = assertInstanceOf(Button.class, screen.lookup("#comenzar"));
+        assertEquals("COMENZAR", button.getText());
     }
 
     @Test
     void playStartNotifiesAAloneTime() {
-        Button button = (Button) screen.lookup("#start");
+        Button button = (Button) screen.lookup("#comenzar");
         button.fire();
         button.fire();
         assertEquals(1, started);
@@ -43,8 +43,8 @@ class IntroScreenTest {
 
     @Test
     void hasControlOfSoundForMuteVideo() {
-        assertNotNull(screen.lookup("#silence-intro"));
-        assertNotNull(screen.lookup("#volume-intro"));
+        assertNotNull(screen.lookup("#silencio-intro"));
+        assertNotNull(screen.lookup("#volumen-intro"));
     }
 
     @Test

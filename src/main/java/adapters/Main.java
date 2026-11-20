@@ -25,19 +25,19 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         List<String> arguments = Arrays.stream(args).map(arg -> arg.toLowerCase(Locale.ROOT)).toList();
-        Mode mode = arguments.contains("football") ? Mode.FOOTBALL : Mode.CLASSIC;
+        Mode mode = arguments.contains("futbol") ? Mode.FUTBOL : Mode.CLASICO;
         int limit = arguments.stream().filter(arg -> arg.matches("[0-9]+")).map(Integer::parseInt).findFirst()
                 .orElse(GameConfiguration.DEFAULT_LIMIT);
         if (limit < GameConfiguration.LIMIT_MINIMUM || limit > GameConfiguration.LIMIT_MAXIMUM) {
-            System.out.println("The move limit must be between " + GameConfiguration.LIMIT_MINIMUM
-                    + " and " + GameConfiguration.LIMIT_MAXIMUM + ".");
+            System.out.println("El limite de jugadas debe estar entre " + GameConfiguration.LIMIT_MINIMUM
+                    + " y " + GameConfiguration.LIMIT_MAXIMUM + ".");
             return;
         }
         GameAssembler assembler = new GameAssembler();
         // La consola juega sin tiempo, así que permite deshacer y rehacer.
-        if (arguments.contains("ai")) {
-            Difficulty difficulty = arguments.contains("easy") ? Difficulty.EASY
-                    : arguments.contains("hard") ? Difficulty.HARD : Difficulty.MIDDLE;
+        if (arguments.contains("ia")) {
+            Difficulty difficulty = arguments.contains("facil") ? Difficulty.FACIL
+                    : arguments.contains("dificil") ? Difficulty.DIFICIL : Difficulty.MEDIO;
             var againstAi = assembler.createWithoutClockAgainstAi(mode, limit, difficulty);
             new ConsoleGame(againstAi.game(), new ConsoleRenderer(), new ConsoleMessages(), System.in,
                     System.out, Optional.of(againstAi.rival())).play();

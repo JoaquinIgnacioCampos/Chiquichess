@@ -50,13 +50,13 @@ class PositionTest {
     void twoPositionsWithSameCoordinatesAreEqualAndServeAsKeyOfMap() {
         // Arrange
         Map<Position, String> map = new HashMap<>();
-        map.put(new Position(4, 1), "pawn");
+        map.put(new Position(4, 1), "peon");
 
         // Act
         String found = map.get(new Position(4, 1));
 
         // Assert
-        assertEquals("pawn", found);
+        assertEquals("peon", found);
         assertEquals(new Position(4, 1).hashCode(), new Position(4, 1).hashCode());
     }
 }

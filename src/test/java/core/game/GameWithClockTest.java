@@ -98,7 +98,7 @@ class GameWithClockTest {
         advance(300);
         var error = assertThrows(InvalidMoveException.class,
                 () -> game.move(move("e2", "e4")));
-        assertEquals(InvalidMoveException.Reason.FINISHED_GAME, error.reason());
+        assertEquals(InvalidMoveException.Reason.PARTIDA_FINALIZADA, error.reason());
         assertEquals(boardBefore, game.board().pieces());
         assertEquals(Side.WHITE, game.turn());
         assertEquals(FinishReason.TIME_EXHAUSTED, game.result().orElseThrow().reason());
@@ -127,7 +127,7 @@ class GameWithClockTest {
         var boardBefore = new HashMap<>(game.board().pieces());
         var error = assertThrows(InvalidMoveException.class,
                 () -> game.move(move("e2", "e4")));
-        assertEquals(InvalidMoveException.Reason.FINISHED_GAME, error.reason());
+        assertEquals(InvalidMoveException.Reason.PARTIDA_FINALIZADA, error.reason());
         assertEquals(boardBefore, game.board().pieces());
         assertEquals(Side.WHITE, game.turn());
         assertTrue(game.history().isEmpty());

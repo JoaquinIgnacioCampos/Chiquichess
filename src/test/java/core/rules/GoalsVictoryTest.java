@@ -31,8 +31,8 @@ class GoalsVictoryTest {
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         new core.rules.BallRule().preparePitch(board);
         board.placeBall(pos("d2"));
         ICheckDetector detector = new CheckDetector();
@@ -53,7 +53,7 @@ class GoalsVictoryTest {
     @Test
     void winsWhoArrivesToGoals() {
         // Arrange
-        Game game = rookInD2(new GoalsVictory(1, 90), ".......k");
+        Game game = rookInD2(new GoalsVictory(1, 90), ".......r");
 
         // Act
         game.move(move("d2", "d8"));
@@ -67,7 +67,7 @@ class GoalsVictoryTest {
     @Test
     void onArriveToLimitWinsWhoHasMoreGoalsAlthoughHimCueMove() {
         // Arrange
-        Game game = rookInD2(new GoalsVictory(3, 2), ".......k");
+        Game game = rookInD2(new GoalsVictory(3, 2), ".......r");
 
         // Act: gol blanco y una jugada negra; se llega a 2 jugadas con el turno de las blancas
         game.move(move("d2", "d8"));
@@ -82,7 +82,7 @@ class GoalsVictoryTest {
     @Test
     void onArriveToLimitWithGoalsEqualIsTie() {
         // Arrange
-        Game game = rookInD2(new GoalsVictory(3, 2), ".......k");
+        Game game = rookInD2(new GoalsVictory(3, 2), ".......r");
 
         // Act
         game.move(move("d2", "d3"));
@@ -98,13 +98,13 @@ class GoalsVictoryTest {
     void checkMateWinsAlthoughMoveAlsoIsGoal() {
         // Arrange: rey negro en a8 y rey blanco en b6; la torre a d8 es mate y gol a la vez
         Board board = BoardFake.from(
-                "k.......",
+                "r.......",
                 "........",
-                ".K......",
+                ".R......",
                 "........",
                 "........",
                 "........",
-                "...R....",
+                "...T....",
                 "........");
         new core.rules.BallRule().preparePitch(board);
         board.placeBall(pos("d2"));
@@ -126,7 +126,7 @@ class GoalsVictoryTest {
     @Test
     void undoGoalWinnerReopensGame() {
         // Arrange
-        Game game = rookInD2(new GoalsVictory(1, 90), ".......k");
+        Game game = rookInD2(new GoalsVictory(1, 90), ".......r");
         game.move(move("d2", "d8"));
 
         // Act

@@ -33,7 +33,7 @@ public class RepetitionDraw implements StatefulCondition {
 
     public RepetitionDraw(int repetitionsForDraw) {
         if (repetitionsForDraw < 2) {
-            throw new IllegalArgumentException("At least 2 repetitions are needed");
+            throw new IllegalArgumentException("Se necesitan al menos 2 repeticiones");
         }
         this.repetitionsForDraw = repetitionsForDraw;
     }
@@ -55,7 +55,7 @@ public class RepetitionDraw implements StatefulCondition {
     @Override
     public void restore(Memento memento) {
         if (!(memento instanceof FingerprintPrevious previous) || previous.owner() != this) {
-            throw new IllegalArgumentException("The memento does not belong to this condition");
+            throw new IllegalArgumentException("El recuerdo no pertenece a esta condición");
         }
         appearances.computeIfPresent(previous.added(), (fingerprint, times) -> times > 1 ? times - 1 : null);
         fingerprintCurrent = previous.previous();

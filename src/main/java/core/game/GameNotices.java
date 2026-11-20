@@ -13,7 +13,7 @@ final class GameNotices {
     private final List<GameObserver> observers = new ArrayList<>();
 
     void add(GameObserver observer) {
-        observers.add(Objects.requireNonNull(observer, "observer"));
+        observers.add(Objects.requireNonNull(observer, "observador"));
     }
 
     void remove(GameObserver observer) {

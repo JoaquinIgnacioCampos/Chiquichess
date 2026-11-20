@@ -35,9 +35,9 @@ public class Promotion implements SpecialRule {
 
     /** @param opciones fábricas de las piezas a las que se puede promover; la primera es la elección por defecto */
     public Promotion(List<Function<Side, Piece>> options) {
-        this.options = List.copyOf(Objects.requireNonNull(options, "options"));
+        this.options = List.copyOf(Objects.requireNonNull(options, "opciones"));
         if (this.options.isEmpty()) {
-            throw new IllegalArgumentException("There must be at least one piece to promote to");
+            throw new IllegalArgumentException("Tiene que haber al menos una pieza para promover");
         }
     }
 

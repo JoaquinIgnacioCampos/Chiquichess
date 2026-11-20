@@ -43,7 +43,7 @@ public class ConsoleGame {
                         InputStream input, PrintStream output, Optional<ArtificialRival> rival,
                         Consumer<Duration> wait) {
         this.rival = Objects.requireNonNull(rival, "rival");
-        this.wait = Objects.requireNonNull(wait, "wait");
+        this.wait = Objects.requireNonNull(wait, "esperar");
         this.game = game;
         this.renderer = renderer;
         this.messages = messages;
@@ -53,14 +53,14 @@ public class ConsoleGame {
 
     public void play() throws IOException {
         output.println(game.allowsUndo()
-                ? "Type the move as 'origin destination' (e.g. e2 e4), 'undo', 'redo' or 'exit'."
-                : "Type the move as 'origin destination' (e.g. e2 e4) or 'exit'.");
-        output.println("To promote a pawn, add the piece: Q (queen), R (rook), B (bishop) or N (knight). E.g. e7 e8 N");
+                ? "Escriba la jugada como 'origen destino' (ej: e2 e4), 'deshacer', 'rehacer' o 'salir'."
+                : "Escriba la jugada como 'origen destino' (ej: e2 e4) o 'salir'.");
+        output.println("Para promover un peon, agregue la pieza: D (dama), T (torre), A (alfil) o C (caballo). Ej: e7 e8 C");
         if (withBall()) {
-            output.println("Football mode: carry the ball (o; a * marks whoever has it) to the rival goal (#).");
-            output.println("To pass it, move whoever has it toward a teammate it could capture (e.g. d4 d7).");
-            output.println("Whoever reaches 3 goals or has more goals at move "
-                    + game.moveLimit().map(String::valueOf).orElse("final") + ". Checkmate always wins.");
+            output.println("Modo futbol: lleve la pelota (o; un * marca a quien la tiene) al arco rival (#).");
+            output.println("Para pasarla, mueva a quien la tiene hacia un companero que podria capturar (ej: d4 d7).");
+            output.println("Gana quien llega a 3 goles o tiene mas goles en la jugada "
+                    + game.moveLimit().map(String::valueOf).orElse("final") + ". El jaque mate gana siempre.");
         }
         while (true) {
             output.println();
@@ -74,22 +74,22 @@ public class ConsoleGame {
                 if (!game.canUndo()) {
                     break;
                 }
-                output.print("Type 'undo' to go back or 'exit': ");
+                output.print("Escriba 'deshacer' para volver atras o 'salir': ");
             } else {
                 if (game.state() == GameState.CHECK) {
-                    output.println("Check!");
+                    output.println("Jaque!");
                 }
                 if (rival.filter(ArtificialRival::himPlays).isPresent()) {
                     playAi(rival.get());
                     continue;
                 }
-                output.print("Turn of " + game.currentPlayer().displayName()
+                output.print("Turno de " + game.currentPlayer().displayName()
                         + " (" + game.turn() + "): ");
             }
             output.flush();
 
             String line = input.readLine();
-            if (line == null || line.trim().equalsIgnoreCase("exit")) {
+            if (line == null || line.trim().equalsIgnoreCase("salir")) {
                 break;
             }
             process(line.trim());
@@ -97,10 +97,10 @@ public class ConsoleGame {
     }
 
     private void process(String line) {
-        if (line.equalsIgnoreCase("undo") || line.equalsIgnoreCase("redo")) {
+        if (line.equalsIgnoreCase("deshacer") || line.equalsIgnoreCase("rehacer")) {
             try {
                 // Contra la IA se deshace de a dos jugadas, para que vuelva a tocarle a la persona.
-                if (line.equalsIgnoreCase("undo")) {
+                if (line.equalsIgnoreCase("deshacer")) {
                     if (rival.isPresent()) rival.get().undo(); else game.undo();
                 } else {
                     if (rival.isPresent()) rival.get().redo(); else game.redo();
@@ -114,7 +114,7 @@ public class ConsoleGame {
         // Un tercer dato, de una letra, elige la pieza al promover: "e7 e8 C". Sin él, se promueve a dama.
         boolean withPromotion = parts.length == 3 && parts[2].length() == 1;
         if (parts.length != 2 && !withPromotion) {
-            output.println("Invalid format. Example: e2 e4 (to promote: e7 e8 N)");
+            output.println("Formato invalido. Ejemplo: e2 e4 (para promover: e7 e8 C)");
             return;
         }
         try {
@@ -128,11 +128,11 @@ public class ConsoleGame {
                     .filter(piece -> piece.color() == game.turn()).isPresent();
             MoveResult result = game.move(movement);
             if (pass) {
-                output.println("Pass!");
+                output.println("Pase!");
             }
-            result.capturedPiece().ifPresent(p -> output.println("Capture: " + p.displayName()));
+            result.capturedPiece().ifPresent(p -> output.println("Captura: " + p.displayName()));
             if (!game.scoreboard().equals(before)) {
-                output.println("GOAL!");
+                output.println("GOL!");
             }
         } catch (IllegalArgumentException e) {
             output.println(e.getMessage());
@@ -143,7 +143,7 @@ public class ConsoleGame {
 
     /** La IA piensa (la consola espera) y juega; se muestra la jugada como la escribiría una persona. */
     private void playAi(ArtificialRival ia) {
-        output.println(game.currentPlayer().displayName() + " is thinking...");
+        output.println(game.currentPlayer().displayName() + " esta pensando...");
         Optional<Scoreboard> before = game.scoreboard();
         long start = System.nanoTime();
         ArtificialRival.Response response = ia.think();
@@ -152,11 +152,11 @@ public class ConsoleGame {
         if (!missing.isNegative() && !missing.isZero()) wait.accept(missing);
         MoveRequest move = response.movement();
         game.move(move);
-        output.println(game.player(ia.side()).displayName() + " plays " + AlgebraicNotation.format(move.origin())
+        output.println(game.player(ia.side()).displayName() + " juega " + AlgebraicNotation.format(move.origin())
                 + " " + AlgebraicNotation.format(move.destination())
                 + move.promotion().map(code -> " " + code).orElse(""));
         if (!game.scoreboard().equals(before)) {
-            output.println("GOAL!");
+            output.println("GOL!");
         }
     }
 
@@ -174,10 +174,10 @@ public class ConsoleGame {
 
     private String scoreboard() {
         Scoreboard scoreboard = game.scoreboard().orElseThrow();
-        return "Score: " + game.player(Side.WHITE).displayName() + " " + scoreboard.white()
+        return "Marcador: " + game.player(Side.WHITE).displayName() + " " + scoreboard.white()
                 + " - " + scoreboard.black() + " " + game.player(Side.BLACK).displayName()
-                + "   (move " + game.history().size()
-                + game.moveLimit().map(limit -> " of " + limit).orElse("") + ")";
+                + "   (jugada " + game.history().size()
+                + game.moveLimit().map(limit -> " de " + limit).orElse("") + ")";
     }
 
     private String finalMessage() {

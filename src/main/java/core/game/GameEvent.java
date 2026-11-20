@@ -26,9 +26,9 @@ public sealed interface GameEvent {
      */
     record MoveMade(Side side, Set<Trait> traits, GameState state) implements GameEvent {
         public MoveMade {
-            Objects.requireNonNull(side, "side");
-            traits = Set.copyOf(Objects.requireNonNull(traits, "traits"));
-            Objects.requireNonNull(state, "state");
+            Objects.requireNonNull(side, "bando");
+            traits = Set.copyOf(Objects.requireNonNull(traits, "rasgos"));
+            Objects.requireNonNull(state, "estado");
         }
 
         public boolean has(Trait trait) {
@@ -39,23 +39,23 @@ public sealed interface GameEvent {
     /** Se deshizo la última jugada; {@code estado} es el de la posición a la que se volvió. */
     record MoveUndone(GameState state) implements GameEvent {
         public MoveUndone {
-            Objects.requireNonNull(state, "state");
+            Objects.requireNonNull(state, "estado");
         }
     }
 
     /** Se volvió a hacer una jugada deshecha. Si con eso la partida termina, llega además un {@link PartidaFinalizada}. */
     record MoveRedone(Side side, Set<Trait> traits, GameState state) implements GameEvent {
         public MoveRedone {
-            Objects.requireNonNull(side, "side");
-            traits = Set.copyOf(Objects.requireNonNull(traits, "traits"));
-            Objects.requireNonNull(state, "state");
+            Objects.requireNonNull(side, "bando");
+            traits = Set.copyOf(Objects.requireNonNull(traits, "rasgos"));
+            Objects.requireNonNull(state, "estado");
         }
     }
 
     /** La partida terminó, por una jugada, por los jugadores (rendición, acuerdo) o por el reloj. */
     record FinishedGame(GameResult result) implements GameEvent {
         public FinishedGame {
-            Objects.requireNonNull(result, "result");
+            Objects.requireNonNull(result, "resultado");
         }
     }
 
@@ -68,7 +68,7 @@ public sealed interface GameEvent {
          * por eso y no por el nombre de la regla.
          */
         public static Set<Trait> de(Move move) {
-            Objects.requireNonNull(move, "move");
+            Objects.requireNonNull(move, "jugada");
             Set<Trait> traits = EnumSet.noneOf(Trait.class);
             if (move.captured().isPresent()) traits.add(CAPTURE);
             if (move.effects().stream().filter(Transfer.class::isInstance).count() > 1) traits.add(CASTLING);

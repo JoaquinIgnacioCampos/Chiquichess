@@ -96,7 +96,7 @@ class PawnTest {
                 "........",
                 "........",
                 "........",
-                "....N...",
+                "....C...",
                 "....P...",
                 "........");
         Piece pawn = board.pieceIn(pos("e2")).orElseThrow();
@@ -261,6 +261,6 @@ class PawnTest {
         assertTrue(pawn.isPawn());
         assertFalse(pawn.isKing());
         assertEquals('P', pawn.code());
-        assertEquals("Pawn", pawn.displayName());
+        assertEquals("Peon", pawn.displayName());
     }
 }

@@ -80,7 +80,7 @@ final class IntroScreen extends StackPane {
     private final VolumeControl volume;
     private final Runnable onStart;
     private final ImageView logo = new ImageView();
-    private final Button start = new Button("START");
+    private final Button start = new Button("COMENZAR");
     private final MediaView video = new MediaView();
     /** Relación ancho/alto del video, para cubrir la ventana sin deformarlo. */
     private final DoubleProperty videoAspectRatio = new SimpleDoubleProperty(PROPORTION_VIDEO);
@@ -93,10 +93,10 @@ final class IntroScreen extends StackPane {
     private boolean started;
 
     IntroScreen(PanelTheme theme, VolumeControl volume, Runnable onStart) {
-        this.theme = Objects.requireNonNull(theme, "theme");
-        this.volume = Objects.requireNonNull(volume, "volume");
-        this.onStart = Objects.requireNonNull(onStart, "onStart");
-        setId("screen-intro");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        this.volume = Objects.requireNonNull(volume, "volumen");
+        this.onStart = Objects.requireNonNull(onStart, "alComenzar");
+        setId("pantalla-intro");
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(theme.background(), CornerRadii.EMPTY, Insets.EMPTY)));
         setStyle(PixelStyle.familyCss());
@@ -125,7 +125,7 @@ final class IntroScreen extends StackPane {
         logo.fitWidthProperty().bind(Bindings.min(1100, widthProperty().multiply(0.62)));
         logo.fitHeightProperty().bind(heightProperty().multiply(0.5));
 
-        start.setId("start");
+        start.setId("comenzar");
         start.setFont(PixelStyle.font(24, true));
         start.setMinSize(250, 60);
         start.setCursor(javafx.scene.Cursor.HAND);
@@ -140,7 +140,7 @@ final class IntroScreen extends StackPane {
 
         HBox sound = new HBox(10);
         sound.setAlignment(Pos.CENTER_LEFT);
-        sound.getChildren().addAll(SoundControls.create(volume, "silence-intro", "volume-intro",
+        sound.getChildren().addAll(SoundControls.create(volume, "silencio-intro", "volumen-intro",
                 theme.border(), theme.texto()));
         sound.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         StackPane.setAlignment(sound, Pos.BOTTOM_LEFT);
@@ -180,13 +180,13 @@ final class IntroScreen extends StackPane {
                 }
             });
             player.setOnError(() -> {
-                System.err.println("Intro without video: could not play: " + player.getError());
+                System.err.println("Intro sin video: no se pudo reproducir: " + player.getError());
                 releaseVideo();
             });
             video.setMediaPlayer(player);
             player.play();
         } catch (RuntimeException | LinkageError failure) {
-            System.err.println("Intro without video: " + failure);
+            System.err.println("Intro sin video: " + failure);
             releaseVideo();
         }
     }
@@ -206,7 +206,7 @@ final class IntroScreen extends StackPane {
             Voice voice = new Voice(player, withInput);
             voices.add(voice);
             player.setOnError(() -> {
-                System.err.println("Intro without audio: could not play: " + player.getError());
+                System.err.println("Intro sin audio: no se pudo reproducir: " + player.getError());
                 releaseVoice(voice);
             });
             player.setOnEndOfMedia(() -> Platform.runLater(() -> releaseVoice(voice)));
@@ -214,7 +214,7 @@ final class IntroScreen extends StackPane {
             applyVolume(voice, 0, media.getDuration().toSeconds());
             return voice;
         } catch (RuntimeException | LinkageError failure) {
-            System.err.println("Intro without audio: " + failure);
+            System.err.println("Intro sin audio: " + failure);
             return null;
         }
     }

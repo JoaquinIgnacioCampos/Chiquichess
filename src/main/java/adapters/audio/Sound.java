@@ -7,24 +7,24 @@ import java.util.Optional;
  * dejar, por ejemplo, {@code gol.wav} en la carpeta de un club (ver {@link CatalogoDeSonidos}).
  */
 public enum Sound {
-    MOVEMENT("movement", false),
-    CAPTURE("capture", false),
-    CASTLING("castling", false),
-    PROMOTION("promotion", false),
-    CHECK("check", false),
-    PASS("pass", false),
-    GOAL("goal", true),
-    VICTORIA("victory", true),
-    DRAW("draw", false),
-    WHISTLE_INITIAL("start-whistle", false),
-    WHISTLE_FINAL("final-whistle", false),
-    REWIND("rewind", false),
+    MOVEMENT("movimiento", false),
+    CAPTURE("captura", false),
+    CASTLING("enroque", false),
+    PROMOTION("promocion", false),
+    CHECK("jaque", false),
+    PASS("pase", false),
+    GOAL("gol", true),
+    VICTORIA("victoria", true),
+    DRAW("tablas", false),
+    WHISTLE_INITIAL("silbato-inicial", false),
+    WHISTLE_FINAL("silbato-final", false),
+    REWIND("rebobinar", false),
     /** Ambiente del modo fútbol: suena en bucle y su volumen sigue a la partida (ver {@link IntensidadDeHinchada}). */
-    CROWD("crowd", true),
+    CROWD("hinchada", true),
     /** Al tocar una pieza propia para moverla: un clic corto y bajo (no es un evento de la partida). */
-    SELECTION("selection", false),
+    SELECTION("seleccion", false),
     /** Fuera de la partida: la risa del personaje al abrir el juego (ver {@link SonidosDelMenu}). */
-    LAUGH("laugh", false),
+    LAUGH("risa", false),
     /** Fuera de la partida: ambiente suave en bucle mientras se eligen las opciones. */
     AMBIENT_MENU("menu", false);
 

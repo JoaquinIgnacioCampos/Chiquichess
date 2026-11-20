@@ -35,12 +35,12 @@ class ConsoleGameTest {
     @Test
     void showsReasonOfEachRejectedMove() throws IOException {
         // Act
-        String output = play("e4 e5\ne7 e5\na1 a3\nexit\n");
+        String output = play("e4 e5\ne7 e5\na1 a3\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("There is no piece on the origin square."));
-        assertTrue(output.contains("That piece is not yours: it is the other player's turn."));
-        assertTrue(output.contains("That piece cannot move there."));
+        assertTrue(output.contains("No hay ninguna pieza en la casilla de origen."));
+        assertTrue(output.contains("Esa pieza no es suya: es el turno del otro jugador."));
+        assertTrue(output.contains("Esa pieza no puede moverse ahi."));
     }
 
     @Test
@@ -49,7 +49,7 @@ class ConsoleGameTest {
         String output = play("f2 f3\ne7 e5\ng2 g4\nd8 h4\n");
 
         // Assert
-        assertTrue(output.strip().endsWith("Checkmate! Player 2 wins."));
+        assertTrue(output.strip().endsWith("Jaque mate! Gana Jugador 2."));
     }
 
     // ---------------- Promoción ----------------
@@ -57,14 +57,14 @@ class ConsoleGameTest {
     /** Peón blanco en a7 a punto de promover. */
     private Game withPawnInTo7() {
         return new Game(doubles.BoardFake.from(
-                "....k...",
+                "....r...",
                 "P.......",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....K..."), new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
+                "....R..."), new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
                 GameRules.classic(), new NoClock());
     }
 
@@ -74,10 +74,10 @@ class ConsoleGameTest {
         GameInProgress game = withPawnInTo7();
 
         // Act
-        play(game, "a7 a8 n\nexit\n");
+        play(game, "a7 a8 c\nsalir\n");
 
         // Assert
-        assertEquals('N', game.board().pieceIn(pos("a8")).orElseThrow().code());
+        assertEquals('C', game.board().pieceIn(pos("a8")).orElseThrow().code());
     }
 
     @Test
@@ -86,10 +86,10 @@ class ConsoleGameTest {
         GameInProgress game = withPawnInTo7();
 
         // Act
-        play(game, "a7 a8\nexit\n");
+        play(game, "a7 a8\nsalir\n");
 
         // Assert
-        assertEquals('Q', game.board().pieceIn(pos("a8")).orElseThrow().code());
+        assertEquals('D', game.board().pieceIn(pos("a8")).orElseThrow().code());
     }
 
     @Test
@@ -98,11 +98,11 @@ class ConsoleGameTest {
         GameInProgress game = withPawnInTo7();
 
         // Act
-        String output = play(game, "a7 a8 K\na7 a8 queen\nexit\n");
+        String output = play(game, "a7 a8 R\na7 a8 dama\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("That piece cannot move there."));
-        assertTrue(output.contains("Invalid format. Example: e2 e4 (to promote: e7 e8 N)"));
+        assertTrue(output.contains("Esa pieza no puede moverse ahi."));
+        assertTrue(output.contains("Formato invalido. Ejemplo: e2 e4 (para promover: e7 e8 C)"));
         assertTrue(game.history().isEmpty());
     }
 
@@ -111,10 +111,10 @@ class ConsoleGameTest {
     @Test
     void withUndoEnabledHelpMentionsCommands() throws IOException {
         // Act
-        String output = play(new GameAssembler().createWithoutClockWithUndo(), "exit\n");
+        String output = play(new GameAssembler().createWithoutClockWithUndo(), "salir\n");
 
         // Assert
-        assertTrue(output.startsWith("Type the move as 'origin destination' (e.g. e2 e4), 'undo', 'redo' or 'exit'."));
+        assertTrue(output.startsWith("Escriba la jugada como 'origen destino' (ej: e2 e4), 'deshacer', 'rehacer' o 'salir'."));
     }
 
     @Test
@@ -123,30 +123,30 @@ class ConsoleGameTest {
         GameInProgress game = new GameAssembler().createWithoutClockWithUndo();
 
         // Act: jugar, deshacer, rehacer y deshacer otra vez
-        String output = play(game, "e2 e4\nundo\nredo\nundo\nexit\n");
+        String output = play(game, "e2 e4\ndeshacer\nrehacer\ndeshacer\nsalir\n");
 
         // Assert
         assertTrue(game.history().isEmpty());
-        assertFalse(output.contains("There are no moves"));
+        assertFalse(output.contains("No hay jugadas"));
     }
 
     @Test
     void notifiesWhenNotHasNothingForUndoOrRedo() throws IOException {
         // Act
-        String output = play(new GameAssembler().createWithoutClockWithUndo(), "undo\nredo\nexit\n");
+        String output = play(new GameAssembler().createWithoutClockWithUndo(), "deshacer\nrehacer\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("There are no moves to undo."));
-        assertTrue(output.contains("There are no moves to redo."));
+        assertTrue(output.contains("No hay jugadas para deshacer."));
+        assertTrue(output.contains("No hay jugadas para rehacer."));
     }
 
     @Test
     void withoutUndoEnabledItRejects() throws IOException {
         // Act
-        String output = play("e2 e4\nundo\nexit\n");
+        String output = play("e2 e4\ndeshacer\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("This game does not allow undoing moves."));
+        assertTrue(output.contains("Esta partida no permite deshacer jugadas."));
     }
 
     @Test
@@ -155,11 +155,11 @@ class ConsoleGameTest {
         GameInProgress game = new GameAssembler().createWithoutClockWithUndo();
 
         // Act: mate del loco, deshacer el mate y jugar otra cosa
-        String output = play(game, "f2 f3\ne7 e5\ng2 g4\nd8 h4\nundo\nd8 g5\nexit\n");
+        String output = play(game, "f2 f3\ne7 e5\ng2 g4\nd8 h4\ndeshacer\nd8 g5\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("Checkmate! Player 2 wins."));
-        assertTrue(output.contains("Type 'undo' to go back or 'exit': "));
+        assertTrue(output.contains("Jaque mate! Gana Jugador 2."));
+        assertTrue(output.contains("Escriba 'deshacer' para volver atras o 'salir': "));
         assertFalse(game.state().isFinished());
         assertEquals(4, game.history().size());
     }
@@ -170,51 +170,51 @@ class ConsoleGameTest {
     void inModeFootballShowsBallScoreboardAndGoal() throws IOException {
         // Arrange: la torre blanca de d2 tiene la pelota
         core.board.Board board = doubles.BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         new core.rules.BallRule().preparePitch(board);
         board.placeBall(pos("d2"));
         GameInProgress game = new Game(board, new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
                 GameRules.football(), new NoClock());
 
         // Act
-        String output = play(game, "d2 d8\nexit\n");
+        String output = play(game, "d2 d8\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("Football mode"));
-        assertTrue(output.contains(" 2 . . . R*. . . ."), output);
-        assertTrue(output.contains("Score: Ana 0 - 0 Beto   (move 0 of 90)"));
-        assertTrue(output.contains("GOAL!"));
+        assertTrue(output.contains("Modo futbol"));
+        assertTrue(output.contains(" 2 . . . T*. . . ."), output);
+        assertTrue(output.contains("Marcador: Ana 0 - 0 Beto   (jugada 0 de 90)"));
+        assertTrue(output.contains("GOL!"));
         assertTrue(output.contains(" 5 . . . o . . . ."), output);
-        assertTrue(output.contains(" 1 . . . # K . . ."), output);
-        assertTrue(output.contains("Score: Ana 1 - 0 Beto   (move 1 of 90)"));
+        assertTrue(output.contains(" 1 . . . # R . . ."), output);
+        assertTrue(output.contains("Marcador: Ana 1 - 0 Beto   (jugada 1 de 90)"));
     }
 
     @Test
     void chessClassicNotShowsScoreboard() throws IOException {
         // Act
-        String output = play("exit\n");
+        String output = play("salir\n");
 
         // Assert
-        assertFalse(output.contains("Scoreboard"));
-        assertFalse(output.contains("Football mode"));
+        assertFalse(output.contains("Marcador"));
+        assertFalse(output.contains("Modo futbol"));
     }
 
     @Test
     void consoleShowsLimitChosen() throws IOException {
         // Act
         String output = play(new GameAssembler().createWithoutClockWithUndo(
-                adapters.configuration.GameConfiguration.Mode.FOOTBALL, 40), "exit\n");
+                adapters.configuration.GameConfiguration.Mode.FUTBOL, 40), "salir\n");
 
         // Assert
-        assertTrue(output.contains("more goals at move 40."), output);
-        assertTrue(output.contains("(move 0 of 40)"), output);
+        assertTrue(output.contains("mas goles en la jugada 40."), output);
+        assertTrue(output.contains("(jugada 0 de 40)"), output);
         assertTrue(output.contains(" 5 . . . o . . . ."), output);
     }
 
@@ -222,13 +222,13 @@ class ConsoleGameTest {
     void inConsolePassesAsAMovementTowardPartner() throws IOException {
         // Arrange: el rey blanco de e2 tiene la pelota y el caballo está en d3
         core.board.Board board = doubles.BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...N....",
-                "....K...",
+                "...C....",
+                "....R...",
                 "........");
         new core.rules.BallRule().preparePitch(board);
         board.placeBall(pos("e2"));
@@ -236,11 +236,11 @@ class ConsoleGameTest {
                 GameRules.football(), new NoClock());
 
         // Act
-        String output = play(game, "e2 d3\nexit\n");
+        String output = play(game, "e2 d3\nsalir\n");
 
         // Assert
-        assertTrue(output.contains("Pass!"), output);
-        assertTrue(output.contains(" 3 . . . N*. . . ."), output);
+        assertTrue(output.contains("Pase!"), output);
+        assertTrue(output.contains(" 3 . . . C*. . . ."), output);
     }
 
     // ---------------- Contra la IA ----------------
@@ -251,15 +251,15 @@ class ConsoleGameTest {
     @Test
     void againstAiIsPlaysAloneAndShowsItsMove() throws IOException {
         var againstAi = new GameAssembler().createWithoutClockAgainstAi(
-                adapters.configuration.GameConfiguration.Mode.CLASSIC, 90, core.ia.Difficulty.EASY);
+                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ia.Difficulty.FACIL);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         new ConsoleGame(againstAi.game(), new ConsoleRenderer(), new ConsoleMessages(),
-                new ByteArrayInputStream("e2 e4\nexit\n".getBytes(StandardCharsets.UTF_8)),
+                new ByteArrayInputStream("e2 e4\nsalir\n".getBytes(StandardCharsets.UTF_8)),
                 new PrintStream(output, true, StandardCharsets.UTF_8), java.util.Optional.of(againstAi.rival()), expected::add).play();
 
         String texto = output.toString(StandardCharsets.UTF_8);
-        assertTrue(texto.contains("AI (easy) plays "), texto);
+        assertTrue(texto.contains("IA (fácil) juega "), texto);
         assertEquals(2, againstAi.game().history().size());
         // Esperó como una persona: entre medio segundo (apertura) y los 3 s del fácil
         assertEquals(1, expected.size());
@@ -269,10 +269,10 @@ class ConsoleGameTest {
     @Test
     void againstAiUndoReturnsToTurnOfPerson() throws IOException {
         var againstAi = new GameAssembler().createWithoutClockAgainstAi(
-                adapters.configuration.GameConfiguration.Mode.CLASSIC, 90, core.ia.Difficulty.EASY);
+                adapters.configuration.GameConfiguration.Mode.CLASICO, 90, core.ia.Difficulty.FACIL);
 
         new ConsoleGame(againstAi.game(), new ConsoleRenderer(), new ConsoleMessages(),
-                new ByteArrayInputStream("e2 e4\nundo\nexit\n".getBytes(StandardCharsets.UTF_8)),
+                new ByteArrayInputStream("e2 e4\ndeshacer\nsalir\n".getBytes(StandardCharsets.UTF_8)),
                 new PrintStream(new ByteArrayOutputStream(), true, StandardCharsets.UTF_8),
                 java.util.Optional.of(againstAi.rival()), expected::add).play();
 

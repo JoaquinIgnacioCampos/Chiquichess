@@ -23,8 +23,8 @@ public record GameRules(LegalMoves movementsLegal, List<EndCondition> conditions
                               boolean allowsUndo) {
 
     public GameRules {
-        Objects.requireNonNull(movementsLegal, "movementsLegal");
-        conditions = List.copyOf(Objects.requireNonNull(conditions, "conditions"));
+        Objects.requireNonNull(movementsLegal, "movimientosLegales");
+        conditions = List.copyOf(Objects.requireNonNull(conditions, "condiciones"));
     }
 
     /** Reglas sin deshacer. */

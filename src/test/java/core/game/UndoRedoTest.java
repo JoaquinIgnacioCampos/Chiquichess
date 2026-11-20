@@ -108,7 +108,7 @@ class UndoRedoTest {
         // Assert
         assertEquals(initial, photo(game));
         assertFalse(game.canUndo());
-        assertEquals(Reason.NOTHING_TO_UNDO, rejection(game::undo));
+        assertEquals(Reason.NADA_PARA_DESHACER, rejection(game::undo));
     }
 
     @Test
@@ -139,7 +139,7 @@ class UndoRedoTest {
         // Assert
         assertEquals(after, photo(game));
         assertFalse(game.canRedo());
-        assertEquals(Reason.NOTHING_TO_REDO, rejection(game::redo));
+        assertEquals(Reason.NADA_PARA_REHACER, rejection(game::redo));
     }
 
     @Test
@@ -174,7 +174,7 @@ class UndoRedoTest {
 
         // Assert
         assertFalse(game.canRedo());
-        assertEquals(Reason.NOTHING_TO_REDO, rejection(game::redo));
+        assertEquals(Reason.NADA_PARA_REHACER, rejection(game::redo));
         assertEquals(List.of(move("e2", "e4"), move("c7", "c5")), game.history());
     }
 
@@ -227,7 +227,7 @@ class UndoRedoTest {
 
         // Act + Assert
         assertFalse(game.canUndo());
-        assertEquals(Reason.FINISHED_GAME, rejection(game::undo));
+        assertEquals(Reason.PARTIDA_FINALIZADA, rejection(game::undo));
         assertEquals(GameState.RESIGNATION, game.state());
     }
 
@@ -240,7 +240,7 @@ class UndoRedoTest {
         game.acceptDraw(Side.WHITE);
 
         // Act + Assert
-        assertEquals(Reason.FINISHED_GAME, rejection(game::undo));
+        assertEquals(Reason.PARTIDA_FINALIZADA, rejection(game::undo));
     }
 
     // ---------------- Cuándo está permitido ----------------
@@ -253,8 +253,8 @@ class UndoRedoTest {
 
         // Act + Assert
         assertFalse(game.canUndo());
-        assertEquals(Reason.UNDO_NOT_ALLOWED, rejection(game::undo));
-        assertEquals(Reason.UNDO_NOT_ALLOWED, rejection(game::redo));
+        assertEquals(Reason.DESHACER_NO_PERMITIDO, rejection(game::undo));
+        assertEquals(Reason.DESHACER_NO_PERMITIDO, rejection(game::redo));
     }
 
     @Test
@@ -266,7 +266,7 @@ class UndoRedoTest {
 
         // Act + Assert
         assertFalse(game.canUndo());
-        assertEquals(Reason.UNDO_NOT_ALLOWED, rejection(game::undo));
+        assertEquals(Reason.DESHACER_NO_PERMITIDO, rejection(game::undo));
     }
 
     @Test
@@ -342,14 +342,14 @@ class UndoRedoTest {
         MockConditionWithMemory first = new MockConditionWithMemory() {
             @Override
             public void restore(Memento memento) {
-                order.add("first");
+                order.add("primera");
                 super.restore(memento);
             }
         };
         MockConditionWithMemory second = new MockConditionWithMemory() {
             @Override
             public void restore(Memento memento) {
-                order.add("second");
+                order.add("segunda");
                 super.restore(memento);
             }
         };
@@ -363,6 +363,6 @@ class UndoRedoTest {
         // Assert: cada una recibe el recuerdo que entregó al registrar e2e4 (el segundo registro)
         assertEquals(List.of(first.delivered().get(1)), first.restored());
         assertEquals(List.of(second.delivered().get(1)), second.restored());
-        assertEquals(List.of("second", "first"), order);
+        assertEquals(List.of("segunda", "primera"), order);
     }
 }

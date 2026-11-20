@@ -28,38 +28,38 @@ class SoundCatalogTest {
     }
 
     private static String path(Optional<URL> url) {
-        return url.map(u -> u.getPath().substring(u.getPath().indexOf("/common/") >= 0
-                ? u.getPath().indexOf("/common/") + 1 : u.getPath().indexOf("/clubs/") + 1)).orElse("none");
+        return url.map(u -> u.getPath().substring(u.getPath().indexOf("/comunes/") >= 0
+                ? u.getPath().indexOf("/comunes/") + 1 : u.getPath().indexOf("/clubes/") + 1)).orElse("ninguno");
     }
 
     @Test
     void goalOfClubHasPriorityOnCommon() throws IOException {
         // Arrange
-        create("common/goal.wav");
-        create("clubs/boca/goal.wav");
+        create("comunes/gol.wav");
+        create("clubes/boca/gol.wav");
 
         // Act + Assert
-        assertEquals("clubs/boca/goal.wav", path(catalog().search(Sound.GOAL, Optional.of(Team.BOCA))));
-        assertEquals("common/goal.wav", path(catalog().search(Sound.GOAL, Optional.of(Team.RIVER))));
+        assertEquals("clubes/boca/gol.wav", path(catalog().search(Sound.GOAL, Optional.of(Team.BOCA))));
+        assertEquals("comunes/gol.wav", path(catalog().search(Sound.GOAL, Optional.of(Team.RIVER))));
     }
 
     @Test
     void soundsCommonNotLookFolderOfClub() throws IOException {
         // Arrange: aunque el club tenga un movimiento propio, el movimiento es igual para todos
-        create("common/movement.wav");
-        create("clubs/boca/movement.wav");
+        create("comunes/movimiento.wav");
+        create("clubes/boca/movimiento.wav");
 
         // Act + Assert
-        assertEquals("common/movement.wav", path(catalog().search(Sound.MOVEMENT, Optional.of(Team.BOCA))));
+        assertEquals("comunes/movimiento.wav", path(catalog().search(Sound.MOVEMENT, Optional.of(Team.BOCA))));
     }
 
     @Test
     void ifMissingASoundUsesItsAlternative() throws IOException {
         // Arrange
-        create("common/movement.wav");
+        create("comunes/movimiento.wav");
 
         // Act + Assert
-        assertEquals("common/movement.wav", path(catalog().search(Sound.CASTLING, Optional.empty())));
+        assertEquals("comunes/movimiento.wav", path(catalog().search(Sound.CASTLING, Optional.empty())));
     }
 
     @Test
@@ -71,12 +71,12 @@ class SoundCatalogTest {
     @Test
     void acceptsAiffAndPrefersWav() throws IOException {
         // Arrange
-        create("common/check.aiff");
-        create("common/draw.aiff");
-        create("common/draw.wav");
+        create("comunes/jaque.aiff");
+        create("comunes/tablas.aiff");
+        create("comunes/tablas.wav");
 
         // Act + Assert
-        assertEquals("common/check.aiff", path(catalog().search(Sound.CHECK, Optional.empty())));
-        assertEquals("common/draw.wav", path(catalog().search(Sound.DRAW, Optional.empty())));
+        assertEquals("comunes/jaque.aiff", path(catalog().search(Sound.CHECK, Optional.empty())));
+        assertEquals("comunes/tablas.wav", path(catalog().search(Sound.DRAW, Optional.empty())));
     }
 }

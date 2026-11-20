@@ -20,13 +20,13 @@ class BoardViewTest {
             javafx.scene.paint.Color.DARKSLATEGRAY, javafx.scene.paint.Color.GRAY);
 
     private StackPane square(javafx.scene.Node view, int column, int row) {
-        return (StackPane) view.lookup("#square-" + column + "-" + row);
+        return (StackPane) view.lookup("#casilla-" + column + "-" + row);
     }
 
     @Test
     void usesDimensionsRealEvenInBoardsRectangular() {
         BoardView view = new BoardView(new Board(10, 6), theme, new UnicodeRepresentation());
-        assertEquals(60, view.lookupAll(".square").size());
+        assertEquals(60, view.lookupAll(".casilla").size());
         assertNotNull(square(view, 9, 5));
         assertNull(square(view, 10, 5));
         assertNull(square(view, 9, 6));
@@ -84,7 +84,7 @@ class BoardViewTest {
         view.redraw();
         assertTrue(square(view, 4, 1).getChildren().isEmpty());
         assertEquals("♟", ((Text) square(view, 4, 3).getChildren().getFirst()).getText());
-        assertEquals(64, view.lookupAll(".square").size());
+        assertEquals(64, view.lookupAll(".casilla").size());
     }
 
     @Test
@@ -105,8 +105,8 @@ class BoardViewTest {
         Board board = new Board(8, 8);
         board.placeBall(new Position(3, 4));
         BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
-        assertEquals(1, view.lookupAll(".ball").size());
-        assertNotNull(square(view, 3, 4).lookup("#ball"));
+        assertEquals(1, view.lookupAll(".pelota").size());
+        assertNotNull(square(view, 3, 4).lookup("#pelota"));
     }
 
     @Test
@@ -116,14 +116,14 @@ class BoardViewTest {
         board.placeBall(new Position(3, 4));
         BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
         StackPane withBall = square(view, 3, 4);
-        assertNotNull(withBall.lookup("#ball"));
+        assertNotNull(withBall.lookup("#pelota"));
         assertEquals(2, withBall.getChildren().size()); // la pieza y la pelota
     }
 
     @Test
     void chessClassicNotHasBall() {
         BoardView view = new BoardView(new Board(8, 8), theme, new UnicodeRepresentation());
-        assertTrue(view.lookupAll(".ball").isEmpty());
+        assertTrue(view.lookupAll(".pelota").isEmpty());
     }
 
     @Test
@@ -132,9 +132,9 @@ class BoardViewTest {
         board.markNet(new Position(3, 7), Side.BLACK);
         board.markNet(new Position(4, 0), Side.WHITE);
         BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
-        assertEquals(2, view.lookupAll(".net").size());
-        assertNotNull(square(view, 3, 7).lookup("#net-3-7"));
-        assertNotNull(square(view, 4, 0).lookup("#net-4-0"));
+        assertEquals(2, view.lookupAll(".arco").size());
+        assertNotNull(square(view, 3, 7).lookup("#arco-3-7"));
+        assertNotNull(square(view, 4, 0).lookup("#arco-4-0"));
     }
 
     @Test
@@ -144,7 +144,7 @@ class BoardViewTest {
         board.place(new Position(4, 7), new King(Side.BLACK));
         BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
         StackPane square = square(view, 4, 7);
-        assertTrue(square.getChildren().get(0).getStyleClass().contains("net"));
+        assertTrue(square.getChildren().get(0).getStyleClass().contains("arco"));
         assertEquals(2, square.getChildren().size());
     }
 
@@ -157,9 +157,9 @@ class BoardViewTest {
         BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
         view.redraw(java.util.Optional.of(new Position(0, 0)),
                 java.util.Set.of(new Position(0, 4), new Position(0, 6)));
-        assertEquals(1, square(view, 0, 4).lookupAll(".indicator-pass").size());
-        assertTrue(square(view, 0, 4).lookupAll(".indicator-capture").isEmpty());
-        assertEquals(1, square(view, 0, 6).lookupAll(".indicator-capture").size());
+        assertEquals(1, square(view, 0, 4).lookupAll(".indicador-pase").size());
+        assertTrue(square(view, 0, 4).lookupAll(".indicador-captura").isEmpty());
+        assertEquals(1, square(view, 0, 6).lookupAll(".indicador-captura").size());
     }
     @Test
     void fromBlackBoardStaysTurnedWithTo1UpToRight() {

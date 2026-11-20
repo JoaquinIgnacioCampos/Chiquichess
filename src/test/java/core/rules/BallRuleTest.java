@@ -56,14 +56,14 @@ class BallRuleTest {
     void endInSquareOfBallTakesAndAfterCarries() {
         // Arrange
         Game game = game("d5",
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
-                "..N.....",
+                "..C.....",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         game.move(move("c3", "d5"));
@@ -78,14 +78,14 @@ class BallRuleTest {
     void passByAboveOfBallNotTakes() {
         // Arrange
         Game game = game("d4",
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...RK...");
+                "...TR...");
 
         // Act
         game.move(move("d1", "d7"));
@@ -98,14 +98,14 @@ class BallRuleTest {
     void captureToWhoCarriesBallRemoves() {
         // Arrange: el caballo negro de d5 tiene la pelota
         Game game = game("d5",
-                "....k...",
+                "....r...",
                 "........",
                 "........",
-                "...n....",
+                "...c....",
                 "....P...",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
 
         // Act
         game.move(move("e4", "d5"));
@@ -120,14 +120,14 @@ class BallRuleTest {
     void inCaptureToStepBallGoesWithWhoCapture() {
         // Arrange: el peón negro de d7 tiene la pelota y avanza dos casillas al lado del peón blanco
         Game game = game("d7",
-                "....k...",
+                "....r...",
                 "...p....",
                 "........",
                 "....P...",
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         game.move(move("e1", "f1"));
         game.move(move("d7", "d5"));
 
@@ -143,14 +143,14 @@ class BallRuleTest {
     void carryBallToNetRivalIsGoalAndBallReturnsToKickoff() {
         // Arrange
         Game game = game("d2",
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
 
         // Act
         game.move(move("d2", "d8"));
@@ -166,14 +166,14 @@ class BallRuleTest {
     void goalOfBlackReturnsToKickoffOfFieldWhite() {
         // Arrange
         Game game = game("d7",
-                "k.......",
-                "...r....",
+                "r.......",
+                "...t....",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                ".......K");
+                ".......R");
         game.move(move("h1", "h2"));
 
         // Act
@@ -188,8 +188,8 @@ class BallRuleTest {
     void kingCanCarryBallButNotDoesGoal() {
         // Arrange
         Game game = game("d7",
-                ".......k",
-                "...K....",
+                ".......r",
+                "...R....",
                 "........",
                 "........",
                 "........",
@@ -209,20 +209,20 @@ class BallRuleTest {
     void aPawnCanPromoteAndDoGoalInSameMove() {
         // Arrange
         Game game = game("e7",
-                ".......k",
+                ".......r",
                 "....P...",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "K.......");
+                "R.......");
 
         // Act
         game.move(move("e7", "e8"));
 
         // Assert
-        assertTrue(game.board().pieceIn(pos("e8")).orElseThrow().code() == 'Q');
+        assertTrue(game.board().pieceIn(pos("e8")).orElseThrow().code() == 'D');
         assertEquals(Optional.of(pos("d5")), ball(game));
         assertEquals(new Scoreboard(1, 0), game.scoreboard().orElseThrow());
     }
@@ -232,13 +232,13 @@ class BallRuleTest {
         // Arrange: el caballo negro está parado en d5, el saque tras un gol blanco
         Game game = game("e2",
                 "........",
-                ".......k",
+                ".......r",
                 "........",
-                "...n....",
+                "...c....",
                 "........",
                 "........",
-                "....R...",
-                "K.......");
+                "....T...",
+                "R.......");
         game.move(move("e2", "e8"));
 
         // Act
@@ -252,14 +252,14 @@ class BallRuleTest {
     void undoAGoalReturnsBallAndScoreboard() {
         // Arrange
         Game game = game("d2",
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         game.move(move("d2", "d8"));
 
         // Act
@@ -281,14 +281,14 @@ class BallRuleTest {
     void withoutNetsMarkedInBoardNotHasGoal() {
         // Arrange: la pelota está, pero el tablero no tiene la cancha marcada
         Board board = BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "...R....",
-                "....K...");
+                "...T....",
+                "....R...");
         board.placeBall(pos("d2"));
         Game game = new Game(board, new Player("Ana", Side.WHITE), new Player("Beto", Side.BLACK),
                 GameRules.football(), new NoClock());

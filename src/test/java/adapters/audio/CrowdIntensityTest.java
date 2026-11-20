@@ -40,7 +40,7 @@ class CrowdIntensityTest {
         for (int moves = -5; moves <= 200; moves += 5) {
             for (Side side : Side.values()) {
                 double value = intensity(side, moves, 1, 0);
-                assertTrue(value >= 0 && value <= 1, "Out of range: " + value);
+                assertTrue(value >= 0 && value <= 1, "Fuera de rango: " + value);
             }
         }
     }

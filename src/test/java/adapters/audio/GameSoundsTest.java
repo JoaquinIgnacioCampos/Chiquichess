@@ -32,27 +32,27 @@ class GameSoundsTest {
     @BeforeEach
     void soundsCommon() throws IOException {
         for (Sound sound : Sound.values()) {
-            create("common/" + sound.file() + ".wav");
+            create("comunes/" + sound.file() + ".wav");
         }
     }
 
     private void create(String relative) throws IOException {
-        Path file = folder.resolve("sounds").resolve(relative);
+        Path file = folder.resolve("sonidos").resolve(relative);
         Files.createDirectories(file.getParent());
         Files.write(file, new byte[]{0});
     }
 
     private GameSounds connect(GameInProgress game, boolean football) {
-        return GameSounds.connect(game, new SoundCatalog(Optional.of(folder.resolve("sounds")), false), player,
+        return GameSounds.connect(game, new SoundCatalog(Optional.of(folder.resolve("sonidos")), false), player,
                 TEAMS, control, football);
     }
 
     private static GameInProgress classic() {
-        return new GameAssembler().createWithoutClockWithUndo(Mode.CLASSIC);
+        return new GameAssembler().createWithoutClockWithUndo(Mode.CLASICO);
     }
 
     private static GameInProgress football() {
-        return new GameAssembler().createWithoutClockWithUndo(Mode.FOOTBALL, 10);
+        return new GameAssembler().createWithoutClockWithUndo(Mode.FUTBOL, 10);
     }
 
     private static void play(GameInProgress game, String... moves) {
@@ -72,15 +72,15 @@ class GameSoundsTest {
 
         // Assert: el silbato de arranque, tres movimientos, el que da mate y la victoria de las negras (sin
         // archivo propio de River)
-        assertEquals(List.of("common/start-whistle.wav", "common/movement.wav", "common/movement.wav",
-                "common/movement.wav", "common/movement.wav", "common/victory.wav"), player.played);
+        assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/movimiento.wav", "comunes/movimiento.wav",
+                "comunes/movimiento.wav", "comunes/movimiento.wav", "comunes/victoria.wav"), player.played);
     }
 
     @Test
     void victorySoundsWithFileOfClubWinner() throws IOException {
         // Arrange
-        create("clubs/river/victory.wav");
-        create("clubs/boca/victory.wav");
+        create("clubes/river/victoria.wav");
+        create("clubes/boca/victoria.wav");
         GameInProgress game = classic();
         connect(game, false);
 
@@ -88,7 +88,7 @@ class GameSoundsTest {
         play(game, "f2f3", "e7e5", "g2g4", "d8h4");
 
         // Assert
-        assertEquals("clubs/river/victory.wav", player.played.getLast());
+        assertEquals("clubes/river/victoria.wav", player.played.getLast());
     }
 
     @Test
@@ -98,7 +98,7 @@ class GameSoundsTest {
 
         // Assert
         assertTrue(player.tracks.isEmpty());
-        assertEquals(List.of("common/start-whistle.wav"), player.played);
+        assertEquals(List.of("comunes/silbato-inicial.wav"), player.played);
     }
 
     @Test
@@ -107,21 +107,21 @@ class GameSoundsTest {
         connect(football(), true);
 
         // Assert: una sola pista, porque ninguno tiene hinchada propia
-        assertEquals(List.of("common/start-whistle.wav"), player.played);
+        assertEquals(List.of("comunes/silbato-inicial.wav"), player.played);
         assertEquals(1, player.sounding().size());
     }
 
     @Test
     void eachClubWithCrowdOwnHasItsTrack() throws IOException {
         // Arrange
-        create("clubs/boca/crowd.wav");
-        create("clubs/river/crowd.wav");
+        create("clubes/boca/hinchada.wav");
+        create("clubes/river/hinchada.wav");
 
         // Act
         connect(football(), true);
 
         // Assert
-        assertEquals(List.of("clubs/boca/crowd.wav", "clubs/river/crowd.wav"),
+        assertEquals(List.of("clubes/boca/hinchada.wav", "clubes/river/hinchada.wav"),
                 player.sounding().stream().map(p -> p.file).toList());
     }
 
@@ -151,7 +151,7 @@ class GameSoundsTest {
         game.resign(Side.WHITE);
 
         // Assert: silbato final y victoria de River; la hinchada se detuvo
-        assertEquals(List.of("common/start-whistle.wav", "common/final-whistle.wav", "common/victory.wav"),
+        assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/silbato-final.wav", "comunes/victoria.wav"),
                 player.played);
         assertTrue(player.sounding().isEmpty());
         sounds.close();
@@ -205,7 +205,7 @@ class GameSoundsTest {
         sounds.selectedPiece();
 
         // Assert: tras el silbato de arranque, el clic suave
-        assertEquals(List.of("common/start-whistle.wav", "common/selection.wav"), player.played);
+        assertEquals(List.of("comunes/silbato-inicial.wav", "comunes/seleccion.wav"), player.played);
         assertEquals(control.effective() * GameSounds.VOLUME_SELECTION, player.volumes.getLast(), 1e-9);
     }
 }

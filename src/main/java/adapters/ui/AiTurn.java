@@ -41,10 +41,10 @@ public final class AiTurn implements AutoCloseable {
 
     public AiTurn(GameInProgress game, ArtificialRival rival, Executor thinkingThread,
                        Consumer<Runnable> interfaceThread) {
-        this.game = Objects.requireNonNull(game, "game");
+        this.game = Objects.requireNonNull(game, "partida");
         this.rival = Objects.requireNonNull(rival, "rival");
-        this.thinkingThread = Objects.requireNonNull(thinkingThread, "thinkingThread");
-        this.interfaceThread = Objects.requireNonNull(interfaceThread, "interfaceThread");
+        this.thinkingThread = Objects.requireNonNull(thinkingThread, "hiloDePensar");
+        this.interfaceThread = Objects.requireNonNull(interfaceThread, "hiloDeLaInterfaz");
     }
 
     /** Empieza a escuchar la partida y, si la IA empieza (juega con blancas), se pone a pensar. */

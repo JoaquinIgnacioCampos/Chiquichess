@@ -40,7 +40,7 @@ class UndoInViewTest {
 
     private void press(GameView view, String square) {
         var position = pos(square);
-        StackPane node = (StackPane) view.lookup("#square-" + position.column() + "-" + position.row());
+        StackPane node = (StackPane) view.lookup("#casilla-" + position.column() + "-" + position.row());
         node.fireEvent(new MouseEvent(MouseEvent.MOUSE_CLICKED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
                 false, false, false, false, false, false, false, false, false, true, null));
     }
@@ -52,15 +52,15 @@ class UndoInViewTest {
     @Test
     void withoutOptionNotHasButtons() {
         GameView view = view(new GameAssembler().createWithoutClock());
-        assertNull(view.lookup("#undo"));
-        assertNull(view.lookup("#redo"));
+        assertNull(view.lookup("#deshacer"));
+        assertNull(view.lookup("#rehacer"));
     }
 
     @Test
     void onStartButtonsAreDisabled() {
         GameView view = view(new GameAssembler().createWithoutClockWithUndo());
-        assertTrue(button(view, "undo").isDisable());
-        assertTrue(button(view, "redo").isDisable());
+        assertTrue(button(view, "deshacer").isDisable());
+        assertTrue(button(view, "rehacer").isDisable());
     }
 
     @Test
@@ -69,17 +69,17 @@ class UndoInViewTest {
         GameView view = view(game);
         press(view, "e2");
         press(view, "e4");
-        assertFalse(button(view, "undo").isDisable());
+        assertFalse(button(view, "deshacer").isDisable());
 
-        button(view, "undo").fire();
+        button(view, "deshacer").fire();
         assertTrue(game.history().isEmpty());
         assertTrue(game.board().pieceIn(pos("e2")).isPresent());
-        assertTrue(button(view, "undo").isDisable());
-        assertFalse(button(view, "redo").isDisable());
+        assertTrue(button(view, "deshacer").isDisable());
+        assertFalse(button(view, "rehacer").isDisable());
 
-        button(view, "redo").fire();
+        button(view, "rehacer").fire();
         assertEquals(1, game.history().size());
-        assertTrue(button(view, "redo").isDisable());
+        assertTrue(button(view, "rehacer").isDisable());
     }
 
     @Test
@@ -90,8 +90,8 @@ class UndoInViewTest {
         press(view, "e4");
         press(view, "e7");
 
-        button(view, "undo").fire();
+        button(view, "deshacer").fire();
 
-        assertEquals(0, view.lookupAll(".indicator-movement").size());
+        assertEquals(0, view.lookupAll(".indicador-movimiento").size());
     }
 }

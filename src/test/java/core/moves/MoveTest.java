@@ -78,14 +78,14 @@ class MoveTest {
     void revertACaptureLeavesBoardAsBeforeOfApply() {
         // Arrange
         Board board = BoardFake.from(
-                "....k...",
+                "....r...",
                 "........",
                 "........",
                 "...p....",
                 "....P...",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Map<Position, Piece> before = photo(board);
         Move move = Move.normal(board, pos("e4"), pos("d5"));
 
@@ -111,7 +111,7 @@ class MoveTest {
                 "........",
                 "........",
                 "........",
-                "....K..R");
+                "....R..T");
         Piece king = board.pieceIn(pos("e1")).orElseThrow();
         Piece rook = board.pieceIn(pos("h1")).orElseThrow();
         Map<Position, Piece> before = photo(board);
@@ -176,7 +176,7 @@ class MoveTest {
                 "........",
                 "........",
                 "........",
-                "....K...");
+                "....R...");
         Piece king = board.pieceIn(pos("e1")).orElseThrow();
         Piece rookAbsent = new Rook(Side.WHITE);
         Map<Position, Piece> before = photo(board);

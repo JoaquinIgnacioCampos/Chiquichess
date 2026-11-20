@@ -21,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class GameCompleteTest {
 
-    private final Player white = new Player("Player 1", Side.WHITE);
-    private final Player black = new Player("Player 2", Side.BLACK);
+    private final Player white = new Player("Jugador 1", Side.WHITE);
+    private final Player black = new Player("Jugador 2", Side.BLACK);
 
     private Game gameStandard() {
         return newGame(new StandardLayout().createBoard(), conditionsStandard());
@@ -86,7 +86,7 @@ class GameCompleteTest {
                 () -> play(game, "a2a3"));
 
         // Assert
-        assertEquals(Reason.FINISHED_GAME, e.reason());
+        assertEquals(Reason.PARTIDA_FINALIZADA, e.reason());
     }
 
     @Test
@@ -118,7 +118,7 @@ class GameCompleteTest {
                 () -> play(game, "a7a6"));
 
         // Assert
-        assertEquals(Reason.LEAVES_KING_IN_CHECK, e.reason());
+        assertEquals(Reason.DEJA_AL_REY_EN_JAQUE, e.reason());
         assertEquals(Side.BLACK, game.turn());
 
         // Act: tapar el jaque con el peón
@@ -136,7 +136,7 @@ class GameCompleteTest {
         // Act + Assert: el alfil no puede saltar sus propios peones
         InvalidMoveException e = assertThrows(InvalidMoveException.class,
                 () -> play(game, "c1e3"));
-        assertEquals(Reason.MOVE_NOT_ALLOWED, e.reason());
+        assertEquals(Reason.MOVIMIENTO_NO_PERMITIDO, e.reason());
 
         // Act + Assert: el caballo sí puede saltar
         assertDoesNotThrow(() -> play(game, "g1f3"));
@@ -191,14 +191,14 @@ class GameCompleteTest {
     void mateOfCorridorInAPositionBuilt() {
         // Arrange
         Board board = doubles.BoardFake.from(
-                ".......k",
+                ".......r",
                 "........",
-                "......K.",
-                "........",
-                "........",
+                "......R.",
                 "........",
                 "........",
-                "R.......");
+                "........",
+                "........",
+                "T.......");
         Game game = newGame(board, conditionsStandard());
 
         // Act
@@ -213,9 +213,9 @@ class GameCompleteTest {
     void stalemateInAPositionBuilt() {
         // Arrange: rey negro en h8; la dama blanca va a f7 y lo deja sin jugadas pero sin jaque
         Board board = doubles.BoardFake.from(
-                ".......k",
-                "....Q...",
-                "......K.",
+                ".......r",
+                "....D...",
+                "......R.",
                 "........",
                 "........",
                 "........",
@@ -235,14 +235,14 @@ class GameCompleteTest {
     void kingNotCanCaptureAPieceDefended() {
         // Arrange: la torre negra en e2 está defendida por la torre negra en e8
         Board board = doubles.BoardFake.from(
-                "....r..k",
+                "....t..r",
                 "........",
                 "........",
                 "........",
                 "........",
                 "........",
-                "....r...",
-                "....K...");
+                "....t...",
+                "....R...");
         Game game = newGame(board, conditionsStandard());
         assertEquals(GameState.CHECK, game.state());
 
@@ -251,7 +251,7 @@ class GameCompleteTest {
                 () -> play(game, "e1e2"));
 
         // Assert
-        assertEquals(Reason.LEAVES_KING_IN_CHECK, e.reason());
+        assertEquals(Reason.DEJA_AL_REY_EN_JAQUE, e.reason());
         assertFalse(game.movementsLegal(pos("e1")).contains(pos("e2")));
     }
 }

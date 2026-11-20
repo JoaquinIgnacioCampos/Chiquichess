@@ -17,21 +17,21 @@ final class GameNavigation {
     private final StackPane confirmation = new StackPane();
 
     GameNavigation(BoardController controller, PanelTheme theme, Runnable onMenu, Runnable onRematch) {
-        this.controller = Objects.requireNonNull(controller, "controller");
-        Objects.requireNonNull(onMenu, "onMenu");
-        Objects.requireNonNull(onRematch, "onRematch");
-        returnValue = HeaderButton.create("Back to the menu", "return-menu", theme.texto(), theme.background(),
+        this.controller = Objects.requireNonNull(controller, "controlador");
+        Objects.requireNonNull(onMenu, "alMenu");
+        Objects.requireNonNull(onRematch, "alRevancha");
+        returnValue = HeaderButton.create("Volver al menú", "volver-menu", theme.texto(), theme.background(),
                 PixelIcon.HOUSE, false);
-        rematch = HeaderButton.create("Rematch", "rematch", theme.accent(), theme.background());
-        confirmation.setId("confirmation-return-menu");
+        rematch = HeaderButton.create("Revancha", "revancha", theme.accent(), theme.background());
+        confirmation.setId("confirmacion-volver-menu");
         confirmation.setVisible(false);
         confirmation.setManaged(false);
         confirmation.setAlignment(Pos.CENTER);
         confirmation.setBackground(new Background(new BackgroundFill(
                 theme.background().deriveColor(0, 1, 1, .8), CornerRadii.EMPTY, Insets.EMPTY)));
         var asks = new JavaFxActionConfirmation(theme,
-                "Back to the menu?\nThis game will be discarded.", "Back to the menu", "Cancel",
-                "return-menu", theme.alerta(), () -> {
+                "¿Volver al menú?\nSe descartará esta partida.", "Volver al menú", "Cancelar",
+                "volver-menu", theme.alerta(), () -> {
                     closeConfirmation();
                     onMenu.run();
                 }, this::closeConfirmation);

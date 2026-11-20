@@ -48,11 +48,11 @@ public final class GameStatePanel extends GridPane {
 
     public GameStatePanel(BoardController controller, PanelTheme theme,
                                java.util.Map<Side, ClubPresentation> clubs, InterfaceMessages messages) {
-        this.controller = Objects.requireNonNull(controller, "controller");
-        this.messages = Objects.requireNonNull(messages, "messages");
-        this.theme = Objects.requireNonNull(theme, "theme");
-        Objects.requireNonNull(clubs, "clubs");
-        setId("panel-state");
+        this.controller = Objects.requireNonNull(controller, "controlador");
+        this.messages = Objects.requireNonNull(messages, "mensajes");
+        this.theme = Objects.requireNonNull(theme, "tema");
+        Objects.requireNonNull(clubs, "clubes");
+        setId("panel-estado");
         setMinSize(0, 0);
         setBackground(new Background(new BackgroundFill(theme.background(), CornerRadii.EMPTY, Insets.EMPTY)));
         ColumnConstraints column = new ColumnConstraints();
@@ -67,26 +67,26 @@ public final class GameStatePanel extends GridPane {
         black = new PlayerCard(Side.BLACK, theme, clubs.get(Side.BLACK));
         white = new PlayerCard(Side.WHITE, theme, clubs.get(Side.WHITE));
         heading = new LedText(theme.accent());
-        heading.setId("scoreboard-heading");
+        heading.setId("marcador-encabezado");
         principal = new LedText(theme.texto());
-        principal.setId("scoreboard-principal");
-        title.setId("title-state");
+        principal.setId("marcador-principal");
+        title.setId("titulo-estado");
         title.setFont(PixelStyle.font(13, true));
         title.setFill(theme.textSecondary());
-        state.setId("state-game");
+        state.setId("estado-partida");
         state.setFont(PixelStyle.font(20, true));
         HBox currentState = new HBox(10, point, state);
         currentState.setAlignment(Pos.CENTER);
-        reason.setId("reason-final");
+        reason.setId("motivo-final");
         reason.setFill(theme.textSecondary());
         reason.setFont(PixelStyle.font(14, false));
         reason.setTextAlignment(TextAlignment.CENTER);
         reason.managedProperty().bind(reason.textProperty().isNotEmpty());
         reason.visibleProperty().bind(reason.textProperty().isNotEmpty());
-        goals.setId("goals-game");
+        goals.setId("goles-partida");
         goals.setFont(PixelStyle.font(18, true));
         goals.setFill(theme.texto());
-        moves.setId("moves-football");
+        moves.setId("jugadas-futbol");
         moves.setFont(PixelStyle.font(12, false));
         moves.setFill(theme.textSecondary());
         for (Text texto : new Text[]{goals, moves}) {
@@ -94,7 +94,7 @@ public final class GameStatePanel extends GridPane {
             texto.visibleProperty().bind(texto.textProperty().isNotEmpty());
         }
         Text mode = new Text(controller.scoreboard().isPresent()
-                ? "Local game · Football: possession and goal" : "Local game");
+                ? "Partida local · Fútbol: posesión y gol" : "Partida local");
         mode.setFill(theme.textSecondary());
         mode.setFont(PixelStyle.font(12, false));
         Region separador = new Region();
@@ -168,19 +168,19 @@ public final class GameStatePanel extends GridPane {
         white.update(controller.player(Side.WHITE), !finished && controller.turn() == Side.WHITE);
         if (controller.result().isPresent()) {
             var result = controller.result().orElseThrow();
-            title.setText("FINAL RESULT");
-            heading.setText(result.winner().isPresent() ? "WINNER:" : "GAME");
-            principal.setText(result.winner().map(this::side).orElse("DRAW"));
-            state.setText(result.winner().isPresent() ? "VICTORIA" : "TIE");
+            title.setText("RESULTADO FINAL");
+            heading.setText(result.winner().isPresent() ? "GANAN LAS" : "PARTIDA");
+            principal.setText(result.winner().map(this::side).orElse("TABLAS"));
+            state.setText(result.winner().isPresent() ? "VICTORIA" : "EMPATE");
             state.setFill(result.winner().isPresent() ? theme.activo() : theme.accent());
             reason.setText(messages.finalReason(result.reason()));
         } else {
             boolean check = controller.state() == GameState.CHECK;
-            title.setText("GAME STATE");
-            heading.setText("TURN OF");
+            title.setText("ESTADO DE LA PARTIDA");
+            heading.setText("TURNO DE");
             principal.setText(side(controller.turn()));
             boolean thinking = controller.isAiTurn();
-            state.setText(goalJust ? "GOAL!" : check ? "CHECK!" : thinking ? "AI THINKING…" : "IN PLAY");
+            state.setText(goalJust ? "¡GOL!" : check ? "¡JAQUE!" : thinking ? "IA PENSANDO…" : "EN JUEGO");
             state.setFill(goalJust ? theme.accent() : check ? theme.alerta() : thinking ? theme.textSecondary() : theme.activo());
             reason.setText("");
         }
@@ -197,9 +197,9 @@ public final class GameStatePanel extends GridPane {
             return;
         }
         Scoreboard actual = scoreboard.get();
-        goals.setText("WHITE " + actual.white() + " - " + actual.black() + " BLACK");
-        moves.setText("Move " + controller.movesMade()
-                + controller.moveLimit().map(limit -> " of " + limit).orElse(""));
+        goals.setText("BLANCAS " + actual.white() + " - " + actual.black() + " NEGRAS");
+        moves.setText("Jugada " + controller.movesMade()
+                + controller.moveLimit().map(limit -> " de " + limit).orElse(""));
     }
 
     /** Refresco ligero que conserva tarjetas, tablero, selección y sus nodos. */
@@ -230,11 +230,11 @@ public final class GameStatePanel extends GridPane {
     }
 
     private String side(Side color) {
-        return color == Side.WHITE ? "WHITE" : "BLACK";
+        return color == Side.WHITE ? "BLANCAS" : "NEGRAS";
     }
     /** Pone abajo la tarjeta de ese bando, del mismo lado en que se ven sus piezas en el tablero. */
     void lookFrom(Side side) {
-        boolean fromBlack = Objects.requireNonNull(side, "side") == Side.BLACK;
+        boolean fromBlack = Objects.requireNonNull(side, "bando") == Side.BLACK;
         GridPane.setRowIndex(black, fromBlack ? 2 : 0);
         GridPane.setRowIndex(white, fromBlack ? 0 : 2);
     }

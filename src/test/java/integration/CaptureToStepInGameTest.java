@@ -71,7 +71,7 @@ class CaptureToStepInGameTest {
                 () -> play(game, "e5d6"));
 
         // Assert
-        assertEquals(InvalidMoveException.Reason.MOVE_NOT_ALLOWED, rejection.reason());
+        assertEquals(InvalidMoveException.Reason.MOVIMIENTO_NO_PERMITIDO, rejection.reason());
     }
 
     @Test
@@ -97,10 +97,10 @@ class CaptureToStepInGameTest {
         // Arrange: rey blanco en a5 y torre negra en h5. Si el peón de b5 captura al paso al de c5,
         // la fila 5 queda vacía y la torre da jaque.
         Game game = game(BoardFake.from(
-                "....k...",
+                "....r...",
                 "..p.....",
                 "........",
-                "KP.....r",
+                "RP.....t",
                 "........",
                 "........",
                 ".......P",
@@ -112,7 +112,7 @@ class CaptureToStepInGameTest {
                 () -> play(game, "b5c6"));
 
         // Assert
-        assertEquals(InvalidMoveException.Reason.LEAVES_KING_IN_CHECK, rejection.reason());
+        assertEquals(InvalidMoveException.Reason.DEJA_AL_REY_EN_JAQUE, rejection.reason());
         assertFalse(game.movementsLegal(pos("b5")).contains(pos("c6")));
     }
 }

@@ -16,9 +16,9 @@ import java.util.Optional;
 public record MoveRequest(Position origin, Position destination, Optional<Character> promotion) {
 
     public MoveRequest {
-        Objects.requireNonNull(origin, "origin");
-        Objects.requireNonNull(destination, "destination");
-        Objects.requireNonNull(promotion, "promotion");
+        Objects.requireNonNull(origin, "origen");
+        Objects.requireNonNull(destination, "destino");
+        Objects.requireNonNull(promotion, "promocion");
     }
 
     public MoveRequest(Position origin, Position destination) {
@@ -32,7 +32,7 @@ public record MoveRequest(Position origin, Position destination, Optional<Charac
 
     /** El movimiento que hay que pedirle a la partida para hacer esa jugada (por ejemplo, la que eligió la IA). */
     public static MoveRequest de(Move move) {
-        Objects.requireNonNull(move, "move");
+        Objects.requireNonNull(move, "jugada");
         return new MoveRequest(move.origin(), move.destination(), move.promotion().map(Piece::code));
     }
 }

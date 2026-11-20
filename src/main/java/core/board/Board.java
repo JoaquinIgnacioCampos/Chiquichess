@@ -21,7 +21,7 @@ public class Board implements IBoard {
 
     public Board(int width, int height) {
         if (width <= 0 || height <= 0) {
-            throw new IllegalArgumentException("The board dimensions must be positive");
+            throw new IllegalArgumentException("Las dimensiones del tablero deben ser positivas");
         }
         this.width = width;
         this.height = height;
@@ -68,7 +68,7 @@ public class Board implements IBoard {
     /** Pone la pelota en esa casilla (haya o no una pieza ahí); si ya estaba en otra, la mueve. */
     public void placeBall(Position position) {
         if (!contains(position)) {
-            throw new IllegalArgumentException("Position outside the board: " + position);
+            throw new IllegalArgumentException("Posición fuera del tablero: " + position);
         }
         ball = position;
     }
@@ -81,15 +81,15 @@ public class Board implements IBoard {
     /** Marca la casilla como parte del arco que defiende ese bando. */
     public void markNet(Position position, Side defender) {
         if (!contains(position)) {
-            throw new IllegalArgumentException("Position outside the board: " + position);
+            throw new IllegalArgumentException("Posición fuera del tablero: " + position);
         }
-        nets.put(position, java.util.Objects.requireNonNull(defender, "defender"));
+        nets.put(position, java.util.Objects.requireNonNull(defender, "defensor"));
     }
 
     /** Coloca la pieza; si había otra en esa casilla, la reemplaza. */
     public void place(Position position, Piece piece) {
         if (!contains(position)) {
-            throw new IllegalArgumentException("Position outside the board: " + position);
+            throw new IllegalArgumentException("Posición fuera del tablero: " + position);
         }
         pieces.put(position, piece);
     }

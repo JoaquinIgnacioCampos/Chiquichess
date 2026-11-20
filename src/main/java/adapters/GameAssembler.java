@@ -40,8 +40,8 @@ public final class GameAssembler {
     }
 
     public GameAssembler(ColorLottery draw, TimeSource font) {
-        this.draw = Objects.requireNonNull(draw, "draw");
-        this.font = Objects.requireNonNull(font, "font");
+        this.draw = Objects.requireNonNull(draw, "sorteo");
+        this.font = Objects.requireNonNull(font, "fuente");
     }
 
     public GameInProgress createWithClock(Duration timePerPlayer) {
@@ -59,7 +59,7 @@ public final class GameAssembler {
 
     /** Partida sin tiempo en la que se puede deshacer y rehacer (la usa la consola). */
     public GameInProgress createWithoutClockWithUndo() {
-        return createWithoutClockWithUndo(Mode.CLASSIC);
+        return createWithoutClockWithUndo(Mode.CLASICO);
     }
 
     /** Partida sin tiempo, con deshacer, del modo elegido y el límite de jugadas por defecto. */
@@ -69,7 +69,7 @@ public final class GameAssembler {
 
     /** Partida sin tiempo, con deshacer, del modo elegido (la consola puede jugar al fútbol). */
     public GameInProgress createWithoutClockWithUndo(Mode mode, int moveLimit) {
-        return create(new NoClock(), new Player("Player 1", Side.WHITE), new Player("Player 2", Side.BLACK),
+        return create(new NoClock(), new Player("Jugador 1", Side.WHITE), new Player("Jugador 2", Side.BLACK),
                 true, mode, moveLimit);
     }
 
@@ -77,7 +77,7 @@ public final class GameAssembler {
      * Partida de consola contra la IA: sin tiempo y con deshacer. La IA juega con negras.
      */
     public GameAgainstAi createWithoutClockAgainstAi(Mode mode, int moveLimit, Difficulty difficulty) {
-        Game game = create(new NoClock(), new Player("Player 1", Side.WHITE),
+        Game game = create(new NoClock(), new Player("Jugador 1", Side.WHITE),
                 new Player(aiName(difficulty), Side.BLACK), true, mode, moveLimit);
         return new GameAgainstAi(game, createRival(game, Side.BLACK, difficulty));
     }
@@ -92,10 +92,10 @@ public final class GameAssembler {
     }
 
     private static String aiName(Difficulty difficulty) {
-        return "AI (" + switch (difficulty) {
-            case EASY -> "easy";
-            case MIDDLE -> "middle";
-            case HARD -> "hard";
+        return "IA (" + switch (difficulty) {
+            case FACIL -> "fácil";
+            case MEDIO -> "medio";
+            case DIFICIL -> "difícil";
         } + ")";
     }
 
@@ -105,19 +105,19 @@ public final class GameAssembler {
     }
 
     public ConfiguredGame prepareConfigured(GameConfiguration configuration) {
-        Objects.requireNonNull(configuration, "configuration");
+        Objects.requireNonNull(configuration, "configuracion");
         boolean player1White = switch (configuration.colors()) {
-            case PLAYER_1_WHITE -> true;
-            case PLAYER_2_WHITE -> false;
-            case RANDOM -> draw.player1PlaysWithWhite();
+            case JUGADOR_1_BLANCAS -> true;
+            case JUGADOR_2_BLANCAS -> false;
+            case ALEATORIO -> draw.player1PlaysWithWhite();
         };
         GameClock clock = configuration.time().duration()
                 .<GameClock>map(duration -> new ChessClock(duration, duration, font))
                 .orElseGet(NoClock::new);
         // La IA es el Jugador 2: juega con su equipo y con el color que le tocó.
-        String player2 = configuration.difficulty().map(GameAssembler::aiName).orElse("Player 2");
-        Game game = create(clock, new Player(player1White ? "Player 1" : player2, Side.WHITE),
-                new Player(player1White ? player2 : "Player 1", Side.BLACK),
+        String player2 = configuration.difficulty().map(GameAssembler::aiName).orElse("Jugador 2");
+        Game game = create(clock, new Player(player1White ? "Jugador 1" : player2, Side.WHITE),
+                new Player(player1White ? player2 : "Jugador 1", Side.BLACK),
                 configuration.allowUndo(), configuration.mode(), configuration.moveLimit());
         Side player2Side = player1White ? Side.BLACK : Side.WHITE;
         Optional<ArtificialRival> rival = configuration.difficulty()
@@ -128,8 +128,8 @@ public final class GameAssembler {
     }
 
     private Game create(GameClock clock) {
-        return create(clock, new Player("Player 1", Side.WHITE), new Player("Player 2", Side.BLACK), false,
-                Mode.CLASSIC, GameConfiguration.DEFAULT_LIMIT);
+        return create(clock, new Player("Jugador 1", Side.WHITE), new Player("Jugador 2", Side.BLACK), false,
+                Mode.CLASICO, GameConfiguration.DEFAULT_LIMIT);
     }
 
     /**
@@ -140,12 +140,12 @@ public final class GameAssembler {
     private Game create(GameClock clock, Player white, Player black, boolean allowUndo, Mode mode,
                           int moveLimit) {
         GameRules rules = switch (mode) {
-            case CLASSIC -> GameRules.classic();
-            case FOOTBALL -> GameRules.football(moveLimit);
+            case CLASICO -> GameRules.classic();
+            case FUTBOL -> GameRules.football(moveLimit);
         };
         InitialLayout layout = switch (mode) {
-            case CLASSIC -> new StandardLayout();
-            case FOOTBALL -> new FootballLayout(new StandardLayout(), new BallRule());
+            case CLASICO -> new StandardLayout();
+            case FUTBOL -> new FootballLayout(new StandardLayout(), new BallRule());
         };
         return new Game(layout.createBoard(), white, black,
                 allowUndo ? rules.withUndo() : rules, clock);

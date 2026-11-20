@@ -27,10 +27,10 @@ final class DrawOffer {
     void offer(Side color, Side turn) {
         Objects.requireNonNull(color, "color");
         if (color != turn) {
-            throw new InvalidActionException(InvalidActionException.Reason.NOT_YOUR_TURN);
+            throw new InvalidActionException(InvalidActionException.Reason.NO_ES_SU_TURNO);
         }
         if (offerer.isPresent()) {
-            throw new InvalidActionException(InvalidActionException.Reason.OFFER_PENDING);
+            throw new InvalidActionException(InvalidActionException.Reason.OFERTA_PENDIENTE);
         }
         offerer = Optional.of(color);
     }
@@ -43,10 +43,10 @@ final class DrawOffer {
     void validateResponse(Side color) {
         Objects.requireNonNull(color, "color");
         if (offerer.isEmpty()) {
-            throw new InvalidActionException(InvalidActionException.Reason.WITHOUT_OFFER);
+            throw new InvalidActionException(InvalidActionException.Reason.SIN_OFERTA);
         }
         if (offerer.get() == color) {
-            throw new InvalidActionException(InvalidActionException.Reason.IS_OWN_OFFER);
+            throw new InvalidActionException(InvalidActionException.Reason.ES_SU_PROPIA_OFERTA);
         }
     }
 

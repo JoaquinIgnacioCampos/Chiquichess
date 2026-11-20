@@ -36,7 +36,7 @@ public class StrategyFalse implements GameStrategy {
                 if (!legal.leavesKingInCheck(situation.board(), move)) return move;
             }
         }
-        throw new IllegalStateException("There are no legal moves");
+        throw new IllegalStateException("No hay jugadas legales");
     }
 
     @Override

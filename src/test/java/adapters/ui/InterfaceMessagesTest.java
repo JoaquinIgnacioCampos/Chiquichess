@@ -19,7 +19,7 @@ class InterfaceMessagesTest {
     void allRejectionOfMovementHasItsText() {
         for (InvalidMoveException.Reason reason : InvalidMoveException.Reason.values()) {
             assertNotEquals(InterfaceMessages.WITHOUT_TEXT, messages.moveRejection(reason),
-                    "Missing the text for " + reason);
+                    "Falta el texto de " + reason);
         }
     }
 
@@ -28,7 +28,7 @@ class InterfaceMessagesTest {
         for (InterfaceMessages.Action action : InterfaceMessages.Action.values()) {
             for (InvalidActionException.Reason reason : InvalidActionException.Reason.values()) {
                 assertNotEquals(InterfaceMessages.WITHOUT_TEXT, messages.actionRejection(action, reason),
-                        "Missing the text for " + reason + " to the " + action);
+                        "Falta el texto de " + reason + " al " + action);
             }
         }
     }
@@ -36,7 +36,7 @@ class InterfaceMessagesTest {
     @Test
     void allReasonOfFinalHasItsText() {
         for (FinishReason reason : FinishReason.values()) {
-            assertNotEquals(InterfaceMessages.WITHOUT_TEXT, messages.finalReason(reason), "Missing the text for " + reason);
+            assertNotEquals(InterfaceMessages.WITHOUT_TEXT, messages.finalReason(reason), "Falta el texto de " + reason);
         }
     }
 
@@ -44,22 +44,22 @@ class InterfaceMessagesTest {
     void outsideOfTurnExplainsAccordingItThatAttempt() {
         // Act
         String onResign = messages.actionRejection(InterfaceMessages.Action.RESIGN,
-                InvalidActionException.Reason.NOT_YOUR_TURN);
+                InvalidActionException.Reason.NO_ES_SU_TURNO);
         String onOfferDraw = messages.actionRejection(InterfaceMessages.Action.DRAW,
-                InvalidActionException.Reason.NOT_YOUR_TURN);
+                InvalidActionException.Reason.NO_ES_SU_TURNO);
 
         // Assert
-        assertEquals("You can only resign during your turn.", onResign);
-        assertEquals("You can only offer a draw during your turn.", onOfferDraw);
+        assertEquals("Solo podés rendirte durante tu turno.", onResign);
+        assertEquals("Solo podés ofrecer tablas durante tu turno.", onOfferDraw);
     }
 
     @Test
     void withoutTextSpecificUsesGeneralOfReason() {
         // Act
         String texto = messages.actionRejection(InterfaceMessages.Action.RESIGN,
-                InvalidActionException.Reason.FINISHED_GAME);
+                InvalidActionException.Reason.PARTIDA_FINALIZADA);
 
         // Assert
-        assertEquals("The game is already over.", texto);
+        assertEquals("La partida ya terminó.", texto);
     }
 }

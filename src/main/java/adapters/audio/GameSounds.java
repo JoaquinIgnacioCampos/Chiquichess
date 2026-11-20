@@ -42,10 +42,10 @@ public final class GameSounds implements GameObserver, AutoCloseable {
 
     private GameSounds(GameQuery game, SoundCatalog catalog, AudioPlayer player,
                              Map<Side, Team> teams, VolumeControl control, boolean football) {
-        this.game = Objects.requireNonNull(game, "game");
-        this.catalog = Objects.requireNonNull(catalog, "catalog");
-        this.player = Objects.requireNonNull(player, "player");
-        this.teams = Map.copyOf(Objects.requireNonNull(teams, "teams"));
+        this.game = Objects.requireNonNull(game, "partida");
+        this.catalog = Objects.requireNonNull(catalog, "catalogo");
+        this.player = Objects.requireNonNull(player, "reproductor");
+        this.teams = Map.copyOf(Objects.requireNonNull(teams, "equipos"));
         this.control = Objects.requireNonNull(control, "control");
         this.football = football;
         this.script = new SoundScript(football);

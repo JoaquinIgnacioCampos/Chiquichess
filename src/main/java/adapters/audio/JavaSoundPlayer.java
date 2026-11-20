@@ -42,7 +42,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
     private static final double SILENCE = 0.0001;
 
     private final ExecutorService thread = Executors.newSingleThreadExecutor(task -> {
-        Thread t = new Thread(task, "sound");
+        Thread t = new Thread(task, "sonido");
         t.setDaemon(true);
         return t;
     });
@@ -52,7 +52,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
 
     @Override
     public void play(URL file, double volume) {
-        Objects.requireNonNull(file, "file");
+        Objects.requireNonNull(file, "archivo");
         if (volume <= SILENCE) return;
         execute(() -> open(file, volume).ifPresent(clip -> {
             clip.addLineListener(event -> {
@@ -64,7 +64,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
 
     @Override
     public Track inLoop(URL file, double volume) {
-        Objects.requireNonNull(file, "file");
+        Objects.requireNonNull(file, "archivo");
         LoopingTrack track = new LoopingTrack();
         execute(() -> {
             if (track.stopped) return;
@@ -143,13 +143,13 @@ public final class JavaSoundPlayer implements AudioPlayer {
             return Optional.of(clip);
         } catch (IllegalArgumentException formatOdd) {
             // La placa no acepta este formato: falla este archivo, no todo el sonido.
-            System.err.println("ChiquiChess: the audio output does not accept the format of " + file
+            System.err.println("ChiquiChess: la salida de audio no acepta el formato de " + file
                     + " (" + formatOdd.getMessage() + ")");
             loadedItems.put(file.toExternalForm(), Optional.empty());
             return Optional.empty();
         } catch (LineUnavailableException | SecurityException withoutAudio) {
             noAudioOutput = true;
-            System.err.println("ChiquiChess: no audio output available, playing without sound ("
+            System.err.println("ChiquiChess: no hay salida de audio disponible, se juega sin sonido ("
                     + withoutAudio.getMessage() + ")");
             return Optional.empty();
         }
@@ -168,7 +168,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
             }
             return Optional.of(new Loaded(pcm.getFormat(), pcm.readAllBytes()));
         } catch (UnsupportedAudioFileException | IOException | IllegalArgumentException failure) {
-            System.err.println("ChiquiChess: could not read the sound " + file + " (" + failure.getMessage() + ")");
+            System.err.println("ChiquiChess: no se pudo leer el sonido " + file + " (" + failure.getMessage() + ")");
             return Optional.empty();
         }
     }

@@ -35,10 +35,10 @@ class MoveRequestTest {
     void exceptionSavesReason() {
         // Act
         InvalidMoveException e =
-                new InvalidMoveException(InvalidMoveException.Reason.NOT_YOUR_TURN);
+                new InvalidMoveException(InvalidMoveException.Reason.NO_ES_SU_TURNO);
 
         // Assert
-        assertEquals(InvalidMoveException.Reason.NOT_YOUR_TURN, e.reason());
-        assertEquals("NOT_YOUR_TURN", e.getMessage());
+        assertEquals(InvalidMoveException.Reason.NO_ES_SU_TURNO, e.reason());
+        assertEquals("NO_ES_SU_TURNO", e.getMessage());
     }
 }
