@@ -176,6 +176,10 @@ public final class VistaPartida extends BorderPane {
     }
 
     public void redibujar() {
+        var estado = controlador.estado();
+        boolean mate = estado == Nucleo.reglas.EstadoPartida.JAQUE_MATE;
+        tablero.senalarRey(mate || estado == Nucleo.reglas.EstadoPartida.JAQUE
+                ? java.util.Optional.of(controlador.turno()) : java.util.Optional.empty(), mate);
         tablero.redibujar(controlador.seleccionada(), controlador.destinosLegales());
         mostrarPromocion(controlador.promocionPendiente());
         panel.actualizar();
