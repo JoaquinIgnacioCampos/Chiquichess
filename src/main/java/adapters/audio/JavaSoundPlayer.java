@@ -46,7 +46,12 @@ public final class JavaSoundPlayer implements AudioPlayer {
         t.setDaemon(true);
         return t;
     });
+    /** Segundos que dura el fundido entre el final de un bucle y su principio. */
+    static final double LOOP_FADE = 1.5;
+
     private final Map<String, Optional<Loaded>> loadedItems = new ConcurrentHashMap<>();
+    /** Los mismos archivos ya preparados para repetirse sin corte (ver {@link #crossfaded}). */
+    private final Map<String, Optional<Loaded>> loadedLoops = new ConcurrentHashMap<>();
     private final Set<Clip> open = ConcurrentHashMap.newKeySet();
     private volatile boolean noAudioOutput = false;
 
@@ -54,7 +59,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
     public void play(URL file, double volume) {
         Objects.requireNonNull(file, "archivo");
         if (volume <= SILENCE) return;
-        execute(() -> open(file, volume).ifPresent(clip -> {
+        execute(() -> open(file, volume, false).ifPresent(clip -> {
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) close(clip);
             });
@@ -68,7 +73,7 @@ public final class JavaSoundPlayer implements AudioPlayer {
         LoopingTrack track = new LoopingTrack();
         execute(() -> {
             if (track.stopped) return;
-            open(file, volume).ifPresent(clip -> {
+            open(file, volume, true).ifPresent(clip -> {
                 track.clip = clip;
                 if (volume > SILENCE) {
                     clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -131,9 +136,14 @@ public final class JavaSoundPlayer implements AudioPlayer {
         }
     }
 
-    private Optional<Clip> open(URL file, double volume) {
+    private Optional<Clip> open(URL file, double volume, boolean loop) {
         if (noAudioOutput) return Optional.empty();
         Optional<Loaded> loaded = loadedItems.computeIfAbsent(file.toExternalForm(), key -> load(file));
+        if (loaded.isPresent() && loop) {
+            Loaded original = loaded.get();
+            loaded = loadedLoops.computeIfAbsent(file.toExternalForm(), key -> Optional.of(new Loaded(original.format(),
+                    crossfaded(original.format(), original.data(), LOOP_FADE))));
+        }
         if (loaded.isEmpty()) return Optional.empty();
         try {
             Clip clip = AudioSystem.getClip();
@@ -171,6 +181,50 @@ public final class JavaSoundPlayer implements AudioPlayer {
             System.err.println("ChiquiChess: no se pudo leer el sonido " + file + " (" + failure.getMessage() + ")");
             return Optional.empty();
         }
+    }
+
+    /**
+     * El audio listo para repetirse sin corte: el final se funde con el principio. La pasada arranca {@code seconds}
+     * adentro del archivo y termina con la cola mezclándose con el comienzo (que baja a medida que el comienzo
+     * sube, con curvas de potencia constante), así que al volver a empezar sigue justo donde el fundido dejó.
+     * Si el audio es muy corto, el fundido se achica a un cuarto de su largo. Espera PCM de 16 bits.
+     */
+    static byte[] crossfaded(AudioFormat format, byte[] data, double seconds) {
+        int frameSize = format.getFrameSize();
+        int channels = format.getChannels();
+        if (format.getSampleSizeInBits() != 16 || frameSize <= 0 || channels <= 0) return data;
+        int frames = data.length / frameSize;
+        int fade = (int) Math.min(seconds * format.getSampleRate(), frames / 4.0);
+        if (fade <= 0) return data;
+        boolean bigEndian = format.isBigEndian();
+        int length = frames - fade;
+        byte[] out = new byte[length * frameSize];
+        int plain = frames - 2 * fade;
+        System.arraycopy(data, fade * frameSize, out, 0, plain * frameSize);
+        for (int j = 0; j < fade; j++) {
+            double angle = Math.PI / 2 * j / fade;
+            double leaves = Math.cos(angle);
+            double enters = Math.sin(angle);
+            for (int channel = 0; channel < channels; channel++) {
+                int tail = (frames - fade + j) * frameSize + channel * 2;
+                int head = j * frameSize + channel * 2;
+                double mixed = sample(data, tail, bigEndian) * leaves + sample(data, head, bigEndian) * enters;
+                write(out, (plain + j) * frameSize + channel * 2, (int) Math.round(mixed), bigEndian);
+            }
+        }
+        return out;
+    }
+
+    private static int sample(byte[] data, int offset, boolean bigEndian) {
+        int low = bigEndian ? data[offset + 1] & 0xFF : data[offset] & 0xFF;
+        int high = bigEndian ? data[offset] : data[offset + 1];
+        return (high << 8) | low;
+    }
+
+    private static void write(byte[] data, int offset, int sample, boolean bigEndian) {
+        int clipped = Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, sample));
+        data[offset + (bigEndian ? 1 : 0)] = (byte) clipped;
+        data[offset + (bigEndian ? 0 : 1)] = (byte) (clipped >> 8);
     }
 
     /** Volumen de 0 a 1 pasado a decibeles, que es lo que entiende la línea. */
