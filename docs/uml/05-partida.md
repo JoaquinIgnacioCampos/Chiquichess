@@ -1,187 +1,187 @@
 # 5. Partida, eventos y reloj
 
-`Partida` es la fachada del núcleo: recibe las órdenes de los jugadores (mover, deshacer, rendirse,
+`Game` es la fachada del núcleo: recibe las órdenes de los jugadores (mover, deshacer, rendirse,
 ofrecer tablas), las valida con las reglas y avisa lo que pasó a sus observadores. Todas sus
 dependencias llegan por constructor (uno solo): el tablero, los jugadores, las reglas y el reloj.
 
-`Partida` coordina, y delega lo demás en cuatro clases privadas del paquete:
+`Game` coordina, y delega lo demás en cuatro clases privadas del paquete:
 
 | Clase | Responsabilidad |
 |---|---|
-| `ArbitroDeFinales` | Decide si la partida terminó después de cada jugada y quién ganó; coordina la memoria de las condiciones (Memento) |
-| `HistorialDeJugadas` | Las jugadas hechas y deshechas, con los recuerdos de cada una |
-| `OfertaDeTablas` | La oferta pendiente y sus reglas: quién puede ofrecer y quién responder |
-| `AvisosDePartida` | Los observadores y el envío de cada evento |
+| `EndingReferee` | Decide si la partida terminó después de cada jugada y quién ganó; coordina la memoria de las condiciones (Memento) |
+| `MoveHistory` | Las jugadas hechas y deshechas, con los recuerdos de cada una |
+| `DrawOffer` | La oferta pendiente y sus reglas: quién puede ofrecer y quién responder |
+| `GameNotices` | Los observadores y el envío de cada evento |
 
-## 5a. Partida y sus colaboradores
+## 5a. Game y sus colaboradores
 
 ```mermaid
 classDiagram
     direction LR
 
-    class Partida {
-        -tablero Tablero
-        -reglas ReglasDePartida
-        -reloj RelojPartida
-        -arbitro ArbitroDeFinales
-        -historialDeJugadas HistorialDeJugadas
-        -ofertaDeTablas OfertaDeTablas
-        -avisos AvisosDePartida
-        -turno Bando
-        -estado EstadoPartida
-        +Partida(Tablero, Jugador, Jugador, ReglasDePartida, RelojPartida)
-        +mover(Movimiento) ResultadoMovimiento
-        +movimientosLegales(Posicion) Set~Posicion~
-        +opcionesDePromocion(Posicion, Posicion) List~Pieza~
-        +deshacer()
-        +rehacer()
-        +rendirse(Bando)
-        +ofrecerTablas(Bando)
-        +aceptarTablas(Bando)
-        +rechazarTablas(Bando)
-        +verificarTiempo()
-        +agregarObservador(ObservadorDePartida)
-        +tablero() ITablero
-        +turno() Bando
-        +estado() EstadoPartida
-        +resultado() Optional~ResultadoPartida~
-        +marcador() Optional~Marcador~
-        +limiteDeJugadas() Optional~Integer~
-        +historial() List~Movimiento~
-        +situacion() SituacionDePartida
+    class Game {
+        -board Board
+        -rules GameRules
+        -clock GameClock
+        -referee EndingReferee
+        -moveHistory MoveHistory
+        -drawOffer DrawOffer
+        -notices GameNotices
+        -turn Side
+        -state GameState
+        +Game(Board, Player, Player, GameRules, GameClock)
+        +move(MoveRequest) MoveResult
+        +movementsLegal(Position) Set~Position~
+        +promotionOptions(Position, Position) List~Piece~
+        +undo()
+        +redo()
+        +resign(Side)
+        +offerDraw(Side)
+        +acceptDraw(Side)
+        +rejectDraw(Side)
+        +verifyTime()
+        +addObserver(GameObserver)
+        +board() IBoard
+        +turn() Side
+        +state() GameState
+        +result() Optional~GameResult~
+        +scoreboard() Optional~Scoreboard~
+        +moveLimit() Optional~Integer~
+        +history() List~MoveRequest~
+        +situation() GameSituation
     }
 
-    class ArbitroDeFinales {
-        -reglas ReglasDePartida
-        -condicionesConMemoria List~CondicionConMemoria~
-        ~registrarYEvaluar(Tablero, Bando, List~Jugada~) Registro
-        ~evaluar(Tablero, Bando, List~Jugada~) Veredicto
-        ~restaurar(List~Recuerdo~)
-        ~limiteDeJugadas() Optional~Integer~
-        ~marcador(List~Jugada~) Optional~Marcador~
+    class EndingReferee {
+        -rules GameRules
+        -conditionsWithMemory List~StatefulCondition~
+        ~registerAndEvaluate(Board, Side, List~Move~) Record
+        ~evaluate(Board, Side, List~Move~) Verdict
+        ~restore(List~Memento~)
+        ~moveLimit() Optional~Integer~
+        ~scoreboard(List~Move~) Optional~Scoreboard~
     }
-    class HistorialDeJugadas {
-        -hechas List~Entrada~
-        -deshechas List~Jugada~
+    class MoveHistory {
+        -made List~Entrada~
+        -undone List~Move~
     }
-    class OfertaDeTablas {
-        -oferente Optional~Bando~
-        ~ofrecer(Bando, Bando turno)
-        ~validarRespuesta(Bando)
-        ~alMover(Bando)
-        ~descartar()
+    class DrawOffer {
+        -offerer Optional~Side~
+        ~offer(Side, Side turn)
+        ~validateResponse(Side)
+        ~onMove(Side)
+        ~discard()
     }
-    class AvisosDePartida {
-        -observadores List~ObservadorDePartida~
-        ~agregar(ObservadorDePartida)
-        ~quitar(ObservadorDePartida)
-        ~avisar(EventoDePartida)
+    class GameNotices {
+        -observers List~GameObserver~
+        ~add(GameObserver)
+        ~remove(GameObserver)
+        ~inform(GameEvent)
     }
 
-    class Jugador {
+    class Player {
         <<record>>
-        +nombre String
-        +color Bando
+        +displayName String
+        +color Side
     }
-    class Movimiento {
+    class MoveRequest {
         <<record>>
-        +origen Posicion
-        +destino Posicion
-        +promocion Optional~Character~
-        +de(Jugada)$ Movimiento
+        +origin Position
+        +destination Position
+        +promotion Optional~Character~
+        +de(Move)$ MoveRequest
     }
-    class ResultadoMovimiento {
+    class MoveResult {
         <<record>>
-        +piezaCapturada Optional~Pieza~
-        +estado EstadoPartida
+        +capturedPiece Optional~Piece~
+        +state GameState
     }
-    class ResultadoPartida {
+    class GameResult {
         <<record>>
-        +ganador Optional~Bando~
-        +motivo MotivoFinalizacion
+        +winner Optional~Side~
+        +reason FinishReason
     }
-    class SituacionDePartida {
+    class GameSituation {
         <<record>>
-        +tablero Tablero
-        +turno Bando
-        +jugadas List~Jugada~
-        +reglas ReglasDePartida
+        +board Board
+        +turn Side
+        +moves List~Move~
+        +rules GameRules
     }
-    class AccionInvalidaException
-    class MovimientoInvalidoException
+    class InvalidActionException
+    class InvalidMoveException
 
-    Partida *-- ArbitroDeFinales
-    Partida *-- HistorialDeJugadas
-    Partida *-- OfertaDeTablas
-    Partida *-- AvisosDePartida
-    Partida o-- Tablero
-    Partida o-- ReglasDePartida
-    Partida o-- RelojPartida
-    Partida o-- "2" Jugador
-    Partida ..> Movimiento : recibe
-    Partida ..> ResultadoMovimiento : devuelve
-    Partida ..> ResultadoPartida
-    Partida ..> SituacionDePartida : arma una copia para la IA
-    Partida ..> AccionInvalidaException : lanza
-    Partida ..> MovimientoInvalidoException : lanza
-    ArbitroDeFinales o-- ReglasDePartida
-    ArbitroDeFinales ..> CondicionDeFinalizacion : consulta en orden
-    ArbitroDeFinales ..> Recuerdo : guarda y restaura
-    HistorialDeJugadas o-- "0..*" Jugada
-    OfertaDeTablas ..> AccionInvalidaException : lanza
-    AvisosDePartida o-- "0..*" ObservadorDePartida
+    Game *-- EndingReferee
+    Game *-- MoveHistory
+    Game *-- DrawOffer
+    Game *-- GameNotices
+    Game o-- Board
+    Game o-- GameRules
+    Game o-- GameClock
+    Game o-- "2" Player
+    Game ..> MoveRequest : recibe
+    Game ..> MoveResult : devuelve
+    Game ..> GameResult
+    Game ..> GameSituation : arma una copia para la IA
+    Game ..> InvalidActionException : lanza
+    Game ..> InvalidMoveException : lanza
+    EndingReferee o-- GameRules
+    EndingReferee ..> EndCondition : consulta en orden
+    EndingReferee ..> Memento : guarda y restaura
+    MoveHistory o-- "0..*" Move
+    DrawOffer ..> InvalidActionException : lanza
+    GameNotices o-- "0..*" GameObserver
 ```
 
 ## 5b. Puertos de entrada: lo que ven los adaptadores
 
-Los adaptadores no conocen la clase `Partida`: reciben una de estas dos interfaces del núcleo. Solo
-`EnsambladorPartida` construye la `Partida` concreta.
+Los adaptadores no conocen la clase `Game`: reciben una de estas dos interfaces del núcleo. Solo
+`GameAssembler` construye la `Game` concreta.
 
 ```mermaid
 classDiagram
     direction TB
 
-    class ConsultaDePartida {
+    class GameQuery {
         <<interface>>
-        +tablero() ITablero
-        +turno() Bando
-        +jugador(Bando) Jugador
-        +estado() EstadoPartida
-        +resultado() Optional~ResultadoPartida~
-        +marcador() Optional~Marcador~
-        +limiteDeJugadas() Optional~Integer~
-        +historial() List~Movimiento~
-        +situacion() SituacionDePartida
-        +tiempoRestante(Bando) Optional~Duration~
-        +movimientosLegales(Posicion) Set~Posicion~
-        +opcionesDePromocion(Posicion, Posicion) List~Pieza~
-        +puedeDeshacer() boolean
-        +agregarObservador(ObservadorDePartida)
+        +board() IBoard
+        +turn() Side
+        +player(Side) Player
+        +state() GameState
+        +result() Optional~GameResult~
+        +scoreboard() Optional~Scoreboard~
+        +moveLimit() Optional~Integer~
+        +history() List~MoveRequest~
+        +situation() GameSituation
+        +timeRemaining(Side) Optional~Duration~
+        +movementsLegal(Position) Set~Position~
+        +promotionOptions(Position, Position) List~Piece~
+        +canUndo() boolean
+        +addObserver(GameObserver)
     }
-    class PartidaEnJuego {
+    class GameInProgress {
         <<interface>>
-        +mover(Movimiento) ResultadoMovimiento
-        +deshacer()
-        +rehacer()
-        +rendirse(Bando)
-        +ofrecerTablas(Bando)
-        +aceptarTablas(Bando)
-        +rechazarTablas(Bando)
-        +verificarTiempo()
+        +move(MoveRequest) MoveResult
+        +undo()
+        +redo()
+        +resign(Side)
+        +offerDraw(Side)
+        +acceptDraw(Side)
+        +rejectDraw(Side)
+        +verifyTime()
     }
-    class Partida
+    class Game
 
-    ConsultaDePartida <|-- PartidaEnJuego
-    PartidaEnJuego <|.. Partida
+    GameQuery <|-- GameInProgress
+    GameInProgress <|.. Game
 ```
 
-- **`ConsultaDePartida`** es de solo lectura, más la suscripción a los eventos. La recibe el sonido:
-  por tipo, no puede mover piezas ni terminar la partida.
-- **`PartidaEnJuego`** suma las órdenes de los jugadores. La reciben la consola, el controlador del
+- **`GameQuery`** es de solo lectura, más la suscripción a los eventos. La recibe el sonido: por
+  tipo, no puede mover piezas ni terminar la partida.
+- **`GameInProgress`** suma las órdenes de los jugadores. La reciben la consola, el controlador del
   tablero, el rival artificial y el turno de la IA.
 
-(En la interfaz de consulta se muestran los métodos principales; también tiene `jugadorActual`,
-`ganador`, `ofertaTablasPendiente`, `permiteDeshacer`, `puedeRehacer` y `quitarObservador`.)
+(En la interfaz de consulta se muestran los métodos principales; también tiene `currentPlayer`,
+`winner`, `offerDrawPending`, `allowsUndo`, `canRedo` y `removeObserver`.)
 
 ## 5c. Eventos (Observer)
 
@@ -189,62 +189,62 @@ classDiagram
 classDiagram
     direction LR
 
-    class Partida {
-        +agregarObservador(ObservadorDePartida)
-        +quitarObservador(ObservadorDePartida)
+    class Game {
+        +addObserver(GameObserver)
+        +removeObserver(GameObserver)
     }
-    class AvisosDePartida
-    class ObservadorDePartida {
+    class GameNotices
+    class GameObserver {
         <<interface>>
-        +notificar(EventoDePartida)
+        +notify(GameEvent)
     }
-    class EventoDePartida {
+    class GameEvent {
         <<sealed interface>>
     }
-    class JugadaHecha {
+    class MoveMade {
         <<record>>
-        +bando Bando
-        +rasgos Set~Rasgo~
-        +estado EstadoPartida
+        +side Side
+        +traits Set~Trait~
+        +state GameState
     }
-    class JugadaDeshecha {
+    class MoveUndone {
         <<record>>
-        +estado EstadoPartida
+        +state GameState
     }
-    class JugadaRehecha {
+    class MoveRedone {
         <<record>>
-        +bando Bando
-        +rasgos Set~Rasgo~
-        +estado EstadoPartida
+        +side Side
+        +traits Set~Trait~
+        +state GameState
     }
-    class PartidaFinalizada {
+    class FinishedGame {
         <<record>>
-        +resultado ResultadoPartida
+        +result GameResult
     }
-    class Rasgo {
+    class Trait {
         <<enumeration>>
-        CAPTURA
-        ENROQUE
-        PROMOCION
-        PASE
-        GOL
-        +de(Jugada)$ Set~Rasgo~
+        CAPTURE
+        CASTLING
+        PROMOTION
+        PASS
+        GOAL
+        +de(Move)$ Set~Trait~
     }
 
-    Partida *-- AvisosDePartida
-    AvisosDePartida o-- "0..*" ObservadorDePartida : avisa
-    Partida ..> EventoDePartida : crea
-    ObservadorDePartida ..> EventoDePartida
-    EventoDePartida <|.. JugadaHecha
-    EventoDePartida <|.. JugadaDeshecha
-    EventoDePartida <|.. JugadaRehecha
-    EventoDePartida <|.. PartidaFinalizada
-    JugadaHecha --> Rasgo
-    JugadaRehecha --> Rasgo
+    Game *-- GameNotices
+    GameNotices o-- "0..*" GameObserver : avisa
+    Game ..> GameEvent : crea
+    GameObserver ..> GameEvent
+    GameEvent <|.. MoveMade
+    GameEvent <|.. MoveUndone
+    GameEvent <|.. MoveRedone
+    GameEvent <|.. FinishedGame
+    MoveMade --> Trait
+    MoveRedone --> Trait
 ```
 
-Los observadores son adaptadores (`SonidosDePartida`, `TurnoDeLaIa`, `VistaPartida`,
-`PanelEstadoPartida`): ver [diagrama 7](07-adaptadores.md).
+Los observadores son adaptadores (`GameSounds`, `AiTurn`, `GameView`, `GameStatePanel`): ver
+[diagrama 7](07-adaptadores.md).
 
 ## 5d. Reloj y disposición inicial
 
@@ -252,54 +252,55 @@ Los observadores son adaptadores (`SonidosDePartida`, `TurnoDeLaIa`, `VistaParti
 classDiagram
     direction TB
 
-    class RelojPartida {
+    class GameClock {
         <<interface>>
-        +iniciar(Bando)
-        +cambiarTurno()
-        +detener()
-        +tiempoRestante(Bando) Optional~Duration~
+        +start(Side)
+        +changeTurn()
+        +stop()
+        +timeRemaining(Side) Optional~Duration~
+        +timeExhausted(Side) boolean
     }
-    class RelojAjedrez {
-        -fuente FuenteDeTiempo
-        -restantes Map
+    class ChessClock {
+        -font TimeSource
+        -remainingTimes Map
     }
-    class SinReloj
-    class FuenteDeTiempo {
+    class NoClock
+    class TimeSource {
         <<interface>>
-        +ahoraEnNanos() long
+        +nowInNanos() long
     }
 
-    class DisposicionInicial {
+    class InitialLayout {
         <<interface>>
-        +crearTablero() Tablero
+        +createBoard() Board
     }
-    class DisposicionEstandar
-    class DisposicionDeFutbol {
-        -base DisposicionInicial
-        -pelota ReglaDeLaPelota
+    class StandardLayout
+    class FootballLayout {
+        -base InitialLayout
+        -ball BallRule
     }
 
-    Partida o-- RelojPartida
-    DisposicionInicial ..> Tablero : crea
-    RelojPartida <|.. RelojAjedrez
-    RelojPartida <|.. SinReloj
-    RelojAjedrez o-- FuenteDeTiempo
+    Game o-- GameClock
+    InitialLayout ..> Board : crea
+    GameClock <|.. ChessClock
+    GameClock <|.. NoClock
+    ChessClock o-- TimeSource
 
-    DisposicionInicial <|.. DisposicionEstandar
-    DisposicionInicial <|.. DisposicionDeFutbol
-    DisposicionDeFutbol o-- DisposicionInicial : decora
+    InitialLayout <|.. StandardLayout
+    InitialLayout <|.. FootballLayout
+    FootballLayout o-- InitialLayout : decora
 ```
 
 ## Patrones que se ven acá
 
-- **Observer:** `Partida` publica `EventoDePartida` y no sabe quién escucha (el sonido, el panel, la
-  IA). El evento dice qué pasó, no cómo se muestra.
-- **Command + Memento** para deshacer: el historial guarda cada `Jugada` (que sabe revertirse)
-  junto con los `Recuerdo` que devuelve el árbitro. `Partida` es el cuidador: los guarda y los
-  devuelve sin saber qué contienen.
-- **Null Object:** `SinReloj` evita preguntar "¿hay reloj?" en cada jugada.
-- **Decorator:** `DisposicionDeFutbol` envuelve cualquier disposición y le agrega la cancha.
-- **Puerto de salida:** `FuenteDeTiempo` es la única forma en que el núcleo conoce la hora.
-- **Puertos de entrada con segregación de interfaces:** `ConsultaDePartida` y `PartidaEnJuego`.
-  Cada adaptador recibe solo lo que necesita (la I de SOLID) y depende de una abstracción del núcleo,
-  no de la clase concreta (la D de SOLID).
+- **Observer:** `Game` publica `GameEvent` y no sabe quién escucha (el sonido, el panel, la IA). El
+  evento dice qué pasó, no cómo se muestra.
+- **Command + Memento** para deshacer: el historial guarda cada `Move` (que sabe revertirse) junto con
+  los `Memento` que devuelve el árbitro. `Game` es el cuidador: los guarda y los devuelve sin saber
+  qué contienen.
+- **Null Object:** `NoClock` evita preguntar "¿hay reloj?" en cada jugada.
+- **Decorator:** `FootballLayout` envuelve cualquier disposición y le agrega la cancha.
+- **Puerto de salida:** `TimeSource` es la única forma en que el núcleo conoce la hora.
+- **Puertos de entrada con segregación de interfaces:** `GameQuery` y `GameInProgress`. Cada
+  adaptador recibe solo lo que necesita (la I de SOLID) y depende de una abstracción del núcleo, no de
+  la clase concreta (la D de SOLID).

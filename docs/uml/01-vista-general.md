@@ -5,80 +5,89 @@ el núcleo**: el núcleo no importa nada de afuera (ni JavaFX, ni Java Sound, ni
 Lo que el núcleo necesita del exterior lo pide por interfaces propias, los **puertos**, que
 implementa un adaptador.
 
+Los nombres del código están en inglés; las explicaciones, en español.
+
 ```mermaid
 flowchart TB
-    subgraph ADAPTADORES["adaptadores (infraestructura)"]
+    subgraph ADAPTERS["adapters (infraestructura)"]
         direction LR
         ui["ui<br/>JavaFX"]
         audio["audio<br/>Java Sound"]
-        consola["adaptadores<br/>ensamblado, consola, IA"]
-        configuracion["configuracion<br/>menú → partida"]
+        root["adapters<br/>ensamblado, consola, IA"]
+        configuration["configuration<br/>menú, preferencias → partida"]
     end
 
-    subgraph NUCLEO["Nucleo (reglas del juego, Java puro)"]
+    subgraph CORE["core (reglas del juego, Java puro)"]
         direction TB
-        ia["ia<br/>Minimax"]
-        juego["juego<br/>Partida, eventos"]
-        reglas["reglas<br/>especiales y finales"]
-        jugadas["jugadas<br/>Command"]
-        piezas["piezas"]
-        movimientos["movimientos"]
-        tablero["tablero"]
-        tiempo["tiempo"]
-        bando["bando"]
+        ai["ai<br/>Minimax"]
+        game["game<br/>Game, eventos"]
+        rules["rules<br/>especiales y finales"]
+        moves["moves<br/>Command"]
+        pieces["pieces"]
+        movements["movements"]
+        board["board"]
+        time["time"]
+        side["side"]
     end
 
     ui --> audio
-    ui --> configuracion
-    ui --> consola
-    audio --> configuracion
-    consola <--> configuracion
+    ui --> configuration
+    ui --> root
+    audio --> configuration
+    configuration --> audio
+    root <--> configuration
 
-    ui ==> juego
-    audio ==> juego
-    consola ==> juego
-    consola ==> ia
-    configuracion ==> juego
+    ui ==> game
+    ui ==> ai
+    audio ==> game
+    root ==> game
+    root ==> ai
+    configuration ==> game
+    configuration ==> ai
 
-    ia --> juego
-    juego --> reglas
-    ia --> reglas
-    reglas --> jugadas
-    reglas --> piezas
-    jugadas --> piezas
-    piezas <--> movimientos
-    piezas <--> tablero
-    juego --> tiempo
-    ia --> tiempo
-    tablero --> bando
-    tiempo --> bando
+    ai --> game
+    game --> rules
+    ai --> rules
+    rules --> moves
+    rules --> pieces
+    moves --> pieces
+    pieces <--> movements
+    pieces <--> board
+    game --> time
+    ai --> time
+    board --> side
+    time --> side
 ```
 
 ## Puertos del núcleo
 
 | Puerto (interfaz del núcleo) | Sentido | Lo implementa |
 |---|---|---|
-| `PartidaEnJuego` | los adaptadores juegan (mover, deshacer, rendirse, tablas) | `Partida`; lo usan la consola, el controlador del tablero y la IA |
-| `ConsultaDePartida` | los adaptadores leen la partida y escuchan sus eventos | `Partida`; lo usa el sonido |
-| `FuenteDeTiempo` | el núcleo pide la hora | `FuenteDeTiempoSistema` (real), relojes falsos en los tests |
-| `ObservadorDePartida` | el núcleo avisa qué pasó | `SonidosDePartida`, `TurnoDeLaIa`; `VistaPartida` y `PanelEstadoPartida` (vía `ControladorTablero.escuchar`) |
-| `EstrategiaDeJuego` | el adaptador pide una jugada | `JugadorArtificial` (núcleo); la usa `RivalArtificial` |
-| `RelojPartida` | la partida controla el tiempo | `RelojAjedrez`, `SinReloj` (Null Object) |
+| `GameInProgress` | los adaptadores juegan (mover, deshacer, rendirse, tablas) | `Game`; lo usan la consola, el controlador del tablero y la IA |
+| `GameQuery` | los adaptadores leen la partida y escuchan sus eventos | `Game`; lo usa el sonido |
+| `TimeSource` | el núcleo pide la hora | `SystemTimeSource` (real), relojes falsos en los tests |
+| `GameObserver` | el núcleo avisa qué pasó | `GameSounds`, `AiTurn`; `GameView` y `GameStatePanel` (vía `BoardController.listen`) |
+| `GameStrategy` | el adaptador pide una jugada | `ArtificialPlayer` (núcleo); la usa `ArtificialRival` |
+| `GameClock` | la partida controla el tiempo | `ChessClock`, `NoClock` (Null Object) |
 | `java.util.Random` (inyectado) | azar de la IA | el ensamblado pasa uno real; los tests, uno con semilla |
 
 Los adaptadores también tienen sus propios puertos, para no atarse a una tecnología:
-`ReproductorDeAudio` (Java Sound), `RepresentacionPiezas` (sprites o Unicode) y `Sorteo` (azar del menú).
+`AudioPlayer` (Java Sound), `PieceRepresentation` (sprites o Unicode) y `ColorLottery` (azar del menú).
 
 ## Dependencias de ida y vuelta (aceptadas)
 
-- `piezas ↔ tablero`: el tablero guarda piezas y cada pieza consulta el tablero para moverse.
-- `piezas ↔ movimientos`: una pieza se define por sus reglas de movimiento, y las reglas miran qué
+- `pieces ↔ board`: el tablero guarda piezas y cada pieza consulta el tablero para moverse.
+- `pieces ↔ movements`: una pieza se define por sus reglas de movimiento, y las reglas miran qué
   pieza ocupa cada casilla para frenar o capturar.
 
 La justificación está en [la decisión 3 del documento de justificación](../justificacion.md#3-paquetes-por-concepto-y-dependencias-en-un-solo-sentido).
 
-La IA depende de la partida y no al revés: `ia → juego` porque recibe una
-`juego.SituacionDePartida`. El paquete `juego` no conoce a la IA, que es un cliente más.
+La IA depende de la partida y no al revés: `ai → game` porque recibe una `game.GameSituation`. El
+paquete `game` no conoce a la IA, que es un cliente más. (`rules` nombra a `game.FootballLayout`
+solo en un comentario de documentación, que no es una dependencia.)
 
-> **Punto a revisar:** `adaptadores ↔ configuracion`. El ensamblado lee la configuración, y
-> `PartidaConfigurada` guarda un `RivalArtificial` (del paquete `adaptadores`).
+> **Puntos a revisar:**
+> - `adapters ↔ configuration`: el ensamblado lee la configuración, y `ConfiguredGame` guarda un
+>   `ArtificialRival` (del paquete `adapters`).
+> - `configuration ↔ audio`: el sonido usa el `Team` de la configuración, y `Preferences` toma de
+>   `VolumeControl` el volumen por defecto.

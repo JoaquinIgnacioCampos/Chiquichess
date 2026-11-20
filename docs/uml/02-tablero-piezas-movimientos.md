@@ -1,159 +1,159 @@
 # 2. Tablero, piezas y movimientos
 
-**Composición sobre herencia:** una pieza es un color más una `ReglaMovimiento`. Las subclases de
-`Pieza` solo eligen qué regla componer y cómo se llaman; no reescriben cómo se mueven. Por ejemplo,
-la reina es `ReglaCompuesta(ortogonales, diagonales)`, y el peón envuelve deslizamientos con los
-decoradores `SoloSiVacio`, `SoloSiCaptura` y `SoloSi`.
+**Composición sobre herencia:** una pieza es un color más una `MovementRule`. Las subclases de
+`Piece` solo eligen qué regla componer, cómo se llaman y cuánto valen; no reescriben cómo se mueven.
+Por ejemplo, la reina es `CompositeRule(orthogonal, diagonals)`, y el peón envuelve deslizamientos
+con los decoradores `OnlyIfEmpty`, `OnlyIfCapture` y `OnlyIf`.
 
-Una pieza nueva se agrega con una subclase de `Pieza` que combine reglas existentes. No hace falta
+Una pieza nueva se agrega con una subclase de `Piece` que combine reglas existentes. No hace falta
 modificar ninguna clase.
 
 ```mermaid
 classDiagram
     direction TB
 
-    class Bando {
+    class Side {
         <<enumeration>>
-        BLANCO
-        NEGRO
-        +direccionAvance() int
-        +opuesto() Bando
+        WHITE
+        BLACK
+        +directionAdvance() int
+        +opposite() Side
     }
 
-    class Posicion {
+    class Position {
         <<record>>
-        +columna int
-        +fila int
-        +desplazada(dc, df) Posicion
+        +column int
+        +row int
+        +shifted(dc, dr) Position
     }
 
-    class ITablero {
+    class IBoard {
         <<interface>>
-        +ancho() int
-        +alto() int
-        +contiene(Posicion) boolean
-        +piezaEn(Posicion) Optional~Pieza~
-        +piezas() Map
-        +pelota() Optional~Posicion~
-        +arcoEn(Posicion) Optional~Bando~
+        +width() int
+        +height() int
+        +contains(Position) boolean
+        +pieceIn(Position) Optional~Piece~
+        +pieces() Map
+        +ball() Optional~Position~
+        +netIn(Position) Optional~Side~
     }
 
-    class Tablero {
-        -piezas Map
-        -pelota Posicion
-        -arcos Map
-        +Tablero(ancho, alto)
-        +colocar(Posicion, Pieza)
-        +quitar(Posicion) Optional~Pieza~
-        +colocarPelota(Posicion)
-        +marcarArco(Posicion, Bando)
-        +copiar() Tablero
+    class Board {
+        -pieces Map
+        -ball Position
+        -nets Map
+        +Board(width, height)
+        +place(Position, Piece)
+        +remove(Position) Optional~Piece~
+        +placeBall(Position)
+        +markNet(Position, Side)
+        +copy() Board
     }
 
-    class DisposicionInicial {
+    class InitialLayout {
         <<interface>>
-        +crearTablero() Tablero
+        +createBoard() Board
     }
 
-    class Pieza {
+    class Piece {
         <<abstract>>
-        -color Bando
-        -regla ReglaMovimiento
-        #Pieza(Bando, ReglaMovimiento)
-        +destinosPosibles(ITablero, Posicion) Set~Posicion~
-        +casillasAtacadas(ITablero, Posicion) Set~Posicion~
-        +esRey() boolean
-        +esPeon() boolean
-        +esTorre() boolean
-        +nombre()* String
-        +codigo()* char
-        +valor()* int
+        -color Side
+        -regla MovementRule
+        #Piece(Side, MovementRule)
+        +destinationsPossible(IBoard, Position) Set~Position~
+        +squaresAttacked(IBoard, Position) Set~Position~
+        +isKing() boolean
+        +isPawn() boolean
+        +isRook() boolean
+        +displayName()* String
+        +code()* char
+        +value()* int
     }
 
-    class Rey
-    class Reina
-    class Torre
-    class Alfil
-    class Caballo
-    class Peon
+    class King
+    class Queen
+    class Rook
+    class Bishop
+    class Knight
+    class Pawn
 
-    class ReglaMovimiento {
+    class MovementRule {
         <<interface>>
-        +destinosPosibles(ITablero, Posicion, Bando) Set~Posicion~
-        +casillasAtacadas(ITablero, Posicion, Bando) Set~Posicion~
+        +destinationsPossible(IBoard, Position, Side) Set~Position~
+        +squaresAttacked(IBoard, Position, Side) Set~Position~
     }
 
-    class Deslizamiento {
-        -deltaColumna int
-        -deltaFila int
-        -maxPasos int
+    class Slide {
+        -deltaColumn int
+        -deltaRow int
+        -maxSteps int
     }
-    class SaltoFijo {
-        -desplazamientos int[][]
+    class FixedJump {
+        -offsets int[][]
     }
-    class ReglaCompuesta {
-        -reglas List~ReglaMovimiento~
+    class CompositeRule {
+        -rules List~MovementRule~
     }
-    class ReglasBase {
+    class BaseRules {
         <<utility>>
-        +ortogonales(maxPasos)$ ReglaMovimiento
-        +diagonales(maxPasos)$ ReglaMovimiento
-        +saltosDeCaballo()$ ReglaMovimiento
+        +orthogonal(maxSteps)$ MovementRule
+        +diagonals(maxSteps)$ MovementRule
+        +knightJumps()$ MovementRule
     }
-    class SoloSiVacio {
-        -regla ReglaMovimiento
+    class OnlyIfEmpty {
+        -regla MovementRule
     }
-    class SoloSiCaptura {
-        -regla ReglaMovimiento
+    class OnlyIfCapture {
+        -regla MovementRule
     }
-    class SoloSi {
-        -condicion Condicion
-        -regla ReglaMovimiento
+    class OnlyIf {
+        -condition Condition
+        -regla MovementRule
     }
 
-    ITablero <|.. Tablero
-    Tablero o-- "0..*" Pieza : contiene
-    Tablero ..> Posicion
-    DisposicionInicial ..> Tablero : crea
+    IBoard <|.. Board
+    Board o-- "0..*" Piece : contiene
+    Board ..> Position
+    InitialLayout ..> Board : crea
 
-    Pieza <|-- Rey
-    Pieza <|-- Reina
-    Pieza <|-- Torre
-    Pieza <|-- Alfil
-    Pieza <|-- Caballo
-    Pieza <|-- Peon
-    Pieza --> Bando
-    Pieza *-- "1" ReglaMovimiento : se mueve con
-    Pieza ..> ITablero : consulta
+    Piece <|-- King
+    Piece <|-- Queen
+    Piece <|-- Rook
+    Piece <|-- Bishop
+    Piece <|-- Knight
+    Piece <|-- Pawn
+    Piece --> Side
+    Piece *-- "1" MovementRule : se mueve con
+    Piece ..> IBoard : consulta
 
-    ReglaMovimiento <|.. Deslizamiento
-    ReglaMovimiento <|.. SaltoFijo
-    ReglaMovimiento <|.. ReglaCompuesta
-    ReglaMovimiento <|.. SoloSiVacio
-    ReglaMovimiento <|.. SoloSiCaptura
-    ReglaMovimiento <|.. SoloSi
-    ReglaCompuesta o-- "1..*" ReglaMovimiento
-    SoloSiVacio o-- ReglaMovimiento : decora
-    SoloSiCaptura o-- ReglaMovimiento : decora
-    SoloSi o-- ReglaMovimiento : decora
-    ReglasBase ..> Deslizamiento : arma
-    ReglasBase ..> SaltoFijo : arma
-    ReglasBase ..> ReglaCompuesta : arma
+    MovementRule <|.. Slide
+    MovementRule <|.. FixedJump
+    MovementRule <|.. CompositeRule
+    MovementRule <|.. OnlyIfEmpty
+    MovementRule <|.. OnlyIfCapture
+    MovementRule <|.. OnlyIf
+    CompositeRule o-- "1..*" MovementRule
+    OnlyIfEmpty o-- MovementRule : decora
+    OnlyIfCapture o-- MovementRule : decora
+    OnlyIf o-- MovementRule : decora
+    BaseRules ..> Slide : arma
+    BaseRules ..> FixedJump : arma
+    BaseRules ..> CompositeRule : arma
 ```
 
 ## Qué arma cada pieza
 
-| Pieza | Regla | `valor()` |
+| Pieza | Regla | `value()` |
 |---|---|---|
-| Torre | `ortogonales(SIN_LIMITE)` | 500 |
-| Alfil | `diagonales(SIN_LIMITE)` | 330 |
-| Reina | `ReglaCompuesta(ortogonales, diagonales)` | 900 |
-| Rey | `ReglaCompuesta(ortogonales(1), diagonales(1))`; el enroque es una `ReglaEspecial` | 0 (nunca sale del tablero) |
-| Caballo | `saltosDeCaballo()` | 320 |
-| Peón | avance (`SoloSiVacio`) + avance doble (`SoloSi` fila inicial) + capturas (`SoloSiCaptura`) | 100 |
+| `Rook` | `orthogonal(WITHOUT_LIMIT)` | 500 |
+| `Bishop` | `diagonals(WITHOUT_LIMIT)` | 330 |
+| `Queen` | `CompositeRule(orthogonal, diagonals)` | 900 |
+| `King` | `CompositeRule(orthogonal(1), diagonals(1))`; el enroque es una `SpecialRule` | 0 (nunca sale del tablero) |
+| `Knight` | `knightJumps()` | 320 |
+| `Pawn` | avance (`OnlyIfEmpty`) + avance doble (`OnlyIf` fila inicial) + capturas (`OnlyIfCapture`) | 100 |
 
-`valor()` es abstracto: una pieza nueva no compila hasta declarar cuánto vale. Así la IA no la
+`value()` es abstracto: una pieza nueva no compila hasta declarar cuánto vale. Así la IA no la
 regala por creer que vale 0.
 
-`DisposicionInicial` la implementan `DisposicionEstandar` y `DisposicionDeFutbol` (paquete `juego`,
-ver [diagrama 5](05-partida.md)). Un tablero de otro tamaño es otra `DisposicionInicial`.
+`InitialLayout` la implementan `StandardLayout` y `FootballLayout` (paquete `game`,
+ver [diagrama 5](05-partida.md)). Un tablero de otro tamaño es otra `InitialLayout`.
