@@ -23,11 +23,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Los archivos de prueba: rey-blanco.png mide 2x2 y rey-negro.png 4x4; el resto no existe. */
+/** Los archivos de prueba: king-white.png mide 2x2 y king-black.png 4x4; el resto no existe. */
 class SpriteRepresentationTest {
     private final BoardTheme theme = new BoardTheme(Color.BEIGE, Color.BROWN, Color.WHITE, Color.BLACK,
             Color.BLACK, Color.GRAY);
-    private final SpriteCatalog catalog = new SpriteCatalog("/sprites-de-prueba");
+    private final SpriteCatalog catalog = new SpriteCatalog("/test-sprites");
     private final PieceRepresentation representation = new SpriteRepresentation(
             Map.of(Side.WHITE, catalog, Side.BLACK, catalog), new UnicodeRepresentation());
 

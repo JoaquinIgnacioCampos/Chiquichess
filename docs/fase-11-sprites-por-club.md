@@ -19,12 +19,12 @@ Cada carpeta lleva estos 12 archivos:
 
 | Pieza | Versión blanca | Versión negra |
 |---|---|---|
-| Rey | `rey-blanco.png` | `rey-negro.png` |
-| Reina | `reina-blanco.png` | `reina-negro.png` |
-| Torre | `torre-blanco.png` | `torre-negro.png` |
-| Alfil | `alfil-blanco.png` | `alfil-negro.png` |
-| Caballo | `caballo-blanco.png` | `caballo-negro.png` |
-| Peón | `peon-blanco.png` | `peon-negro.png` |
+| Rey | `king-white.png` | `king-black.png` |
+| Reina | `queen-white.png` | `queen-black.png` |
+| Torre | `rook-white.png` | `rook-black.png` |
+| Alfil | `bishop-white.png` | `bishop-black.png` |
+| Caballo | `knight-white.png` | `knight-black.png` |
+| Peón | `pawn-white.png` | `pawn-black.png` |
 
 El nombre dice el color de la pieza en la partida, no el del club, y va siempre en masculino.
 

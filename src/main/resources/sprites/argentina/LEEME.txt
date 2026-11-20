@@ -3,14 +3,14 @@ Sprites de las piezas de Argentina
 
 Van en esta carpeta, con estos 12 nombres exactos (PNG):
 
-  rey-blanco.png       rey-negro.png
-  reina-blanco.png     reina-negro.png
-  torre-blanco.png     torre-negro.png
-  alfil-blanco.png     alfil-negro.png
-  caballo-blanco.png   caballo-negro.png
-  peon-blanco.png      peon-negro.png
+  king-white.png       king-black.png
+  queen-white.png     queen-black.png
+  rook-white.png     rook-black.png
+  bishop-white.png     bishop-black.png
+  knight-white.png   knight-black.png
+  pawn-white.png      pawn-black.png
 
-"blanco" y "negro" son el color de la pieza en la partida, no el del equipo.
+"white" y "black" son el color de la pieza en la partida, no el del equipo.
 
 Recomendado: 256x256, fondo transparente, figura centrada y con la misma ocupación en todas
 (igual que los de Boca, en sprites/boca/).
