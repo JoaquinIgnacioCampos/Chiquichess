@@ -8,7 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Circle;
+
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.Test;
 
@@ -54,8 +54,9 @@ class InteractionViewTest {
         assertNotNull(square(view, "e4").lookup(".indicador-movimiento"));
         assertEquals(javafx.scene.paint.Color.YELLOW,
                 square(view, "e2").getBackground().getFills().getFirst().getFill());
-        Circle point = (Circle) square(view, "e4").lookup(".indicador-movimiento");
-        assertEquals(javafx.scene.paint.Color.PURPLE, point.getFill());
+        javafx.scene.image.ImageView point = (javafx.scene.image.ImageView) square(view, "e4").lookup(".indicador-movimiento");
+        int middle = (int) point.getImage().getWidth() / 2;
+        assertEquals(javafx.scene.paint.Color.PURPLE, point.getImage().getPixelReader().getColor(middle, middle));
         assertTrue(point.isMouseTransparent());
         assertTrue(game.history().isEmpty());
     }
@@ -103,12 +104,14 @@ class InteractionViewTest {
         view.resize(1000, 720);
         view.layout();
         StackPane rival = square(view, "d5");
-        Circle ring = (Circle) rival.lookup(".indicador-captura");
+        javafx.scene.image.ImageView ring = (javafx.scene.image.ImageView) rival.lookup(".indicador-captura");
         assertNotNull(ring);
-        assertNull(ring.getFill());
-        assertEquals(javafx.scene.paint.Color.BLUE, ring.getStroke());
-        assertTrue(ring.getRadius() > 0);
-        assertTrue(ring.getStrokeWidth() > 0);
+        // Un anillo: el centro está vacío (se ve la pieza) y el borde lleva el color del tema
+        var pixels = ring.getImage().getPixelReader();
+        int last = (int) ring.getImage().getWidth() - 1;
+        assertEquals(0, pixels.getColor(last / 2, last / 2).getOpacity(), 1e-9);
+        assertTrue(pixels.getColor(last / 2, 2).getOpacity() > 0);
+        assertTrue(ring.getFitWidth() > 0);
         assertTrue(ring.isMouseTransparent());
         assertInstanceOf(Text.class, rival.getChildren().getFirst());
         assertSame(ring, rival.getChildren().getLast());
