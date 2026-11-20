@@ -14,6 +14,7 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -73,13 +74,11 @@ public final class GameView extends BorderPane {
         game.setId("area-juego");
         game.setMinSize(0, 0);
         game.setPadding(new Insets(24));
-        Text chiqui = new Text("CHIQUI");
-        chiqui.setFill(themePanel.texto());
-        chiqui.setFont(PixelStyle.font(22, true));
-        Text chess = new Text("CHESS");
-        chess.setFill(themePanel.accent());
-        chess.setFont(PixelStyle.font(22, true));
-        title.getChildren().add(new HBox(chiqui, chess));
+        // El logo reemplaza al nombre escrito.
+        ImageView logo = Logo.create();
+        logo.setId("logo-partida");
+        logo.setFitHeight(44);
+        title.getChildren().add(logo);
         title.setAlignment(Pos.CENTER_LEFT);
         BorderPane.setMargin(title, new Insets(0, 0, 16, 0));
         game.setTop(title);
@@ -193,7 +192,7 @@ public final class GameView extends BorderPane {
     /**
      * Agrega a la cabecera los botones "Deshacer" y "Rehacer", solo si la partida lo permite. Los dos
      * jugadores pueden usarlos, por eso van en la cabecera y no en una tarjeta. Se llama antes de
-     * configurarNavegacion, así quedan a la izquierda de "Volver al menú".
+     * configureNavigation, así quedan a la izquierda de "Volver al menú".
      */
     public void configureUndo() {
         if (undo != null) throw new IllegalStateException("Deshacer ya configurado");
@@ -217,7 +216,7 @@ public final class GameView extends BorderPane {
 
     /**
      * Agrega a la cabecera el botón de silencio y el volumen. El control se comparte entre partidas, así
-     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configurarNavegacion.
+     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configureNavigation.
      */
     public void configureSound(VolumeControl control) {
         Objects.requireNonNull(control, "control");

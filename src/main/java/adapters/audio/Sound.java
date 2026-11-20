@@ -4,7 +4,7 @@ import java.util.Optional;
 
 /**
  * Cada cosa que puede sonar. El nombre de archivo es la convención para reemplazar sonidos: basta con
- * dejar, por ejemplo, {@code gol.wav} en la carpeta de un club (ver {@link CatalogoDeSonidos}).
+ * dejar, por ejemplo, {@code gol.wav} en la carpeta de un club (ver {@link SoundCatalog}).
  */
 public enum Sound {
     MOVEMENT("movimiento", false),
@@ -19,11 +19,11 @@ public enum Sound {
     WHISTLE_INITIAL("silbato-inicial", false),
     WHISTLE_FINAL("silbato-final", false),
     REWIND("rebobinar", false),
-    /** Ambiente del modo fútbol: suena en bucle y su volumen sigue a la partida (ver {@link IntensidadDeHinchada}). */
+    /** Ambiente del modo fútbol: suena en bucle y su volumen sigue a la partida (ver {@link CrowdIntensity}). */
     CROWD("hinchada", true),
     /** Al tocar una pieza propia para moverla: un clic corto y bajo (no es un evento de la partida). */
     SELECTION("seleccion", false),
-    /** Fuera de la partida: la risa del personaje al abrir el juego (ver {@link SonidosDelMenu}). */
+    /** Fuera de la partida: la risa del personaje al abrir el juego (ver {@link MenuSounds}). */
     LAUGH("risa", false),
     /** Fuera de la partida: ambiente suave en bucle mientras se eligen las opciones. */
     AMBIENT_MENU("menu", false);

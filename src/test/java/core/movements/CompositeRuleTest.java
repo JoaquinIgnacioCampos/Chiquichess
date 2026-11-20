@@ -13,7 +13,7 @@ import static doubles.Squares.pos;
 import static doubles.Squares.positions;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Se usan stubs para probar solo la "unión" de ReglaCompuesta, sin depender de reglas reales. */
+/** Se usan stubs para probar solo la "unión" de CompositeRule, sin depender de reglas reales. */
 class CompositeRuleTest {
 
     @Test

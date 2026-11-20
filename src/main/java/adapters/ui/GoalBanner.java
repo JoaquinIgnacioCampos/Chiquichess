@@ -77,9 +77,9 @@ public final class GoalBanner extends StackPane {
     /**
      * Muestra la celebración y devuelve la animación (ya iniciada). Si había otra en curso, la corta.
      *
-     * @param equipo nombre que se muestra debajo de las luces
+     * @param team nombre que se muestra debajo de las luces
      * @param color  color de las luces y del borde (el del equipo)
-     * @param escudo escudo del equipo; vacío si la partida no tiene clubes
+     * @param crest escudo del equipo; vacío si la partida no tiene clubes
      */
     public Animation celebrate(String team, Color color, Optional<Image> crest) {
         Objects.requireNonNull(team, "equipo");

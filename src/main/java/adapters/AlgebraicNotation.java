@@ -4,7 +4,7 @@ package adapters;
 
 import core.board.Position;
 
-/** Traduce entre el texto "e2" y una Posicion del núcleo (a1 = columna 0, fila 0). */
+/** Traduce entre el texto "e2" y una Position del núcleo (a1 = columna 0, fila 0). */
 public final class AlgebraicNotation {
 
     private AlgebraicNotation() {

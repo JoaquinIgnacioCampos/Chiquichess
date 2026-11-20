@@ -17,7 +17,7 @@ import java.util.Set;
  * y cómo enterarse de lo que pasa (Observer).
  *
  * Lo reciben los adaptadores que solo muestran o hacen sonar la partida: por tipo, no pueden mover
- * piezas ni terminarla. Los que además dan órdenes reciben {@link PartidaEnJuego}.
+ * piezas ni terminarla. Los que además dan órdenes reciben {@link GameInProgress}.
  */
 public interface GameQuery {
 
@@ -69,7 +69,7 @@ public interface GameQuery {
     /** true si en este momento rehacer se aceptaría. */
     boolean canRedo();
 
-    /** Suscribe un adaptador a los eventos de esta partida (ver {@link EventoDePartida}). */
+    /** Suscribe un adaptador a los eventos de esta partida (ver {@link GameEvent}). */
     void addObserver(GameObserver observer);
 
     void removeObserver(GameObserver observer);

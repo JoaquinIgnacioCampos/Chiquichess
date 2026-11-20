@@ -26,10 +26,10 @@ import java.util.Set;
  * Recibe sus colaboradores por constructor (inyección de dependencias), por lo que se puede testear
  * con cualquier tablero armado a mano. Delega en clases propias lo que no es coordinar:
  * <ul>
- *   <li>{@link ArbitroDeFinales}: si la partida terminó después de una jugada, y la memoria de las condiciones;</li>
- *   <li>{@link HistorialDeJugadas}: las jugadas hechas y deshechas;</li>
- *   <li>{@link OfertaDeTablas}: la oferta pendiente y sus reglas;</li>
- *   <li>{@link AvisosDePartida}: los observadores.</li>
+ *   <li>{@link EndingReferee}: si la partida terminó después de una jugada, y la memoria de las condiciones;</li>
+ *   <li>{@link MoveHistory}: las jugadas hechas y deshechas;</li>
+ *   <li>{@link DrawOffer}: la oferta pendiente y sus reglas;</li>
+ *   <li>{@link GameNotices}: los observadores.</li>
  * </ul>
  */
 public class Game implements GameInProgress {
@@ -53,8 +53,8 @@ public class Game implements GameInProgress {
 
     /**
      * Las reglas (movimientos legales, detector y condiciones de fin) llegan agrupadas en
-     * {@link ReglasDePartida}; el reloj pertenece a esta única partida. Para jugar sin reloj se
-     * pasa {@link Nucleo.tiempo.SinReloj}.
+     * {@link GameRules}; el reloj pertenece a esta única partida. Para jugar sin reloj se
+     * pasa {@link core.time.NoClock}.
      */
     public Game(Board board, Player whitePlayer, Player blackPlayer,
                    GameRules rules, GameClock clock) {
@@ -76,7 +76,7 @@ public class Game implements GameInProgress {
         return board;
     }
 
-    /** Suscribe un adaptador a los eventos de esta partida (ver {@link EventoDePartida}). */
+    /** Suscribe un adaptador a los eventos de esta partida (ver {@link GameEvent}). */
     public void addObserver(GameObserver observer) {
         notices.add(observer);
     }
@@ -153,7 +153,7 @@ public class Game implements GameInProgress {
      * jugada que terminó la partida (mate o tablas automáticas), pero no un final decidido por los
      * jugadores o por el reloj. Borra la oferta de tablas pendiente.
      *
-     * @throws AccionInvalidaException si la partida no permite deshacer (no se habilitó o tiene
+     * @throws InvalidActionException si la partida no permite deshacer (no se habilitó o tiene
      *                                 límite de tiempo), si terminó por rendición, acuerdo o tiempo,
      *                                 o si no hay jugadas para deshacer
      */
@@ -180,7 +180,7 @@ public class Game implements GameInProgress {
      * Vuelve a ejecutar la última jugada deshecha. Hacer una jugada nueva borra lo que se podía
      * rehacer. Borra la oferta de tablas pendiente.
      *
-     * @throws AccionInvalidaException si la partida no permite deshacer, si terminó o si no hay
+     * @throws InvalidActionException si la partida no permite deshacer, si terminó o si no hay
      *                                 jugadas para rehacer
      */
     public void redo() {
@@ -201,13 +201,13 @@ public class Game implements GameInProgress {
         notifyIfEnded();
     }
 
-    /** true si en este momento {@link #deshacer()} se aceptaría. Lo usa la UI para habilitar el botón. */
+    /** true si en este momento {@link #undo()} se aceptaría. Lo usa la UI para habilitar el botón. */
     public boolean canUndo() {
         return allowsUndo() && moveHistory.hasUndo()
                 && (result.isEmpty() || endedByMove);
     }
 
-    /** true si en este momento {@link #rehacer()} se aceptaría. */
+    /** true si en este momento {@link #redo()} se aceptaría. */
     public boolean canRedo() {
         return allowsUndo() && moveHistory.hasRedo() && !state.isFinished();
     }
@@ -312,7 +312,7 @@ public class Game implements GameInProgress {
     }
 
     /**
-     * Ejecuta el movimiento si es válido; si no, lanza MovimientoInvalidoException
+     * Ejecuta el movimiento si es válido; si no, lanza InvalidMoveException
      * y deja la partida intacta. Si el tiempo venció, registra ese final sin mover.
      */
     public MoveResult move(MoveRequest movement) {

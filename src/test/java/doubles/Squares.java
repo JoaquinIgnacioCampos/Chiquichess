@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 /**
  * Ayuda para escribir casillas como "e4" en los tests del núcleo, sin depender del adaptador
- * NotacionAlgebraica (el núcleo se prueba sin adaptadores). a1 = columna 0, fila 0.
+ * AlgebraicNotation (el núcleo se prueba sin adaptadores). a1 = columna 0, fila 0.
  */
 public final class Squares {
 

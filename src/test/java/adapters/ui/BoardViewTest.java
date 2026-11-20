@@ -14,6 +14,17 @@ import static doubles.Squares.move;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardViewTest {
+
+    /** La pelota y las marcas son imágenes: necesitan el toolkit de JavaFX iniciado, sea cual sea el orden de los tests. */
+    @org.junit.jupiter.api.BeforeAll
+    static void startJavaFx() {
+        try {
+            javafx.application.Platform.startup(() -> { });
+        } catch (IllegalStateException alreadyStarted) {
+            // otro test ya lo inició
+        }
+    }
+
     private final BoardTheme theme = new BoardTheme(
             javafx.scene.paint.Color.BEIGE, javafx.scene.paint.Color.BROWN,
             javafx.scene.paint.Color.WHITE, javafx.scene.paint.Color.BLACK,
@@ -124,6 +135,32 @@ class BoardViewTest {
     void chessClassicNotHasBall() {
         BoardView view = new BoardView(new Board(8, 8), theme, new UnicodeRepresentation());
         assertTrue(view.lookupAll(".pelota").isEmpty());
+    }
+
+    @Test
+    void chessClassicAlsoDrawsThePitchLines() {
+        BoardView view = new BoardView(new Board(8, 8), theme, new UnicodeRepresentation());
+        // La esquina de abajo a la izquierda: el costado, la línea de fondo y el lado del área grande
+        assertEquals(3, square(view, 0, 0).getBackground().getImages().size());
+        assertEquals(2, square(view, 0, 3).getBackground().getImages().size());
+    }
+
+    @Test
+    void footballBoardDrawsSidelinesAndHalfwayLineWithoutAddingNodesToTheSquare() {
+        Board board = new Board(8, 8);
+        for (int column : new int[]{3, 4}) {
+            board.markNet(new Position(column, 0), Side.WHITE);
+            board.markNet(new Position(column, 7), Side.BLACK);
+        }
+        board.place(new Position(0, 3), new Rook(Side.WHITE));
+        BoardView view = new BoardView(board, theme, new UnicodeRepresentation());
+        // Casilla del costado izquierdo, justo debajo de la línea del medio: costado y línea del medio
+        StackPane sideSquare = square(view, 0, 3);
+        assertEquals(2, sideSquare.getBackground().getImages().size());
+        // Una casilla de adentro del tablero lleva solo la línea del frente del área grande
+        assertEquals(1, square(view, 4, 2).getBackground().getImages().size());
+        // Van en el fondo: debajo de la pieza, que sigue siendo lo único que hay dentro de la casilla
+        assertEquals(1, sideSquare.getChildren().size());
     }
 
     @Test

@@ -6,20 +6,20 @@ import java.time.Duration;
  * Las tres dificultades usan el mismo buscador Minimax. Cambian en cuánto piensan y en cuánto se
  * pueden equivocar:
  *
- * @param profundidadMaxima cuántas jugadas hacia adelante mira, como máximo (la suya, la del rival...)
- * @param tiempoDeCalculo   cuánto puede pensar; se queda con la búsqueda más profunda que terminó a tiempo
- * @param ruido             error en centésimos de peón que se suma al azar al puntaje de cada jugada:
+ * @param depthMaximum cuántas jugadas hacia adelante mira, como máximo (la suya, la del rival...)
+ * @param calculationTime   cuánto puede pensar; se queda con la búsqueda más profunda que terminó a tiempo
+ * @param noise             error en centésimos de peón que se suma al azar al puntaje de cada jugada:
  *                          con 150 puede elegir una jugada hasta un peón y medio peor que la mejor, pero
  *                          nunca regala una pieza que vio
- * @param conQuietud        si al llegar al límite sigue mirando los cambios de piezas en curso, para no
+ * @param withStillness        si al llegar al límite sigue mirando los cambios de piezas en curso, para no
  *                          cortar el análisis en medio de una captura (lo que haría un buen jugador)
- * @param descuido          probabilidad de distraerse en una jugada: juega cualquiera de sus jugadas que
+ * @param oversight          probabilidad de distraerse en una jugada: juega cualquiera de sus jugadas que
  *                          no le den mate en 1, sin pensar cuál conviene (como un principiante)
- * @param respuestaMinima   lo que tarda en responder, como una persona de ese nivel, en una jugada común:
- *                          entre este mínimo y {@code respuestaMaxima} (ver {@link RitmoHumano})
- * @param respuestaMaxima   lo más que tarda en una jugada común
- * @param calculaMientrasEspera si usa todo el tiempo de respuesta para calcular (mira más hondo) en
- *                          lugar de calcular {@code tiempoDeCalculo} y esperar el resto
+ * @param responseMinimum   lo que tarda en responder, como una persona de ese nivel, en una jugada común:
+ *                          entre este mínimo y {@code responseMaximum} (ver {@link HumanRhythm})
+ * @param responseMaximum   lo más que tarda en una jugada común
+ * @param calculatesWhileWaits si usa todo el tiempo de respuesta para calcular (mira más hondo) en
+ *                          lugar de calcular {@code calculationTime} y esperar el resto
  */
 public enum Difficulty {
     /**

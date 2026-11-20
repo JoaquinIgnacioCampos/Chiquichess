@@ -311,7 +311,12 @@ public final class GameMenuView extends GridPane {
         character.setAccessibleText("Personaje de ChiquiChess");
         Text caption = texto("Elegí tu equipo.\nJugá tu clásico.", 22, theme.texto(), true);
         caption.wrappingWidthProperty().bind(javafx.beans.binding.Bindings.max(1, widthProperty().multiply(.4).subtract(64)));
-        VBox cover = new VBox(14, title("CHIQUICHESS", 30), title("AJEDREZ ARGENTINO", 12), character, caption);
+        // El logo reemplaza al nombre escrito; se achica con la columna y no pasa de cierto ancho.
+        ImageView logo = Logo.create();
+        logo.setId("logo-menu");
+        logo.fitWidthProperty().bind(javafx.beans.binding.Bindings.max(1,
+                javafx.beans.binding.Bindings.min(360, widthProperty().multiply(.4).subtract(56))));
+        VBox cover = new VBox(14, logo, title("AJEDREZ ARGENTINO", 12), character, caption);
         cover.setId("portada-menu");
         cover.setPadding(new Insets(28, 28, 24, 28));
         cover.setMinWidth(0);

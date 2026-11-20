@@ -20,7 +20,7 @@ import java.util.function.Function;
  * Promoción: el peón que llega a la última fila se convierte en otra pieza de su bando.
  *
  * No suma jugadas nuevas: transforma cada jugada de un peón que termina en la última fila (avance
- * o captura) en una variante por cada pieza posible, agregándole un {@link Reemplazo}. Así el peón ya
+ * o captura) en una variante por cada pieza posible, agregándole un {@link Replacement}. Así el peón ya
  * no puede quedarse como peón en la última fila. La primera opción es la que se usa si el jugador no
  * elige (la dama, en el ajedrez clásico).
  */
@@ -33,7 +33,7 @@ public class Promotion implements SpecialRule {
         this(List.of(Queen::new, Rook::new, Bishop::new, Knight::new));
     }
 
-    /** @param opciones fábricas de las piezas a las que se puede promover; la primera es la elección por defecto */
+    /** @param options fábricas de las piezas a las que se puede promover; la primera es la elección por defecto */
     public Promotion(List<Function<Side, Piece>> options) {
         this.options = List.copyOf(Objects.requireNonNull(options, "opciones"));
         if (this.options.isEmpty()) {

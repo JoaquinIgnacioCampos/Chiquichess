@@ -6,7 +6,7 @@ import core.movements.BaseRules;
 
 /**
  * Rey = torre + alfil limitados a 1 paso. Que no pueda moverse a una casilla atacada
- * no se resuelve acá sino en la validación de la Partida (no se permite dejar al propio rey en jaque).
+ * no se resuelve acá sino en la validación de la Game (no se permite dejar al propio rey en jaque).
  */
 public class King extends Piece {
 

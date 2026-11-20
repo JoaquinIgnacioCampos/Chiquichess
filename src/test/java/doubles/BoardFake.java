@@ -11,7 +11,7 @@ import core.board.Board;
  * La primera línea es la fila de arriba (la 8 en un tablero estándar), igual que en pantalla.
  *
  * <pre>
- * TableroFake.desde(
+ * BoardFake.from(
  *     "....r...",   // fila 8
  *     "........",
  *     ...

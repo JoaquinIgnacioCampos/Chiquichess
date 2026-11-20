@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Hace con una condición con memoria lo mismo que Partida: registra la posición inicial y después
+ * Hace con una condición con memoria lo mismo que Game: registra la posición inicial y después
  * cada jugada. Las jugadas se aplican de verdad sobre el tablero (empiezan las blancas).
  */
 public final class RecordOfMoves {

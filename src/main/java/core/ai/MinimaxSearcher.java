@@ -39,7 +39,7 @@ import java.util.Random;
  *       pierde, lo demora lo más posible.</li>
  * </ul>
  *
- * Trabaja sobre la copia del tablero de la {@link SituacionDePartida}: aplica y deshace jugadas con
+ * Trabaja sobre la copia del tablero de la {@link GameSituation}: aplica y deshace jugadas con
  * sus efectos, sin tocar la partida. Una instancia sirve para una sola búsqueda.
  */
 final class MinimaxSearcher {
@@ -87,11 +87,11 @@ final class MinimaxSearcher {
     }
 
     /**
-     * Puntúa las jugadas de {@code turno}. Las que pueden quedar a menos de {@code margen} de la mejor
+     * Puntúa las jugadas de {@code turn}. Las que pueden quedar a menos de {@code margin} de la mejor
      * tienen su puntaje exacto; las demás, una cota (son peores que la mejor por más que el margen).
      * Vacío si no hay jugadas legales.
      *
-     * @param azar mezcla las jugadas antes de ordenarlas, para que entre iguales no elija siempre la misma
+     * @param chance mezcla las jugadas antes de ordenarlas, para que entre iguales no elija siempre la misma
      */
     List<MoveEvaluated> search(Side turn, int depthMaximum, Duration time, int margin, Random chance) {
         limit = clock.nowInNanos() + time.toNanos();

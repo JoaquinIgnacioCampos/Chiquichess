@@ -19,7 +19,7 @@ import java.util.Optional;
  *   <li>el común en la carpeta externa ({@code sonidos/comunes/gol.wav}),</li>
  *   <li>el común dentro del programa,</li>
  * </ol>
- * y si no hay ninguno, prueba con el {@link Sonido#alternativo() alternativo}. Si tampoco, ese sonido no
+ * y si no hay ninguno, prueba con el {@link Sound#alternative() alternativo}. Si tampoco, ese sonido no
  * suena: la partida se juega igual.
  *
  * La carpeta externa permite cambiar sonidos sin tocar el código ni recompilar.

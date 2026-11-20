@@ -18,12 +18,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.effect.DropShadow;
 import javafx.util.Duration;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -44,10 +44,22 @@ import java.util.function.Consumer;
  * propiedades que sobreviven a los redibujos, así un clic a mitad de camino no la corta.
  */
 public final class BoardView extends Region {
+    /** Cuánto se nota el pasto sobre el color de la casilla: más bajo, más se mezcla con el tablero. */
+    private static final double GRASS_OPACITY = 0.6;
     private static final Duration SLIDE = Duration.millis(280);
     private static final Duration BURST = Duration.millis(320);
     private static final Interpolator SOFT = Interpolator.SPLINE(0.3, 0.1, 0.25, 1);
     private final IBoard board;
+    /** El pasto en blancos para pintar las líneas de la cancha (ver {@link #whitened}); null sin textura. */
+    private final javafx.scene.image.Image chalkImage;
+    /** Pintura de los hilos de la red: el mismo pasto en blancos, o blanco liso sin textura. */
+    private final javafx.scene.paint.Paint chalk;
+    /** Líneas de la cancha: van en todos los modos. */
+    private final PitchMarkings pitch;
+    /** Grosor, en píxeles, de las líneas de la cancha. */
+    private static final double LINE = 4;
+    /** Qué tan oscuro queda lo más oscuro del pasto en las líneas (1 es blanco pleno): más bajo, más se nota la trama. */
+    private static final double CHALK_DARKEST = 0.5;
     private final BoardTheme theme;
     private final PieceRepresentation representation;
     private final GridPane grid = new GridPane();
@@ -99,6 +111,9 @@ public final class BoardView extends Region {
                         Consumer<Position> onPress) {
         this.board = Objects.requireNonNull(board, "tablero");
         this.theme = Objects.requireNonNull(theme, "tema");
+        this.chalkImage = theme.texture() == null ? null : whitened(theme.texture());
+        this.chalk = chalkImage == null ? Color.WHITE : new javafx.scene.paint.ImagePattern(chalkImage);
+        this.pitch = PitchMarkings.of(board);
         this.representation = Objects.requireNonNull(representation, "representacion");
         this.onPress = Objects.requireNonNull(onPress, "alPulsar");
         setMinSize(0, 0);
@@ -212,11 +227,12 @@ public final class BoardView extends Region {
             ImageView grass = new ImageView(theme.texture());
             grass.setManaged(false);
             grass.setMouseTransparent(true);
-            grass.setOpacity(selected ? 0.15 : 0.28);
+            grass.setOpacity(selected ? 0.15 : GRASS_OPACITY);
             grass.fitWidthProperty().bind(square.widthProperty());
             grass.fitHeightProperty().bind(square.heightProperty());
             square.getChildren().add(grass);
         }
+        addPitchLines(square, position, pitch);
         square.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
                 onPress.accept(position);
@@ -279,31 +295,143 @@ public final class BoardView extends Region {
         net.setMinSize(0, 0);
         net.setBackground(new Background(new BackgroundFill(
                 javafx.scene.paint.Color.web("#FFFFFF", 0.30), CornerRadii.EMPTY, Insets.EMPTY)));
-        // La línea de gol va del lado del borde que se ve, según hacia dónde esté girado el tablero.
-        int topRow = down == core.side.Side.WHITE ? board.height() - 1 : 0;
-        boolean up = position.row() == topRow;
-        double thickness = 5;
-        net.setBorder(new Border(new BorderStroke(javafx.scene.paint.Color.WHITE, BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, new BorderWidths(up ? thickness : 0, 0, up ? 0 : thickness, 0))));
-        javafx.scene.paint.Color thread = javafx.scene.paint.Color.web("#FFFFFF", 0.55);
+        // Los hilos son franjas finas pintadas con la tiza (el pasto en blancos); la línea de gol es la de fondo.
         for (int i = 1; i < 4; i++) {
             double fraction = i / 4.0;
-            javafx.scene.shape.Line vertical = new javafx.scene.shape.Line();
-            vertical.startXProperty().bind(net.widthProperty().multiply(fraction));
-            vertical.endXProperty().bind(net.widthProperty().multiply(fraction));
-            vertical.endYProperty().bind(net.heightProperty());
-            javafx.scene.shape.Line horizontal = new javafx.scene.shape.Line();
-            horizontal.startYProperty().bind(net.heightProperty().multiply(fraction));
-            horizontal.endYProperty().bind(net.heightProperty().multiply(fraction));
-            horizontal.endXProperty().bind(net.widthProperty());
-            for (javafx.scene.shape.Line line : new javafx.scene.shape.Line[]{vertical, horizontal}) {
-                line.setStroke(thread);
-                line.setStrokeWidth(1);
-                line.setManaged(false);
-                net.getChildren().add(line);
+            javafx.scene.shape.Rectangle vertical = new javafx.scene.shape.Rectangle();
+            vertical.setWidth(1);
+            vertical.xProperty().bind(net.widthProperty().multiply(fraction));
+            vertical.heightProperty().bind(net.heightProperty());
+            javafx.scene.shape.Rectangle horizontal = new javafx.scene.shape.Rectangle();
+            horizontal.setHeight(1);
+            horizontal.yProperty().bind(net.heightProperty().multiply(fraction));
+            horizontal.widthProperty().bind(net.widthProperty());
+            for (javafx.scene.shape.Rectangle thread : new javafx.scene.shape.Rectangle[]{vertical, horizontal}) {
+                thread.setFill(chalk);
+                thread.setOpacity(0.8);
+                thread.setManaged(false);
+                net.getChildren().add(thread);
             }
         }
         square.getChildren().add(net);
+    }
+
+    /**
+     * Líneas de la cancha en esta casilla: las que pasan por sus bordes. Un borde compartido con otra casilla
+     * lleva la mitad de la línea de cada lado (así queda una sola, entera); un borde del tablero, la línea entera.
+     * Van debajo de las piezas. Con textura, la línea es el pasto mismo de ese lugar pintado de blanco (se ven
+     * las mismas hojas); sin textura, una franja blanca lisa.
+     */
+    private void addPitchLines(StackPane square, Position position, PitchMarkings markings) {
+        int column = position.column();
+        int row = position.row();
+        boolean flipped = down != core.side.Side.WHITE;
+        // Bordes del modelo; si el tablero está girado, arriba/abajo e izquierda/derecha se intercambian en pantalla.
+        boolean modelUp = markings.horizontal(row + 1, column);
+        boolean modelDown = markings.horizontal(row, column);
+        boolean modelLeft = markings.vertical(column, row);
+        boolean modelRight = markings.vertical(column + 1, row);
+        double upThickness = row + 1 == board.height() ? LINE : LINE / 2;
+        double downThickness = row == 0 ? LINE : LINE / 2;
+        double leftThickness = column == 0 ? LINE : LINE / 2;
+        double rightThickness = column + 1 == board.width() ? LINE : LINE / 2;
+        if (!(modelUp || modelDown || modelLeft || modelRight)) return;
+        if (chalkImage == null) {
+            // Sin textura: franjas blancas lisas, como imágenes del fondo (no suman nada a la casilla).
+            List<BackgroundImage> lines = new ArrayList<>(square.getBackground().getImages());
+            if (modelUp) lines.add(whiteStrip(true, !flipped, upThickness));
+            if (modelDown) lines.add(whiteStrip(true, flipped, downThickness));
+            if (modelLeft) lines.add(whiteStrip(false, !flipped, leftThickness));
+            if (modelRight) lines.add(whiteStrip(false, flipped, rightThickness));
+            square.setBackground(new Background(square.getBackground().getFills(), lines));
+            return;
+        }
+        List<javafx.scene.shape.Rectangle> strips = new ArrayList<>();
+        if (modelUp) strips.add(strip(square, true, !flipped, upThickness));
+        if (modelDown) strips.add(strip(square, true, flipped, downThickness));
+        if (modelLeft) strips.add(strip(square, false, !flipped, leftThickness));
+        if (modelRight) strips.add(strip(square, false, flipped, rightThickness));
+        // El mismo pasto del tablero, en blancos y a la misma escala que el de la casilla: queda alineado con las
+        // hojas de abajo. Solo se ve en las franjas de las líneas.
+        ImageView paint = new ImageView(chalkImage);
+        paint.getStyleClass().add("linea-cancha");
+        paint.setManaged(false);
+        paint.setMouseTransparent(true);
+        paint.fitWidthProperty().bind(square.widthProperty());
+        paint.fitHeightProperty().bind(square.heightProperty());
+        paint.setClip(new Group(strips.toArray(new javafx.scene.shape.Rectangle[0])));
+        square.getChildren().add(paint);
+    }
+
+    private static javafx.scene.image.Image white;
+
+    /** Una franja blanca lisa pegada a un borde de la casilla, como imagen de fondo: ocupa todo el largo del borde. */
+    private static BackgroundImage whiteStrip(boolean horizontal, boolean atStart, double thickness) {
+        if (white == null) {
+            javafx.scene.image.WritableImage pixel = new javafx.scene.image.WritableImage(1, 1);
+            pixel.getPixelWriter().setColor(0, 0, Color.WHITE);
+            white = pixel;
+        }
+        BackgroundSize size = horizontal ? new BackgroundSize(1.0, thickness, true, false, false, false)
+                : new BackgroundSize(thickness, 1.0, false, true, false, false);
+        BackgroundPosition position = horizontal
+                ? new BackgroundPosition(javafx.geometry.Side.LEFT, 0, false,
+                        atStart ? javafx.geometry.Side.TOP : javafx.geometry.Side.BOTTOM, 0, false)
+                : new BackgroundPosition(atStart ? javafx.geometry.Side.LEFT : javafx.geometry.Side.RIGHT, 0, false,
+                        javafx.geometry.Side.TOP, 0, false);
+        return new BackgroundImage(white, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, position, size);
+    }
+
+    /** Una franja pegada a un borde de la casilla: horizontal o vertical, al comienzo o al final. */
+    private static javafx.scene.shape.Rectangle strip(StackPane square, boolean horizontal, boolean atStart, double thickness) {
+        javafx.scene.shape.Rectangle strip = new javafx.scene.shape.Rectangle();
+        if (horizontal) {
+            strip.setHeight(thickness);
+            strip.widthProperty().bind(square.widthProperty());
+            strip.yProperty().bind(atStart ? square.heightProperty().multiply(0) : square.heightProperty().subtract(thickness));
+        } else {
+            strip.setWidth(thickness);
+            strip.heightProperty().bind(square.heightProperty());
+            strip.xProperty().bind(atStart ? square.widthProperty().multiply(0) : square.widthProperty().subtract(thickness));
+        }
+        return strip;
+    }
+
+    private static final Map<javafx.scene.image.Image, javafx.scene.image.Image> CHALK_CACHE = new java.util.WeakHashMap<>();
+
+    /**
+     * El pasto pasado a blancos, píxel a píxel: lo más oscuro del pasto queda en un blanco algo apagado y lo más
+     * claro en blanco pleno, con un leve tinte verdoso. Conserva toda la trama de hojas, así una línea pintada con
+     * esta imagen se ve como el césped mismo pintado de blanco, no como una barra lisa.
+     */
+    private static javafx.scene.image.Image whitened(javafx.scene.image.Image grass) {
+        return CHALK_CACHE.computeIfAbsent(grass, g -> {
+            int width = (int) g.getWidth();
+            int height = (int) g.getHeight();
+            int[] pixels = new int[width * height];
+            g.getPixelReader().getPixels(0, 0, width, height, javafx.scene.image.PixelFormat.getIntArgbInstance(),
+                    pixels, 0, width);
+            double[] light = new double[pixels.length];
+            double min = 1;
+            double max = 0;
+            for (int i = 0; i < pixels.length; i++) {
+                int p = pixels[i];
+                double l = (0.299 * ((p >> 16) & 255) + 0.587 * ((p >> 8) & 255) + 0.114 * (p & 255)) / 255;
+                light[i] = l;
+                min = Math.min(min, l);
+                max = Math.max(max, l);
+            }
+            double span = Math.max(1e-6, max - min);
+            for (int i = 0; i < pixels.length; i++) {
+                double v = CHALK_DARKEST + (1 - CHALK_DARKEST) * (light[i] - min) / span;
+                pixels[i] = 0xFF000000 | ((int) Math.round(255 * 0.97 * v) << 16)
+                        | ((int) Math.round(255 * 0.99 * v) << 8) | (int) Math.round(255 * 0.93 * v);
+            }
+            javafx.scene.image.WritableImage chalk = new javafx.scene.image.WritableImage(width, height);
+            chalk.getPixelWriter().setPixels(0, 0, width, height, javafx.scene.image.PixelFormat.getIntArgbInstance(),
+                    pixels, 0, width);
+            return chalk;
+        });
     }
 
     /**
@@ -311,19 +439,9 @@ public final class BoardView extends Region {
      * chica en la esquina de abajo a la derecha, para que la pieza se siga viendo.
      */
     private void addBall(StackPane square, boolean withPiece) {
-        Circle ball = new Circle();
+        ImageView ball = marker(PixelMarkers.ball(), square, withPiece ? 0.80 : 0.5, withPiece ? 0.26 : 0.44);
         ball.setId("pelota");
         ball.getStyleClass().add("pelota");
-        ball.setManaged(false);
-        ball.setMouseTransparent(true);
-        var side = Bindings.min(square.widthProperty(), square.heightProperty());
-        ball.radiusProperty().bind(side.multiply(withPiece ? 0.13 : 0.22));
-        double position = withPiece ? 0.80 : 0.5;
-        ball.centerXProperty().bind(square.widthProperty().multiply(position));
-        ball.centerYProperty().bind(square.heightProperty().multiply(position));
-        ball.setFill(javafx.scene.paint.Color.WHITE);
-        ball.setStroke(javafx.scene.paint.Color.web("#1b1b1b"));
-        ball.strokeWidthProperty().bind(side.multiply(0.035));
         if (pathBall != null) bindOffset(ball, square, pathBall);
         square.getChildren().add(ball);
     }
@@ -501,38 +619,34 @@ public final class BoardView extends Region {
 
     /** Destino de un pase (modo fútbol): un anillo blanco punteado, distinto del de captura. */
     private void addPassIndicator(StackPane square) {
-        Circle indicator = new Circle();
-        indicator.setManaged(false);
-        indicator.setMouseTransparent(true);
+        ImageView indicator = marker(PixelMarkers.passRing(), square, 0.5, 0.84);
         indicator.getStyleClass().add("indicador-pase");
-        indicator.centerXProperty().bind(square.widthProperty().divide(2));
-        indicator.centerYProperty().bind(square.heightProperty().divide(2));
-        var side = Bindings.min(square.widthProperty(), square.heightProperty());
-        indicator.radiusProperty().bind(side.multiply(0.42));
-        indicator.setFill(null);
-        indicator.setStroke(javafx.scene.paint.Color.WHITE);
-        indicator.strokeWidthProperty().bind(side.multiply(0.06));
-        indicator.getStrokeDashArray().addAll(10.0, 9.0);
         square.getChildren().add(indicator);
     }
 
-    private void addIndicator(StackPane square, boolean capture) {
-        Circle indicator = new Circle();
-        indicator.setManaged(false);
-        indicator.setMouseTransparent(true);
-        indicator.centerXProperty().bind(square.widthProperty().divide(2));
-        indicator.centerYProperty().bind(square.heightProperty().divide(2));
+    /**
+     * Una marca en pixel art centrada a {@code fraction} de la casilla (0,5 es el centro), cuyo lado mide
+     * {@code diameter} veces el de la casilla. Se agranda sin suavizar para que se vean los píxeles.
+     */
+    private static ImageView marker(javafx.scene.image.Image image, StackPane square, double fraction, double diameter) {
+        ImageView marker = new ImageView(image);
         var side = Bindings.min(square.widthProperty(), square.heightProperty());
-        indicator.radiusProperty().bind(side.multiply(capture ? 0.43 : 0.16));
-        if (capture) {
-            indicator.getStyleClass().add("indicador-captura");
-            indicator.setFill(null);
-            indicator.setStroke(theme.destinationCapture());
-            indicator.strokeWidthProperty().bind(side.multiply(0.08));
-        } else {
-            indicator.getStyleClass().add("indicador-movimiento");
-            indicator.setFill(theme.destinationFree());
-        }
+        marker.setPreserveRatio(true);
+        marker.setSmooth(false);
+        marker.setManaged(false);
+        marker.setMouseTransparent(true);
+        marker.fitWidthProperty().bind(side.multiply(diameter));
+        marker.fitHeightProperty().bind(side.multiply(diameter));
+        marker.layoutXProperty().bind(square.widthProperty().multiply(fraction).subtract(side.multiply(diameter / 2)));
+        marker.layoutYProperty().bind(square.heightProperty().multiply(fraction).subtract(side.multiply(diameter / 2)));
+        return marker;
+    }
+
+    private void addIndicator(StackPane square, boolean capture) {
+        ImageView indicator = capture
+                ? marker(PixelMarkers.captureRing(theme.destinationCapture()), square, 0.5, 0.86)
+                : marker(PixelMarkers.dot(theme.destinationFree()), square, 0.5, 0.32);
+        indicator.getStyleClass().add(capture ? "indicador-captura" : "indicador-movimiento");
         square.getChildren().add(indicator);
     }
 

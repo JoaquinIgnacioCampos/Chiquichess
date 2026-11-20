@@ -9,7 +9,7 @@ import java.util.Optional;
 
 /**
  * Vista de solo lectura del tablero. Las reglas de movimiento, el detector de jaque
- * y los adaptadores de salida dependen de esta interfaz y no del Tablero concreto
+ * y los adaptadores de salida dependen de esta interfaz y no del Board concreto
  * (Principio de Segregación de Interfaces e Inversión de Dependencias).
  */
 public interface IBoard {

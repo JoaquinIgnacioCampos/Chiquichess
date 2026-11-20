@@ -16,11 +16,11 @@ import java.util.Optional;
  * Incluye todas las jugadas ejecutadas para que las condiciones calculen su resultado a partir del
  * historial en lugar de llevar contadores propios: así siguen siendo correctas si se deshace una jugada.
  *
- * @param tablero                 tablero ya actualizado (solo lectura)
- * @param turno                   bando que debe jugar a continuación
- * @param jugadas                 jugadas ejecutadas en la partida, en orden; vacía en la evaluación inicial
- * @param enJaque                 true si el rey de quien tiene el turno está en jaque
- * @param tieneMovimientosLegales true si quien tiene el turno puede hacer al menos una jugada legal
+ * @param board                 tablero ya actualizado (solo lectura)
+ * @param turn                   bando que debe jugar a continuación
+ * @param moves                 jugadas ejecutadas en la partida, en orden; vacía en la evaluación inicial
+ * @param inCheck                 true si el rey de quien tiene el turno está en jaque
+ * @param hasMovementsLegal true si quien tiene el turno puede hacer al menos una jugada legal
  */
 public record MoveContext(
         IBoard board,

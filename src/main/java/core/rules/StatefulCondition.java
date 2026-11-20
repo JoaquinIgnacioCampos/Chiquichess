@@ -4,10 +4,10 @@ package core.rules;
  * Condición de fin que lleva estado propio para responder rápido (por ejemplo, un contador),
  * con la posibilidad de volver atrás mediante el patrón Memento.
  *
- * Partida llama a {@link #registrar} para todas las condiciones con memoria una vez al crear la
+ * Partida llama a {@link #register} para todas las condiciones con memoria una vez al crear la
  * partida y una vez después de cada jugada, antes de evaluar ninguna. Así todas anotan cada jugada
- * aunque otra condición anterior termine la partida. Para deshacer, Partida devuelve los recuerdos
- * en orden inverso con {@link #restaurar}.
+ * aunque otra condición anterior termine la partida. Para deshacer, Game devuelve los recuerdos
+ * en orden inverso con {@link #restore}.
  *
  * Como guarda estado, una instancia pertenece a una sola partida.
  */

@@ -33,7 +33,7 @@ public class MockConditionWithMemory implements StatefulCondition {
         return List.copyOf(delivered);
     }
 
-    /** Recuerdos que Partida le devolvió para restaurar, en orden. */
+    /** Recuerdos que Game le devolvió para restaurar, en orden. */
     public List<Memento> restored() {
         return List.copyOf(restored);
     }

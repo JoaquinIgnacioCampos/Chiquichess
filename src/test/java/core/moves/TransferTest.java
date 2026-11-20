@@ -61,7 +61,7 @@ class TransferTest {
 
     @Test
     void ifDestinationIsOccupiedNotPlaysBoard() {
-        // Arrange: las capturas se modelan con un Retiro previo, no pisando la pieza
+        // Arrange: las capturas se modelan con un Removal previo, no pisando la pieza
         Board board = BoardFake.withAPiece("a1", rook);
         board.place(pos("a5"), new Rook(Side.BLACK));
         Map<Position, Piece> before = new HashMap<>(board.pieces());

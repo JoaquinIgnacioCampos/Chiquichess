@@ -11,7 +11,7 @@ import java.util.Optional;
  * Goles de cada bando en el modo fútbol.
  *
  * No se lleva un contador: se cuenta en las jugadas ejecutadas, que ya guardan si fueron gol (ver
- * {@link Nucleo.jugadas.MoverPelota}). Así el marcador siempre coincide con el historial, también
+ * {@link core.moves.MoveBall}). Así el marcador siempre coincide con el historial, también
  * después de deshacer o rehacer un gol, sin necesidad de un Memento propio.
  */
 public record Scoreboard(int white, int black) {

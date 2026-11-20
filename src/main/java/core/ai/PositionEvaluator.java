@@ -19,10 +19,10 @@ import java.util.Optional;
  * dicen las condiciones de fin de las reglas.
  *
  * <ul>
- *   <li><b>Material:</b> el {@link Pieza#valor()} que declara cada pieza (peón 100 … dama 900).</li>
- *   <li><b>Posición:</b> las piezas menores (las que valen hasta {@link #PIEZA_MENOR}, como caballos y
+ *   <li><b>Material:</b> el {@link Piece#value()} que declara cada pieza (peón 100 … dama 900).</li>
+ *   <li><b>Posición:</b> las piezas menores (las que valen hasta {@link #PIECE_SMALLER}, como caballos y
  *       alfiles) y los peones valen un poco más cerca del centro; los peones, también a medida que avanzan.</li>
- *   <li><b>Fútbol</b> (si hay pelota): cada gol de diferencia vale {@link #VALOR_GOL}, más que una
+ *   <li><b>Fútbol</b> (si hay pelota): cada gol de diferencia vale {@link #VALUE_GOAL}, más que una
  *       dama; tener la pelota suma, y más cuanto más cerca está del arco rival.</li>
  * </ul>
  */
@@ -47,7 +47,7 @@ public final class PositionEvaluator {
         }
     }
 
-    /** Puntaje de la posición para {@code bando}: positivo si le conviene, negativo si no. */
+    /** Puntaje de la posición para {@code side}: positivo si le conviene, negativo si no. */
     public int evaluate(IBoard board, Side side, List<Move> moves) {
         int white = 0;
         for (Map.Entry<Position, Piece> input : board.pieces().entrySet()) {

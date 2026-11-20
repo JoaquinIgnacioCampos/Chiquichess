@@ -164,7 +164,7 @@ class ConsoleGameTest {
         assertEquals(4, game.history().size());
     }
 
-    // ---------------- Modo fútbol ----------------
+    // ---------------- Mode fútbol ----------------
 
     @Test
     void inModeFootballShowsBallScoreboardAndGoal() throws IOException {

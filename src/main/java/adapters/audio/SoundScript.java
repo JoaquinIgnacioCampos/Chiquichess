@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 public final class SoundScript {
 
-    /** Un sonido que hay que tocar; {@code bando} dice de qué hinchada es, para los sonidos propios de cada club. */
+    /** Un sonido que hay que tocar; {@code side} dice de qué hinchada es, para los sonidos propios de cada club. */
     public record Cue(Sound sound, Optional<Side> side) {
         public Cue {
             Objects.requireNonNull(sound, "sonido");
@@ -39,7 +39,7 @@ public final class SoundScript {
 
     private final boolean football;
 
-    /** @param futbol si la partida es del modo fútbol (silbato final y hinchada) */
+    /** @param football si la partida es del modo fútbol (silbato final y hinchada) */
     public SoundScript(boolean football) {
         this.football = football;
     }

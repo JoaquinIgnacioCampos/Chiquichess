@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public final class SpriteCatalog {
     private static final Map<Character, String> FILES = Map.of(
-            'R', "rey", 'D', "reina", 'T', "torre", 'A', "alfil", 'C', "caballo", 'P', "peon");
+            'R', "king", 'D', "queen", 'T', "rook", 'A', "bishop", 'C', "knight", 'P', "pawn");
 
     private final String folder;
     private final Map<String, Optional<Image>> loadedItems = new HashMap<>();
@@ -35,7 +35,7 @@ public final class SpriteCatalog {
         Objects.requireNonNull(side, "bando");
         String piece = FILES.get(code);
         if (piece == null) return Optional.empty();
-        String file = piece + "-" + (side == Side.WHITE ? "blanco" : "negro") + ".png";
+        String file = piece + "-" + (side == Side.WHITE ? "white" : "black") + ".png";
         return loadedItems.computeIfAbsent(file, this::load);
     }
 
