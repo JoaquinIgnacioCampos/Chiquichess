@@ -10,12 +10,12 @@ import java.util.Objects;
 /**
  * Jugadas ejecutadas y jugadas deshechas de una partida.
  *
- * Es el lugar donde Partida guarda los Command (cada {@link Jugada}) y, junto a cada uno, los
+ * Es el lugar donde Game guarda los Command (cada {@link Move}) y, junto a cada uno, los
  * recuerdos de las condiciones con memoria (Memento). Con dos pilas: deshacer pasa la última jugada
  * de "hechas" a "deshechas" y rehacer la devuelve. Una jugada nueva borra las deshechas, porque la
  * partida tomó otro camino.
  *
- * No aplica ni revierte nada: eso lo coordina Partida, que es quien conoce el tablero y las reglas.
+ * No aplica ni revierte nada: eso lo coordina Game, que es quien conoce el tablero y las reglas.
  */
 final class MoveHistory {
 
@@ -66,7 +66,7 @@ final class MoveHistory {
         return last;
     }
 
-    /** Próxima jugada para rehacer; se confirma con {@link #confirmarRehecha}. */
+    /** Próxima jugada para rehacer; se confirma con {@link #confirmRedone}. */
     Move nextToRedo() {
         if (undone.isEmpty()) {
             throw new IllegalStateException("No hay jugadas para rehacer");

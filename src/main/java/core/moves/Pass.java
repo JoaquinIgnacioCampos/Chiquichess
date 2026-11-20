@@ -11,7 +11,7 @@ import java.util.Objects;
  * mueven; al revertir, la pelota vuelve a quien pasó.
  *
  * Verifica que las dos piezas sigan en su lugar, así un pase no se puede aplicar sobre otra
- * posición. Si el pase termina en gol, la jugada le suma después un {@link MoverPelota} al saque.
+ * posición. Si el pase termina en gol, la jugada le suma después un {@link MoveBall} al saque.
  */
 public record Pass(Piece passer, Position from, Piece receiver, Position toward) implements Effect {
 

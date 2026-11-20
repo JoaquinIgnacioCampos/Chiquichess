@@ -8,7 +8,7 @@ import core.board.Board;
 
 import java.util.List;
 
-/** Atajos para armar un ContextoDeJugada en los tests de las condiciones de finalización. */
+/** Atajos para armar un MoveContext en los tests de las condiciones de finalización. */
 public final class Contexts {
 
     private Contexts() {

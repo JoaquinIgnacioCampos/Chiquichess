@@ -16,11 +16,11 @@ import java.util.Optional;
 
 /**
  * Adaptador de sonido de una partida: escucha sus eventos (Observer), le pregunta al
- * {@link GuionDeSonidos} qué tiene que sonar, busca el archivo del club que corresponda en el
- * {@link CatalogoDeSonidos} y se lo pasa al {@link ReproductorDeAudio}.
+ * {@link SoundScript} qué tiene que sonar, busca el archivo del club que corresponda en el
+ * {@link SoundCatalog} y se lo pasa al {@link AudioPlayer}.
  *
  * En el modo fútbol mantiene además las dos hinchadas sonando en bucle, con el volumen que da
- * {@link IntensidadDeHinchada} después de cada evento. Cuando la partida termina, las hinchadas se
+ * {@link CrowdIntensity} después de cada evento. Cuando la partida termina, las hinchadas se
  * callan y queda el sonido del final; si se deshace ese final, vuelven.
  */
 public final class GameSounds implements GameObserver, AutoCloseable {
@@ -55,7 +55,7 @@ public final class GameSounds implements GameObserver, AutoCloseable {
      * Engancha el sonido a la partida: la escucha desde ahora, toca lo que suena al empezar y, en el
      * modo fútbol, pone a cantar a las hinchadas. Cerrarlo lo desengancha.
      *
-     * @param equipos el club de cada bando, para los sonidos propios de cada uno
+     * @param teams el club de cada bando, para los sonidos propios de cada uno
      */
     public static GameSounds connect(GameQuery game, SoundCatalog catalog, AudioPlayer player,
                                             Map<Side, Team> teams, VolumeControl control, boolean football) {

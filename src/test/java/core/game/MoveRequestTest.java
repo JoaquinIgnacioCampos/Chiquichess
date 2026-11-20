@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Tests de los value objects simples del paquete juego (Movimiento, Jugador, excepción). */
+/** Tests de los value objects simples del paquete juego (MoveRequest, Player, excepción). */
 class MoveRequestTest {
 
     @Test

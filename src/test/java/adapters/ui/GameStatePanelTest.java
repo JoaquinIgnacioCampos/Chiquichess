@@ -202,7 +202,7 @@ class GameStatePanelTest {
         }
     }
 
-    // ---------------- Modo fútbol ----------------
+    // ---------------- Mode fútbol ----------------
 
     /** Torre blanca con la pelota en d2, a un movimiento del gol en d8. */
     private Game footballWithRookInD2() {

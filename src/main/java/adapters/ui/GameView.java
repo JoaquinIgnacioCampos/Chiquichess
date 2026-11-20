@@ -193,7 +193,7 @@ public final class GameView extends BorderPane {
     /**
      * Agrega a la cabecera los botones "Deshacer" y "Rehacer", solo si la partida lo permite. Los dos
      * jugadores pueden usarlos, por eso van en la cabecera y no en una tarjeta. Se llama antes de
-     * configurarNavegacion, así quedan a la izquierda de "Volver al menú".
+     * configureNavigation, así quedan a la izquierda de "Volver al menú".
      */
     public void configureUndo() {
         if (undo != null) throw new IllegalStateException("Deshacer ya configurado");
@@ -217,7 +217,7 @@ public final class GameView extends BorderPane {
 
     /**
      * Agrega a la cabecera el botón de silencio y el volumen. El control se comparte entre partidas, así
-     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configurarNavegacion.
+     * que lo que se elige acá sigue valiendo en la revancha. Se llama antes de configureNavigation.
      */
     public void configureSound(VolumeControl control) {
         Objects.requireNonNull(control, "control");

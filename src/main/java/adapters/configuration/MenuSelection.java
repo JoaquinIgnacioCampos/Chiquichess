@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Opciones que el menú muestra elegidas al abrirse. A diferencia de {@link ConfiguracionPartida}, puede
+ * Opciones que el menú muestra elegidas al abrirse. A diferencia de {@link GameConfiguration}, puede
  * estar incompleta: por ejemplo, la selección habitual no elige equipos.
  */
 public record MenuSelection(Optional<Mode> mode, Optional<Time> time, Optional<Rival> rival,

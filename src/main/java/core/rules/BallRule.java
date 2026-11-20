@@ -24,10 +24,10 @@ import java.util.Set;
  * Modo fútbol "Posesión y gol": la pelota se lleva y se mete en el arco rival.
  *
  * La pelota y los arcos son marcas del tablero, no piezas: la pelota no bloquea a nadie y la tiene
- * la pieza que está parada sobre ella. {@link #prepararCancha} pone esas marcas al empezar; después
+ * la pieza que está parada sobre ella. {@link #preparePitch} pone esas marcas al empezar; después
  * la regla las lee del tablero, así el dibujo y la regla usan los mismos arcos.
  *
- * A cada jugada que toca la pelota le suma un {@link MoverPelota}, igual que la promoción le suma un
+ * A cada jugada que toca la pelota le suma un {@link MoveBall}, igual que la promoción le suma un
  * reemplazo. Además agrega los pases.
  * <ul>
  *   <li>Terminar el movimiento en la casilla de la pelota la toma; pasar por encima no.</li>
@@ -38,7 +38,7 @@ import java.util.Set;
  *       peón que promueve en el arco hace gol con la pieza nueva.</li>
  *   <li>Después del gol la pelota va al saque del bando que lo recibió, sin mover las piezas. Si
  *       hay una pieza parada en el saque, esa pieza se queda con la pelota.</li>
- *   <li>Pase: quien tiene la pelota se la puede dar a un compañero parado en una casilla que podría
+ *   <li>Pass: quien tiene la pelota se la puede dar a un compañero parado en una casilla que podría
  *       capturar si fuera rival. Las piezas que se deslizan necesitan el camino libre; el caballo
  *       la pasa por arriba; el rey, a una casilla de al lado; el peón, solo en diagonal hacia
  *       adelante. El pase gasta el turno. Si el que recibe está en el arco rival y no es el rey,
@@ -64,10 +64,10 @@ public class BallRule implements SpecialRule {
     }
 
     /**
-     * @param columnasDelArco        columnas que forman el arco, en la fila de fondo de cada bando
-     * @param saqueInicial           dónde empieza la pelota
-     * @param saqueTrasGolDeBlancas  dónde vuelve la pelota cuando hacen gol las blancas
-     * @param saqueTrasGolDeNegras   dónde vuelve la pelota cuando hacen gol las negras
+     * @param netColumns        columnas que forman el arco, en la fila de fondo de cada bando
+     * @param kickoffInitial           dónde empieza la pelota
+     * @param kickoffAfterGoalOfWhite  dónde vuelve la pelota cuando hacen gol las blancas
+     * @param kickoffAfterGoalOfBlack   dónde vuelve la pelota cuando hacen gol las negras
      */
     public BallRule(Set<Integer> netColumns, Position kickoffInitial,
                            Position kickoffAfterGoalOfWhite, Position kickoffAfterGoalOfBlack) {

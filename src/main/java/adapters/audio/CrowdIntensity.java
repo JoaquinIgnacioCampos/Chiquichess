@@ -12,11 +12,11 @@ import java.util.Optional;
  * parlantes. El pico de un gol no sale de acá: lo pone el propio sonido del gol.
  *
  * <ul>
- *   <li>Arranca en {@link #BASE} y crece hasta {@link #POR_AVANCE} más a medida que se acerca el límite de jugadas.</li>
- *   <li>Si el partido está parejo (a lo sumo un gol de diferencia), suma hasta {@link #POR_PAREJO} más,
+ *   <li>Arranca en {@link #BASE} y crece hasta {@link #BY_ADVANCE} más a medida que se acerca el límite de jugadas.</li>
+ *   <li>Si el partido está parejo (a lo sumo un gol de diferencia), suma hasta {@link #BY_EVEN} más,
  *       también según el avance: un final apretado es lo que más se escucha.</li>
- *   <li>La hinchada del que va ganando canta completa; la del que pierde, a {@link #FACTOR_PERDEDOR};
- *       con empate, las dos a {@link #FACTOR_EMPATE}.</li>
+ *   <li>La hinchada del que va ganando canta completa; la del que pierde, a {@link #FACTOR_LOSER};
+ *       con empate, las dos a {@link #FACTOR_TIE}.</li>
  * </ul>
  */
 public final class CrowdIntensity {
@@ -30,8 +30,8 @@ public final class CrowdIntensity {
     }
 
     /**
-     * @param jugadasHechas jugadas de los dos bandos en lo que va de la partida
-     * @param limite        jugadas a las que termina la partida; sin límite, el avance no cuenta
+     * @param movesMade jugadas de los dos bandos en lo que va de la partida
+     * @param limit        jugadas a las que termina la partida; sin límite, el avance no cuenta
      */
     public static double de(Side crowd, int movesMade, Optional<Integer> limit, Scoreboard scoreboard) {
         Objects.requireNonNull(crowd, "hinchada");

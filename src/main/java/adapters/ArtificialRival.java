@@ -13,7 +13,7 @@ import java.util.Optional;
 
 /**
  * La IA sentada a la mesa: un jugador más de la partida, del lado de los adaptadores. Le pide jugadas a
- * su {@link EstrategiaDeJuego} y las juega con {@code Partida.mover}, igual que una persona; por eso el
+ * su {@link GameStrategy} y las juega con {@code Game.move}, igual que una persona; por eso el
  * sonido, el panel y los eventos funcionan sin saber que es una IA. No depende de JavaFX: la usan la
  * consola (que la espera) y la ventana (que la hace pensar en otro hilo).
  *
@@ -53,7 +53,7 @@ public final class ArtificialRival {
      * así que se puede llamar desde otro hilo con una situación tomada antes. Con reloj, nunca piensa ni
      * tarda más de una fracción de lo que le queda: no pierde por tiempo.
      *
-     * @param tiempoRestante lo que le queda en el reloj; vacío si la partida no tiene tiempo
+     * @param timeRemaining lo que le queda en el reloj; vacío si la partida no tiene tiempo
      */
     public Response think(GameSituation situation, Optional<Duration> timeRemaining) {
         GameDecision decision = strategy.decide(situation, timeRemaining);
@@ -91,7 +91,7 @@ public final class ArtificialRival {
      * Deshace hasta que le toque a la persona: la última jugada de la IA y la de la persona. Si la IA
      * todavía no había respondido, deshace solo la de la persona.
      *
-     * @throws Nucleo.juego.AccionInvalidaException si la partida no deja deshacer
+     * @throws core.game.InvalidActionException si la partida no deja deshacer
      */
     public void undo() {
         game.undo();

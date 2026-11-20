@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Catálogo de los textos que la consola muestra para los códigos del núcleo (rechazos y finales).
  * La consola usa sus propias palabras (sin tildes), distintas de las de la interfaz gráfica.
- * Agregar un código nuevo es sumar una línea acá; MensajesDeConsolaTest verifica que no falte ninguno.
+ * Agregar un código nuevo es sumar una línea acá; ConsoleMessagesTest verifica que no falte ninguno.
  */
 public final class ConsoleMessages {
 

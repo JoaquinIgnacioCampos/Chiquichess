@@ -2,7 +2,7 @@ package adapters.configuration;
 
 /**
  * Puerto del sorteo de colores del menú. Separarlo del ensamblado permite reemplazar el azar
- * por una respuesta fija en los tests, igual que FuenteDeTiempo reemplaza al reloj del sistema.
+ * por una respuesta fija en los tests, igual que TimeSource reemplaza al reloj del sistema.
  */
 @FunctionalInterface
 public interface ColorLottery {

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Botón de silencio (un silbato de árbitro) y volumen de un {@link ControlDeVolumen}. Los dos muestran
+ * Botón de silencio (un silbato de árbitro) y volumen de un {@link VolumeControl}. Los dos muestran
  * siempre el estado del control: silenciar lleva el volumen a cero y subirlo desde cero vuelve a activar
  * el sonido.
  */

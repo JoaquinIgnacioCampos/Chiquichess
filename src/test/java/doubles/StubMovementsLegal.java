@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Stub: fija la respuesta de "¿existe alguna jugada legal?" sin recorrer el tablero.
- * El resto del comportamiento es el de MovimientosLegales con el detector indicado.
+ * El resto del comportamiento es el de LegalMoves con el detector indicado.
  */
 public class StubMovementsLegal extends LegalMoves {
 

@@ -13,7 +13,7 @@ import static doubles.Squares.pos;
 import static doubles.Squares.positions;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Se usa un mock de la regla interna para verificar si SoloSi la llama o no. */
+/** Se usa un mock de la regla interna para verificar si OnlyIf la llama o no. */
 class OnlyIfTest {
 
     @Test

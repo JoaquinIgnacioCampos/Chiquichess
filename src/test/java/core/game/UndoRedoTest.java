@@ -24,7 +24,7 @@ import static doubles.Squares.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Deshacer y rehacer en Partida. Se usa el criterio del Command: la foto de la partida después de
+ * Deshacer y rehacer en Game. Se usa el criterio del Command: la foto de la partida después de
  * deshacer es idéntica a la de antes de jugar, y después de rehacer, idéntica a la de después de jugar.
  */
 class UndoRedoTest {

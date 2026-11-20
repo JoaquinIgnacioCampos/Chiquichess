@@ -14,7 +14,7 @@ import java.util.Objects;
  * El núcleo informa con códigos y cada adaptador elige sus palabras, por eso los textos viven acá y
  * no en el núcleo. Juntarlos en un solo lugar evita que cada vista tenga su propio switch: agregar
  * un código nuevo es sumar una línea en este catálogo, sin tocar ninguna vista. Si falta un texto se
- * muestra {@link #SIN_TEXTO}; MensajesDeLaInterfazTest verifica que no falte ninguno.
+ * muestra {@link #WITHOUT_TEXT}; InterfaceMessagesTest verifica que no falte ninguno.
  */
 public final class InterfaceMessages {
 

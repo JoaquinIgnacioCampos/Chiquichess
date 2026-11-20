@@ -27,7 +27,7 @@ import static doubles.Squares.move;
 import static doubles.Squares.pos;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Los avisos que Partida publica a sus observadores (Observer). */
+/** Los avisos que Game publica a sus observadores (Observer). */
 class EventsOfGameTest {
 
     private final List<GameEvent> received = new ArrayList<>();

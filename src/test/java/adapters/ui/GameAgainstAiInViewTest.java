@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Contra la IA, la interfaz solo deja actuar a la persona. La IA de estos tests no juega sola (no hay
- * un TurnoDeLaIa): así se puede mirar qué pasa mientras le toca.
+ * un AiTurn): así se puede mirar qué pasa mientras le toca.
  */
 class GameAgainstAiInViewTest {
 

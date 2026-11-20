@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/** Adaptador de entrada/salida por consola: lee jugadas como "e2 e4" y las envía a la Partida. */
+/** Adaptador de entrada/salida por consola: lee jugadas como "e2 e4" y las envía a la Game. */
 public class ConsoleGame {
 
     private final GameInProgress game;

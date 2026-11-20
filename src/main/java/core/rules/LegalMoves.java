@@ -20,9 +20,9 @@ import java.util.Set;
 /**
  * Responsabilidad única: decidir qué jugadas son legales, es decir, las que permiten las reglas
  * de la pieza (o una regla especial, como el enroque) Y no dejan al propio rey en jaque. Se separó
- * de Partida porque también lo usan jaque mate y ahogado ("¿existe alguna jugada legal?").
+ * de Game porque también lo usan jaque mate y ahogado ("¿existe alguna jugada legal?").
  *
- * Trabaja con {@link Jugada}: el control de jaque simula la jugada completa (todos sus efectos),
+ * Trabaja con {@link Move}: el control de jaque simula la jugada completa (todos sus efectos),
  * así sirve igual para jugadas que mueven más de una pieza o capturan en otra casilla.
  *
  * Las reglas especiales necesitan el historial de la partida (por ejemplo, para saber si el rey ya se
@@ -113,7 +113,7 @@ public class LegalMoves {
     }
 
     // ---- Variantes sin historial: equivalen a una partida sin jugadas. Son final para que un doble de
-    // ---- prueba sobreescriba las de arriba, que son las que usa Partida.
+    // ---- prueba sobreescriba las de arriba, que son las que usa Game.
 
     public final List<Move> movesPossible(Board board, Position origin) {
         return movesPossible(board, origin, List.of());

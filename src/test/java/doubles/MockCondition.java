@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Mock: registra cada vez que la Partida la consulta y guarda los contextos recibidos,
+ * Mock: registra cada vez que la Game la consulta y guarda los contextos recibidos,
  * para verificar cuántas veces y con qué datos se la llamó. Nunca termina la partida.
  */
 public class MockCondition implements EndCondition {
