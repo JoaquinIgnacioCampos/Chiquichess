@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import adaptadores.configuracion.ConfiguracionPartida;
+import adaptadores.configuracion.ArchivoDeConfiguracion;
 import adaptadores.configuracion.PartidaConfigurada;
+import adaptadores.configuracion.Preferencias;
 import adaptadores.configuracion.SeleccionDelMenu;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -49,17 +51,30 @@ public class AplicacionAjedrez extends Application {
     private SonidosDelMenu sonidosDelMenu;
     /** Lo que muestra elegido el menú: la partida habitual al abrir, y después lo último que se jugó. */
     private SeleccionDelMenu seleccionDelMenu = SeleccionDelMenu.habitual();
+    /** Opciones y sonido guardados entre una vez y la otra, en la carpeta desde la que se abre el juego. */
+    private final ArchivoDeConfiguracion archivoDeConfiguracion =
+            new ArchivoDeConfiguracion(java.nio.file.Path.of("configuracion.txt"));
 
     @Override
     public void start(Stage ventana) {
+        Preferencias guardadas = archivoDeConfiguracion.leer();
+        seleccionDelMenu = guardadas.seleccion();
+        volumen.cambiarVolumen(guardadas.volumen());
+        volumen.silenciar(guardadas.silenciado());
         reproductor = new ReproductorJavaSound();
         sonidosDelMenu = new SonidosDelMenu(catalogoDeSonidos, reproductor, volumen);
         VistaMenuPartida menu = nuevoMenu(ventana);
         ventana.setTitle("ChiquiChess");
+        // El personaje de la portada también es el ícono de la ventana y de la barra de tareas.
+        ventana.getIcons().add(new Image("/personaje/chiquichess.png"));
         ventana.setScene(new Scene(menu));
+        ventana.getScene().getRoot().setStyle(ventana.getScene().getRoot().getStyle() + EstiloPixel.familiaCss());
         ajustarAPantalla(ventana, Screen.getPrimary().getVisualBounds());
         ventana.setOnHidden(evento -> cerrarPartidaActual());
+        // Arranca maximizada; el tamaño calculado queda para cuando se restaura.
+        ventana.setMaximized(true);
         ventana.show();
+        BarraDeTituloWindows.pintar(ventana, TemaPanel.marcador().fondo(), TemaPanel.marcador().texto());
         // Al abrir el juego, y solo entonces: el personaje se ríe y se balancea.
         sonidosDelMenu.abrirJuego();
         menu.animarPersonaje();
@@ -68,6 +83,7 @@ public class AplicacionAjedrez extends Application {
     private VistaMenuPartida nuevoMenu(Stage ventana) {
         VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), configuracion -> {
             seleccionDelMenu = SeleccionDelMenu.de(configuracion);
+            guardarPreferencias();
             iniciarPartida(ventana, configuracion);
         });
         menu.preseleccionar(seleccionDelMenu);
@@ -118,6 +134,8 @@ public class AplicacionAjedrez extends Application {
             if (partidaActual == preparada) volverAlMenu(ventana);
         }, () -> iniciarRevancha(ventana, configuracion, preparada));
         actualizadorReloj = new ActualizadorRelojJavaFx(controlador, vista::actualizarRelojes);
+        // Contra la IA, el tablero se ve siempre desde el lado de la persona, aunque juegue con negras.
+        preparada.rival().ifPresent(rival -> vista.mirarDesde(rival.bando().opuesto()));
         ventana.getScene().setRoot(vista);
         SonidosDePartida sonidos = SonidosDePartida.conectar(partida, catalogoDeSonidos, reproductor,
                 Map.of(Bando.BLANCO, preparada.equipoBlancas(), Bando.NEGRO, preparada.equipoNegras()),
@@ -166,7 +184,12 @@ public class AplicacionAjedrez extends Application {
         }
     }
 
+    private void guardarPreferencias() {
+        archivoDeConfiguracion.guardar(new Preferencias(seleccionDelMenu, volumen.volumen(), volumen.silenciado()));
+    }
+
     @Override public void stop() {
+        guardarPreferencias();
         cerrarPartidaActual();
         if (sonidosDelMenu != null) sonidosDelMenu.close();
         if (reproductor != null) reproductor.close();

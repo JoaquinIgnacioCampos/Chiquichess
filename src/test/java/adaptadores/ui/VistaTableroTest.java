@@ -67,7 +67,7 @@ class VistaTableroTest {
         tablero.colocar(new Posicion(0, 0), new Rey(Bando.BLANCO));
         tablero.colocar(new Posicion(3, 5), new Rey(Bando.NEGRO));
         VistaTablero vista = new VistaTablero(tablero, tema, new RepresentacionUnicode());
-        assertEquals("♔", ((Text) casilla(vista, 0, 0).getChildren().getFirst()).getText());
+        assertEquals("♚", ((Text) casilla(vista, 0, 0).getChildren().getFirst()).getText());
         assertEquals("♚", ((Text) casilla(vista, 3, 5).getChildren().getFirst()).getText());
         assertEquals(5, GridPane.getRowIndex(casilla(vista, 0, 0)));
         assertEquals(0, GridPane.getRowIndex(casilla(vista, 3, 5)));
@@ -83,7 +83,7 @@ class VistaTableroTest {
         partida.mover(mov("e2", "e4"));
         vista.redibujar();
         assertTrue(casilla(vista, 4, 1).getChildren().isEmpty());
-        assertEquals("♙", ((Text) casilla(vista, 4, 3).getChildren().getFirst()).getText());
+        assertEquals("♟", ((Text) casilla(vista, 4, 3).getChildren().getFirst()).getText());
         assertEquals(64, vista.lookupAll(".casilla").size());
     }
 
@@ -160,5 +160,14 @@ class VistaTableroTest {
         assertEquals(1, casilla(vista, 0, 4).lookupAll(".indicador-pase").size());
         assertTrue(casilla(vista, 0, 4).lookupAll(".indicador-captura").isEmpty());
         assertEquals(1, casilla(vista, 0, 6).lookupAll(".indicador-captura").size());
+    }
+    @Test
+    void desdeLasNegrasElTableroQuedaGiradoConA1ArribaALaDerecha() {
+        VistaTablero vista = new VistaTablero(new Tablero(8, 8), tema, new RepresentacionUnicode());
+        vista.mirarDesde(Nucleo.bando.Bando.NEGRO);
+        assertEquals(7, GridPane.getColumnIndex(casilla(vista, 0, 0)));
+        assertEquals(0, GridPane.getRowIndex(casilla(vista, 0, 0)));
+        assertEquals(0, GridPane.getColumnIndex(casilla(vista, 7, 7)));
+        assertEquals(7, GridPane.getRowIndex(casilla(vista, 7, 7)));
     }
 }

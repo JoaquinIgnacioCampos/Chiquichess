@@ -41,7 +41,7 @@ final class SelectorPromocion extends StackPane {
                 tema.fondo().deriveColor(0, 1, 1, .8), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Text pregunta = new Text("¿A qué pieza promueve el peón?");
-        pregunta.setFont(Font.font("System", FontWeight.BOLD, 16));
+        pregunta.setFont(EstiloPixel.fuente(16, true));
         pregunta.setFill(tema.texto());
         opciones.setAlignment(Pos.CENTER);
         Button cancelar = BotonDeCabecera.crear("Cancelar", "cancelar-promocion", tema.borde(), tema.texto());

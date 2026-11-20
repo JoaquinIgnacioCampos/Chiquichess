@@ -56,7 +56,7 @@ final class TarjetaJugador extends StackPane {
         setBackground(new Background(new BackgroundFill(tema.tarjeta(), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Text rol = new Text(color == Bando.BLANCO ? "LOCAL" : "VISITANTE");
-        rol.setFont(Font.font("Consolas", FontWeight.BOLD, 14));
+        rol.setFont(EstiloPixel.fuente(14, true));
         rol.setFill(tema.textoSecundario());
         reloj = new VistaReloj(color, tema);
         reloj.prefWidthProperty().bind(widthProperty().multiply(0.35));
@@ -92,7 +92,7 @@ final class TarjetaJugador extends StackPane {
 
         bando.setText(color == Bando.BLANCO ? "BLANCAS" : "NEGRAS");
         bando.setFill(tema.textoSecundario());
-        bando.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
+        bando.setFont(EstiloPixel.fuente(13, true));
         nombreClub.setId("club-" + sufijo());
         nombreClub.setAccessibleText(nombreClub.getText());
         nombreClub.setFill(tema.acento());
@@ -112,7 +112,7 @@ final class TarjetaJugador extends StackPane {
         barraAcciones.setManaged(false);
         esperando.setId("esperando-tablas-" + sufijo());
         esperando.setFill(tema.acento());
-        esperando.setFont(Font.font("System", FontWeight.BOLD, 12));
+        esperando.setFont(EstiloPixel.fuente(12, true));
         esperando.setVisible(false);
         esperando.setManaged(false);
         contenido.getChildren().addAll(cabecera, acciones, barraAcciones);
@@ -124,8 +124,8 @@ final class TarjetaJugador extends StackPane {
     }
 
     private void ajustarNombre() {
-        nombre.setFont(Font.font("System", FontWeight.BOLD, Math.max(17,
-                Math.min(getHeight() < 200 ? 20 : 32, getWidth() * 0.075))));
+        nombre.setFont(EstiloPixel.fuente(Math.max(17,
+                Math.min(getHeight() < 200 ? 20 : 32, getWidth() * 0.075)), true));
         nombre.setWrappingWidth(Math.max(1, getWidth() - 120));
     }
 
@@ -134,8 +134,8 @@ final class TarjetaJugador extends StackPane {
         setPadding(new Insets(compacta ? 10 : 14, compacta ? 16 : 20, compacta ? 10 : 14, compacta ? 16 : 20));
         contenido.setSpacing(compacta ? 5 : 8);
         identidad.setSpacing(compacta ? 3 : 5);
-        nombreClub.setFont(Font.font("System", FontWeight.BOLD, compacta ? 11 : 14));
-        bando.setFont(Font.font("Consolas", FontWeight.BOLD, compacta ? 11 : 13));
+        nombreClub.setFont(EstiloPixel.fuente(compacta ? 11 : 14, true));
+        bando.setFont(EstiloPixel.fuente(compacta ? 11 : 13, true));
         insignia.setScaleX(compacta ? 0.6 : 1);
         insignia.setScaleY(compacta ? 0.6 : 1);
         ajustarNombre();
@@ -165,17 +165,12 @@ final class TarjetaJugador extends StackPane {
         rendirse = new Button("Rendirse");
         rendirse.setId(getId().equals("jugador-blanco") ? "rendirse-blanco" : "rendirse-negro");
         rendirse.setAccessibleText(getId().equals("jugador-blanco") ? "Rendirse: blancas" : "Rendirse: negras");
-        rendirse.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
-        rendirse.setTextFill(tema.alerta());
-        rendirse.setBackground(new Background(new BackgroundFill(tema.tarjeta(), new CornerRadii(4), Insets.EMPTY)));
-        rendirse.setBorder(new Border(new BorderStroke(tema.alerta(), BorderStrokeStyle.SOLID,
-                new CornerRadii(4), new BorderWidths(1))));
-        rendirse.setPadding(new Insets(5, 12, 5, 12));
+        rendirse.setFont(EstiloPixel.fuente(13, true));
         rendirse.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         rendirse.setCursor(javafx.scene.Cursor.HAND);
-        rendirse.focusedProperty().addListener((p, a, foco) -> rendirse.setBorder(new Border(
-                new BorderStroke(foco ? tema.acento() : tema.alerta(), BorderStrokeStyle.SOLID,
-                        new CornerRadii(4), new BorderWidths(foco ? 2 : 1)))));
+        rendirse.setGraphic(IconoPixel.crear(IconoPixel.BANDERA, tema.alerta(), tema.tarjeta(), tema.alerta()));
+        rendirse.setGraphicTextGap(6);
+        EstiloPixel.pintar(rendirse, tema.tarjeta(), tema.alerta());
         confirmacion = new ConfirmacionAccionJavaFx(tema, "¿Seguro que querés\nrendirte?", "Rendirse", "Cancelar",
                 "rendicion", tema.alerta(), () -> {
             mostrar(Panel.NORMAL);
@@ -201,16 +196,9 @@ final class TarjetaJugador extends StackPane {
         ofrecerTablas = new Button("Ofrecer tablas");
         ofrecerTablas.setId("ofrecer-tablas-" + sufijo());
         ofrecerTablas.setAccessibleText("Ofrecer tablas: " + (color == Bando.BLANCO ? "blancas" : "negras"));
-        ofrecerTablas.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
-        ofrecerTablas.setTextFill(tema.acento());
-        ofrecerTablas.setPadding(new Insets(5, 8, 5, 8));
-        ofrecerTablas.setBackground(new Background(new BackgroundFill(tema.tarjeta(), new CornerRadii(4), Insets.EMPTY)));
-        ofrecerTablas.setBorder(new Border(new BorderStroke(tema.acento(), BorderStrokeStyle.SOLID,
-                new CornerRadii(4), new BorderWidths(1))));
+        ofrecerTablas.setFont(EstiloPixel.fuente(13, true));
         ofrecerTablas.setCursor(javafx.scene.Cursor.HAND);
-        ofrecerTablas.focusedProperty().addListener((p, antes, foco) -> ofrecerTablas.setBorder(new Border(
-                new BorderStroke(foco ? tema.texto() : tema.acento(), BorderStrokeStyle.SOLID,
-                        new CornerRadii(4), new BorderWidths(foco ? 2 : 1)))));
+        EstiloPixel.pintar(ofrecerTablas, tema.tarjeta(), tema.acento());
         confirmarOferta = new ConfirmacionAccionJavaFx(tema, "¿Querés ofrecer\ntablas al rival?",
                 "Ofrecer tablas", "Cancelar", "oferta-tablas", tema.acento(), () -> {
             mostrar(Panel.NORMAL);

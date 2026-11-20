@@ -71,23 +71,23 @@ public final class PanelEstadoPartida extends GridPane {
         principal = new TextoLed(tema.texto());
         principal.setId("marcador-principal");
         titulo.setId("titulo-estado");
-        titulo.setFont(Font.font("Consolas", FontWeight.BOLD, 13));
+        titulo.setFont(EstiloPixel.fuente(13, true));
         titulo.setFill(tema.textoSecundario());
         estado.setId("estado-partida");
-        estado.setFont(Font.font("Consolas", FontWeight.BOLD, 20));
+        estado.setFont(EstiloPixel.fuente(20, true));
         HBox estadoActual = new HBox(10, punto, estado);
         estadoActual.setAlignment(Pos.CENTER);
         motivo.setId("motivo-final");
         motivo.setFill(tema.textoSecundario());
-        motivo.setFont(Font.font("System", 14));
+        motivo.setFont(EstiloPixel.fuente(14, false));
         motivo.setTextAlignment(TextAlignment.CENTER);
         motivo.managedProperty().bind(motivo.textProperty().isNotEmpty());
         motivo.visibleProperty().bind(motivo.textProperty().isNotEmpty());
         goles.setId("goles-partida");
-        goles.setFont(Font.font("Consolas", FontWeight.BOLD, 18));
+        goles.setFont(EstiloPixel.fuente(18, true));
         goles.setFill(tema.texto());
         jugadas.setId("jugadas-futbol");
-        jugadas.setFont(Font.font("Consolas", 12));
+        jugadas.setFont(EstiloPixel.fuente(12, false));
         jugadas.setFill(tema.textoSecundario());
         for (Text texto : new Text[]{goles, jugadas}) {
             texto.managedProperty().bind(texto.textProperty().isNotEmpty());
@@ -96,7 +96,7 @@ public final class PanelEstadoPartida extends GridPane {
         Text modalidad = new Text(controlador.marcador().isPresent()
                 ? "Partida local · Fútbol: posesión y gol" : "Partida local");
         modalidad.setFill(tema.textoSecundario());
-        modalidad.setFont(Font.font("Consolas", 12));
+        modalidad.setFont(EstiloPixel.fuente(12, false));
         Region separador = new Region();
         separador.setMinHeight(1);
         separador.setPrefHeight(1);
@@ -231,5 +231,11 @@ public final class PanelEstadoPartida extends GridPane {
 
     private String bando(Bando color) {
         return color == Bando.BLANCO ? "BLANCAS" : "NEGRAS";
+    }
+    /** Pone abajo la tarjeta de ese bando, del mismo lado en que se ven sus piezas en el tablero. */
+    void mirarDesde(Bando bando) {
+        boolean desdeNegras = Objects.requireNonNull(bando, "bando") == Bando.NEGRO;
+        GridPane.setRowIndex(negras, desdeNegras ? 2 : 0);
+        GridPane.setRowIndex(blancas, desdeNegras ? 0 : 2);
     }
 }

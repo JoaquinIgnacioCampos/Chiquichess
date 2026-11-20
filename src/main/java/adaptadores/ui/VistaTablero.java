@@ -23,6 +23,8 @@ public final class VistaTablero extends Region {
     private final RepresentacionPiezas representacion;
     private final GridPane grilla = new GridPane();
     private final Consumer<Posicion> alPulsar;
+    /** Bando que se ve del lado de abajo: blancas salvo que se elija mirar desde las negras. */
+    private Nucleo.bando.Bando abajo = Nucleo.bando.Bando.BLANCO;
 
     public VistaTablero(ITablero tablero, TemaTablero tema, RepresentacionPiezas representacion) {
         this(tablero, tema, representacion, posicion -> { });
@@ -36,6 +38,12 @@ public final class VistaTablero extends Region {
         this.alPulsar = Objects.requireNonNull(alPulsar, "alPulsar");
         setMinSize(0, 0);
         getChildren().add(grilla);
+        redibujar();
+    }
+
+    /** Gira el tablero para que ese bando quede abajo, como lo vería quien juega con él. */
+    public void mirarDesde(Nucleo.bando.Bando bando) {
+        abajo = Objects.requireNonNull(bando, "bando");
         redibujar();
     }
 
@@ -66,7 +74,9 @@ public final class VistaTablero extends Region {
                 Posicion posicion = new Posicion(columna, fila);
                 StackPane casilla = crearCasilla(posicion,
                         seleccionada.filter(posicion::equals).isPresent(), destinos.contains(posicion), colorElegido);
-                grilla.add(casilla, columna, tablero.alto() - 1 - fila);
+                boolean desdeBlancas = abajo == Nucleo.bando.Bando.BLANCO;
+                grilla.add(casilla, desdeBlancas ? columna : tablero.ancho() - 1 - columna,
+                        desdeBlancas ? tablero.alto() - 1 - fila : fila);
             }
         }
         requestLayout();
@@ -135,7 +145,9 @@ public final class VistaTablero extends Region {
         arco.setMinSize(0, 0);
         arco.setBackground(new Background(new BackgroundFill(
                 javafx.scene.paint.Color.web("#FFFFFF", 0.30), CornerRadii.EMPTY, Insets.EMPTY)));
-        boolean arriba = posicion.fila() == tablero.alto() - 1;
+        // La línea de gol va del lado del borde que se ve, según hacia dónde esté girado el tablero.
+        int filaDeArriba = abajo == Nucleo.bando.Bando.BLANCO ? tablero.alto() - 1 : 0;
+        boolean arriba = posicion.fila() == filaDeArriba;
         double grosor = 5;
         arco.setBorder(new Border(new BorderStroke(javafx.scene.paint.Color.WHITE, BorderStrokeStyle.SOLID,
                 CornerRadii.EMPTY, new BorderWidths(arriba ? grosor : 0, 0, arriba ? 0 : grosor, 0))));

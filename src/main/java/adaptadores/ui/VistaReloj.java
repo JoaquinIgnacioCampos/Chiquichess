@@ -31,7 +31,7 @@ public final class VistaReloj extends StackPane {
         setPrefSize(136, 28);
         setMaxHeight(28);
         digitos = new TextoLed(tema.textoSecundario());
-        sinLimite.setFont(Font.font("Consolas", 13));
+        sinLimite.setFont(EstiloPixel.fuente(13, false));
         sinLimite.setFill(tema.textoSecundario());
         getChildren().addAll(digitos, sinLimite);
         actualizar(Optional.empty(), false);

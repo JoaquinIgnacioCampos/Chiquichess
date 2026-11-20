@@ -3,7 +3,6 @@ package adaptadores.ui;
 import adaptadores.configuracion.ConfiguracionPartida;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,9 +28,9 @@ class VistaMenuPartidaTest {
     private final List<ConfiguracionPartida> emitidas = new ArrayList<>();
     private final VistaMenuPartida menu = new VistaMenuPartida(TemaPanel.marcador(), emitidas::add);
 
-    /** Las opciones están dentro de un ScrollPane: sin ventana dibujada, hay que buscar en su contenido. */
+    /** Busca un control de las opciones del menú. */
     private javafx.scene.Node buscarEnOpciones(String id) {
-        return ((ScrollPane) menu.lookup("#opciones-menu")).getContent().lookup("#" + id);
+        return menu.lookup("#opciones-menu").lookup("#" + id);
     }
 
     private javafx.scene.Node buscar(String id) {
@@ -223,7 +222,7 @@ class VistaMenuPartidaTest {
         silencio.fire();
 
         assertTrue(control.silenciado());
-        assertEquals("Sonido: no", silencio.getText());
+        assertEquals("Sonido: no", silencio.getAccessibleText());
     }
 
     @Test
@@ -284,11 +283,11 @@ class VistaMenuPartidaTest {
 
         silencio.fire();
         assertEquals(0, volumen.getValue());
-        assertEquals("Sonido: no", silencio.getText());
+        assertEquals("Sonido: no", silencio.getAccessibleText());
 
         volumen.setValue(0.4);
         assertFalse(control.silenciado());
-        assertEquals("Sonido: sí", silencio.getText());
+        assertEquals("Sonido: sí", silencio.getAccessibleText());
 
         silencio.fire();
         silencio.fire();

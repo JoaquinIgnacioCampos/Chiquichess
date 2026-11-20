@@ -20,7 +20,8 @@ final class NavegacionPartida {
         this.controlador = Objects.requireNonNull(controlador, "controlador");
         Objects.requireNonNull(alMenu, "alMenu");
         Objects.requireNonNull(alRevancha, "alRevancha");
-        volver = BotonDeCabecera.crear("Volver al menú", "volver-menu", tema.texto(), tema.fondo());
+        volver = BotonDeCabecera.crear("Volver al menú", "volver-menu", tema.texto(), tema.fondo(),
+                IconoPixel.CASA, false);
         revancha = BotonDeCabecera.crear("Revancha", "revancha", tema.acento(), tema.fondo());
         confirmacion.setId("confirmacion-volver-menu");
         confirmacion.setVisible(false);
