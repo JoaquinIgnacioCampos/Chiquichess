@@ -11,7 +11,7 @@ import java.util.Optional;
  * defecto, contando las de los dos bandos; lo elige el usuario) sin que nadie llegue, gana quien
  * tenga más goles, y con los goles iguales es empate.
  *
- * No guarda estado: cuenta los goles en las jugadas del contexto (ver {@link Marcador}), así deshacer
+ * No guarda estado: cuenta los goles en las jugadas del contexto (ver {@link Scoreboard}), así deshacer
  * un gol funciona solo. Como al llegar al límite de jugadas puede ganar el bando que tiene el turno, esta
  * condición dice quién gana en lugar de dejar que se asuma que ganó el que acaba de mover.
  *

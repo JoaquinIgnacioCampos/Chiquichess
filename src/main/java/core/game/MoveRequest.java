@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Intención de mover la pieza que está en origen hacia destino.
  *
- * @param promocion código de la pieza elegida si el peón promueve (D, T, A o C en el ajedrez clásico);
+ * @param promotion código de la pieza elegida si el peón promueve (D, T, A o C en el ajedrez clásico);
  *                  vacío si no se eligió, en cuyo caso un peón que promueve se convierte en dama
  */
 public record MoveRequest(Position origin, Position destination, Optional<Character> promotion) {

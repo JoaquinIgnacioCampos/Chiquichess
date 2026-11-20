@@ -13,13 +13,13 @@ import java.util.Optional;
 /**
  * Command: una jugada ya resuelta, con todo lo necesario para ejecutarla y deshacerla.
  * Origen y destino son la intención del jugador (la casilla que tocó y a la que fue); los efectos
- * dicen qué cambia en el tablero. Una jugada normal es [Retiro?, Traslado]; las jugadas especiales
- * usan la misma clase con otros efectos, sin modificar Jugada ni Partida.
+ * dicen qué cambia en el tablero. Una jugada normal es [Removal?, Transfer]; las jugadas especiales
+ * usan la misma clase con otros efectos, sin modificar Move ni Game.
  *
- * Toda jugada mueve la pieza de origen ({@link Traslado}) o, en el modo fútbol, es un {@link Pase}
+ * Toda jugada mueve la pieza de origen ({@link Transfer}) o, en el modo fútbol, es un {@link Pass}
  * desde el origen: la pieza no se mueve y la pelota va a un compañero que está en el destino.
  *
- * Guarda posiciones y no un Movimiento porque Movimiento pertenece al paquete juego, que depende
+ * Guarda posiciones y no un MoveRequest porque MoveRequest pertenece al paquete juego, que depende
  * de este: usarlo acá crearía un ciclo entre paquetes.
  */
 public record Move(Position origin, Position destination, List<Effect> effects) {

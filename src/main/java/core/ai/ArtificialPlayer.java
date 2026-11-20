@@ -12,19 +12,19 @@ import java.util.Optional;
 import java.util.Random;
 
 /**
- * La IA de ChiquiChess: busca con {@link BuscadorMinimax} según su {@link Dificultad} y elige.
+ * La IA de ChiquiChess: busca con {@link MinimaxSearcher} según su {@link Difficulty} y elige.
  *
  * Para equivocarse de forma creíble, a cada jugada le suma un error al azar de hasta
- * {@code dificultad.ruido()} y se queda con la de mayor puntaje resultante: puede elegir una jugada un
+ * {@code difficulty.noise()} y se queda con la de mayor puntaje resultante: puede elegir una jugada un
  * poco peor, pero nunca una mucho peor que la mejor que vio. Entre jugadas iguales elige al azar, así
  * dos partidas no son idénticas.
  *
- * Con la probabilidad de {@code dificultad.descuido()} se distrae: juega cualquiera de sus jugadas al
+ * Con la probabilidad de {@code difficulty.oversight()} se distrae: juega cualquiera de sus jugadas al
  * azar, salvo las que le dan mate en 1 al rival. Es el error de un principiante: no regala la partida
  * en una jugada, pero sí material.
  *
- * Al decidir ({@link #decidir}) dice también cuánto tardaría una persona de su nivel en jugar eso (ver
- * {@link RitmoHumano}). El fácil y el medio calculan lo de siempre y el resto es espera; el difícil
+ * Al decidir ({@link #decide}) dice también cuánto tardaría una persona de su nivel en jugar eso (ver
+ * {@link HumanRhythm}). El fácil y el medio calculan lo de siempre y el resto es espera; el difícil
  * calcula durante todo ese tiempo.
  *
  * El azar y el tiempo se reciben por constructor (como el sorteo y el reloj de la partida), así los
@@ -56,7 +56,7 @@ public final class ArtificialPlayer implements GameStrategy {
         return difficulty;
     }
 
-    /** Piensa lo que le permite su dificultad, sin pasarse de {@code tiempoMaximo}. */
+    /** Piensa lo que le permite su dificultad, sin pasarse de {@code timeMaximum}. */
     @Override
     public Move chooseMove(GameSituation situation, Duration timeMaximum) {
         Objects.requireNonNull(situation, "situacion");
@@ -68,7 +68,7 @@ public final class ArtificialPlayer implements GameStrategy {
      * Elige la jugada y cuánto tardaría una persona de su nivel en jugarla. El difícil calcula todo ese
      * tiempo; el fácil y el medio, su tiempo de cálculo (y quien lo use espera el resto).
      *
-     * @param tiempoRestante lo que le queda en el reloj; vacío si la partida no tiene tiempo
+     * @param timeRemaining lo que le queda en el reloj; vacío si la partida no tiene tiempo
      * @throws IllegalStateException si no hay ninguna jugada legal
      */
     @Override

@@ -13,7 +13,7 @@ import java.util.Optional;
  * otro jugador; nadie puede aceptar o rechazar su propia oferta. Si el que ofreció mueve, la oferta
  * sigue en pie; si mueve el rival, la rechazó al jugar.
  *
- * Que la partida esté en curso lo controla Partida antes de llamar: acá solo vive la oferta.
+ * Que la partida esté en curso lo controla Game antes de llamar: acá solo vive la oferta.
  */
 final class DrawOffer {
 
@@ -23,7 +23,7 @@ final class DrawOffer {
         return offerer;
     }
 
-    /** @throws AccionInvalidaException si no es el turno de ese bando o ya hay una oferta pendiente */
+    /** @throws InvalidActionException si no es el turno de ese bando o ya hay una oferta pendiente */
     void offer(Side color, Side turn) {
         Objects.requireNonNull(color, "color");
         if (color != turn) {
@@ -38,7 +38,7 @@ final class DrawOffer {
     /**
      * Controla que ese bando pueda responder: tiene que haber una oferta y no puede ser la suya.
      *
-     * @throws AccionInvalidaException si no hay oferta o es la propia
+     * @throws InvalidActionException si no hay oferta o es la propia
      */
     void validateResponse(Side color) {
         Objects.requireNonNull(color, "color");

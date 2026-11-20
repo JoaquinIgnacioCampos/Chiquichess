@@ -23,8 +23,8 @@ import static doubles.Squares.positions;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests unitarios de Partida: sus colaboradores (detector de jaque, condiciones de fin,
- * movimientos legales) se reemplazan por dobles para probar solo la lógica de Partida.
+ * Tests unitarios de Game: sus colaboradores (detector de jaque, condiciones de fin,
+ * movimientos legales) se reemplazan por dobles para probar solo la lógica de Game.
  */
 class GameTest {
 
@@ -153,7 +153,7 @@ class GameTest {
         assertEquals(1, game.board().pieces().size());
     }
 
-    // ---------------- Validaciones (cada Motivo de error) ----------------
+    // ---------------- Validaciones (cada Reason de error) ----------------
 
     @Test
     void withoutPieceInOriginThrowsWithoutPieceInOrigin() {
@@ -394,7 +394,7 @@ class GameTest {
         assertEquals(1, withMemory.records());
     }
 
-    // ---------------- MovimientosLegales inyectado (stub) ----------------
+    // ---------------- LegalMoves inyectado (stub) ----------------
 
     @Test
     void withoutMovesLegalNorCheckGameEndsInStalemate() {

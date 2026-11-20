@@ -62,7 +62,7 @@ final class IntroScreen extends StackPane {
     }
 
     /**
-     * Qué parte del volumen suena en el segundo {@code t} de una pasada de {@code duracion} segundos: sube al
+     * Qué parte del volumen suena en el segundo {@code t} de una pasada de {@code duration} segundos: sube al
      * empezar (salvo la primera pasada, que arranca entera) y baja al terminar, con curvas de potencia
      * constante: al sumarse la que termina con la que empieza, el volumen no se hunde ni se dispara.
      */

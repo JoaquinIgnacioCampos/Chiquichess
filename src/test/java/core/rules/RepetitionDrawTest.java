@@ -12,7 +12,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Cada test registra en la condición una secuencia real jugada sobre un tablero del fake, como hace Partida. */
+/** Cada test registra en la condición una secuencia real jugada sobre un tablero del fake, como hace Game. */
 class RepetitionDrawTest {
 
     private static final String[] LAP_OF_KNIGHTS = {"g1f3", "g8f6", "f3g1", "f6g8"};
@@ -127,7 +127,7 @@ class RepetitionDrawTest {
         List<Memento> mementos = recordValue.mementos();
         regla.restore(mementos.get(mementos.size() - 1));
 
-        // Act: volver a registrar la misma jugada (lo que hará Partida al rehacer)
+        // Act: volver a registrar la misma jugada (lo que hará Game al rehacer)
         regla.register(recordValue.lastContext());
 
         // Assert

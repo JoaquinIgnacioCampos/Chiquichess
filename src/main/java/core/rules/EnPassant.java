@@ -16,9 +16,9 @@ import java.util.Optional;
  * Solo vale en la jugada inmediata siguiente.
  *
  * La pieza capturada no está en la casilla de destino, sino al lado del peón que captura: la jugada
- * tiene un Retiro en otra casilla, cosa que una Jugada admite sin cambios. Que no deje al propio rey en
+ * tiene un Removal en otra casilla, cosa que una Move admite sin cambios. Que no deje al propio rey en
  * jaque (por ejemplo, si al sacar los dos peones de la fila el rey queda expuesto) lo controla
- * MovimientosLegales simulando la jugada completa.
+ * LegalMoves simulando la jugada completa.
  */
 public class EnPassant implements SpecialRule {
 

@@ -10,7 +10,7 @@ import java.util.Optional;
  * Tablas cuando la misma posición (mismas piezas en las mismas casillas y mismo turno)
  * aparece N veces, por defecto 3. No considera derechos de enroque ni de captura al paso.
  *
- * Cada posición se identifica por su {@link HuellaDePosicion}, que se actualiza con los efectos de
+ * Cada posición se identifica por su {@link PositionFingerprint}, que se actualiza con los efectos de
  * cada jugada sin recorrer el tablero. La condición cuenta cuántas veces apareció cada huella; cada
  * registro devuelve como recuerdo qué huella sumó y cuál era la anterior, así deshacer una jugada
  * resta esa aparición y vuelve a la huella previa.

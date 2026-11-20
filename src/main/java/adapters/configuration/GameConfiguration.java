@@ -9,11 +9,11 @@ import java.util.Optional;
 /**
  * Selección completa del menú, independiente de JavaFX y de las reglas del ajedrez.
  *
- * @param permitirDeshacer si los jugadores pueden deshacer y rehacer jugadas; solo se admite sin tiempo
- * @param limiteDeJugadas  en el modo fútbol, jugadas de los dos bandos juntos a las que termina la
- *                         partida (entre {@link #LIMITE_MINIMO} y {@link #LIMITE_MAXIMO}); el
+ * @param allowUndo si los jugadores pueden deshacer y rehacer jugadas; solo se admite sin tiempo
+ * @param moveLimit  en el modo fútbol, jugadas de los dos bandos juntos a las que termina la
+ *                         partida (entre {@link #LIMIT_MINIMUM} y {@link #LIMIT_MAXIMUM}); el
  *                         ajedrez clásico no lo usa
- * @param dificultad       la dificultad de la IA, que juega como Jugador 2; presente si y solo si el
+ * @param difficulty       la dificultad de la IA, que juega como Jugador 2; presente si y solo si el
  *                         rival es la IA
  */
 public record GameConfiguration(Mode mode, Time time, Rival rival,

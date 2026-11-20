@@ -70,7 +70,7 @@ final class PixelIcon {
         return create(rows, ink, background, accent, false);
     }
 
-    /** Con {@code espejado} se da vuelta de izquierda a derecha (por ejemplo, rehacer a partir de deshacer). */
+    /** Con {@code mirrored} se da vuelta de izquierda a derecha (por ejemplo, rehacer a partir de deshacer). */
     static Node create(String[] rows, Color ink, Color background, Color accent, boolean mirrored) {
         int columns = rows[0].length();
         Canvas lienzo = new Canvas(columns * PIXEL, rows.length * PIXEL);

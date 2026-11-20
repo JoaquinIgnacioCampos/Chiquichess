@@ -10,15 +10,15 @@ import java.util.Optional;
  * sin esperar.
  *
  * <ul>
- *   <li><b>Jugada común:</b> entre la respuesta mínima y la máxima de la dificultad, más cerca del medio
+ *   <li><b>Move común:</b> entre la respuesta mínima y la máxima de la dificultad, más cerca del medio
  *       (promedio de dos azares).</li>
  *   <li><b>Una sola jugada posible:</b> ~1 s; no hay nada que pensar.</li>
  *   <li><b>En jaque con pocas salidas:</b> el mínimo de su rango.</li>
- *   <li><b>Apertura</b> (las primeras {@link #JUGADAS_DE_APERTURA} jugadas de la partida): la mitad,
+ *   <li><b>Apertura</b> (las primeras {@link #OPENING_MOVES} jugadas de la partida): la mitad,
  *       como quien juega de memoria.</li>
  *   <li><b>Posición complicada</b> (varias jugadas casi igual de buenas): hacia el máximo; ver
- *       {@link #alargarPorComplejidad}.</li>
- *   <li><b>Con reloj:</b> nunca más de 1/{@link #FRACCION_DEL_TIEMPO_RESTANTE} de lo que le queda.</li>
+ *       {@link #extendByComplexity}.</li>
+ *   <li><b>Con reloj:</b> nunca más de 1/{@link #REMAINING_TIME_FRACTION} de lo que le queda.</li>
  * </ul>
  */
 public final class HumanRhythm {
@@ -33,10 +33,10 @@ public final class HumanRhythm {
     /**
      * Tiempo de respuesta antes de pensar la jugada.
      *
-     * @param jugadasLegales cuántas jugadas puede hacer
-     * @param jugadasHechas  jugadas de la partida hasta ahora (de los dos bandos)
-     * @param azar1          número al azar entre 0 y 1
-     * @param azar2          otro número al azar entre 0 y 1
+     * @param movesLegal cuántas jugadas puede hacer
+     * @param movesMade  jugadas de la partida hasta ahora (de los dos bandos)
+     * @param chance1          número al azar entre 0 y 1
+     * @param chance2          otro número al azar entre 0 y 1
      */
     public static Duration time(Difficulty difficulty, int movesLegal, boolean inCheck, int movesMade,
                                   Optional<Duration> timeRemaining, double chance1, double chance2) {
@@ -62,7 +62,7 @@ public final class HumanRhythm {
      * sin pasarse del reloj. En la apertura no: ahí casi todas las jugadas son parecidas y se juega
      * rápido igual.
      *
-     * @param azar número al azar entre 0 y 1
+     * @param chance número al azar entre 0 y 1
      */
     public static Duration extendByComplexity(Duration time, Difficulty difficulty, int movesMade,
                                                  Optional<Duration> timeRemaining, double chance) {

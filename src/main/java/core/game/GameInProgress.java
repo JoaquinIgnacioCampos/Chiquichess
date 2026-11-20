@@ -3,12 +3,12 @@ package core.game;
 import core.side.Side;
 
 /**
- * Puerto de entrada completo: todo lo de {@link ConsultaDePartida} más las órdenes de los jugadores.
+ * Puerto de entrada completo: todo lo de {@link GameQuery} más las órdenes de los jugadores.
  *
  * Es lo que reciben los adaptadores que juegan (la consola, el controlador del tablero, la IA). Así no
- * dependen de la clase concreta {@link Partida}: una partida remota o una de prueba podría
+ * dependen de la clase concreta {@link Game}: una partida remota o una de prueba podría
  * implementar esta interfaz y los adaptadores no cambiarían. Cada orden la valida el núcleo; si no
- * corresponde, lanza {@link MovimientoInvalidoException} o {@link AccionInvalidaException}.
+ * corresponde, lanza {@link InvalidMoveException} o {@link InvalidActionException}.
  */
 public interface GameInProgress extends GameQuery {
 

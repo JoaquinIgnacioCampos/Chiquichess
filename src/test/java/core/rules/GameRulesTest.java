@@ -15,7 +15,7 @@ class GameRulesTest {
         // Act
         List<EndCondition> conditions = GameRules.classic().conditions();
 
-        // Assert: mate y ahogado primero, como pide Partida
+        // Assert: mate y ahogado primero, como pide Game
         assertEquals(4, conditions.size());
         assertInstanceOf(Checkmate.class, conditions.get(0));
         assertInstanceOf(Stalemate.class, conditions.get(1));

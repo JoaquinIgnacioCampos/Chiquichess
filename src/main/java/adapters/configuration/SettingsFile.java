@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 /**
- * Archivo de texto con las {@link Preferencias}, una por renglón como {@code clave=valor}. Se lee al abrir
+ * Archivo de texto con las {@link Preferences}, una por renglón como {@code key=value}. Se lee al abrir
  * el juego; si no existe, se crea con los valores por defecto. Un valor que falta o no se entiende toma su
  * valor por defecto, así un archivo editado a mano nunca impide abrir el juego.
  *

@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * Algo que pasó en la partida y que a un adaptador le puede interesar (sonido, animaciones, registro).
- * Partida los publica a sus {@link ObservadorDePartida}; el núcleo solo dice qué pasó, nunca cómo se
+ * Partida los publica a sus {@link GameObserver}; el núcleo solo dice qué pasó, nunca cómo se
  * muestra o cómo suena.
  *
  * Es sellado: quien reaccione con un switch sobre los eventos se entera en compilación si aparece uno nuevo.
@@ -21,8 +21,8 @@ public sealed interface GameEvent {
     /**
      * Un bando hizo una jugada.
      *
-     * @param estado el estado que dejó la jugada (por ejemplo JAQUE para el rival). Si la jugada terminó
-     *               la partida, después llega además un {@link PartidaFinalizada}.
+     * @param state el estado que dejó la jugada (por ejemplo JAQUE para el rival). Si la jugada terminó
+     *               la partida, después llega además un {@link FinishedGame}.
      */
     record MoveMade(Side side, Set<Trait> traits, GameState state) implements GameEvent {
         public MoveMade {
@@ -36,14 +36,14 @@ public sealed interface GameEvent {
         }
     }
 
-    /** Se deshizo la última jugada; {@code estado} es el de la posición a la que se volvió. */
+    /** Se deshizo la última jugada; {@code state} es el de la posición a la que se volvió. */
     record MoveUndone(GameState state) implements GameEvent {
         public MoveUndone {
             Objects.requireNonNull(state, "estado");
         }
     }
 
-    /** Se volvió a hacer una jugada deshecha. Si con eso la partida termina, llega además un {@link PartidaFinalizada}. */
+    /** Se volvió a hacer una jugada deshecha. Si con eso la partida termina, llega además un {@link FinishedGame}. */
     record MoveRedone(Side side, Set<Trait> traits, GameState state) implements GameEvent {
         public MoveRedone {
             Objects.requireNonNull(side, "bando");

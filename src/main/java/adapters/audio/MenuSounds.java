@@ -6,7 +6,7 @@ import java.util.Optional;
 /**
  * Sonido de la pantalla de selección: la risa del personaje la primera vez que se abre el juego y un
  * ambiente suave en bucle mientras se eligen las opciones. El ambiente se calla al empezar una partida
- * y vuelve al volver al menú. Sigue el volumen y el silencio del {@link ControlDeVolumen}, el mismo
+ * y vuelve al volver al menú. Sigue el volumen y el silencio del {@link VolumeControl}, el mismo
  * de la partida.
  *
  * Como el resto del audio, si falta un archivo ese sonido no suena y el juego sigue igual.

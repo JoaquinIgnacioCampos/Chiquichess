@@ -21,7 +21,7 @@ import java.util.Optional;
  * Consulta las condiciones de fin de las reglas en orden; la primera que se cumple decide.
  *
  * También coordina la memoria de las condiciones que la tienen (Memento): en cada jugada todas
- * registran la posición y devuelven un {@link Recuerdo}; al deshacer, cada una recupera el suyo.
+ * registran la posición y devuelven un {@link Memento}; al deshacer, cada una recupera el suyo.
  * Partida guarda esos recuerdos en su historial (es el cuidador) sin saber qué contienen.
  *
  * No guarda el estado de la partida: recibe la posición y devuelve un veredicto.

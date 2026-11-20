@@ -25,7 +25,7 @@ import java.util.Set;
  * Interacción de presentación: selecciona casillas y envía órdenes; no calcula reglas.
  *
  * Contra la IA, solo deja actuar a la persona: no se pueden tocar piezas mientras le toca a la IA, ni
- * rendirse u ofrecer tablas en su nombre. Deshacer y rehacer van de a dos jugadas (ver {@link RivalArtificial}).
+ * rendirse u ofrecer tablas en su nombre. Deshacer y rehacer van de a dos jugadas (ver {@link ArtificialRival}).
  */
 public final class BoardController {
     private final GameInProgress game;
