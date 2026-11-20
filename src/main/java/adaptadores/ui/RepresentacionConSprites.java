@@ -5,6 +5,8 @@ import Nucleo.piezas.Pieza;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 
 import java.util.Map;
 import java.util.Objects;
@@ -12,7 +14,15 @@ import java.util.Optional;
 
 /** Dibuja cada pieza con el sprite del club de su bando; si no lo hay, delega en otra representación. */
 public final class RepresentacionConSprites implements RepresentacionPiezas {
-    private static final double LADO_SPRITE = LADO_BASE * 0.85;
+    /**
+     * Alto del sprite, en casillas: pasa un poco el de la casilla y la pieza sobresale hacia arriba, como en
+     * un tablero con piezas de volumen. Así el busto se ve más grande y con más detalle.
+     */
+    private static final double ALTO_SPRITE = LADO_BASE * 1.15;
+    /** Relación ancho/alto de los sprites (256 x 384). */
+    private static final double PROPORCION = 2.0 / 3.0;
+    /** Espacio entre la base del sprite y el borde de abajo de la casilla. */
+    private static final double MARGEN_BASE = LADO_BASE * 0.02;
 
     private final Map<Bando, CatalogoSprites> catalogos;
     private final RepresentacionPiezas respaldo;
@@ -33,11 +43,20 @@ public final class RepresentacionConSprites implements RepresentacionPiezas {
     }
 
     private Node figura(Image sprite, Pieza pieza) {
-        ImageView figura = new ImageView(sprite);
-        figura.setFitWidth(LADO_SPRITE);
-        figura.setFitHeight(LADO_SPRITE);
-        figura.setPreserveRatio(true);
-        figura.setSmooth(true);
+        ImageView imagen = new ImageView(sprite);
+        imagen.setFitHeight(ALTO_SPRITE);
+        imagen.setFitWidth(ALTO_SPRITE * PROPORCION);
+        imagen.setPreserveRatio(true);
+        imagen.setSmooth(true);
+        imagen.setMouseTransparent(true);
+        // El contenedor mide justo una casilla (así se escala y se centra como cualquier otra pieza) y el
+        // sprite apoya su base abajo y sobresale hacia arriba, sin recortarse.
+        Pane figura = new Pane(imagen);
+        figura.setMinSize(LADO_BASE, LADO_BASE);
+        figura.setPrefSize(LADO_BASE, LADO_BASE);
+        figura.setMaxSize(LADO_BASE, LADO_BASE);
+        imagen.setLayoutX((LADO_BASE - ALTO_SPRITE * PROPORCION) / 2);
+        imagen.setLayoutY(LADO_BASE - MARGEN_BASE - ALTO_SPRITE);
         figura.setMouseTransparent(true);
         figura.setAccessibleText(pieza.nombre() + " " + pieza.color());
         return figura;
