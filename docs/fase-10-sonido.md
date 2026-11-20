@@ -176,7 +176,7 @@ el nombre de la columna "Archivo".
 | `comunes/tablas.wav` | [Tibetan bowl center hit](https://freesound.org/people/dersinnsspace/sounds/421829/) | dersinnsspace | 19 s | Recortar a unos 4 s. |
 | `comunes/silbato-inicial.wav` | [referee whistle](https://freesound.org/people/pablo-f/sounds/90743/) | pablo-f | 2,1 s | Suena al empezar cualquier partida. Licencia por confirmar en Freesound. |
 | `comunes/silbato-final.wav` | [Referee whistle blow, gymnasium](https://freesound.org/people/SpliceSound/sounds/218318/) | SpliceSound | 3,3 s | |
-| `comunes/derrota.wav` | [11628 end of match referee whistle](https://freesound.org/people/robinhood76/sounds/692545/) | robinhood76 | 1,9 s | Suena al perder la persona contra la IA. Licencia por confirmar en Freesound. |
+| `comunes/derrota.wav` | [11628 end of match referee whistle](https://freesound.org/people/robinhood76/sounds/692545/) | robinhood76 | 1,9 s | Suena siempre que alguien pierde, además de la victoria del que ganó. Licencia por confirmar en Freesound. |
 | `comunes/rebobinar.wav` | [Woosh_Medium_Short_01](https://freesound.org/people/moogy73/sounds/425706/) | moogy73 | 2,3 s | |
 | `comunes/hinchada.aiff` | [noise#01 (Feyenoord, De Kuip)](https://freesound.org/people/huubjeroen/sounds/39733/) | huubjeroen | 5:25 | Recortar a 30–40 s. Es AIFF: se usa tal cual. |
 

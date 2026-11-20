@@ -15,7 +15,7 @@ public enum Sound {
     PASS("pase", false),
     GOAL("gol", true),
     VICTORIA("victoria", true),
-    /** Al perder la persona contra la IA: suena en lugar de la victoria. */
+    /** Cuando alguien pierde: suena siempre, junto con la victoria de quien ganó (que es propia de cada club). */
     DEFEAT("derrota", false),
     DRAW("tablas", false),
     WHISTLE_INITIAL("silbato-inicial", false),

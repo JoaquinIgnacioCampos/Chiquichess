@@ -147,8 +147,7 @@ public class ChessApplication extends Application {
         ventana.getScene().setRoot(view);
         GameSounds sounds = GameSounds.connect(game, soundCatalog, player,
                 Map.of(Side.WHITE, prepared.whiteTeam(), Side.BLACK, prepared.blackTeam()),
-                volume, configuration.mode() == GameConfiguration.Mode.FUTBOL,
-                prepared.rival().map(rival -> rival.side().opposite()));
+                volume, configuration.mode() == GameConfiguration.Mode.FUTBOL);
         soundsCurrent = sounds;
         view.onSelectPiece(sounds::selectedPiece);
         updaterClock.start();
