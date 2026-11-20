@@ -152,7 +152,6 @@ victoria propios de cada club. El sonido es un adaptador más: el núcleo no sab
 > | River | propio | propio | propia |
 > | Independiente | propio | el común | propia |
 > | Argentina | propio | propio | propia |
-> | San Lorenzo y Racing | el común | el común | la común |
 
 Los sonidos de prueba eran todos de [Freesound](https://freesound.org) con licencia **CC0**: se pueden usar, cambiar y
 recortar sin pedir permiso ni citar al autor. Igual se lo cita, por cortesía. La licencia de cada uno
@@ -189,7 +188,7 @@ clubes: tienen derechos de autor.
 | Boca | [Crowd screaming GOAL (México)](https://freesound.org/people/felix.blume/sounds/241630/), felix.blume, recortar | [Crowd Cheer](https://freesound.org/people/FoolBoyMedia/sounds/397434/), FoolBoyMedia | [Hinchas con bombos (Valparaíso)](https://freesound.org/people/felix.blume/sounds/500250/), felix.blume, recortar |
 | River | [Crazy Soccer Crowd Cheering](https://freesound.org/people/Kinoton/sounds/348978/), Kinoton, recortar | [Crowd Cheer II](https://freesound.org/people/FoolBoyMedia/sounds/397435/), FoolBoyMedia | [60.000 personas en el Mineirão](https://freesound.org/people/felix.blume/sounds/612131/), felix.blume, recortar |
 | Independiente | [goalloop](https://freesound.org/people/huubjeroen/sounds/113698/), huubjeroen | [RoaringCrowd](https://freesound.org/people/benfree/sounds/130568/), benfree | la común (Feyenoord) |
-| San Lorenzo, Racing y Argentina | el común | el común | la común (Feyenoord) |
+| Argentina | el común | el común | la común (Feyenoord) |
 
 Los archivos van en `clubes/boca/gol.wav`, `clubes/boca/victoria.wav`, `clubes/boca/hinchada.wav`, y
-lo mismo para `river`, `independiente`, `san_lorenzo`, `racing` y `argentina`.
+lo mismo para `river`, `independiente` y `argentina`.
